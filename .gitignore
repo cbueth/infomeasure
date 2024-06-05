@@ -1,0 +1,34 @@
+# Ignore IDE
+.idea/*
+.vscode/*
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Development
+*.egg-info
+.coverage
+docs/api/*
+!docs/api/index.rst
+build/
+dist/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# outputs - add manually
+public/*
+jupyter_execute/*
+# plots
+*.pdf
+
+
+# Own files
