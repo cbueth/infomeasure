@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+message: "If you use this source code, please cite it as below."
+title: infomeasure
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+    - family-names: "Büth"
+      given-names: "Carlson Moses"
+      orcid: "https://orcid.org/0000-0003-2298-8438"
+    - family-names: "Acharya"
+      given-names: "Kishor"
+      orcid: "https://orcid.org/0000-0003-3542-6119"
+    - family-names: "Zanin"
+      given-names: "Massimiliano"
+      orcid: "https://orcid.org/0000-0002-5839-0393"
+repository-code: 'https://github.com/cbueth/infomeasure/'
+url: 'https://cbueth.de/infomeasure/'
+keywords:
+    - entropy
+    - mutual information
+    - information theory
+    - information measures
+    - estimation
+license: AGPL-3.0-or-later
+version: 0.0.0
+
+# add when code published
+# doi: 10.5281/zenodo.0000
+# date-released: YYYY-MM-DD
+
+# add when article published
+# preferred-citation:
+#   type: article
+#   authors:
+#     - family-names: "Büth"
+#       given-names: "Carlson Moses"
+#       orcid: "https://orcid.org/0000-0003-2298-8438"
+#     - family-names: "Acharya"
+#       given-names: "Kishor"
+#       orcid: "https://orcid.org/0000-0003-3542-6119"
+#     - family-names: "Zanin"
+#       given-names: "Massimiliano"
+#       orcid: "https://orcid.org/0000-0002-5839-0393"
+#   doi: "10.0000/00000"
+#   journal: "JOURNAL"
+#   month: 1
+#   start: 1
+#   end: 2
+#   title: "PROJECTNAME"
+#   issue: 1
+#   volume: 1
+#   year: YYYY
+#   abstract: "ABSTRACT"
