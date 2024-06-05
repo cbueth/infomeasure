@@ -1,0 +1,18 @@
+numpy
+scipy
+# Code Quality
+pre-commit
+ruff
+isort
+# Testing
+pytest
+pytest-cov
+coverage
+# Documentation
+sphinx
+numpydoc
+myst-nb
+sphinx-book-theme
+sphinxcontrib-bibtex
+# Plotting
+matplotlib
