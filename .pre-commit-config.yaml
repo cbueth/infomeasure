@@ -1,0 +1,48 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v4.6.0"
+    hooks:
+      - id: check-added-large-files
+        args: [ --maxkb=500 ]       # Allow files up to 500 KB.
+      - id: check-case-conflict   # Check for files with names that differ only in case.
+      - id: check-merge-conflict  # Check for files that contain merge conflict strings.
+        args: [ --assume-in-merge ]
+      - id: debug-statements      # Check for debugger imports and statements.
+      - id: fix-byte-order-marker # Fix files with a byte order marker.
+      - id: mixed-line-ending     # Make sure all line endings are the same.
+      - id: trailing-whitespace   # Remove trailing whitespace.
+      - id: end-of-file-fixer     # Ensure that files end with a newline.
+      - id: check-ast             # Parse files with AST and discard the result.
+      - id: check-json            # Make sure JSON files are valid.
+      - id: check-toml            # Make sure TOML files are valid.
+      - id: check-yaml            # Make sure YAML files are valid.
+      - id: check-xml             # Make sure XML files are valid.
+
+  - repo: local
+    hooks:
+      - id: update-citation-version
+        name: Update package version in CITATION.cff
+        entry: >
+          bash -c 'version=$(grep -oP "(?<=__version__ = \")[^\"]+" infomeasure/_version.py) &&
+          sed -i "s/^version: .*/version: $version/" CITATION.cff'
+        language: system
+        files: 'CITATION\.cff|infomeasure/_version\.py'
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.7
+    hooks:
+      - id: ruff
+        types_or: [ python, pyi, jupyter ]
+        args: [ --fix ]
+      - id: ruff-format
+        types_or: [ python, pyi, jupyter ]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.2
+    hooks:
+      - id: pyupgrade

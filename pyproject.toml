@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infomeasure"
+authors = [
+    { name = "Carlson Büth" },
+    { name = "Kishor Achary" },
+    { name = "Massimilliano Zanin" },
+]
+maintainers = [{ name = "Carlson Büth", email = "carlson@cbueth.de" }]
+license = { text = "APGL-3.0-or-later" }
+readme = "README.md"
+#description = "
+keywords = ["Entropy", "Mutual Information", "Information Theory", "Information Measures", "Estimation"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Private :: Do Not Upload", # Remove this line to upload to PyPI
+]
+dynamic = ["version"]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+]
+
+[project.urls]
+Documentation = "https://cbueth.de/infomeasure/"
+Repository = "https://github.com/cbueth/infomeasure"
+Issues = "https://github.com/cbueth/infomeasure/issues"
+Changelog = "https://cbueth.de/infomeasure/changelog/"
+
+[project.optional-dependencies]
+lint = ["ruff", "isort"]
+test = ["pytest", "pytest-cov", "coverage"]
+doc = ["sphinx", "numpydoc", "myst-nb", "sphinx-book-theme", "sphinxcontrib-bibtex"]
+plot = ["matplotlib"]
+all = ["infomeasure[lint,test,doc,plot]"]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests*",
+    "docs*",
+]
+namespaces = false
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md", "LICENSE"] }
+version = { attr = "infomeasure._version.__version__" }
+
+# --------------------------------------------------------------------------------------
+# Linting
+# --------------------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+
+[tool.isort]
+py_version = "312"
+
+# --------------------------------------------------------------------------------------
+# Testing
+# --------------------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["infomeasure"]
+relative_files = true

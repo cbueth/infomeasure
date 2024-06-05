@@ -1,0 +1,135 @@
+name: Test
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - '.git*'
+      - '*.md'
+  pull_request:
+    branches:
+      - '**'
+  schedule: # Every Monday at 04:00 UTC
+    - cron: '0 4 * * 1'
+
+jobs:
+  caching:
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12" ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        exclude:
+          - python-version: "3.10"
+            os: "windows-latest"
+          - python-version: "3.11"
+            os: "windows-latest"
+      fail-fast: false
+
+    name: Cache for ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get week number
+        run: echo "WEEK=$(date +'%V')" >> $GITHUB_ENV
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: im_env
+          create-args: >-
+            python=${{ matrix.python-version }}
+            --file requirements.txt
+          cache-environment: true
+          cache-environment-key: py${{ matrix.python-version }}-${{ runner.os }}-W${{ env.WEEK }}-${{ hashFiles('requirements.txt') }}
+
+  run-tests:
+    needs: caching
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12" ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        submodule:
+          - { name: "All Tests", pytest_args: "tests/" }
+        exclude:
+          - python-version: "3.10"
+            os: "windows-latest"
+          - python-version: "3.11"
+            os: "windows-latest"
+      fail-fast: false
+
+    name: ${{ matrix.submodule.name }} (${{ matrix.python-version }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get week number
+        id: week
+        run: echo "WEEK=$(date +'%V')" >> $GITHUB_ENV
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: im_env
+          create-args: >-
+            python=${{ matrix.python-version }}
+            --file requirements.txt
+          cache-environment: true
+          cache-environment-key: py${{ matrix.python-version }}-${{ runner.os }}-W${{ env.WEEK }}-${{ hashFiles('requirements.txt') }}
+
+      - name: "Run tests ${{ matrix.submodule.name }}"
+        if: matrix.python-version != '3.12' || matrix.os != 'ubuntu-latest'
+        run: |
+          pytest ${{ matrix.submodule.pytest_args }}
+
+      - name: "Run tests ${{ matrix.submodule.name }} with coverage"
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        run: |
+          pytest --cov=infomeasure ${{ matrix.submodule.pytest_args }}
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.submodule.name }}"
+
+      - name: Store coverage file
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.submodule.name }}
+          path: ".coverage.${{ matrix.submodule.name }}"
+
+  coverage:
+    name: Merge Coverage
+    needs: run-tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load coverages
+        uses: actions/download-artifact@v4
+        id: download
+        with:
+          path: coverage
+          pattern: 'coverage-*'
+          merge-multiple: true
+
+      - name: Install coverage
+        run: pip install coverage
+
+      - name: Merge coverage files
+        run: coverage combine coverage/
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
