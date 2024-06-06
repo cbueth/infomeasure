@@ -1,0 +1,75 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infomeasure/**'
+      - 'docs/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  generate-deploy-docs:
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    name: Generate documentation
+    runs-on: ubuntu-latest
+    environment:
+      name: Deploy to github pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get week number
+        id: week
+        run: echo "WEEK=$(date +'%V')" >> $GITHUB_ENV
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: im_env
+          create-args: >-
+            python=${{ matrix.python-version }}
+            --file requirements.txt
+          cache-environment: true
+          cache-environment-key: py${{ matrix.python-version }}-${{ runner.os }}-W${{ env.WEEK }}-${{ hashFiles('requirements.txt') }}
+
+      - name: Install `infomeasure`
+        run: pip install --no-build-isolation --no-deps -e .
+
+      - name: Add Notebook Kernel
+        run: python -m ipykernel install --user --name im_env --display-name "Python (im_env)"
+
+      - name: Generating .rst files
+        run: sphinx-apidoc -o docs/api/ infomeasure/
+      - name: Generating html
+        run: sphinx-build docs public -b dirhtml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload generated html
+          path: 'public/'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
