@@ -1,0 +1,11 @@
+# Reference Guide
+-----------------
+
+Example reference to {cite:p}`zaninAssessingGrangerCausality2021`.
+
+```{eval-rst}
+.. toctree::
+   :maxdepth: 2
+
+   20_kernel_estimation_techniques
+```
