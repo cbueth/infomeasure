@@ -1,16 +1,17 @@
 name: Test
 
 on:
-  push:
-    paths-ignore:
-      - 'docs/**'
-      - '.git*'
-      - '*.md'
-  pull_request:
-    branches:
-      - '**'
-  schedule: # Every Monday at 04:00 UTC
-    - cron: '0 4 * * 1'
+#  push:
+#    paths-ignore:
+#      - 'docs/**'
+#      - '.git*'
+#      - '*.md'
+#  pull_request:
+#    branches:
+#      - '**'
+#  schedule: # Every Monday at 04:00 UTC
+#    - cron: '0 4 * * 1'
+  workflow_dispatch:
 
 jobs:
   caching:
@@ -23,6 +24,10 @@ jobs:
             os: "windows-latest"
           - python-version: "3.11"
             os: "windows-latest"
+          - python-version: "3.10"
+            os: "macos-latest"
+          - python-version: "3.11"
+            os: "macos-latest"
       fail-fast: false
 
     name: Cache for ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -59,6 +64,10 @@ jobs:
             os: "windows-latest"
           - python-version: "3.11"
             os: "windows-latest"
+          - python-version: "3.10"
+            os: "macos-latest"
+          - python-version: "3.11"
+            os: "macos-latest"
       fail-fast: false
 
     name: ${{ matrix.submodule.name }} (${{ matrix.python-version }} on ${{ matrix.os }})

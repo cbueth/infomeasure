@@ -1,13 +1,12 @@
 name: Docs
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'infomeasure/**'
-      - 'docs/**'
-
+#  push:
+#    branches:
+#      - main
+#    paths:
+#      - 'infomeasure/**'
+#      - 'docs/**'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
