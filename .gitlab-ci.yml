@@ -1,0 +1,75 @@
+image: mambaorg/micromamba
+
+stages:
+  - test
+  - build
+  - coverage
+
+variables:
+  MAMBA_ROOT_PREFIX: ${CI_PROJECT_DIR}/mamba_root
+  MAMBA_SKIP_ACTIVATE: 1
+  # Cannot activate the environment if the root prefix is off
+
+.pythonVersions:
+  parallel:
+    matrix:
+      - PYTHON_VERSION: [ "3.12" ]#, "3.11", "3.10"]
+
+.dependenciesCache:
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}_${PYTHON_VERSION}  # For every branch and python version
+    paths:
+      - ${MAMBA_ROOT_PREFIX}
+    policy: pull
+
+before_script:
+  - mkdir -p ${MAMBA_ROOT_PREFIX}
+  - eval "$(micromamba shell hook --shell bash)"
+  - micromamba activate ${MAMBA_ROOT_PREFIX}
+
+install:
+  stage: .pre
+  parallel: !reference [ .pythonVersions,parallel ]
+  script:
+    - if [ ! -d ${MAMBA_ROOT_PREFIX}/conda-meta ]; then cp -r /opt/conda/conda-meta ${MAMBA_ROOT_PREFIX}; fi
+    - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
+    - micromamba clean --all --yes
+    - pip install --no-build-isolation --no-deps -e .
+  extends: .dependenciesCache
+  cache:
+    policy: pull-push
+
+test:
+  stage: test
+  dependencies:
+    - install
+  rules:
+    - changes:
+      - infomeasure/**
+      - tests/**
+      - pyproject.toml
+      - requirements.txt
+  parallel: !reference [ .pythonVersions,parallel ]
+  extends: .dependenciesCache
+  script:
+    - micromamba list
+    - pytest tests/
+
+# build documentation to gitlab pages, only on main branch
+documentation:
+  stage: build
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  extends: .dependenciesCache
+  parallel:
+    matrix:
+      - PYTHON_VERSION: [ "3.12" ]
+  script:
+    - sphinx-apidoc -o docs/api/ infomeasure/ -f
+    - sphinx-build docs/ public -b dirhtml
+  artifacts:
+    paths:
+      - public
+  environment:
+    name: production
+    url: https://${CI_PROJECT_NAMESPACE}.gitlab.ifisc.uib-csic.es/${CI_PROJECT_NAME}
