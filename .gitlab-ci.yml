@@ -2,7 +2,6 @@ image: mambaorg/micromamba
 
 stages:
   - test
-  - build
   - coverage
   - deploy
 
@@ -52,6 +51,19 @@ install:
   extends: .dependenciesCache
   cache:
     policy: pull-push
+
+pre-commit:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  extends: .dependenciesCache
+  parallel: !reference [ .pythonVersions,maxVersion ]
+  script:
+    - pre-commit run --all-files
+  retry: 2
 
 test:
   stage: test
