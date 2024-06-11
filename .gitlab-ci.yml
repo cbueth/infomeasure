@@ -24,25 +24,16 @@ before_script:
   - micromamba activate ${MAMBA_ROOT_PREFIX}
   - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
 
-pre-commit:
-  stage: test
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: never
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-  parallel: !reference [ .pythonVersions,maxVersion ]
-  script:
-    - pre-commit run --all-files
-
 test:
   stage: test
   rules:
-    - changes:
-      - infomeasure/**
-      - tests/**
-      - pyproject.toml
-      - requirements.txt
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - infomeasure/**
+        - tests/**
+        - pyproject.toml
+        - requirements.txt
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   parallel: !reference [ .pythonVersions,parallel ]
   script:
     - micromamba list
@@ -53,8 +44,11 @@ coverage:
   stage: coverage
   needs: []
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - changes:
+      - infomeasure/**
+      - tests/**
+      - pyproject.toml
+      - requirements.txt
   parallel: !reference [ .pythonVersions,maxVersion ]
   script:
     - pytest --cov=infomeasure tests/ --cov-report term --cov-report xml:coverage.xml
