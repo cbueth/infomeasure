@@ -4,6 +4,7 @@ stages:
   - test
   - build
   - coverage
+  - deploy
 
 variables:
   MAMBA_ROOT_PREFIX: ${CI_PROJECT_DIR}/mamba_root
@@ -66,8 +67,8 @@ test:
     - pytest tests/
 
 # build documentation to gitlab pages, only on main branch
-documentation:
-  stage: build
+pages:
+  stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   extends: .dependenciesCache
@@ -75,14 +76,11 @@ documentation:
     matrix:
       - PYTHON_VERSION: [ "3.12" ]
   script:
-    - ls -ahl ${MAMBA_ROOT_PREFIX}
-    - ls -ahl ${MAMBA_ROOT_PREFIX}/conda-meta
     - sphinx-apidoc -o docs/api/ infomeasure/ -f
     - sphinx-build docs/ public -b dirhtml
   artifacts:
     paths:
       - public
-    expire_in: 1 day
   environment:
     name: production
     url: https://${CI_PROJECT_NAMESPACE}.pages.ifisc.uib-csic.es/${CI_PROJECT_NAME}
