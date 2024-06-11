@@ -53,17 +53,15 @@ test:
   stage: test
   dependencies:
     - install
-#  rules:
-#    - changes:
-#      - infomeasure/**
-#      - tests/**
-#      - pyproject.toml
-#      - requirements.txt
+  rules:
+    - changes:
+      - infomeasure/**
+      - tests/**
+      - pyproject.toml
+      - requirements.txt
   parallel: !reference [ .pythonVersions,parallel ]
   extends: .dependenciesCache
   script:
-    - ls -ahl ${MAMBA_ROOT_PREFIX}
-    - ls -ahl ${MAMBA_ROOT_PREFIX}/conda-meta
     - micromamba list
     - pytest tests/
 
@@ -77,6 +75,8 @@ documentation:
     matrix:
       - PYTHON_VERSION: [ "3.12" ]
   script:
+    - ls -ahl ${MAMBA_ROOT_PREFIX}
+    - ls -ahl ${MAMBA_ROOT_PREFIX}/conda-meta
     - sphinx-apidoc -o docs/api/ infomeasure/ -f
     - sphinx-build docs/ public -b dirhtml
   artifacts:
