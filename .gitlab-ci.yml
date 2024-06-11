@@ -69,8 +69,8 @@ test:
 # build documentation to gitlab pages, only on main branch
 documentation:
   stage: build
-#  rules:
-#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   extends: .dependenciesCache
   parallel:
     matrix:
@@ -81,6 +81,7 @@ documentation:
   artifacts:
     paths:
       - public
+    expire_in: 1 day
   environment:
     name: production
-    url: https://${CI_PROJECT_NAMESPACE}.gitlab.ifisc.uib-csic.es/${CI_PROJECT_NAME}
+    url: https://${CI_PROJECT_NAMESPACE}.pages.ifisc.uib-csic.es/${CI_PROJECT_NAME}
