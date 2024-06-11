@@ -16,6 +16,7 @@ repos:
       - id: check-json            # Make sure JSON files are valid.
       - id: check-toml            # Make sure TOML files are valid.
       - id: check-yaml            # Make sure YAML files are valid.
+        exclude: .gitlab-ci.yml   # Exclude the GitLab CI configuration file.
       - id: check-xml             # Make sure XML files are valid.
 
   - repo: local
