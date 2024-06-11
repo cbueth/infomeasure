@@ -2,7 +2,6 @@ image: mambaorg/micromamba
 
 stages:
   - test
-  - build
   - coverage
   - deploy
 
@@ -14,67 +13,57 @@ variables:
 .pythonVersions:
   parallel:
     matrix:
-      - PYTHON_VERSION: [ "3.12" ]#, "3.11", "3.10"]
-
-.dependenciesCache:
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}_${PYTHON_VERSION}  # For every branch and python version
-    paths:
-      - ${MAMBA_ROOT_PREFIX}
-    policy: pull
+      - PYTHON_VERSION: [ "3.12", "3.11", "3.10"]
+  maxVersion:
+    matrix:
+      - PYTHON_VERSION: [ "3.12" ]
 
 before_script:
   - mkdir -p ${MAMBA_ROOT_PREFIX}
   - eval "$(micromamba shell hook --shell bash)"
   - micromamba activate ${MAMBA_ROOT_PREFIX}
-
-install:
-  stage: .pre
-  parallel: !reference [ .pythonVersions,parallel ]
-  rules:
-    - changes:
-      - requirements.txt
-      - pyproject.toml
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_BEFORE_SHA == "0000000000000000000000000000000000000000"
-      # for merge request pipelines,
-      # the first commit in pipelines for branches or tags,
-      # or when manually running a pipeline
-  script:
-    - if [ ! -d ${MAMBA_ROOT_PREFIX}/conda-meta ]; then cp -r /opt/conda/conda-meta ${MAMBA_ROOT_PREFIX}; fi
-    - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
-    - micromamba update -n base -c conda-forge --all --yes
-    - micromamba clean --all --yes
-    - pip install --no-build-isolation --no-deps -e .
-  extends: .dependenciesCache
-  cache:
-    policy: pull-push
+  - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
 
 test:
   stage: test
-  dependencies:
-    - install
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - infomeasure/**
+        - tests/**
+        - pyproject.toml
+        - requirements.txt
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  parallel: !reference [ .pythonVersions,parallel ]
+  script:
+    - micromamba list
+    - pytest tests/
+
+# coverage report - for merge requests and main branch
+coverage:
+  stage: coverage
+  needs: []
   rules:
     - changes:
       - infomeasure/**
       - tests/**
       - pyproject.toml
       - requirements.txt
-  parallel: !reference [ .pythonVersions,parallel ]
-  extends: .dependenciesCache
+  parallel: !reference [ .pythonVersions,maxVersion ]
   script:
-    - micromamba list
-    - pytest tests/
+    - pytest --cov=infomeasure tests/ --cov-report term --cov-report xml:coverage.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 # build documentation to gitlab pages, only on main branch
 pages:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  extends: .dependenciesCache
-  parallel:
-    matrix:
-      - PYTHON_VERSION: [ "3.12" ]
+  parallel: !reference [ .pythonVersions,maxVersion ]
   script:
     - sphinx-apidoc -o docs/api/ infomeasure/ -f
     - sphinx-build docs/ public -b dirhtml
