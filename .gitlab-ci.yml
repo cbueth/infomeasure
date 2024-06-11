@@ -53,15 +53,17 @@ test:
   stage: test
   dependencies:
     - install
-  rules:
-    - changes:
-      - infomeasure/**
-      - tests/**
-      - pyproject.toml
-      - requirements.txt
+#  rules:
+#    - changes:
+#      - infomeasure/**
+#      - tests/**
+#      - pyproject.toml
+#      - requirements.txt
   parallel: !reference [ .pythonVersions,parallel ]
   extends: .dependenciesCache
   script:
+    - ls -ahl ${MAMBA_ROOT_PREFIX}
+    - ls -ahl ${MAMBA_ROOT_PREFIX}/conda-meta
     - micromamba list
     - pytest tests/
 
