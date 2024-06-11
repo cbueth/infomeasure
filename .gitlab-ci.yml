@@ -32,12 +32,14 @@ install:
   parallel: !reference [ .pythonVersions,parallel ]
   script:
     - if [ ! -d ${MAMBA_ROOT_PREFIX}/conda-meta ]; then cp -r /opt/conda/conda-meta ${MAMBA_ROOT_PREFIX}; fi
-    - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
+    - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt | tee install.log
+    # tee prints the output to the screen and to the file
+    - if grep -q "All requested packages already installed" install.log; then export CONDA_INSTALL_POLICY=pull; else export CONDA_INSTALL_POLICY=pull-push; fi
     - micromamba clean --all --yes
     - pip install --no-build-isolation --no-deps -e .
   extends: .dependenciesCache
   cache:
-    policy: pull-push
+    policy: $CONDA_INSTALL_POLICY
 
 test:
   stage: test
