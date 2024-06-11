@@ -58,7 +58,7 @@ pre-commit:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: manual
+      when: always
   extends: .dependenciesCache
   parallel: !reference [ .pythonVersions,maxVersion ]
   script:
