@@ -30,16 +30,25 @@ before_script:
 install:
   stage: .pre
   parallel: !reference [ .pythonVersions,parallel ]
+  rules:
+    - changes:
+      - requirements.txt
+      - pyproject.toml
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_BEFORE_SHA == "0000000000000000000000000000000000000000"
+      # for merge request pipelines,
+      # the first commit in pipelines for branches or tags,
+      # or when manually running a pipeline
   script:
+    - rm -rf ${MAMBA_ROOT_PREFIX}
+    - mkdir -p ${MAMBA_ROOT_PREFIX}
     - if [ ! -d ${MAMBA_ROOT_PREFIX}/conda-meta ]; then cp -r /opt/conda/conda-meta ${MAMBA_ROOT_PREFIX}; fi
-    - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt | tee install.log
-    # tee prints the output to the screen and to the file
-    - if grep -q "All requested packages already installed" install.log; then export CONDA_INSTALL_POLICY=pull; else export CONDA_INSTALL_POLICY=pull-push; fi
+    - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
     - micromamba clean --all --yes
     - pip install --no-build-isolation --no-deps -e .
   extends: .dependenciesCache
   cache:
-    policy: $CONDA_INSTALL_POLICY
+    policy: pull-push
 
 test:
   stage: test
