@@ -1,8 +1,8 @@
 # `infomeasure` — Information Measure Estimators
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://cbueth.de/infomeasure/)
-[![Tests](https://github.com/cbueth/infomeasure/actions/workflows/test.yml/badge.svg)](https://github.com/cbueth/infomeasure/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/cbueth/infomeasure/graph/badge.svg?token=G3MEQR5N1Y)](https://codecov.io/gh/cbueth/infomeasure)
+[![pipeline status](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/pipeline.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/pipelines?page=1&scope=all&ref=main)
+[![coverage report](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/coverage.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/commits/main)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.2-4baaaa.svg)](code_of_conduct.md)
