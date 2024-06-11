@@ -15,6 +15,9 @@ variables:
   parallel:
     matrix:
       - PYTHON_VERSION: [ "3.12" ]#, "3.11", "3.10"]
+  maxVersion:
+    matrix:
+      - PYTHON_VERSION: [ "3.12" ]
 
 .dependenciesCache:
   cache:
@@ -65,6 +68,26 @@ test:
   script:
     - micromamba list
     - pytest tests/
+  retry: 2
+
+# coverage report - for merge requests and main branch
+coverage:
+  stage: coverage
+  dependencies:
+    - test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  extends: .dependenciesCache
+  parallel: !reference [ .pythonVersions,maxVersion ]
+  script:
+    - pytest --cov=infomeasure tests/ --cov-report term --cov-report xml:coverage.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  retry: 2
 
 # build documentation to gitlab pages, only on main branch
 pages:
@@ -72,9 +95,7 @@ pages:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   extends: .dependenciesCache
-  parallel:
-    matrix:
-      - PYTHON_VERSION: [ "3.12" ]
+  parallel: !reference [ .pythonVersions,maxVersion ]
   script:
     - sphinx-apidoc -o docs/api/ infomeasure/ -f
     - sphinx-build docs/ public -b dirhtml
@@ -84,3 +105,4 @@ pages:
   environment:
     name: production
     url: https://${CI_PROJECT_NAMESPACE}.pages.ifisc.uib-csic.es/${CI_PROJECT_NAME}
+  retry: 2
