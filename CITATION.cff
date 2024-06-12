@@ -1,9 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this source code, please cite it as below."
 title: infomeasure
-message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
 type: software
 authors:
     - family-names: "Büth"
@@ -22,7 +19,6 @@ keywords:
     - mutual information
     - information theory
     - information measures
-    - estimation
 license: AGPL-3.0-or-later
 version: 0.0.0
 

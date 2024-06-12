@@ -12,8 +12,8 @@ authors = [
 maintainers = [{ name = "Carlson Büth", email = "carlson@cbueth.de" }]
 license = { text = "APGL-3.0-or-later" }
 readme = "README.md"
-#description = "
-keywords = ["Entropy", "Mutual Information", "Information Theory", "Information Measures", "Estimation"]
+#description = ""
+keywords = ["Entropy", "Mutual Information", "Information Theory", "Information Measures"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
