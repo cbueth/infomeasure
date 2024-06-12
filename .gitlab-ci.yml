@@ -5,23 +5,15 @@ stages:
   - coverage
   - deploy
 
-variables:
-  MAMBA_ROOT_PREFIX: ${CI_PROJECT_DIR}/mamba_root
-  MAMBA_SKIP_ACTIVATE: 1
-  # Cannot activate the environment if the root prefix is off
-
 .pythonVersions:
   parallel:
     matrix:
-      - PYTHON_VERSION: [ "3.12", "3.11", "3.10"]
+      - PYTHON_VERSION: [ "3.12", "3.11", "3.10" ]
   maxVersion:
     matrix:
       - PYTHON_VERSION: [ "3.12" ]
 
 before_script:
-  - mkdir -p ${MAMBA_ROOT_PREFIX}
-  - eval "$(micromamba shell hook --shell bash)"
-  - micromamba activate ${MAMBA_ROOT_PREFIX}
   - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
 
 test:
