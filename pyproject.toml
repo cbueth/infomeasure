@@ -39,10 +39,10 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://cbueth.de/infomeasure/"
-Repository = "https://github.com/cbueth/infomeasure"
-Issues = "https://github.com/cbueth/infomeasure/issues"
-Changelog = "https://cbueth.de/infomeasure/changelog/"
+Documentation = "https://carlson.pages.ifisc.uib-csic.es/infomeasure/"
+Repository = "https://gitlab.ifisc.uib-csic.es/carlson/infomeasure"
+Issues = "https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/issues"
+Changelog = "https://carlson.pages.ifisc.uib-csic.es/infomeasure/changelog/"
 
 [project.optional-dependencies]
 lint = ["ruff", "isort"]

@@ -12,8 +12,8 @@ authors:
     - family-names: "Zanin"
       given-names: "Massimiliano"
       orcid: "https://orcid.org/0000-0002-5839-0393"
-repository-code: 'https://github.com/cbueth/infomeasure/'
-url: 'https://cbueth.de/infomeasure/'
+repository-code: 'https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/'
+url: 'https://carlson.pages.ifisc.uib-csic.es/infomeasure/'
 keywords:
     - entropy
     - mutual information
