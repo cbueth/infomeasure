@@ -42,6 +42,7 @@ test:
 # coverage report - for merge requests and main branch
 coverage:
   stage: coverage
+  coverage: /^TOTAL.+?(\d+\%)$/
   needs: []
   rules:
     - changes:
@@ -49,14 +50,8 @@ coverage:
       - tests/**
       - pyproject.toml
       - requirements.txt
-  parallel: !reference [ .pythonVersions,maxVersion ]
   script:
-    - pytest --cov=infomeasure tests/ --cov-report term --cov-report xml:coverage.xml
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+    - pytest --cov --cov-report term
 
 # build documentation to gitlab pages, only on main branch
 pages:
