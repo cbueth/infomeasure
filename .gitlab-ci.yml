@@ -63,7 +63,6 @@ pages:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  parallel: !reference [ .pythonVersions,maxVersion ]
   script:
     - sphinx-apidoc -o docs/api/ infomeasure/ -f
     - sphinx-build docs/ public -b dirhtml
