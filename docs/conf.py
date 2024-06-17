@@ -29,7 +29,7 @@ version = "0.0.0"
 extensions = [
     "sphinx.ext.autodoc",
     "myst_nb",  # Parse and execute ipynb files in Sphinx
-    "numpydoc",  #
+    "numpydoc",
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
