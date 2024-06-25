@@ -1,4 +1,13 @@
-"""Kernel-based estimators for information measures."""
+"""Kernel-based estimators for information measures.
+
+This module contains functions for estimating information measures using kernel density
+estimation.
+
+1. :func:`Kernel Density Estimation <kde_probability_density_function>` (KDE) for probability density function estimation.
+2. :func:`Entropy <entropy>` estimation using KDE.
+3. :func:`Mutual Information <mutual_information>` estimation using KDE.
+4. :func:`Transfer Entropy <transfer_entropy>` estimation using KDE.
+"""
 
 import numpy as np
 from scipy.stats import gaussian_kde

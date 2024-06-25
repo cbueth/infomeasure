@@ -1,4 +1,13 @@
-"""Discrete estimators for information measures."""
+"""Discrete estimators for information measures.
+
+This module provides discrete data estimators for information measures.
+
+1. :func:`Entropy <entropy>`: Shannon entropy of discrete data.
+2. :func:`Mutual Information <mutual_information>`: Compute the average mutual
+   information between two variables.
+3. :func:`Transfer Entropy <transfer_entropy>`: Compute Transfer Entropy from
+   source to destination.
+"""
 
 from typing import List
 
@@ -6,8 +15,17 @@ import numpy as np
 
 
 def entropy(data: List[int], base: int) -> float:
-    """
+    r"""
     Calculate the entropy of discrete data.
+
+    Using the formula:
+
+    .. math::
+
+        H(X) = - \sum_{i=1}^{n} p(x_i) \log_b p(x_i)
+
+    where :math:`p(x_i)` is the probability of the :math:`i`-th
+    state :cite:p:`shannonMathematicalTheoryCommunication1948`.
 
     Parameters
     ----------
@@ -21,6 +39,7 @@ def entropy(data: List[int], base: int) -> float:
     -------
     float
         The calculated entropy.
+
     """
 
     # Step 1: Initialization
@@ -50,7 +69,7 @@ def entropy(data: List[int], base: int) -> float:
     return entropy
 
 
-def compute_average_mi(var1, var2, base1, base2, time_diff=0):
+def mutual_information(var1, var2, base1, base2, time_diff=0):
     """
     Compute the average mutual information between two variables.
 
@@ -180,7 +199,7 @@ def count_tuples(source, dest, l, k, delay):
     )
 
 
-def compute_transfer_entropy(source, dest, l, k, delay):
+def transfer_entropy(source, dest, l, k, delay):
     r"""
     Compute Transfer Entropy from source to destination.
 
