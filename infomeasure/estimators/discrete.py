@@ -25,7 +25,9 @@ def entropy(data: List[int], base: int) -> float:
         H(X) = - \sum_{i=1}^{n} p(x_i) \log_b p(x_i)
 
     where :math:`p(x_i)` is the probability of the :math:`i`-th
-    state :cite:p:`shannonMathematicalTheoryCommunication1948`.
+    state.
+    Base is the number of unique states in the
+    data :cite:p:`shannonMathematicalTheoryCommunication1948`.
 
     Parameters
     ----------
