@@ -1,7 +1,6 @@
 """infomeasure package."""
 
 # Expose most common functions
-from . import estimators
 from ._version import __version__
 
 # Set package attributes
