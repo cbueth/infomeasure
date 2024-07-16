@@ -1,6 +1,6 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) transfer entropy estimator."""
 
-from numpy import array, asarray, column_stack, inf
+from numpy import array, column_stack, inf
 from numpy import mean as np_mean
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -105,8 +105,8 @@ class KSGTEEstimator(
         """
 
         # Ensure source and dest are numpy arrays
-        source = asarray(self.source)
-        dest = asarray(self.dest)
+        source = self.source.astype(float).copy()
+        dest = self.dest.astype(float).copy()
 
         # Add Gaussian noise to the data if the flag is set
         if self.noise_level:

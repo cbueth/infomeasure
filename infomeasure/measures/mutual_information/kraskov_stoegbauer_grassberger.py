@@ -1,6 +1,6 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) mutual information estimator."""
 
-from numpy import asarray, column_stack, inf
+from numpy import asarray, column_stack, inf, array
 from numpy import mean as np_mean
 from numpy import newaxis
 from scipy.spatial import KDTree
@@ -105,6 +105,12 @@ class KSGMIEstimator(
             self.data_x = self.data_x[-self.time_diff :]
             self.data_y = self.data_y[: self.time_diff or None]
 
+        # Ensure the data is 2D for KDTree  # TODO: Move to __init__ and adapt noise
+        if self.data_x.ndim == 1:
+            self.data_x = self.data_x[:, newaxis]
+        if self.data_y.ndim == 1:
+            self.data_y = self.data_y[:, newaxis]
+
     def _calculate(self) -> tuple:
         """Calculate the mutual information of the data.
 
@@ -115,20 +121,17 @@ class KSGMIEstimator(
         mi : float
             Estimated mutual information between the two datasets.
         """
+        # Copy the data to avoid modifying the original
+        data_x_noisy = self.data_x.astype(float).copy()
+        data_y_noisy = self.data_y.astype(float).copy()
 
         # Add Gaussian noise to the data if the flag is set
-        if self.noise_level:  # TODO: keep original data and use a copy for noise
-            self.data_x += self.rng.normal(0, self.noise_level, self.data_x.shape)
-            self.data_y += self.rng.normal(0, self.noise_level, self.data_y.shape)
-
-        # Ensure the data is 2D for KDTree  # TODO: Move to __init__ and adapt noise
-        if self.data_x.ndim == 1:
-            self.data_x = self.data_x[:, newaxis]
-        if self.data_y.ndim == 1:
-            self.data_y = self.data_y[:, newaxis]
+        if self.noise_level and self.noise_level != 0:
+            data_x_noisy += self.rng.normal(0, self.noise_level, self.data_x.shape)
+            data_y_noisy += self.rng.normal(0, self.noise_level, self.data_y.shape)
 
         # Stack the X and Y data to form joint observations
-        data_joint = column_stack((self.data_x, self.data_y))
+        data_joint = column_stack((data_x_noisy, data_y_noisy))
 
         # Create a KDTree for joint data to find nearest neighbors using the maximum
         # norm
@@ -158,10 +161,12 @@ class KSGMIEstimator(
         # Compute mutual information using the KSG estimator formula
         N = len(self.data_x)
         # Compute local mutual information for each point
-        local_mi = [
-            digamma(self.k) - digamma(nx + 1) - digamma(ny + 1) + digamma(N)
-            for nx, ny in zip(count_x, count_y)
-        ]
+        local_mi = array(
+            [
+                digamma(self.k) - digamma(nx + 1) - digamma(ny + 1) + digamma(N)
+                for nx, ny in zip(count_x, count_y)
+            ]
+        )
 
         # Compute aggregated mutual information
         mi = np_mean(local_mi)

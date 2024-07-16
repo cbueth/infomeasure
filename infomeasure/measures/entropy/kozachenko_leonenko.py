@@ -7,10 +7,10 @@ from scipy.special import digamma
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, LogBaseMixin, RandomGeneratorMixin
+from ..base import EntropyEstimator, LogBaseMixin, PValueMixin
 
 
-class KozachenkoLeonenkoEstimator(LogBaseMixin, RandomGeneratorMixin, EntropyEstimator):
+class KozachenkoLeonenkoEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
     r"""Kozachenko-Leonenko estimator for Shannon entropies.
 
     Attributes
@@ -72,10 +72,11 @@ class KozachenkoLeonenkoEstimator(LogBaseMixin, RandomGeneratorMixin, EntropyEst
         float
             The calculated entropy.
         """
-
+        # Copy the data to avoid modifying the original
+        data_noisy = self.data.astype(float).copy()
         # Add small Gaussian noise to data to avoid issues with zero distances
-        noise = self.rng.normal(0, self.noise_level, self.data.shape)
-        data_noisy = self.data + noise
+        if self.noise_level and self.noise_level != 0:
+            data_noisy += self.rng.normal(0, self.noise_level, self.data.shape)
 
         # Build a KDTree for efficient nearest neighbor search with maximum norm
         tree = KDTree(data_noisy)  # KDTree uses 'Euclidean' metric by default

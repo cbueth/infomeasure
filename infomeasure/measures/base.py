@@ -51,12 +51,11 @@ class Estimator(ABC):
         Estimate the measure and store the results in the attributes.
         """
         results = self._calculate()
-        logger.debug(f"Used {self.__class__.__name__} to estimate the measure.")
         if isinstance(results, tuple):
             self.res_global, self.res_local = results
             logger.debug(
                 f"Global: {self.res_global:.4e}, "
-                f"Local (mean): {self.res_local.mean():.4e}"
+                f"Local (mean): {array(self.res_local).mean():.4e}"
             )
         else:
             self.res_global = results

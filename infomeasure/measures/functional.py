@@ -12,9 +12,9 @@ entropy_estimators = {
     "discrete": "infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator",
     "kernel": "infomeasure.measures.entropy.kernel.KernelEntropyEstimator",
     "metric": "infomeasure.measures.entropy.kozachenko_leonenko."
-    "KozachenkoLeonenkoEstimator",
+    "KozachenkoLeonenkoEntropyEstimator",
     "kl": "infomeasure.measures.entropy.kozachenko_leonenko."
-    "KozachenkoLeonenkoEstimator",
+    "KozachenkoLeonenkoEntropyEstimator",
 }
 
 mi_estimators = {
