@@ -2,7 +2,7 @@
 
 # Expose most common functions
 from ._version import __version__
-from .measures import entropy, mutual_information, transfer_entropy
+from .measures.functional import entropy, mutual_information, transfer_entropy
 from .utils import Config
 
 h, mi, te = entropy, mutual_information, transfer_entropy
