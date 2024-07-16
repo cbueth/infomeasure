@@ -6,6 +6,8 @@ The estimators are dynamically imported based on the estimator name provided,
 saving time and memory by only importing the necessary classes.
 """
 
+from functools import wraps
+
 entropy_estimators = {
     "discrete": "infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator",
     "kernel": "infomeasure.measures.entropy.kernel.KernelEntropyEstimator",
@@ -82,6 +84,7 @@ def _get_estimator(estimators, estimator_name):
 
 def dynamic_estimator(estimators):
     def decorator(func):
+        @wraps(func)  # This decorator updates wrapper to look like func
         def wrapper(*args, **kwargs):
             estimator_name = kwargs.get("estimator")
             kwargs["EstimatorClass"] = _get_estimator(
@@ -101,8 +104,10 @@ def entropy(data, estimator: str, *args, **kwargs):
     """Calculate the entropy using a functional interface of different estimators.
 
     Supports the following estimators:
-    1. 'discrete': Discrete entropy estimator.
-    2. ...
+
+    1. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`.
+    2. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`.
+    3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEstimator>`.
 
     Parameters
     ----------
@@ -126,7 +131,7 @@ def entropy(data, estimator: str, *args, **kwargs):
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(data, *args, **kwargs).calculate()
+    return EstimatorClass(data, *args, **kwargs).results()
 
 
 @dynamic_estimator(mi_estimators)
@@ -134,8 +139,10 @@ def mutual_information(data_x, data_y, estimator: str, *args, **kwargs):
     """Calculate the mutual information using a functional interface of different estimators.
 
     Supports the following estimators:
-    1. 'discrete': Discrete mutual information estimator.
-    2. ...
+
+    1. ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>`.
+    2. ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>`.
+    3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`.
 
     Parameters
     ----------
@@ -159,12 +166,18 @@ def mutual_information(data_x, data_y, estimator: str, *args, **kwargs):
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(data_x, data_y, *args, **kwargs).calculate()
+    return EstimatorClass(data_x, data_y, *args, **kwargs).results()
 
 
 @dynamic_estimator(te_estimators)
 def transfer_entropy(source, dest, estimator: str, *args, **kwargs):
     """Calculate the transfer entropy using a functional interface of different estimators.
+
+    Supports the following estimators:
+
+    1. ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>`.
+    2. ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator>`.
+    3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`.
 
     Parameters
     ----------
@@ -190,4 +203,4 @@ def transfer_entropy(source, dest, estimator: str, *args, **kwargs):
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(source, dest, *args, **kwargs).calculate()
+    return EstimatorClass(source, dest, *args, **kwargs).results()

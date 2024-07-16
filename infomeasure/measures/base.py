@@ -1,24 +1,32 @@
 """Module containing the base classes for the measure estimators."""
 
 from abc import ABC, abstractmethod
+from io import UnsupportedOperation
 
+from numpy import std as np_std
 from numpy import array, log, log2, log10
 from numpy import sum as np_sum
 from numpy.random import default_rng
 
 from .. import Config
+from ..utils.config import logger
 from ..utils.types import LogBaseType
 
 
 class Estimator(ABC):
     """Abstract base class for all measure estimators.
 
-    Methods
-    -------
-    calculate()
-        Calculate the measure.
-    p_value()
-        Calculate the p-value of the measure.
+    Attributes
+    ----------
+    res_global : float | None
+        The global value of the measure.
+        None if the measure is not calculated.
+    res_local : array-like | None
+        The local values of the measure.
+        None if the measure is not calculated or if not defined.
+    res_std : float | None
+        The standard deviation of the local values.
+        None if the measure is not calculated or if not defined.
 
     See Also
     --------
@@ -26,17 +34,130 @@ class Estimator(ABC):
 
     Notes
     -----
-    The `calculate` method needs to be implemented in the derived classes.
-    If the measure has a p-value, the `p_value` method should be implemented.
+    The :meth:`_calculate` method needs to be implemented in the derived classes.
+    If the measure has a p-value, the :meth:`p_value` method should be implemented.
     """
 
-    @abstractmethod
-    def calculate(self):
-        """Calculate the measure."""
-        pass
+    def __init__(self):
+        """Initialize the estimator."""
+        self.res_global = None
+        self.res_local = None
+        self.res_std = None
+        self.p_val = None
 
-    def p_value(self, *args, **kwargs) -> float:
-        """Calculate the p-value of the measure. Not implemented."""
+    def calculate(self):
+        """Calculate the measure.
+
+        Estimate the measure and store the results in the attributes.
+        """
+        results = self._calculate()
+        logger.debug(f"Used {self.__class__.__name__} to estimate the measure.")
+        if isinstance(results, tuple):
+            self.res_global, self.res_local = results
+            logger.debug(
+                f"Global: {self.res_global:.4e}, "
+                f"Local (mean): {self.res_local.mean():.4e}"
+            )
+        else:
+            self.res_global = results
+            logger.debug(f"Global: {self.res_global:.4e}")
+
+    def results(self):
+        """Return the (global, local, std) if available.
+
+        Calculate the measure if not already calculated.
+
+        Returns
+        -------
+        results : tuple | float
+            Tuple of the global, local, and standard deviation values,
+            or just the global value if others are not available.
+
+        Notes
+        -----
+        The local and standard deviation values are not available for all measures.
+        """
+        self.global_val()
+        try:
+            return self.res_global, self.local_val(), self.std_val()
+        except UnsupportedOperation:
+            return self.res_global
+
+    def global_val(self):
+        """Return the global value of the measure.
+
+        Calculate the measure if not already calculated.
+
+        Returns
+        -------
+        global : float
+            The global value of the measure.
+        """
+        if self.res_global is None:
+            logger.debug(f"Using {self.__class__.__name__} to estimate the measure.")
+            self.calculate()
+        return self.res_global
+
+    def local_val(self):
+        """Return the local values of the measure, if available.
+
+        Returns
+        -------
+        local : array-like
+            The local values of the measure.
+
+        Raises
+        ------
+        UnsupportedOperation
+            If the local values are not available.
+
+        Notes
+        -----
+        Not available for :class:`EntropyEstimator` classes.
+        """
+        if self.global_val() is not None and self.res_local is None:
+            raise UnsupportedOperation(
+                f"Local values are not available for {self.__class__.__name__}."
+            )
+        return self.res_local
+
+    def std_val(self):
+        """Return the standard deviation of the local values, if available.
+
+        Returns
+        -------
+        std : float
+            The standard deviation of the local values.
+
+        Raises
+        ------
+        UnsupportedOperation
+            If the standard deviation is not available.
+
+        Notes
+        -----
+        Not available for :class:`EntropyEstimator` classes.
+        """
+        if self.res_std is None:
+            try:
+                self.res_std = np_std(self.local_val())
+            except UnsupportedOperation:
+                raise UnsupportedOperation(
+                    "Standard deviation is not available for the measure "
+                    f"{self.__class__.__name__}, as local values are not available."
+                )
+        return self.res_std
+
+    @abstractmethod
+    def _calculate(self) -> tuple | float:
+        """Calculate the measure.
+
+        Returns
+        -------
+        result : tuple[float, array] | float
+            Tuple of the global and local values,
+            or just the global value if local values are not available.
+        """
         pass
 
 
@@ -56,11 +177,14 @@ class EntropyEstimator(Estimator, ABC):
     See Also
     --------
     .entropy.discrete.DiscreteEntropyEstimator
+    .entropy.kernel.KernelEntropyEstimator
+    .entropy.kozachenko_leonenko.KozachenkoLeonenkoEstimator
     """
 
     def __init__(self, data):
         """Initialize the estimator with the data."""
         self.data = data
+        super().__init__()
 
 
 class MutualInformationEstimator(Estimator, ABC):
@@ -85,6 +209,8 @@ class MutualInformationEstimator(Estimator, ABC):
     See Also
     --------
     .mutual_information.discrete.DiscreteMIEstimator
+    .mutual_information.kernel.KernelMIEstimator
+    .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     """
 
     def __init__(self, data_x, data_y):
@@ -96,6 +222,7 @@ class MutualInformationEstimator(Estimator, ABC):
             )
         self.data_x = data_x
         self.data_y = data_y
+        super().__init__()
 
 
 class TransferEntropyEstimator(Estimator, ABC):
@@ -107,6 +234,9 @@ class TransferEntropyEstimator(Estimator, ABC):
         The source data used to estimate the transfer entropy.
     dest : array-like
         The destination data used to estimate the transfer entropy.
+    effect_size : float | None
+        The effect size of the measure.
+        None if the measure is not calculated or if not defined.
 
     Methods
     -------
@@ -116,12 +246,16 @@ class TransferEntropyEstimator(Estimator, ABC):
     See Also
     --------
     .transfer_entropy.discrete.DiscreteTEEstimator
+    .transfer_entropy.kernel.KernelTEEstimator
+    .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
     """
 
     def __init__(self, source, dest):
         """Initialize the estimator with the data."""
         self.source = source
         self.dest = dest
+        self.effect_size = None
+        super().__init__()
 
 
 class LogBaseMixin:
@@ -196,11 +330,15 @@ class RandomGeneratorMixin:
         super().__init__(*args, **kwargs)
 
 
-class PermutationTestMixin(RandomGeneratorMixin):
-    """Mixin for permutation test calculation.
+class PValueMixin(RandomGeneratorMixin):
+    """Mixin for p-value calculation.
+
+    There are two methods to calculate the p-value:
+    - Permutation test: shuffle the data and calculate the measure.
+    - Bootstrap: resample the data and calculate the measure.  # TODO: Implement
 
     The :func:`permutation_test` can be used to determine a p-value for a measure,
-    the :func:`calculate_permuted` for an effect size.
+    the :func:`calculate_permuted` additionally for effective TE.
 
     To be used as a mixin class with other :class:`Estimator` Estimator classes.
     Inherit before the main class.
@@ -212,7 +350,7 @@ class PermutationTestMixin(RandomGeneratorMixin):
 
     Attributes
     ----------
-    key : str
+    permutation_data_attribute : str
         The attribute to shuffle.
 
     Methods
@@ -232,23 +370,65 @@ class PermutationTestMixin(RandomGeneratorMixin):
     Raises
     ------
     NotImplementedError
-        If the permutation test is not implemented for the derived class.
+        If the p-value method is not implemented for the estimator.
     """
 
     def __init__(self, *args, **kwargs):
         """Initialize the permutation test."""
+        self.p_val = None
+        self.p_val_method = None
         super().__init__(*args, **kwargs)
         # Determine the attribute to shuffle
         if isinstance(self, EntropyEstimator):
-            self.key = "data"
+            self.permutation_data_attribute = "data"
         elif isinstance(self, MutualInformationEstimator):
-            self.key = "data_x"
+            self.permutation_data_attribute = "data_x"
         elif isinstance(self, TransferEntropyEstimator):
-            self.key = "source"
+            self.permutation_data_attribute = "source"
         else:
             raise NotImplementedError(
-                "Permutation test not implemented for this estimator."
+                "P-value method is not implemented for the estimator."
             )
+
+    def p_value(self, *args, method=Config.get("p_value_method"), **kwargs) -> float:
+        """Calculate the p-value of the measure.
+
+        Method can be "permutation_test" or "bootstrap".
+
+        Parameters
+        ----------
+        method : str
+            The method to calculate the p-value.
+            Default is the value set in the configuration.
+        num_permutations : int
+            For permutation test, the number of permutations to perform.
+            Needs to be a positive integer.
+
+        Returns
+        -------
+        p_value : float
+            The p-value of the measure.
+
+        Raises
+        ------
+        ValueError
+            If the chosen method is unknown.
+        """
+        if self.p_val is not None and method == self.p_val_method:
+            return self.p_val
+        logger.debug(
+            f"Calculating the p-value of the measure {self.__class__.__name__} "
+            f"using the {method} method."
+        )
+        self.p_val_method = method
+        if method == "permutation_test":
+            self.p_val = self.permutation_test(*args, **kwargs)
+        elif method == "bootstrap":
+            raise NotImplementedError("Bootstrap method is not implemented.")  # TODO
+        else:
+            raise ValueError(f"Invalid p-value method: {method}.")
+
+        return self.p_val
 
     def calculate_permuted(self):
         """Calculate the measure for the permuted data.
@@ -259,19 +439,23 @@ class PermutationTestMixin(RandomGeneratorMixin):
             The measure for the permuted data.
         """
         # Backup the original data
-        original_data = getattr(self, self.key).copy()
+        original_data = getattr(self, self.permutation_data_attribute).copy()
         # Calculate the measure for the permuted data
         result = self._calculate_permuted()
         # Restore the original data
-        setattr(self, self.key, original_data)
+        setattr(self, self.permutation_data_attribute, original_data)
         return result
 
     def _calculate_permuted(self):
         """Calculate the measure for the permuted data."""
         # Shuffle the data
-        setattr(self, self.key, self.rng.permutation(getattr(self, self.key)))
+        setattr(
+            self,
+            self.permutation_data_attribute,
+            self.rng.permutation(getattr(self, self.permutation_data_attribute)),
+        )
         # Calculate the measure
-        yield self.calculate()
+        return self._calculate()
 
     def permutation_test(self, num_permutations: int) -> float:
         """Calculate the permutation test.
@@ -285,15 +469,77 @@ class PermutationTestMixin(RandomGeneratorMixin):
         -------
         float
             The p-value of the measure.
+
+        Raises
+        ------
+        ValueError
+            If the number of permutations is not a positive integer.
         """
-        _, observed_global = self.calculate()
+        if not isinstance(num_permutations, int) or num_permutations < 1:
+            raise ValueError(
+                "Number of permutations must be a positive integer, "
+                f"not {num_permutations} ({type(num_permutations)})."
+            )
         # Store unshuffled data
-        original_data = getattr(self, self.key).copy()
+        original_data = getattr(self, self.permutation_data_attribute).copy()
         # Perform permutations
-        permuted_values = [
-            self._calculate_permuted()[1] for _ in range(num_permutations)
-        ]
+        permuted_values = [self._calculate_permuted() for _ in range(num_permutations)]
+        if isinstance(permuted_values[0], tuple):
+            permuted_values = [x[0] for x in permuted_values]
         # Restore the original data
-        setattr(self, self.key, original_data)
+        setattr(self, self.permutation_data_attribute, original_data)
         # Calculate the p-value
-        return np_sum(array(permuted_values) >= observed_global) / num_permutations
+        return np_sum(array(permuted_values) >= self.global_val()) / num_permutations
+
+
+class EffectiveTEMixin(PValueMixin):
+    """Mixin for effective transfer entropy calculation.
+
+    To be used as a mixin class with :class:`TransferEntropyEstimator`
+    derived classes. Inherit before the main class.
+
+    Attributes
+    ----------
+    res_effective : float | None
+        The effective transfer entropy.
+
+    Methods
+    -------
+    effective_val()
+        Return the effective transfer entropy.
+
+    Notes
+    -----
+    The effective transfer entropy is the difference between the original
+    transfer entropy and the transfer entropy calculated for the permuted data.
+    Using the :class:`PValueMixin` for the permutation test.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the transfer entropy estimator with the effective TE."""
+        self.res_effective = None
+        super().__init__(*args, **kwargs)
+
+    def effective_val(self):
+        """Return the effective transfer entropy.
+
+        Calculate the effective transfer entropy if not already calculated.
+
+        Returns
+        -------
+        effective : float
+            The effective transfer entropy.
+        """
+        if self.res_effective is None:
+            self.res_effective = self._calculate_effective()
+        return self.res_effective
+
+    def _calculate_effective(self):
+        """Calculate the effective transfer entropy.
+
+        Returns
+        -------
+        effective : float
+            The effective transfer entropy.
+        """
+        return self.global_val() - self.calculate_permuted()

@@ -52,7 +52,7 @@ class DiscreteMIEstimator(LogBaseMixin, MutualInformationEstimator):
             )
         self.time_diff = time_diff
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the mutual information of the data.
 
         The approach relies on the contingency table of the two variables.

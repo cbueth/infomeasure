@@ -9,14 +9,14 @@ from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
     LogBaseMixin,
-    PermutationTestMixin,
+    EffectiveTEMixin,
     RandomGeneratorMixin,
     TransferEntropyEstimator,
 )
 
 
 class KSGTEEstimator(
-    LogBaseMixin, PermutationTestMixin, RandomGeneratorMixin, TransferEntropyEstimator
+    LogBaseMixin, EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEstimator
 ):
     r"""Estimator for transfer entropy using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
@@ -93,7 +93,7 @@ class KSGTEEstimator(
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the transfer entropy of the data.
 
         Returns
@@ -215,38 +215,4 @@ class KSGTEEstimator(
         # Compute global transfer entropy as the mean of the local transfer entropy
         global_te = np_mean(local_te)
 
-        return local_te, global_te
-
-    def calculate_effective(self):
-        r"""Calculate the effective transfer entropy of the data.
-
-        Returns
-        -------
-        effective_te : float
-            The effective transfer entropy from X to Y.
-        """
-
-        # Compute the transfer entropy for the original X -> Y
-        _, te_original = self.calculate()
-
-        _, te_shuffled = self.calculate_permuted()
-
-        # Calculate the effective transfer entropy
-        return te_original - te_shuffled
-
-    def p_value(self, num_permutations: int) -> float:
-        """
-        Calculate the p-value of the mutual information of the data.
-
-        Parameters
-        ----------
-        num_permutations : int
-            The number of permutations to perform for the p-value calculation.
-
-        Returns
-        -------
-        float
-            The p-value of the observed mutual information.
-        """
-
-        return self.permutation_test(num_permutations)
+        return global_te, local_te

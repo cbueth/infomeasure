@@ -30,7 +30,7 @@ class DiscreteEntropyEstimator(LogBaseMixin, EntropyEstimator):
         """Initialize the DiscreteEntropyEstimator."""
         super().__init__(data, base=base)
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the entropy of the data.
 
         Returns

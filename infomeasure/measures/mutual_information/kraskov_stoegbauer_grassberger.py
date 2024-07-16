@@ -11,14 +11,14 @@ from ...utils.types import LogBaseType
 from ..base import (
     LogBaseMixin,
     MutualInformationEstimator,
-    PermutationTestMixin,
+    PValueMixin,
     RandomGeneratorMixin,
 )
 from ..utils.normalize import normalize_data_0_1
 
 
 class KSGMIEstimator(
-    LogBaseMixin, PermutationTestMixin, RandomGeneratorMixin, MutualInformationEstimator
+    LogBaseMixin, PValueMixin, RandomGeneratorMixin, MutualInformationEstimator
 ):
     r"""Estimator for mutual information using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
@@ -105,7 +105,7 @@ class KSGMIEstimator(
             self.data_x = self.data_x[-self.time_diff :]
             self.data_y = self.data_y[: self.time_diff or None]
 
-    def calculate(self) -> tuple:
+    def _calculate(self) -> tuple:
         """Calculate the mutual information of the data.
 
         Returns
@@ -166,21 +166,4 @@ class KSGMIEstimator(
         # Compute aggregated mutual information
         mi = np_mean(local_mi)
 
-        return local_mi, mi
-
-    def p_value(self, num_permutations: int) -> float:
-        """
-        Calculate the p-value of the mutual information of the data.
-
-        Parameters
-        ----------
-        num_permutations : int
-            The number of permutations to perform for the p-value calculation.
-
-        Returns
-        -------
-        float
-            The p-value of the observed mutual information.
-        """
-
-        return self.permutation_test(num_permutations)
+        return mi, local_mi

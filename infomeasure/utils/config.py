@@ -36,6 +36,11 @@ class Config:
             "types": int | float,
             "additionally_allowed": ["e"],
         },
+        "p_value_method": {
+            "value": "permutation_test",
+            "types": None,
+            "additionally_allowed": ["permutation_test", "bootstrap"],
+        },
     }
     _settings = {key: value["value"] for key, value in __default_settings.items()}
 

@@ -55,7 +55,7 @@ class KernelEntropyEstimator(LogBaseMixin, EntropyEstimator):
         self.bandwidth = bandwidth
         self.kernel = kernel
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the entropy of the data.
 
         Returns

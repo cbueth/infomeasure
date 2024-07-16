@@ -3,7 +3,6 @@
 from numpy import array, finfo, hstack
 from numpy import mean as np_mean
 from numpy import newaxis
-from numpy import std as np_std
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -97,7 +96,7 @@ class KernelMIEstimator(LogBaseMixin, MutualInformationEstimator):
             self.data_x = self.data_x[-self.time_diff :]
             self.data_y = self.data_y[: self.time_diff or None]
 
-    def calculate(self) -> tuple:
+    def _calculate(self) -> tuple:
         """Calculate the mutual information of the data.
 
         Returns
@@ -106,8 +105,6 @@ class KernelMIEstimator(LogBaseMixin, MutualInformationEstimator):
             The mutual information between the two datasets.
         average_mi : float
             The average mutual information between the two datasets.
-        std_mi : float
-            The standard deviation of the mutual information between the two datasets.
 
         """
 
@@ -160,8 +157,5 @@ class KernelMIEstimator(LogBaseMixin, MutualInformationEstimator):
             joint_density / (source_density * dest_density)
         )
         average_mi = np_mean(local_mi_values)  # Global mutual information
-        std_mi = np_std(
-            local_mi_values
-        )  # Standard deviation of local mutual information
 
-        return local_mi_values, average_mi, std_mi
+        return average_mi, local_mi_values

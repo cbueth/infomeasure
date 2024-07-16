@@ -61,7 +61,7 @@ class KernelTEEstimator(LogBaseMixin, TransferEntropyEstimator):
         self.src_hist_len = src_hist_len
         self.dest_hist_len = dest_hist_len
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the transfer entropy of the data.
 
         Returns
@@ -112,7 +112,7 @@ class KernelTEEstimator(LogBaseMixin, TransferEntropyEstimator):
         # Calculate average TE
         average_te = nanmean(local_te_values)  # Using nanmean to ignore any NaNs
 
-        return local_te_values, average_te
+        return average_te, local_te_values
 
 
 def _data_slice(

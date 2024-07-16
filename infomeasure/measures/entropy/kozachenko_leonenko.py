@@ -64,7 +64,7 @@ class KozachenkoLeonenkoEstimator(LogBaseMixin, RandomGeneratorMixin, EntropyEst
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the entropy of the data.
 
         Returns

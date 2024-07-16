@@ -46,7 +46,7 @@ class DiscreteTEEstimator(LogBaseMixin, TransferEntropyEstimator):
         self.k = k
         self.delay = delay
 
-    def calculate(self):
+    def _calculate(self):
         """Calculate the transfer entropy of the data.
 
         Returns
