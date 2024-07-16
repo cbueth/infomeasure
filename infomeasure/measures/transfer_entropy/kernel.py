@@ -4,11 +4,11 @@ from numpy import array, column_stack, nanmean, zeros
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import LogBaseMixin, TransferEntropyEstimator
+from ..base import LogBaseMixin, PValueMixin, TransferEntropyEstimator
 from ..utils.kde import kde_probability_density_function
 
 
-class KernelTEEstimator(LogBaseMixin, TransferEntropyEstimator):
+class KernelTEEstimator(LogBaseMixin, PValueMixin, TransferEntropyEstimator):
     """Estimator for transfer entropy using Kernel Density Estimation (KDE).
 
     Attributes

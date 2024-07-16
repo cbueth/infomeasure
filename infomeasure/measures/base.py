@@ -512,7 +512,7 @@ class EffectiveTEMixin(PValueMixin):
     -----
     The effective transfer entropy is the difference between the original
     transfer entropy and the transfer entropy calculated for the permuted data.
-    Using the :class:`PValueMixin` for the permutation test.
+    This adds the :class:`PValueMixin` for the permutation test.
     """
 
     def __init__(self, *args, **kwargs):
