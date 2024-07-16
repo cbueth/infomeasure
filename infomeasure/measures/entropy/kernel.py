@@ -5,11 +5,11 @@ from numpy import mean as np_mean
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, LogBaseMixin
+from ..base import EntropyEstimator, PValueMixin, LogBaseMixin
 from ..utils.kde import kde_probability_density_function
 
 
-class KernelEntropyEstimator(LogBaseMixin, EntropyEstimator):
+class KernelEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
     """Estimator for entropy (Shannon) using Kernel Density Estimation (KDE).
 
     Attributes
