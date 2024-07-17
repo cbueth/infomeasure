@@ -1,6 +1,6 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) mutual information estimator."""
 
-from numpy import asarray, column_stack, inf, array
+from numpy import column_stack, inf, array
 from numpy import mean as np_mean
 from numpy import newaxis
 from scipy.spatial import KDTree
@@ -87,10 +87,6 @@ class KSGMIEstimator(
         self.minkowski_p = minkowski_p
         self.time_diff = time_diff
         self.normalize = normalize
-
-        # Convert input data to numpy arrays for consistency
-        self.data_x = asarray(self.data_x)
-        self.data_y = asarray(self.data_y)
 
         # Normalize if necessary
         if self.normalize:

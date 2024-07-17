@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 
-from numpy import std as np_std
+from numpy import std as np_std, asarray
 from numpy import array, log, log2, log10
 from numpy import sum as np_sum
 from numpy.random import default_rng
@@ -182,7 +182,7 @@ class EntropyEstimator(Estimator, ABC):
 
     def __init__(self, data):
         """Initialize the estimator with the data."""
-        self.data = data
+        self.data = asarray(data)
         super().__init__()
 
 
@@ -219,8 +219,8 @@ class MutualInformationEstimator(Estimator, ABC):
                 "Data arrays must be of the same length, "
                 f"not {len(data_x)} and {len(data_y)}."
             )
-        self.data_x = data_x
-        self.data_y = data_y
+        self.data_x = asarray(data_x)
+        self.data_y = asarray(data_y)
         super().__init__()
 
 
@@ -251,8 +251,8 @@ class TransferEntropyEstimator(Estimator, ABC):
 
     def __init__(self, source, dest):
         """Initialize the estimator with the data."""
-        self.source = source
-        self.dest = dest
+        self.source = asarray(source)
+        self.dest = asarray(dest)
         self.effect_size = None
         super().__init__()
 
