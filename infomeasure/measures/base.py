@@ -43,7 +43,6 @@ class Estimator(ABC):
         self.res_global = None
         self.res_local = None
         self.res_std = None
-        self.p_val = None
 
     def calculate(self):
         """Calculate the measure.
@@ -55,7 +54,9 @@ class Estimator(ABC):
             self.res_global, self.res_local = results
             logger.debug(
                 f"Global: {self.res_global:.4e}, "
-                f"Local (mean): {array(self.res_local).mean():.4e}"
+                # show the first max 5 local values
+                f"Local: {', '.join([f'{x:.2e}' for x in self.res_local[:5]])}"
+                f"{', ...' if len(self.res_local) > 5 else ''}"
             )
         else:
             self.res_global = results
@@ -522,4 +523,7 @@ class EffectiveTEMixin(PValueMixin):
         effective : float
             The effective transfer entropy.
         """
-        return self.global_val() - self.calculate_permuted()
+        global_permuted = self.calculate_permuted()
+        if isinstance(global_permuted, tuple):
+            return self.global_val() - global_permuted[0]
+        return self.global_val() - global_permuted
