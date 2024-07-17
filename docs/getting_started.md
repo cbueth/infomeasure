@@ -42,9 +42,10 @@ submodule
 import infomeasure as im
 
 data = [0, 1, 0, 1, 0, 1, 0, 1]
-entropy = im.entropy(data, estimator="kde")
+entropy = im.entropy(data, estimator="kernel", bandwidth=3, kernel="box")
 # or
-entropy = im.estimators.kde.entropy(data)
+#entropy = im.estimators.kde.entropy(data)
+entropy
 ```
 
 [...]

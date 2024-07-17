@@ -22,11 +22,6 @@ class DiscreteTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimat
         The logarithm base for the transfer entropy calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
-
-    Methods
-    -------
-    calculate()
-        Calculate the transfer entropy from source to destination.
     """
 
     def __init__(

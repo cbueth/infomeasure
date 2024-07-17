@@ -19,11 +19,6 @@ class DiscreteEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
         The logarithm base for the entropy calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
-
-    Methods
-    -------
-    calculate()
-        Calculate the entropy.
     """
 
     def __init__(self, data, base: LogBaseType = Config.get("base")):

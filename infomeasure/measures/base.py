@@ -107,7 +107,7 @@ class Estimator(ABC):
 
         Raises
         ------
-        UnsupportedOperation
+        io.UnsupportedOperation
             If the local values are not available.
 
         Notes
@@ -130,7 +130,7 @@ class Estimator(ABC):
 
         Raises
         ------
-        UnsupportedOperation
+        io.UnsupportedOperation
             If the standard deviation is not available.
 
         Notes
@@ -168,16 +168,12 @@ class EntropyEstimator(Estimator, ABC):
     data : array-like
         The data used to estimate the entropy.
 
-    Methods
-    -------
-    calculate()
-        Calculate the entropy.
 
     See Also
     --------
     .entropy.discrete.DiscreteEntropyEstimator
     .entropy.kernel.KernelEntropyEstimator
-    .entropy.kozachenko_leonenko.KozachenkoLeonenkoEstimator
+    .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
     """
 
     def __init__(self, data):
@@ -194,11 +190,6 @@ class MutualInformationEstimator(Estimator, ABC):
     data_x, data_y : array-like
         The data used to estimate the mutual information. The data should be
         of the same length.
-
-    Methods
-    -------
-    calculate()
-        Calculate the mutual information.
 
     Raises
     ------
@@ -236,11 +227,6 @@ class TransferEntropyEstimator(Estimator, ABC):
     effect_size : float | None
         The effect size of the measure.
         None if the measure is not calculated or if not defined.
-
-    Methods
-    -------
-    calculate()
-        Calculate the transfer entropy.
 
     See Also
     --------
@@ -333,6 +319,7 @@ class PValueMixin(RandomGeneratorMixin):
     """Mixin for p-value calculation.
 
     There are two methods to calculate the p-value:
+
     - Permutation test: shuffle the data and calculate the measure.
     - Bootstrap: resample the data and calculate the measure.  # TODO: Implement
 
@@ -343,6 +330,7 @@ class PValueMixin(RandomGeneratorMixin):
     Inherit before the main class.
 
     Data attribute to be shuffled depends on the derived class.
+
     - For entropy estimators, it is `data`.
     - For mutual information estimators, it is `data_x`.
     - For transfer entropy estimators, it is `source`.
@@ -351,13 +339,6 @@ class PValueMixin(RandomGeneratorMixin):
     ----------
     permutation_data_attribute : str
         The attribute to shuffle.
-
-    Methods
-    -------
-    calculate_permuted()
-        Calculate the measure for the permuted data.
-    permutation_test()
-        Calculate the permutation test.
 
     Notes
     -----

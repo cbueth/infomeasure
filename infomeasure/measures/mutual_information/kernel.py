@@ -31,11 +31,6 @@ class KernelMIEstimator(LogBaseMixin, PValueMixin, MutualInformationEstimator):
         The logarithm base for the mutual information calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
-
-    Methods
-    -------
-    calculate()
-        Calculate the mutual information.
     """
 
     def __init__(
