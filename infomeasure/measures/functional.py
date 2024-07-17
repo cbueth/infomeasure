@@ -227,7 +227,17 @@ def transfer_entropy(source, dest, approach: str, *args, **kwargs):
     return EstimatorClass(source, dest, *args, **kwargs).results()
 
 
-def estimator(measure: str, approach: str, *args, **kwargs) -> Estimator:
+def estimator(
+    data=None,
+    data_x=None,
+    data_y=None,
+    source=None,
+    dest=None,
+    *,  # the rest of the arguments are keyword-only
+    measure: str = None,
+    approach: str = None,
+    **kwargs,
+) -> Estimator:
     """Get an estimator for a specific measure.
 
     This function provides a simple interface to get
@@ -252,6 +262,12 @@ def estimator(measure: str, approach: str, *args, **kwargs) -> Estimator:
 
     Parameters
     ----------
+    data : array-like, optional
+        Only if the measure is entropy.
+    data_x, data_y : array-like, optional
+        Only if the measure is mutual information.
+    source, dest : array-like, optional
+        Only if the measure is transfer entropy.
     measure : str
         The measure to estimate.
     approach : str
@@ -267,12 +283,39 @@ def estimator(measure: str, approach: str, *args, **kwargs) -> Estimator:
         The estimator instance.
     """
     if measure == "entropy":
+        if data is None:
+            raise ValueError("``data`` is required for entropy estimation.")
+        if any([data_x, data_y, source, dest]):
+            raise ValueError(
+                "Only ``data`` is required for entropy estimation, "
+                "not ``data_x``, ``data_y``, ``source``, or ``dest``."
+            )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
+        return EstimatorClass(data, **kwargs)
     elif measure == "mutual_information":
+        if data_x is None or data_y is None:
+            raise ValueError(
+                "``data_x`` and ``data_y`` are required for "
+                "mutual information estimation."
+            )
+        if any([data, source, dest]):
+            raise ValueError(
+                "Only ``data_x`` and ``data_y`` are required for mutual information "
+                "estimation, not ``data``, ``source``, or ``dest``."
+            )
         EstimatorClass = _get_estimator(mi_estimators, approach)
+        return EstimatorClass(data_x, data_y, **kwargs)
     elif measure == "transfer_entropy":
+        if source is None or dest is None:
+            raise ValueError(
+                "``source`` and ``dest`` are required for transfer entropy estimation."
+            )
+        if any([data, data_x, data_y]):
+            raise ValueError(
+                "Only ``source`` and ``dest`` are required for transfer entropy "
+                "estimation, not ``data``, ``data_x``, or ``data_y``."
+            )
         EstimatorClass = _get_estimator(te_estimators, approach)
+        return EstimatorClass(source, dest, **kwargs)
     else:
         raise ValueError(f"Unknown measure: {measure}")
-
-    return EstimatorClass(*args, **kwargs)

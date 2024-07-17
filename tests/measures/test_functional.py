@@ -41,7 +41,7 @@ def test_entropy_functional_addressing(approach, kwargs):
 def test_entropy_class_addressing(approach, kwargs):
     """Test addressing the entropy estimator classes."""
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    est = im.estimator(measure="entropy", approach=approach, data=data, **kwargs)
+    est = im.estimator(data=data, measure="entropy", approach=approach, **kwargs)
     assert isinstance(est, EntropyEstimator)
     assert isinstance(est.results(), float)
     assert isinstance(est.global_val(), float)
@@ -92,10 +92,10 @@ def test_mutual_information_class_addressing(approach, kwargs):
     data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     data_y = np.array([1, 2, 3, 5, 5, 6, 7, 8, 9, 10])
     est = im.estimator(
-        measure="mutual_information",
-        approach=approach,
         data_x=data_x,
         data_y=data_y,
+        measure="mutual_information",
+        approach=approach,
         **kwargs,
     )
     assert isinstance(est, MutualInformationEstimator)
@@ -152,10 +152,10 @@ def test_transfer_entropy_class_addressing(approach, kwargs):
     source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     est = im.estimator(
-        measure="transfer_entropy",
-        approach=approach,
         source=source,
         dest=dest,
+        measure="transfer_entropy",
+        approach=approach,
         **kwargs,
     )
     assert isinstance(est, TransferEntropyEstimator)
