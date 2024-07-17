@@ -18,7 +18,7 @@ from infomeasure import entropy
 )
 def test_discrete_entropy(data, base, expected):
     """Test the discrete entropy estimator."""
-    assert entropy(data, estimator="discrete", base=base) == pytest.approx(expected)
+    assert entropy(data, approach="discrete", base=base) == pytest.approx(expected)
 
 
 # try different bases with uniform distribution
@@ -32,6 +32,6 @@ def test_discrete_entropy_uniform(length, base):
     :math:`H(X) = -\log_b(1/n) = \log_b(n)`
     """
     data = range(0, length)
-    assert entropy(data, estimator="discrete", base=base) == pytest.approx(
+    assert entropy(data, approach="discrete", base=base) == pytest.approx(
         log(length) / log(base)
     )
