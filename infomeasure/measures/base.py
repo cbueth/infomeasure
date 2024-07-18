@@ -16,6 +16,9 @@ from ..utils.types import LogBaseType
 class Estimator(ABC):
     """Abstract base class for all measure estimators.
 
+    Find :ref:`Estimator Usage` on how to use the estimators and an overview of the
+    available measures (:ref:`Available approaches`).
+
     Attributes
     ----------
     res_global : float | None
@@ -483,11 +486,6 @@ class EffectiveTEMixin(PValueMixin):
     ----------
     res_effective : float | None
         The effective transfer entropy.
-
-    Methods
-    -------
-    effective_val()
-        Return the effective transfer entropy.
 
     Notes
     -----

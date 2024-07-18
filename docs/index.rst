@@ -9,6 +9,7 @@ the details of the inner workings can be found on the `Reference pages <guide>`_
 Furthermore, you can also find the `API documentation <api/index.html>`__.
 
 .. toctree::
+   :name: overview
    :caption: Overview
    :maxdepth: 1
    :glob:

@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.inheritance_diagram",
     "sphinxcontrib.bibtex",
 ]
 
@@ -42,6 +43,8 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 bibtex_bibfiles = ["refs.bib"]
+
+inheritance_graph_attrs = dict(size='""', fontsize=14, ratio="compress", dpi=300)
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -55,6 +58,8 @@ language = "en"
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath", "amsmath"]
 myst_heading_anchors = 3
 nb_execution_timeout = 180
+
+numpydoc_xref_param_type = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
