@@ -76,7 +76,11 @@ def _get_estimator(estimators, estimator_name):
     ValueError
         If the estimator is not recognized.
     """
-    if estimator_name.lower() not in estimators:
+    if (
+        estimator_name is None
+        or not isinstance(estimator_name, str)
+        or (estimator_name.lower() not in estimators)
+    ):
         available = ", ".join(estimators.keys())
         raise ValueError(
             f"Unknown estimator: {estimator_name}. Available estimators: {available}"
@@ -107,6 +111,11 @@ def _dynamic_estimator(estimators) -> callable:
         @wraps(func)  # This decorator updates wrapper to look like func
         def wrapper(*args, **kwargs):
             estimator_name = kwargs.get("approach")
+            if estimator_name is None:
+                raise ValueError(
+                    "Estimator name is required, choose one of: "
+                    f"{', '.join(estimators.keys())}"
+                )
             kwargs["EstimatorClass"] = _get_estimator(
                 estimators, estimator_name
             )  # Inject EstimatorClass into kwargs
@@ -270,8 +279,11 @@ def estimator(
         Only if the measure is transfer entropy.
     measure : str
         The measure to estimate.
+        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``;
+        aliases: ``h``, ``mi``, ``te``
     approach : str
         The name of the estimator to use.
+        Find the available estimators in the docstring of this function.
     *args: tuple
         Additional arguments to pass to the estimator.
     **kwargs: dict
@@ -281,8 +293,15 @@ def estimator(
     -------
     Estimator
         The estimator instance.
+
+    Raises
+    ------
+    ValueError
+        If the measure is not recognized.
     """
-    if measure == "entropy":
+    if measure is None:
+        raise ValueError("``measure`` is required.")
+    elif measure.lower() in ["entropy", "h"]:
         if data is None:
             raise ValueError("``data`` is required for entropy estimation.")
         if any([data_x, data_y, source, dest]):
@@ -292,7 +311,7 @@ def estimator(
             )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
         return EstimatorClass(data, **kwargs)
-    elif measure == "mutual_information":
+    elif measure.lower() in ["mutual_information", "mi"]:
         if data_x is None or data_y is None:
             raise ValueError(
                 "``data_x`` and ``data_y`` are required for "
@@ -305,7 +324,7 @@ def estimator(
             )
         EstimatorClass = _get_estimator(mi_estimators, approach)
         return EstimatorClass(data_x, data_y, **kwargs)
-    elif measure == "transfer_entropy":
+    elif measure.lower() in ["transfer_entropy", "te"]:
         if source is None or dest is None:
             raise ValueError(
                 "``source`` and ``dest`` are required for transfer entropy estimation."
