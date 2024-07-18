@@ -381,7 +381,7 @@ class PValueMixin(RandomGeneratorMixin):
         method : str
             The method to calculate the p-value.
             Default is the value set in the configuration.
-        num_permutations : int
+        n_permutations : int
             For permutation test, the number of permutations to perform.
             Needs to be a positive integer.
 
@@ -438,12 +438,12 @@ class PValueMixin(RandomGeneratorMixin):
         # Calculate the measure
         return self._calculate()
 
-    def permutation_test(self, num_permutations: int) -> float:
+    def permutation_test(self, n_permutations: int) -> float:
         """Calculate the permutation test.
 
         Parameters
         ----------
-        num_permutations : int
+        n_permutations : int
             The number of permutations to perform.
 
         Returns
@@ -456,21 +456,21 @@ class PValueMixin(RandomGeneratorMixin):
         ValueError
             If the number of permutations is not a positive integer.
         """
-        if not isinstance(num_permutations, int) or num_permutations < 1:
+        if not isinstance(n_permutations, int) or n_permutations < 1:
             raise ValueError(
                 "Number of permutations must be a positive integer, "
-                f"not {num_permutations} ({type(num_permutations)})."
+                f"not {n_permutations} ({type(n_permutations)})."
             )
         # Store unshuffled data
         original_data = getattr(self, self.permutation_data_attribute).copy()
         # Perform permutations
-        permuted_values = [self._calculate_permuted() for _ in range(num_permutations)]
+        permuted_values = [self._calculate_permuted() for _ in range(n_permutations)]
         if isinstance(permuted_values[0], tuple):
             permuted_values = [x[0] for x in permuted_values]
         # Restore the original data
         setattr(self, self.permutation_data_attribute, original_data)
         # Calculate the p-value
-        return np_sum(array(permuted_values) >= self.global_val()) / num_permutations
+        return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
 
 
 class EffectiveTEMixin(PValueMixin):

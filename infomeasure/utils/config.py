@@ -22,6 +22,7 @@ class Config:
     Default settings:
 
     - 'base': 2 (bits/shannons)
+    - 'p_value_method': 'permutation_test'
 
     Attributes
     ----------
@@ -81,7 +82,10 @@ class Config:
         """
         if key not in cls._settings:
             raise KeyError(f"Unknown configuration setting: {key}")
-        if (not isinstance(value, cls.__default_settings[key]["types"])) and (
+        if (
+            cls.__default_settings[key]["types"] is None
+            or not isinstance(value, cls.__default_settings[key]["types"])
+        ) and (
             "additionally_allowed" not in cls.__default_settings[key]
             or value not in cls.__default_settings[key]["additionally_allowed"]
         ):
