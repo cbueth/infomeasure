@@ -7,6 +7,7 @@ from .measures.functional import (
     entropy,
     mutual_information,
     transfer_entropy,
+    estimator,
 )
 
 h, mi, te = entropy, mutual_information, transfer_entropy
@@ -24,4 +25,5 @@ __all__ = [
     "h",
     "mi",
     "te",
+    "estimator",
 ]

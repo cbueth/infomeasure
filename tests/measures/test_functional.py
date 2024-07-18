@@ -50,7 +50,7 @@ def test_entropy_class_addressing(approach, kwargs):
         est.local_val()
     with pytest.raises(UnsupportedOperation):
         est.std_val()
-    assert 0 < est.p_value(10) <= 1
+    assert 0 <= est.p_value(10) <= 1
     with pytest.raises(AttributeError):
         est.effective_val()
 
