@@ -4,10 +4,10 @@ from numpy import log
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator
+from ..base import EffectiveTEMixin, TransferEntropyEstimator
 
 
-class DiscreteTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator):
+class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     """Estimator for discrete transfer entropy.
 
     Attributes

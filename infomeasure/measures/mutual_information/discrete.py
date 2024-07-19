@@ -7,10 +7,10 @@ from scipy.stats.contingency import crosstab
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import LogBaseMixin, PValueMixin, MutualInformationEstimator
+from ..base import PValueMixin, MutualInformationEstimator
 
 
-class DiscreteMIEstimator(LogBaseMixin, PValueMixin, MutualInformationEstimator):
+class DiscreteMIEstimator(PValueMixin, MutualInformationEstimator):
     """Estimator for discrete mutual information.
 
     Attributes

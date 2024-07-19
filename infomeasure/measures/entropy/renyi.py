@@ -1,9 +1,9 @@
 """Module for the Renyi entropy estimator."""
 
-from ..base import EntropyEstimator, PValueMixin, LogBaseMixin
+from ..base import EntropyEstimator, PValueMixin
 
 
-class RenyiEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
+class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
     r"""Estimator for the Renyi entropy.
 
     Attributes

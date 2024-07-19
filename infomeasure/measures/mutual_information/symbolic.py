@@ -1,9 +1,9 @@
 """Module for the Symbolic / Permutation mutual information estimator."""
 
-from ..base import LogBaseMixin, PValueMixin, MutualInformationEstimator
+from ..base import PValueMixin, MutualInformationEstimator
 
 
-class SymbolicMIEstimator(LogBaseMixin, PValueMixin, MutualInformationEstimator):
+class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
     r"""Estimator for the Symbolic mutual information.
 
     Attributes

@@ -1,13 +1,12 @@
 """Module for the Symbolic / Permutation transfer entropy estimator."""
 
 from ..base import (
-    LogBaseMixin,
     EffectiveTEMixin,
     TransferEntropyEstimator,
 )
 
 
-class SymbolicTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator):
+class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     r"""Estimator for the Symbolic transfer entropy.
 
     Attributes

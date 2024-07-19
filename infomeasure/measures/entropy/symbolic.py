@@ -1,9 +1,9 @@
 """Module for the Symbolic / Permutation entropy estimator."""
 
-from ..base import EntropyEstimator, PValueMixin, LogBaseMixin
+from ..base import EntropyEstimator, PValueMixin
 
 
-class SymbolicEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
+class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     r"""Estimator for the Symbolic entropy.
 
     Attributes
