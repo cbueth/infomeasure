@@ -1,9 +1,9 @@
 """Module for Tsallis entropy estimator."""
 
-from ..base import EntropyEstimator, PValueMixin, LogBaseMixin
+from ..base import EntropyEstimator, PValueMixin
 
 
-class TsallisEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
+class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
     r"""Estimator for the Tsallis entropy.
 
     Attributes

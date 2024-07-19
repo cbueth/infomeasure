@@ -5,10 +5,10 @@ from numpy import unique, zeros
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin, LogBaseMixin
+from ..base import EntropyEstimator, PValueMixin
 
 
-class DiscreteEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
+class DiscreteEntropyEstimator(PValueMixin, EntropyEstimator):
     """Estimator for discrete entropy (Shannon entropy).
 
     Attributes

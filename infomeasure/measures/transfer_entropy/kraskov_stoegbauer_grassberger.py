@@ -8,16 +8,13 @@ from scipy.special import digamma
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
-    LogBaseMixin,
     EffectiveTEMixin,
     RandomGeneratorMixin,
     TransferEntropyEstimator,
 )
 
 
-class KSGTEEstimator(
-    LogBaseMixin, EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEstimator
-):
+class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEstimator):
     r"""Estimator for transfer entropy using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 

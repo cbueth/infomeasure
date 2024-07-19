@@ -27,6 +27,10 @@ class Estimator(ABC):
     res_std : float | None
         The standard deviation of the local values.
         None if the measure is not calculated or if not defined.
+    base : int | float | "e", optional
+        The logarithm base for the entropy calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     See Also
     --------
@@ -38,11 +42,12 @@ class Estimator(ABC):
     If the measure has a p-value, the :meth:`p_value` method should be implemented.
     """
 
-    def __init__(self):
+    def __init__(self, base: LogBaseType = Config.get("base")):
         """Initialize the estimator."""
         self.res_global = None
         self.res_local = None
         self.res_std = None
+        self.base = base
 
     def calculate(self):
         """Calculate the measure.
@@ -160,107 +165,6 @@ class Estimator(ABC):
         """
         pass
 
-
-class EntropyEstimator(Estimator, ABC):
-    """Abstract base class for entropy estimators.
-
-    Attributes
-    ----------
-    data : array-like
-        The data used to estimate the entropy.
-
-
-    See Also
-    --------
-    .entropy.discrete.DiscreteEntropyEstimator
-    .entropy.kernel.KernelEntropyEstimator
-    .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
-    """
-
-    def __init__(self, data):
-        """Initialize the estimator with the data."""
-        self.data = asarray(data)
-        super().__init__()
-
-
-class MutualInformationEstimator(Estimator, ABC):
-    """Abstract base class for mutual information estimators.
-
-    Attributes
-    ----------
-    data_x, data_y : array-like
-        The data used to estimate the mutual information. The data should be
-        of the same length.
-
-    Raises
-    ------
-    ValueError
-        If the data arrays are not of the same length.
-
-    See Also
-    --------
-    .mutual_information.discrete.DiscreteMIEstimator
-    .mutual_information.kernel.KernelMIEstimator
-    .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
-    """
-
-    def __init__(self, data_x, data_y):
-        """Initialize the estimator with the data."""
-        if len(data_x) != len(data_y):
-            raise ValueError(
-                "Data arrays must be of the same length, "
-                f"not {len(data_x)} and {len(data_y)}."
-            )
-        self.data_x = asarray(data_x)
-        self.data_y = asarray(data_y)
-        super().__init__()
-
-
-class TransferEntropyEstimator(Estimator, ABC):
-    """Abstract base class for transfer entropy estimators.
-
-    Attributes
-    ----------
-    source : array-like
-        The source data used to estimate the transfer entropy.
-    dest : array-like
-        The destination data used to estimate the transfer entropy.
-    effect_size : float | None
-        The effect size of the measure.
-        None if the measure is not calculated or if not defined.
-
-    See Also
-    --------
-    .transfer_entropy.discrete.DiscreteTEEstimator
-    .transfer_entropy.kernel.KernelTEEstimator
-    .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
-    """
-
-    def __init__(self, source, dest):
-        """Initialize the estimator with the data."""
-        self.source = asarray(source)
-        self.dest = asarray(dest)
-        self.effect_size = None
-        super().__init__()
-
-
-class LogBaseMixin:
-    """Mixin for logarithmic base calculation.
-
-    To be used as a mixin class with other :class:`Estimator` Estimator classes.
-    Inherit before the main class.
-
-    Attributes
-    ----------
-    base : int
-        The logarithm base for the measure calculation.
-    """
-
-    def __init__(self, *args, base: LogBaseType = Config.get("base"), **kwargs):
-        """Initialize the estimator with the base."""
-        self.base = base
-        super().__init__(*args, **kwargs)
-
     def _log_base(self, x):
         """Calculate the logarithm of the data using the specified base.
 
@@ -299,6 +203,101 @@ class LogBaseMixin:
         # General logarithm
         else:
             return log(x) / log(self.base)
+
+
+class EntropyEstimator(Estimator, ABC):
+    """Abstract base class for entropy estimators.
+
+    Attributes
+    ----------
+    data : array-like
+        The data used to estimate the entropy.
+    base : int | float | "e", optional
+        The logarithm base for the entropy calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+
+    See Also
+    --------
+    .entropy.discrete.DiscreteEntropyEstimator
+    .entropy.kernel.KernelEntropyEstimator
+    .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
+    """
+
+    def __init__(self, data, base: LogBaseType = Config.get("base")):
+        """Initialize the estimator with the data."""
+        self.data = asarray(data)
+        super().__init__(base=base)
+
+
+class MutualInformationEstimator(Estimator, ABC):
+    """Abstract base class for mutual information estimators.
+
+    Attributes
+    ----------
+    data_x, data_y : array-like
+        The data used to estimate the mutual information. The data should be
+        of the same length.
+    base : int | float | "e", optional
+        The logarithm base for the entropy calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Raises
+    ------
+    ValueError
+        If the data arrays are not of the same length.
+
+    See Also
+    --------
+    .mutual_information.discrete.DiscreteMIEstimator
+    .mutual_information.kernel.KernelMIEstimator
+    .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
+    """
+
+    def __init__(self, data_x, data_y, base: LogBaseType = Config.get("base")):
+        """Initialize the estimator with the data."""
+        if len(data_x) != len(data_y):
+            raise ValueError(
+                "Data arrays must be of the same length, "
+                f"not {len(data_x)} and {len(data_y)}."
+            )
+        self.data_x = asarray(data_x)
+        self.data_y = asarray(data_y)
+        super().__init__(base=base)
+
+
+class TransferEntropyEstimator(Estimator, ABC):
+    """Abstract base class for transfer entropy estimators.
+
+    Attributes
+    ----------
+    source : array-like
+        The source data used to estimate the transfer entropy.
+    dest : array-like
+        The destination data used to estimate the transfer entropy.
+    effect_size : float | None
+        The effect size of the measure.
+        None if the measure is not calculated or if not defined.
+    base : int | float | "e", optional
+        The logarithm base for the entropy calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    See Also
+    --------
+    .transfer_entropy.discrete.DiscreteTEEstimator
+    .transfer_entropy.kernel.KernelTEEstimator
+    .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
+    """
+
+    def __init__(self, source, dest, base: LogBaseType = Config.get("base")):
+        """Initialize the estimator with the data."""
+        self.source = asarray(source)
+        self.dest = asarray(dest)
+        self.effect_size = None
+        super().__init__(base=base)
 
 
 class RandomGeneratorMixin:

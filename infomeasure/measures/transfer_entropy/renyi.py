@@ -1,13 +1,12 @@
 """Module for the Renyi transfer entropy estimator."""
 
 from ..base import (
-    LogBaseMixin,
     EffectiveTEMixin,
     TransferEntropyEstimator,
 )
 
 
-class RenyiTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator):
+class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     r"""Estimator for the Renyi transfer entropy.
 
     Attributes

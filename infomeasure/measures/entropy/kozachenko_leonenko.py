@@ -7,10 +7,10 @@ from scipy.special import digamma
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, LogBaseMixin, PValueMixin
+from ..base import EntropyEstimator, PValueMixin
 
 
-class KozachenkoLeonenkoEntropyEstimator(LogBaseMixin, PValueMixin, EntropyEstimator):
+class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
     r"""Kozachenko-Leonenko estimator for Shannon entropies.
 
     Attributes

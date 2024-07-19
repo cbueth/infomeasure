@@ -9,7 +9,6 @@ from scipy.special import digamma
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
-    LogBaseMixin,
     MutualInformationEstimator,
     PValueMixin,
     RandomGeneratorMixin,
@@ -17,9 +16,7 @@ from ..base import (
 from ..utils.normalize import normalize_data_0_1
 
 
-class KSGMIEstimator(
-    LogBaseMixin, PValueMixin, RandomGeneratorMixin, MutualInformationEstimator
-):
+class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimator):
     r"""Estimator for mutual information using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 

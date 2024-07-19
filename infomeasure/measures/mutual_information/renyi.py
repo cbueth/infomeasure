@@ -1,9 +1,9 @@
 """Module for the Renyi mutual information estimator."""
 
-from ..base import LogBaseMixin, PValueMixin, MutualInformationEstimator
+from ..base import PValueMixin, MutualInformationEstimator
 
 
-class RenyiMIEstimator(LogBaseMixin, PValueMixin, MutualInformationEstimator):
+class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
     r"""Estimator for the Renyi mutual information.
 
     Attributes
