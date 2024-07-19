@@ -13,7 +13,6 @@ from ..base import (
     PValueMixin,
     RandomGeneratorMixin,
 )
-from ..utils.normalize import normalize_data_0_1
 
 
 class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimator):
@@ -32,8 +31,9 @@ class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimat
     minkowski_p : float, :math:`1 \leq p \leq \infty`
         The power parameter for the Minkowski metric.
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
-    time_diff : int, optional
-        Time difference between the variables. The default is 0.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
     normalize
         If True, normalize the data before analysis.
     base : int | float | "e", optional
@@ -49,11 +49,11 @@ class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimat
         k: int = 4,
         noise_level=1e-10,
         minkowski_p=inf,
-        time_diff=0,
+        offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
-        r"""Initialize the estimator with specific time difference.
+        r"""Initialize the estimator with specific parameters.
 
         Parameters
         ----------
@@ -67,10 +67,11 @@ class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimat
             Default is np.inf for maximum norm. Use 2 for Euclidean distance.
         normalize
             If True, normalize the data before analysis.
-        time_diff : int, optional
-            Time difference between the variables. The default is 0.
+        offset : int, optional
+            Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
         """
-        super().__init__(data_x, data_y, base=base)
+        super().__init__(data_x, data_y, offset=offset, normalize=normalize, base=base)
         if self.data_x.ndim == 1:
             self.data_x = self.data_x.reshape(-1, 1)
         if self.data_y.ndim == 1:
@@ -78,23 +79,8 @@ class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimat
         self.k = k
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
-        self.time_diff = time_diff
-        self.normalize = normalize
 
-        # Normalize if necessary
-        if self.normalize:
-            self.data_x = normalize_data_0_1(self.data_x)
-            self.data_y = normalize_data_0_1(self.data_y)
-
-        # Apply time delay
-        if self.time_diff > 0:
-            self.data_x = self.data_x[: -self.time_diff or None]
-            self.data_y = self.data_y[self.time_diff :]
-        elif self.time_diff < 0:
-            self.data_x = self.data_x[-self.time_diff :]
-            self.data_y = self.data_y[: self.time_diff or None]
-
-        # Ensure the data is 2D for KDTree  # TODO: Move to __init__ and adapt noise
+        # Ensure the data is 2D for KDTree
         if self.data_x.ndim == 1:
             self.data_x = self.data_x[:, newaxis]
         if self.data_y.ndim == 1:

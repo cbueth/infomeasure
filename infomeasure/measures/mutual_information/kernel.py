@@ -8,7 +8,6 @@ from ... import Config
 from ...utils.types import LogBaseType
 from ..base import PValueMixin, MutualInformationEstimator
 from ..utils.kde import kde_probability_density_function
-from ..utils.normalize import normalize_data_0_1
 
 
 class KernelMIEstimator(PValueMixin, MutualInformationEstimator):
@@ -23,8 +22,9 @@ class KernelMIEstimator(PValueMixin, MutualInformationEstimator):
     kernel : str
         Type of kernel to use, compatible with the KDE
         implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
-    time_diff : int, optional
-        Time difference between the variables. The default is 0.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
     normalize
         If True, normalize the data before analysis.
     base : int | float | "e", optional
@@ -39,11 +39,11 @@ class KernelMIEstimator(PValueMixin, MutualInformationEstimator):
         data_y,
         bandwidth: float | int,
         kernel: str,
-        time_diff=0,
+        offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the estimator with specific time difference.
+        """Initialize the estimator with specific bandwidth and kernel.
 
         Parameters
         ----------
@@ -52,44 +52,21 @@ class KernelMIEstimator(PValueMixin, MutualInformationEstimator):
         kernel : str
             Type of kernel to use, compatible with the KDE
             implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
-        time_diff : int, optional
-            Time difference between the variables. The default is 0.
+        offset : int, optional
+            Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
         normalize
             If True, normalize the data before analysis.
-
-        Raises
-        ------
-        ValueError
-            If the time difference is not an integer.
         """
-        super().__init__(data_x, data_y, base=base)
-        if not isinstance(time_diff, int):
-            raise ValueError(
-                f"Time difference must be an integer, not {type(time_diff)}."
-            )
-        self.time_diff = time_diff
+        super().__init__(data_x, data_y, offset=offset, normalize=normalize, base=base)
         self.bandwidth = bandwidth
         self.kernel = kernel
-        self.normalize = normalize
 
         # Ensure self.data_x and self.data_y are 2D arrays
         if self.data_x.ndim == 1:
             self.data_x = self.data_x[:, newaxis]
         if self.data_y.ndim == 1:
             self.data_y = self.data_y[:, newaxis]
-
-        # Normalize if necessary
-        if self.normalize:
-            self.data_x = normalize_data_0_1(self.data_x)
-            self.data_y = normalize_data_0_1(self.data_y)
-
-        # Apply time delay
-        if self.time_diff > 0:
-            self.data_x = self.data_x[: -self.time_diff or None]
-            self.data_y = self.data_y[self.time_diff :]
-        elif self.time_diff < 0:
-            self.data_x = self.data_x[-self.time_diff :]
-            self.data_y = self.data_y[: self.time_diff or None]
 
     def _calculate(self) -> tuple:
         """Calculate the mutual information of the data.

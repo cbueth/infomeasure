@@ -11,6 +11,7 @@ from numpy.random import default_rng
 from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
+from .utils.normalize import normalize_data_0_1
 
 
 class Estimator(ABC):
@@ -238,7 +239,12 @@ class MutualInformationEstimator(Estimator, ABC):
     ----------
     data_x, data_y : array-like
         The data used to estimate the mutual information. The data should be
-        of the same length.
+        1D and of the same length.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+    normalize : bool, optional
+        If True, normalize the data before analysis. Default is False.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
@@ -247,7 +253,9 @@ class MutualInformationEstimator(Estimator, ABC):
     Raises
     ------
     ValueError
-        If the data arrays are not of the same length.
+        If the data arrays are not 1D or of different lengths.
+    ValueError
+        If the offset is not an integer.
 
     See Also
     --------
@@ -256,15 +264,39 @@ class MutualInformationEstimator(Estimator, ABC):
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     """
 
-    def __init__(self, data_x, data_y, base: LogBaseType = Config.get("base")):
+    def __init__(
+        self,
+        data_x,
+        data_y,
+        offset: int = 0,
+        normalize: bool = False,
+        base: LogBaseType = Config.get("base"),
+    ):
         """Initialize the estimator with the data."""
         if len(data_x) != len(data_y):
             raise ValueError(
                 "Data arrays must be of the same length, "
                 f"not {len(data_x)} and {len(data_y)}."
             )
+        if not isinstance(offset, int):
+            raise ValueError(f"Offset must be an integer, not {offset}.")
         self.data_x = asarray(data_x)
         self.data_y = asarray(data_y)
+        if data_x.ndim != 1 or data_y.ndim != 1:
+            raise ValueError("Data arrays must be 1D.")
+        # Apply the offset
+        self.offset = offset
+        if self.offset > 0:
+            self.data_x = self.data_x[: -self.offset or None]
+            self.data_y = self.data_y[self.offset :]
+        elif self.offset < 0:
+            self.data_x = self.data_x[-self.offset :]
+            self.data_y = self.data_y[: self.offset or None]
+        # Normalize the data
+        self.normalize = normalize
+        if self.normalize:
+            self.data_x = normalize_data_0_1(self.data_x)
+            self.data_y = normalize_data_0_1(self.data_y)
         super().__init__(base=base)
 
 
