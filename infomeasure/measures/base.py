@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
+from typing import final
 
 from numpy import std as np_std, asarray
 from numpy import array, log, log2, log10
@@ -50,6 +51,7 @@ class Estimator(ABC):
         self.res_std = None
         self.base = base
 
+    @final
     def calculate(self):
         """Calculate the measure.
 
@@ -89,6 +91,7 @@ class Estimator(ABC):
         except UnsupportedOperation:
             return self.res_global
 
+    @final
     def global_val(self):
         """Return the global value of the measure.
 
@@ -104,6 +107,7 @@ class Estimator(ABC):
             self.calculate()
         return self.res_global
 
+    @final
     def local_val(self):
         """Return the local values of the measure, if available.
 
@@ -166,6 +170,7 @@ class Estimator(ABC):
         """
         pass
 
+    @final
     def _log_base(self, x):
         """Calculate the logarithm of the data using the specified base.
 
