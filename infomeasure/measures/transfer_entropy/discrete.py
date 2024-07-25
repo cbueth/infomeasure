@@ -14,10 +14,14 @@ class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     ----------
     source, dest : array-like
         The source and destination data used to estimate the transfer entropy.
-    l, k : int
-        Embedding lengths for the source and destination variables.
-    delay : int
-        Time delay between the source and destination variables.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from source to destination.
+    tau : int
+        Time delay for state space reconstruction.
+    src_hist_len, dest_hist_len : int
+        Number of past observations to consider for the source and destination data.
     base : int | float | "e", optional
         The logarithm base for the transfer entropy calculation.
         The default can be set
@@ -25,21 +29,33 @@ class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     """
 
     def __init__(
-        self, source, dest, l, k, delay, base: LogBaseType = Config.get("base")
+        self,
+        source,
+        dest,
+        offset: int = 0,
+        tau: int = 1,
+        src_hist_len: int = 1,
+        dest_hist_len: int = 1,
+        base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data and parameters.
 
         Parameters
         ----------
-        l, k : int
+        src_hist_len, dest_hist_len : int
             Embedding lengths for the source and destination variables.
         delay : int
             Time delay between the source and destination variables.
         """
-        super().__init__(source, dest, base=base)
-        self.l = l
-        self.k = k
-        self.delay = delay
+        super().__init__(
+            source,
+            dest,
+            offset=offset,
+            tau=tau,
+            src_hist_len=src_hist_len,
+            dest_hist_len=dest_hist_len,
+            base=base,
+        )
 
     def _calculate(self):
         """Calculate the transfer entropy of the data.
@@ -56,7 +72,9 @@ class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
             next_past_count,
             past_count,
             observations,
-        ) = count_tuples(self.source, self.dest, self.l, self.k, self.delay)
+        ) = count_tuples(
+            self.source, self.dest, self.src_hist_len, self.dest_hist_len, self.offset
+        )
 
         te = 0
         for (s_t, d_t, d_t_k), p_s_t_d_t_d_t_k in source_next_past_count.items():
@@ -78,7 +96,7 @@ class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         return te
 
 
-def count_tuples(source, dest, l, k, delay):
+def count_tuples(source, dest, src_hist_len, dest_hist_len, delay):
     """
     Count tuples for Transfer Entropy computation.
 
@@ -86,7 +104,7 @@ def count_tuples(source, dest, l, k, delay):
     ----------
     source, dest : array-like
         Source and destination time-series data.
-    l, k : int
+    src_hist_len, dest_hist_len : int
         Embedding lengths for the source and destination variables.
     delay : int
         Time delay between the source and destination variables.
@@ -110,13 +128,13 @@ def count_tuples(source, dest, l, k, delay):
     past_count = {}
     observations = 0
 
-    for t in range(max(k, l + delay), len(dest)):
+    for t in range(max(dest_hist_len, src_hist_len + delay), len(dest)):
         # Next state for the destination variable
         next_state_dest = dest[t]
 
         # Update past states
-        past_state_dest = dest[t - k : t]
-        past_state_source = source[t - delay - l + 1 : t - delay + 1]
+        past_state_dest = dest[t - dest_hist_len : t]
+        past_state_source = source[t - delay - src_hist_len + 1 : t - delay + 1]
 
         # Convert arrays to tuple to use as dictionary keys
         past_state_dest_t = tuple(past_state_dest)

@@ -17,8 +17,9 @@ class DiscreteMIEstimator(PValueMixin, MutualInformationEstimator):
     ----------
     data_x, data_y : array-like
         The data used to estimate the mutual information.
-    time_diff : int, optional
-        Time difference between the variables. The default is 0.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
     base : int | float | "e", optional
         The logarithm base for the mutual information calculation.
         The default can be set
@@ -26,26 +27,17 @@ class DiscreteMIEstimator(PValueMixin, MutualInformationEstimator):
     """
 
     def __init__(
-        self, data_x, data_y, time_diff=0, base: LogBaseType = Config.get("base")
+        self, data_x, data_y, offset: int = 0, base: LogBaseType = Config.get("base")
     ):
-        """Initialize the estimator with specific time difference.
+        """Initialize the estimator with specific offset.
 
         Parameters
         ----------
-        time_diff : int, optional
-            Time difference between the variables. The default is 0.
-
-        Raises
-        ------
-        ValueError
-            If the time difference is not an integer.
+        offset : int, optional
+            Number of positions to shift the data arrays relative to each other.
+            Delay/lag/shift between the variables. Default is no shift.
         """
-        super().__init__(data_x, data_y, base=base)
-        if not isinstance(time_diff, int):
-            raise ValueError(
-                f"Time difference must be an integer, not {type(time_diff)}."
-            )
-        self.time_diff = time_diff
+        super().__init__(data_x, data_y, offset=offset, normalize=False, base=base)
 
     def _calculate(self):
         """Calculate the mutual information of the data.
@@ -63,11 +55,7 @@ class DiscreteMIEstimator(PValueMixin, MutualInformationEstimator):
             The calculated mutual information.
         """
         # Contingency Table - sparse matrix
-        contingency_coo = crosstab(
-            self.data_x[: -self.time_diff or None],
-            self.data_y[self.time_diff :],
-            sparse=True,
-        ).count
+        contingency_coo = crosstab(self.data_x, self.data_y, sparse=True).count
         # Non-zero indices and values
         nzx, nzy, nzv = sp_find(contingency_coo)
 

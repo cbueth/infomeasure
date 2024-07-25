@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
+from typing import final
 
 from numpy import std as np_std, asarray
 from numpy import array, log, log2, log10
@@ -11,6 +12,7 @@ from numpy.random import default_rng
 from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
+from .utils.normalize import normalize_data_0_1
 
 
 class Estimator(ABC):
@@ -49,6 +51,7 @@ class Estimator(ABC):
         self.res_std = None
         self.base = base
 
+    @final
     def calculate(self):
         """Calculate the measure.
 
@@ -88,6 +91,7 @@ class Estimator(ABC):
         except UnsupportedOperation:
             return self.res_global
 
+    @final
     def global_val(self):
         """Return the global value of the measure.
 
@@ -103,6 +107,7 @@ class Estimator(ABC):
             self.calculate()
         return self.res_global
 
+    @final
     def local_val(self):
         """Return the local values of the measure, if available.
 
@@ -165,6 +170,7 @@ class Estimator(ABC):
         """
         pass
 
+    @final
     def _log_base(self, x):
         """Calculate the logarithm of the data using the specified base.
 
@@ -238,7 +244,13 @@ class MutualInformationEstimator(Estimator, ABC):
     ----------
     data_x, data_y : array-like
         The data used to estimate the mutual information. The data should be
-        of the same length.
+        1D and of the same length.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from X to Y.
+    normalize : bool, optional
+        If True, normalize the data before analysis. Default is False.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
@@ -247,7 +259,9 @@ class MutualInformationEstimator(Estimator, ABC):
     Raises
     ------
     ValueError
-        If the data arrays are not of the same length.
+        If the data arrays are not 1D or of different lengths.
+    ValueError
+        If the offset is not an integer.
 
     See Also
     --------
@@ -256,15 +270,39 @@ class MutualInformationEstimator(Estimator, ABC):
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     """
 
-    def __init__(self, data_x, data_y, base: LogBaseType = Config.get("base")):
+    def __init__(
+        self,
+        data_x,
+        data_y,
+        offset: int = 0,
+        normalize: bool = False,
+        base: LogBaseType = Config.get("base"),
+    ):
         """Initialize the estimator with the data."""
         if len(data_x) != len(data_y):
             raise ValueError(
                 "Data arrays must be of the same length, "
                 f"not {len(data_x)} and {len(data_y)}."
             )
+        if not isinstance(offset, int):
+            raise ValueError(f"Offset must be an integer, not {offset}.")
         self.data_x = asarray(data_x)
         self.data_y = asarray(data_y)
+        if data_x.ndim != 1 or data_y.ndim != 1:
+            raise ValueError("Data arrays must be 1D.")
+        # Apply the offset
+        self.offset = offset
+        if self.offset > 0:
+            self.data_x = self.data_x[: -self.offset or None]
+            self.data_y = self.data_y[self.offset :]
+        elif self.offset < 0:
+            self.data_x = self.data_x[-self.offset :]
+            self.data_y = self.data_y[: self.offset or None]
+        # Normalize the data
+        self.normalize = normalize
+        if self.normalize:
+            self.data_x = normalize_data_0_1(self.data_x)
+            self.data_y = normalize_data_0_1(self.data_y)
         super().__init__(base=base)
 
 
@@ -277,13 +315,23 @@ class TransferEntropyEstimator(Estimator, ABC):
         The source data used to estimate the transfer entropy.
     dest : array-like
         The destination data used to estimate the transfer entropy.
-    effect_size : float | None
-        The effect size of the measure.
-        None if the measure is not calculated or if not defined.
+    tau : int
+        Time delay for state space reconstruction.
+    src_hist_len, dest_hist_len : int
+        Number of past observations to consider for the source and destination data.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from source to destination.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Raises
+    ------
+    ValueError
+        If the data arrays are not 1D or of different lengths.
 
     See Also
     --------
@@ -292,11 +340,39 @@ class TransferEntropyEstimator(Estimator, ABC):
     .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
     """
 
-    def __init__(self, source, dest, base: LogBaseType = Config.get("base")):
+    def __init__(
+        self,
+        source,
+        dest,
+        offset: int = 0,
+        src_hist_len: int = 1,
+        dest_hist_len: int = 1,
+        tau: int = 1,
+        base: LogBaseType = Config.get("base"),
+    ):
         """Initialize the estimator with the data."""
+        if len(source) != len(dest):
+            raise ValueError(
+                "Data arrays must be of the same length, "
+                f"not {len(source)} and {len(dest)}."
+            )
+        if not isinstance(offset, int):
+            raise ValueError(f"Offset must be an integer, not {offset}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
-        self.effect_size = None
+        if source.ndim != 1 or dest.ndim != 1:
+            raise ValueError("Data arrays must be 1D.")
+        # Apply the offset
+        self.offset = offset
+        if self.offset > 0:
+            self.source = self.source[: -self.offset or None]
+            self.dest = self.dest[self.offset :]
+        elif self.offset < 0:
+            self.source = self.source[-self.offset :]
+            self.dest = self.dest[: self.offset or None]
+        # Slicing parameters
+        self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
+        self.tau = tau
         super().__init__(base=base)
 
 
