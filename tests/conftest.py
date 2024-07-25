@@ -36,33 +36,24 @@ def entropy_estimator(request):
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (getattr(mutual_information, cls_name), {"bandwidth": 0.3, "kernel": "box"})
-        if cls_name == "KernelMIEstimator"
-        else (getattr(mutual_information, cls_name), {})
-        for cls_name in mutual_information.__all__
-    ],
+    params=mutual_information.__all__,
 )
 def mi_estimator(request):
     """A fixture that yields mutual information estimator classes."""
-    return request.param
-
-
-te_kwargs = {
-    "KernelTEEstimator": {"bandwidth": 0.3, "kernel": "box"},
-}
+    kwargs = {
+        "KernelMIEstimator": {"bandwidth": 0.3, "kernel": "box"},
+        "SymbolicMIEstimator": {"order": 2},
+    }
+    return getattr(mutual_information, request.param), kwargs.get(request.param, {})
 
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (
-            getattr(transfer_entropy, cls_name),
-            te_kwargs[cls_name] if cls_name in te_kwargs else {},
-        )
-        for cls_name in transfer_entropy.__all__
-    ],
+    params=transfer_entropy.__all__,
 )
 def te_estimator(request):
     """A fixture that yields transfer entropy estimator classes."""
-    return request.param
+    kwargs = {
+        "KernelTEEstimator": {"bandwidth": 0.3, "kernel": "box"},
+    }
+    return getattr(transfer_entropy, request.param), kwargs.get(request.param, {})

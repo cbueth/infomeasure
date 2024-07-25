@@ -269,6 +269,7 @@ class MutualInformationEstimator(Estimator, ABC):
     .mutual_information.discrete.DiscreteMIEstimator
     .mutual_information.kernel.KernelMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
+    .mutual_information.symbolic.SymbolicMIEstimator
     """
 
     def __init__(

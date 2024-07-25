@@ -28,6 +28,9 @@ mi_estimators = {
     "KSGMIEstimator",
     "ksg": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGMIEstimator",
+    "symbolic": "infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator",
+    "permutation": "infomeasure.measures.mutual_information.symbolic."
+    "SymbolicMIEstimator",
 }
 
 te_estimators = {
@@ -183,6 +186,7 @@ def mutual_information(
     1. ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>`
     2. ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>`
     3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
+    4. [``symbolic``, ``permutation``]: :func:`Symbolic mutual information estimator. <infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator>`
 
     Parameters
     ----------
@@ -297,11 +301,13 @@ def estimator(
         - ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`
         - ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`
         - [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+        - [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
 
     2. Mutual Information:
         - ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>`
         - ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>`
         - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
+        - [``symbolic``, ``permutation``]: :func:`Symbolic mutual information estimator. <infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator>`
 
     3. Transfer Entropy:
         - ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>`
