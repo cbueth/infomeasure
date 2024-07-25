@@ -164,7 +164,14 @@ def entropy(data, approach: str, *args, **kwargs):
 
 
 @_dynamic_estimator(mi_estimators)
-def mutual_information(data_x, data_y, approach: str, *args, **kwargs):
+def mutual_information(
+    data_x,
+    data_y,
+    approach: str,
+    offset: int = 0,
+    *args,
+    **kwargs,
+):
     """Calculate the mutual information using a functional interface of different
     estimators.
 
@@ -180,6 +187,13 @@ def mutual_information(data_x, data_y, approach: str, *args, **kwargs):
         The data used to estimate the mutual information.
     approach : str
         The name of the estimator to use.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from X to Y.
+    normalize : bool, optional
+        If True, normalize the data before analysis. Default is False.
+        Not available for the discrete estimator.
     *args: tuple
         Additional arguments to pass to the estimator.
     **kwargs: dict
@@ -196,7 +210,7 @@ def mutual_information(data_x, data_y, approach: str, *args, **kwargs):
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(data_x, data_y, *args, **kwargs).results()
+    return EstimatorClass(data_x, data_y, *args, offset=offset, **kwargs).results()
 
 
 @_dynamic_estimator(te_estimators)
@@ -245,6 +259,7 @@ def estimator(
     *,  # the rest of the arguments are keyword-only
     measure: str = None,
     approach: str = None,
+    offset: int = 0,
     **kwargs,
 ) -> Estimator:
     """Get an estimator for a specific measure.
@@ -323,7 +338,7 @@ def estimator(
                 "estimation, not ``data``, ``source``, or ``dest``."
             )
         EstimatorClass = _get_estimator(mi_estimators, approach)
-        return EstimatorClass(data_x, data_y, **kwargs)
+        return EstimatorClass(data_x, data_y, offset=offset, **kwargs)
     elif measure.lower() in ["transfer_entropy", "te"]:
         if source is None or dest is None:
             raise ValueError(

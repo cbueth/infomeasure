@@ -243,6 +243,7 @@ class MutualInformationEstimator(Estimator, ABC):
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from X to Y.
     normalize : bool, optional
         If True, normalize the data before analysis. Default is False.
     base : int | float | "e", optional
