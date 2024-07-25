@@ -25,8 +25,8 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Assumed time taken by info to transfer from source to destination.
-    tau : int
-        Time delay for state space reconstruction.
+    step_size : int
+        Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
     base : int | float | "e", optional
@@ -42,7 +42,7 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         bandwidth: float | int,
         kernel: str,
         offset: int = 0,
-        tau: int = 1,
+        step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         base: LogBaseType = Config.get("base"),
@@ -63,7 +63,7 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
             source,
             dest,
             offset=offset,
-            tau=tau,
+            step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
             base=base,

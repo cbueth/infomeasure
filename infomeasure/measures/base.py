@@ -316,8 +316,8 @@ class TransferEntropyEstimator(Estimator, ABC):
         The source data used to estimate the transfer entropy.
     dest : array-like
         The destination data used to estimate the transfer entropy.
-    tau : int
-        Time delay for state space reconstruction.
+    step_size : int
+        Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
     offset : int, optional
@@ -348,7 +348,7 @@ class TransferEntropyEstimator(Estimator, ABC):
         offset: int = 0,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
-        tau: int = 1,
+        step_size: int = 1,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data."""
@@ -373,7 +373,7 @@ class TransferEntropyEstimator(Estimator, ABC):
             self.dest = self.dest[: self.offset or None]
         # Slicing parameters
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
-        self.tau = tau
+        self.step_size = step_size
         super().__init__(base=base)
 
 

@@ -91,10 +91,10 @@ class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimat
 
         Returns
         -------
-        local_mi : array
-            Local mutual information for each point.
         mi : float
             Estimated mutual information between the two datasets.
+        local_mi : array
+            Local mutual information for each point.
         """
         # Copy the data to avoid modifying the original
         data_x_noisy = self.data_x.astype(float).copy()

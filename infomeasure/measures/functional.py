@@ -221,7 +221,7 @@ def transfer_entropy(
     source,
     dest,
     approach: str,
-    tau: int = 1,
+    step_size: int = 1,
     src_hist_len: int = 1,
     dest_hist_len: int = 1,
     offset: int = 0,
@@ -244,8 +244,8 @@ def transfer_entropy(
         The destination data used to estimate the transfer entropy.
     approach : str
         The name of the estimator to use.
-    tau : int
-        Time delay for state space reconstruction.
+    step_size : int
+        Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
     offset : int, optional
@@ -280,7 +280,7 @@ def estimator(
     *,  # the rest of the arguments are keyword-only
     measure: str = None,
     approach: str = None,
-    tau: int = 1,
+    step_size: int = 1,
     src_hist_len: int = 1,
     dest_hist_len: int = 1,
     offset: int = 0,
@@ -377,7 +377,7 @@ def estimator(
         return EstimatorClass(
             source,
             dest,
-            tau=tau,
+            step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
             offset=offset,

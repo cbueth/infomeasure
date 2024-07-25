@@ -35,8 +35,8 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Assumed time taken by info to transfer from source to destination.
-    tau : int
-        Time delay for state space reconstruction.
+    step_size : int
+        Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
     base : int | float | "e", optional
@@ -51,7 +51,7 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
         dest,
         k: int = 4,
         offset: int = 0,
-        tau: int = 1,
+        step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         noise_level=1e-8,
@@ -75,7 +75,7 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
             source,
             dest,
             offset=offset,
-            tau=tau,
+            step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
             base=base,
@@ -89,10 +89,10 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
 
         Returns
         -------
-        local_te : array
-            Local transfer entropy for each point.
         global_te : float
             Estimated transfer entropy from X to Y.
+        local_te : array
+            Local transfer entropy for each point.
         """
 
         # Ensure source and dest are numpy arrays
@@ -114,7 +114,7 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
             dest,
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
-            tau=self.tau,
+            step_size=self.step_size,
         )
 
         # Create KDTree for efficient nearest neighbor search in joint space
