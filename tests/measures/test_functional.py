@@ -20,6 +20,8 @@ from infomeasure.measures.base import (
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("symbolic", {"order": 3}),
+        ("permutation", {"order": 3}),
     ],
 )
 def test_entropy_functional_addressing(approach, kwargs):
@@ -36,6 +38,8 @@ def test_entropy_functional_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("symbolic", {"order": 3}),
+        ("permutation", {"order": 3}),
     ],
 )
 def test_entropy_class_addressing(approach, kwargs):

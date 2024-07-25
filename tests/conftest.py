@@ -23,16 +23,15 @@ def activate_debug_logging():
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (getattr(entropy, cls_name), {"bandwidth": 0.3, "kernel": "box"})
-        if cls_name == "KernelEntropyEstimator"
-        else (getattr(entropy, cls_name), {})
-        for cls_name in entropy.__all__
-    ],
+    params=entropy.__all__,
 )
 def entropy_estimator(request):
     """A fixture that yields entropy estimator classes, with specific kwargs for one."""
-    return request.param
+    kwargs = {
+        "KernelEntropyEstimator": {"bandwidth": 0.3, "kernel": "box"},
+        "SymbolicEntropyEstimator": {"order": 2},
+    }
+    return getattr(entropy, request.param), kwargs.get(request.param, {})
 
 
 @pytest.fixture(

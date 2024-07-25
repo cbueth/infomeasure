@@ -229,6 +229,7 @@ class EntropyEstimator(Estimator, ABC):
     .entropy.discrete.DiscreteEntropyEstimator
     .entropy.kernel.KernelEntropyEstimator
     .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
+    .entropy.symbolic.SymbolicEntropyEstimator
     """
 
     def __init__(self, data, base: LogBaseType = Config.get("base")):

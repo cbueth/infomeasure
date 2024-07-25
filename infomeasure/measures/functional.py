@@ -17,6 +17,8 @@ entropy_estimators = {
     "KozachenkoLeonenkoEntropyEstimator",
     "kl": "infomeasure.measures.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
+    "symbolic": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
+    "permutation": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
 }
 
 mi_estimators = {
@@ -137,6 +139,7 @@ def entropy(data, approach: str, *args, **kwargs):
     1. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`
     2. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`
     3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+    4. [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
 
     Parameters
     ----------
