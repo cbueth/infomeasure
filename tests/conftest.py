@@ -50,7 +50,6 @@ def mi_estimator(request):
 
 
 te_kwargs = {
-    "DiscreteTEEstimator": {"k": 4, "l": 4, "delay": 1},
     "KernelTEEstimator": {"bandwidth": 0.3, "kernel": "box"},
 }
 

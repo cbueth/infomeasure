@@ -214,7 +214,17 @@ def mutual_information(
 
 
 @_dynamic_estimator(te_estimators)
-def transfer_entropy(source, dest, approach: str, *args, **kwargs):
+def transfer_entropy(
+    source,
+    dest,
+    approach: str,
+    tau: int = 1,
+    src_hist_len: int = 1,
+    dest_hist_len: int = 1,
+    offset: int = 0,
+    *args,
+    **kwargs,
+):
     """Calculate the transfer entropy using a functional interface of different estimators.
 
     Supports the following approaches:
@@ -231,6 +241,14 @@ def transfer_entropy(source, dest, approach: str, *args, **kwargs):
         The destination data used to estimate the transfer entropy.
     approach : str
         The name of the estimator to use.
+    tau : int
+        Time delay for state space reconstruction.
+    src_hist_len, dest_hist_len : int
+        Number of past observations to consider for the source and destination data.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from source to destination.
     *args: tuple
         Additional arguments to pass to the estimator.
     **kwargs: dict
@@ -259,6 +277,9 @@ def estimator(
     *,  # the rest of the arguments are keyword-only
     measure: str = None,
     approach: str = None,
+    tau: int = 1,
+    src_hist_len: int = 1,
+    dest_hist_len: int = 1,
     offset: int = 0,
     **kwargs,
 ) -> Estimator:
@@ -350,6 +371,14 @@ def estimator(
                 "estimation, not ``data``, ``data_x``, or ``data_y``."
             )
         EstimatorClass = _get_estimator(te_estimators, approach)
-        return EstimatorClass(source, dest, **kwargs)
+        return EstimatorClass(
+            source,
+            dest,
+            tau=tau,
+            src_hist_len=src_hist_len,
+            dest_hist_len=dest_hist_len,
+            offset=offset,
+            **kwargs,
+        )
     else:
         raise ValueError(f"Unknown measure: {measure}")

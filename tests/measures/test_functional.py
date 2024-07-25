@@ -131,17 +131,30 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
 @pytest.mark.parametrize(
     "approach,kwargs",
     [
-        ("discrete", {"k": 4, "l": 4, "delay": 1}),
-        ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
+        ("discrete", {}),
+        ("kernel", {"bandwidth": 3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
     ],
 )
-def test_transfer_entropy_functional_addressing(approach, kwargs):
+@pytest.mark.parametrize("offset", [0, 1, 5])
+@pytest.mark.parametrize("src_hist_len", [1, 2, 3])
+@pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
+def test_transfer_entropy_functional_addressing(
+    approach, kwargs, offset, src_hist_len, dest_hist_len
+):
     """Test addressing the transfer entropy estimator classes."""
     source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    te = im.transfer_entropy(source, dest, approach=approach, **kwargs)
+    te = im.transfer_entropy(
+        source,
+        dest,
+        approach=approach,
+        offset=offset,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        **kwargs,
+    )
     assert isinstance(te, (float, tuple))
     if isinstance(te, tuple):
         assert len(te) == 3
@@ -153,7 +166,7 @@ def test_transfer_entropy_functional_addressing(approach, kwargs):
 @pytest.mark.parametrize(
     "approach,kwargs",
     [
-        ("discrete", {"k": 4, "l": 4, "delay": 1}),
+        ("discrete", {}),
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),

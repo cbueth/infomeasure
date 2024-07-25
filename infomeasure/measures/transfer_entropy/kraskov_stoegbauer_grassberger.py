@@ -1,10 +1,11 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) transfer entropy estimator."""
 
-from numpy import array, column_stack, inf
+from numpy import array, inf
 from numpy import mean as np_mean
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
+from ..utils.te_slicing import te_observations
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
@@ -24,20 +25,20 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
         The source and destination data used to estimate the transfer entropy.
     k : int
         Number of nearest neighbors to consider.
-    tau : int
-        Time delay for state space reconstruction.
-    u : int
-        Propagation time from when the state space reconstruction should begin.
-    ds : int
-        Embedding dimension for X.
-    dd : int
-        Embedding dimension for Y.
     noise_level : float, None or False
         Standard deviation of Gaussian noise to add to the data.
         Adds :math:`\mathcal{N}(0, \text{noise}^2)` to each data point.
     minkowski_p : float, :math:`1 \leq p \leq \infty`
         The power parameter for the Minkowski metric.
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from source to destination.
+    tau : int
+        Time delay for state space reconstruction.
+    src_hist_len, dest_hist_len : int
+        Number of past observations to consider for the source and destination data.
     base : int | float | "e", optional
         The logarithm base for the transfer entropy calculation.
         The default can be set
@@ -49,10 +50,10 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
         source,
         dest,
         k: int = 4,
+        offset: int = 0,
         tau: int = 1,
-        u: int = 0,
-        ds: int = 1,
-        dd: int = 1,
+        src_hist_len: int = 1,
+        dest_hist_len: int = 1,
         noise_level=1e-8,
         minkowski_p=inf,
         base: LogBaseType = Config.get("base"),
@@ -63,14 +64,6 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
         ----------
         k : int
             Number of nearest neighbors to consider.
-        tau : int
-            Time delay for state space reconstruction.
-        u : int
-            Propagation time from when the state space reconstruction should begin.
-        ds : int
-            Embedding dimension for source.
-        dd : int
-            Embedding dimension for destination.
         noise_level : float, None or False
             Standard deviation of Gaussian noise to add to the data.
             Adds :math:`\mathcal{N}(0, \text{noise}^2)` to each data point.
@@ -78,9 +71,16 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
             The power parameter for the Minkowski metric.
             Default is np.inf for maximum norm. Use 2 for Euclidean distance.
         """
-        super().__init__(source, dest, base=base)
-        self.k, self.tau, self.u = k, tau, u
-        self.ds, self.dd = ds, dd
+        super().__init__(
+            source,
+            dest,
+            offset=offset,
+            tau=tau,
+            src_hist_len=src_hist_len,
+            dest_hist_len=dest_hist_len,
+            base=base,
+        )
+        self.k = k
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
@@ -104,62 +104,17 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
             dest += self.rng.normal(0, self.noise_level, dest.shape)
             source += self.rng.normal(0, self.noise_level, source.shape)
 
-        N = len(source)
-        max_delay = max(
-            self.dd * self.tau + self.u, self.ds * self.tau
-        )  # maximum delay to account for all embeddings
-
-        # Adjusted construction of multivariate data arrays with u parameter
-        joint_space_data = column_stack(
-            (
-                dest[max_delay + self.u :],  # Adjust for u in the target series
-                array(
-                    [
-                        dest[i - self.dd * self.tau + self.u : i + self.u : self.tau]
-                        for i in range(max_delay, N - self.u)
-                    ]
-                ),
-                # Adjust embedding of dest with u
-                array(
-                    [
-                        source[i - self.ds * self.tau : i : self.tau]
-                        for i in range(max_delay, N - self.u)
-                    ]
-                ),
-                # Keep source embeddings aligned without u
-            )
-        )
-
-        marginal_1_space_data = column_stack(
-            (
-                array(
-                    [
-                        dest[i - self.dd * self.tau + self.u : i + self.u : self.tau]
-                        for i in range(max_delay, N - self.u)
-                    ]
-                ),
-                # Adjust embedding of dest with u
-                array(
-                    [
-                        source[i - self.ds * self.tau : i : self.tau]
-                        for i in range(max_delay, N - self.u)
-                    ]
-                ),
-                # Keep source embeddings aligned without u
-            )
-        )
-
-        marginal_2_space_data = column_stack(
-            (
-                dest[max_delay + self.u :],  # Adjust for u in the target series
-                array(
-                    [
-                        dest[i - self.dd * self.tau + self.u : i + self.u : self.tau]
-                        for i in range(max_delay, N - self.u)
-                    ]
-                ),
-                # Adjust embedding of dest with u
-            )
+        (
+            joint_space_data,
+            data_dest_past_embedded,
+            marginal_1_space_data,
+            marginal_2_space_data,
+        ) = te_observations(
+            source,
+            dest,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            tau=self.tau,
         )
 
         # Create KDTree for efficient nearest neighbor search in joint space
@@ -169,7 +124,7 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
         distances, _ = tree_joint.query(
             joint_space_data, k=self.k + 1, p=self.minkowski_p
         )
-        kth_distances = distances[:, -1]
+        kth_distances = distances[:, -1]  # get last column with k-th distances
 
         # Count points for count_Y_present_past
         tree_dest_present_past = KDTree(marginal_2_space_data)
@@ -177,18 +132,13 @@ class KSGTEEstimator(EffectiveTEMixin, RandomGeneratorMixin, TransferEntropyEsti
             len(tree_dest_present_past.query_ball_point(p, r=d)) - 1
             for p, d in zip(marginal_2_space_data, kth_distances)
         ]
-
         # Count points for count_Y_past_X_past
         tree_dest_past_source_past = KDTree(marginal_1_space_data)
         count_dest_past_source_past = [
             len(tree_dest_past_source_past.query_ball_point(p, r=d)) - 1
             for p, d in zip(marginal_1_space_data, kth_distances)
         ]
-
         # Count points for Count_Y_past
-        data_dest_past_embedded = array(
-            [dest[i - self.dd * self.tau : i : self.tau] for i in range(max_delay, N)]
-        )
         tree_dest_past = KDTree(data_dest_past_embedded)
         count_dest_past = [
             len(tree_dest_past.query_ball_point(p, r=d)) - 1

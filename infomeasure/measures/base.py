@@ -310,13 +310,23 @@ class TransferEntropyEstimator(Estimator, ABC):
         The source data used to estimate the transfer entropy.
     dest : array-like
         The destination data used to estimate the transfer entropy.
-    effect_size : float | None
-        The effect size of the measure.
-        None if the measure is not calculated or if not defined.
+    tau : int
+        Time delay for state space reconstruction.
+    src_hist_len, dest_hist_len : int
+        Number of past observations to consider for the source and destination data.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from source to destination.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Raises
+    ------
+    ValueError
+        If the data arrays are not 1D or of different lengths.
 
     See Also
     --------
@@ -325,11 +335,39 @@ class TransferEntropyEstimator(Estimator, ABC):
     .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
     """
 
-    def __init__(self, source, dest, base: LogBaseType = Config.get("base")):
+    def __init__(
+        self,
+        source,
+        dest,
+        offset: int = 0,
+        src_hist_len: int = 1,
+        dest_hist_len: int = 1,
+        tau: int = 1,
+        base: LogBaseType = Config.get("base"),
+    ):
         """Initialize the estimator with the data."""
+        if len(source) != len(dest):
+            raise ValueError(
+                "Data arrays must be of the same length, "
+                f"not {len(source)} and {len(dest)}."
+            )
+        if not isinstance(offset, int):
+            raise ValueError(f"Offset must be an integer, not {offset}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
-        self.effect_size = None
+        if source.ndim != 1 or dest.ndim != 1:
+            raise ValueError("Data arrays must be 1D.")
+        # Apply the offset
+        self.offset = offset
+        if self.offset > 0:
+            self.source = self.source[: -self.offset or None]
+            self.dest = self.dest[self.offset :]
+        elif self.offset < 0:
+            self.source = self.source[-self.offset :]
+            self.dest = self.dest[: self.offset or None]
+        # Slicing parameters
+        self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
+        self.tau = tau
         super().__init__(base=base)
 
 
