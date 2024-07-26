@@ -95,6 +95,9 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
             Local transfer entropy for each point.
         """
 
+        if self.order == 1:
+            return 0.0, array([])
+
         def _get_pattern_type(subsequence):
             """
             Determine the permutation pattern type of a given subsequence.

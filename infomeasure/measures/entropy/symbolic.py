@@ -84,6 +84,9 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
             The calculated entropy.
         """
 
+        if self.order == 1:
+            return 0.0
+
         def _get_pattern_type(subsequence):
             return tuple(argsort(subsequence))
 

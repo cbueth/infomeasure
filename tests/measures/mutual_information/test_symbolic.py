@@ -1,6 +1,7 @@
 """Explicit symbolic / permutation mutual information estimator."""
 
 import pytest
+from numpy import isnan
 
 from infomeasure.measures.mutual_information import SymbolicMIEstimator
 
@@ -38,7 +39,7 @@ def test_symbolic_entropy(data_len, order, per_symbol, step_size, offset, defaul
         assert est.global_val() == 0
         for i in est.local_val():
             assert i == 0
-        assert est.std_val() == 0
+        assert isnan(est.std_val())
         return
     est = SymbolicMIEstimator(
         data_x,

@@ -91,6 +91,9 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
             Local mutual information for each point.
         """
 
+        if self.order == 1:
+            return 0.0, array([])
+
         def _get_pattern_type(subsequence):
             """
             Determine the permutation pattern type of a given subsequence.
