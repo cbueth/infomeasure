@@ -20,6 +20,8 @@ from infomeasure.measures.base import (
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("symbolic", {"order": 3}),
+        ("permutation", {"order": 3}),
     ],
 )
 def test_entropy_functional_addressing(approach, kwargs):
@@ -36,6 +38,8 @@ def test_entropy_functional_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("symbolic", {"order": 3}),
+        ("permutation", {"order": 3}),
     ],
 )
 def test_entropy_class_addressing(approach, kwargs):
@@ -62,6 +66,8 @@ def test_entropy_class_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("symbolic", {"order": 2}),
+        ("permutation", {"order": 2}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -75,7 +81,11 @@ def test_mutual_information_functional_addressing(approach, kwargs, offset, norm
         data_y,
         approach=approach,
         offset=offset,
-        **({"normalize": normalize} if approach != "discrete" else {}),
+        **(
+            {"normalize": normalize}
+            if approach not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
         **kwargs,
     )
     assert isinstance(mi, (float, tuple))
@@ -93,6 +103,8 @@ def test_mutual_information_functional_addressing(approach, kwargs, offset, norm
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("symbolic", {"order": 2}),
+        ("permutation", {"order": 2}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -107,7 +119,11 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
         measure="mutual_information",
         approach=approach,
         offset=offset,
-        **({"normalize": normalize} if approach != "discrete" else {}),
+        **(
+            {"normalize": normalize}
+            if approach not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
         **kwargs,
     )
     assert isinstance(est, MutualInformationEstimator)
@@ -135,6 +151,8 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
         ("kernel", {"bandwidth": 3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("symbolic", {"order": 2}),
+        ("permutation", {"order": 3}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -170,6 +188,8 @@ def test_transfer_entropy_functional_addressing(
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("symbolic", {"order": 2}),
+        ("permutation", {"order": 3}),
     ],
 )
 def test_transfer_entropy_class_addressing(approach, kwargs):

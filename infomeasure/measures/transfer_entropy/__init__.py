@@ -3,5 +3,11 @@
 from .discrete import DiscreteTEEstimator
 from .kernel import KernelTEEstimator
 from .kraskov_stoegbauer_grassberger import KSGTEEstimator
+from .symbolic import SymbolicTEEstimator
 
-__all__ = ["DiscreteTEEstimator", "KernelTEEstimator", "KSGTEEstimator"]
+__all__ = [
+    "DiscreteTEEstimator",
+    "KernelTEEstimator",
+    "KSGTEEstimator",
+    "SymbolicTEEstimator",
+]
