@@ -7,19 +7,20 @@ from infomeasure.measures.entropy import SymbolicEntropyEstimator
 
 @pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000])
 @pytest.mark.parametrize("order", [1, 2, 3, 4, 5])
-def test_symbolic_entropy(data_len, order, default_rng):
+@pytest.mark.parametrize("per_symbol", [True, False])
+def test_symbolic_entropy(data_len, order, per_symbol, default_rng):
     """Test the discrete entropy estimator."""
     data = default_rng.integers(0, 10, data_len)
     if order == 1:
-        est = SymbolicEntropyEstimator(data, order=order)
+        est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
         assert est.results() == 0
         return
     if order > data_len:
         with pytest.raises(ValueError):
-            est = SymbolicEntropyEstimator(data, order=order)
+            est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
             est.results()
         return
-    est = SymbolicEntropyEstimator(data, order=order)
+    est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
     assert 0 <= est.results() <= est._log_base(data_len)
 
 

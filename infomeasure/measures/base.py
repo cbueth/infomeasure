@@ -290,7 +290,7 @@ class MutualInformationEstimator(Estimator, ABC):
             raise ValueError(f"Offset must be an integer, not {offset}.")
         self.data_x = asarray(data_x)
         self.data_y = asarray(data_y)
-        if data_x.ndim != 1 or data_y.ndim != 1:
+        if self.data_x.ndim != 1 or self.data_y.ndim != 1:
             raise ValueError("Data arrays must be 1D.")
         # Apply the offset
         self.offset = offset

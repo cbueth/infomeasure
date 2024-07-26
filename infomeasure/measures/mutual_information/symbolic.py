@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from numpy import argsort, mean as np_mean
+from numpy import argsort, mean as np_mean, array
 
 from ... import Config
 from ...utils.config import logger
@@ -41,9 +41,9 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
     ValueError
         If the ``order`` is negative or not an integer.
     ValueError
-        If the ``order`` is too large for the given data.
-    ValueError
         If the ``step_size`` is negative or not an integer.
+    ValueError
+        If ``step_size``, ``offset``, and ``order`` are such that the data is too small.
 
     Warning
     -------
@@ -70,13 +70,13 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
         super().__init__(data_x, data_y, offset=offset, base=base)
         if not isinstance(order, int) or order < 0:
             raise ValueError("The order must be a non-negative integer.")
-        if order > len(self.data_x):
-            raise ValueError("The order is too large for the given data.")
         if order == 1:
             logger.warning("The Symbolic mutual information is always 0 for order=1.")
         self.order = order
         if not isinstance(step_size, int) or step_size < 0:
             raise ValueError("The step_size must be a non-negative integer.")
+        if len(self.data_x) < (order - 1) * step_size + 1:
+            raise ValueError("The data is too small for the given step_size and order.")
         self.step_size = step_size
         self.per_symbol = per_symbol
 
@@ -184,4 +184,4 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
         # Compute average and standard deviation of Local Mutual Information values
         average_mi = np_mean(local_mi)
 
-        return average_mi, local_mi
+        return average_mi, array(local_mi)
