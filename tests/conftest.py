@@ -55,5 +55,6 @@ def te_estimator(request):
     """A fixture that yields transfer entropy estimator classes."""
     kwargs = {
         "KernelTEEstimator": {"bandwidth": 0.3, "kernel": "box"},
+        "SymbolicTEEstimator": {"order": 2},
     }
     return getattr(transfer_entropy, request.param), kwargs.get(request.param, {})

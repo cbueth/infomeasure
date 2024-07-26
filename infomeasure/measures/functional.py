@@ -40,6 +40,8 @@ te_estimators = {
     "KSGTEEstimator",
     "ksg": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
+    "symbolic": "infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator",
+    "permutation": "infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator",
 }
 
 
@@ -239,6 +241,7 @@ def transfer_entropy(
     1. ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>`
     2. ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator>`
     3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
+    4. [``symbolic``, ``permutation``]: :func:`Symbolic transfer entropy estimator. <infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator>`
 
     Parameters
     ----------
@@ -313,6 +316,7 @@ def estimator(
         - ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>`
         - ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator>`
         - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
+        - [``symbolic``, ``permutation``]: :func:`Symbolic transfer entropy estimator. <infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator>`
 
     Parameters
     ----------

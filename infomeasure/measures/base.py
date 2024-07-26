@@ -362,7 +362,7 @@ class TransferEntropyEstimator(Estimator, ABC):
             raise ValueError(f"Offset must be an integer, not {offset}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
-        if source.ndim != 1 or dest.ndim != 1:
+        if self.source.ndim != 1 or self.dest.ndim != 1:
             raise ValueError("Data arrays must be 1D.")
         # Apply the offset
         self.offset = offset

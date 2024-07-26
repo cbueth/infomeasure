@@ -151,6 +151,8 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
         ("kernel", {"bandwidth": 3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("symbolic", {"order": 2}),
+        ("permutation", {"order": 3}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -186,6 +188,8 @@ def test_transfer_entropy_functional_addressing(
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("symbolic", {"order": 2}),
+        ("permutation", {"order": 3}),
     ],
 )
 def test_transfer_entropy_class_addressing(approach, kwargs):
