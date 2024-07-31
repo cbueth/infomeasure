@@ -17,6 +17,7 @@ entropy_estimators = {
     "KozachenkoLeonenkoEntropyEstimator",
     "kl": "infomeasure.measures.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
+    "renyi": "infomeasure.measures.entropy.renyi.RenyiEntropyEstimator",
     "symbolic": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
     "permutation": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
 }
@@ -144,7 +145,8 @@ def entropy(data, approach: str, *args, **kwargs):
     1. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`
     2. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`
     3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
-    4. [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
+    4. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
+    5. [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
 
     Parameters
     ----------
@@ -304,6 +306,7 @@ def estimator(
         - ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`
         - ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`
         - [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+        - ``renyi``: :func:`Renyi entropy estimator. <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
         - [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
 
     2. Mutual Information:
