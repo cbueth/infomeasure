@@ -68,6 +68,7 @@ def test_entropy_class_addressing(approach, kwargs):
         ("ksg", {}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 2}),
+        ("renyi", {"alpha": 1.5}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -105,6 +106,7 @@ def test_mutual_information_functional_addressing(approach, kwargs, offset, norm
         ("ksg", {}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 2}),
+        ("renyi", {"alpha": 1.5}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -129,7 +131,7 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach == "discrete":
+    if approach in ["discrete", "renyi"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()

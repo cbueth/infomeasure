@@ -44,6 +44,7 @@ def mi_estimator(request):
     kwargs = {
         "KernelMIEstimator": {"bandwidth": 0.3, "kernel": "box"},
         "SymbolicMIEstimator": {"order": 2},
+        "RenyiMIEstimator": {"alpha": 1.5},
     }
     return getattr(mutual_information, request.param), kwargs.get(request.param, {})
 

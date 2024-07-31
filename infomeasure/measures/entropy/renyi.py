@@ -84,18 +84,15 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
         ]  # k+1 because the point itself is included
 
         if self.alpha != 1:
+            # Renyi entropy for alpha != 1
             C_k = (gamma(self.k) / gamma(self.k + 1 - self.alpha)) ** (
                 1 / (1 - self.alpha)
             )
-            # Renyi entropy for alpha != 1
             zeta_N_i_k = (N - 1) * C_k * V_m * rho_k**m
             I_N_k_a = np_mean(zeta_N_i_k ** (1 - self.alpha))
-            H_N_k_a_star = self._log_base(I_N_k_a) / (1 - self.alpha)
+            return self._log_base(I_N_k_a) / (1 - self.alpha)
         else:
             # Shannon entropy (limes for alpha = 1)
             psi_k = digamma(self.k)
             zeta_N_i_k = (N - 1) * self._log_base(-psi_k) * V_m * rho_k**m
-            I_N_k_a = np_mean(self._log_base(zeta_N_i_k))
-            H_N_k_a_star = I_N_k_a  # For Shannon entropy, it's just I_N_k_a
-
-        return H_N_k_a_star
+            return np_mean(self._log_base(zeta_N_i_k))

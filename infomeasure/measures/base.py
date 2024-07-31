@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from typing import final
 
-from numpy import std as np_std, asarray
+from numpy import std as np_std, asarray, hstack
 from numpy import array, log, log2, log10
 from numpy import sum as np_sum
 from numpy.random import default_rng
@@ -229,6 +229,7 @@ class EntropyEstimator(Estimator, ABC):
     .entropy.discrete.DiscreteEntropyEstimator
     .entropy.kernel.KernelEntropyEstimator
     .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
+    .entropy.renyi.RenyiEntropyEstimator
     .entropy.symbolic.SymbolicEntropyEstimator
     """
 
@@ -269,6 +270,7 @@ class MutualInformationEstimator(Estimator, ABC):
     .mutual_information.discrete.DiscreteMIEstimator
     .mutual_information.kernel.KernelMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
+    .mutual_information.renyi.RenyiMIEstimator
     .mutual_information.symbolic.SymbolicMIEstimator
     """
 
@@ -306,6 +308,37 @@ class MutualInformationEstimator(Estimator, ABC):
             self.data_x = normalize_data_0_1(self.data_x)
             self.data_y = normalize_data_0_1(self.data_y)
         super().__init__(base=base)
+
+    @staticmethod
+    def _generic_mi_from_entropy(
+        data_x, data_y, estimator: type(EntropyEstimator), kwargs: dict
+    ):
+        """Calculate the mutual information with the entropy estimator.
+
+        Mutual Information (MI) between two random variables :math:`X` and :math:`Y`
+        quantifies the amount of information obtained about one variable through the
+        other. In terms of entropy (H), MI is expressed as:
+
+        .. math::
+
+                I(X, Y) = H(X) + H(Y) - H(X, Y)
+
+        where :math:`H(X)` is the entropy of :math:`X`, :math:`H(Y)` is the entropy of
+        :math:`Y`, and :math:`H(X, Y)` is the joint entropy of :math:`X` and :math:`Y`.
+
+        Parameters
+        ----------
+        data_x, data_y : array-like
+            The data arrays for the two variables.
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+        """
+        h_x = estimator(data_x, **kwargs).global_val()
+        h_y = estimator(data_y, **kwargs).global_val()
+        h_xy = estimator(hstack((data_x, data_y)), **kwargs).global_val()
+        return h_x + h_y - h_xy
 
 
 class TransferEntropyEstimator(Estimator, ABC):
