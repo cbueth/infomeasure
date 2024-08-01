@@ -1,14 +1,15 @@
 """Module for the kernel-based transfer entropy estimator."""
 
-from numpy import array, column_stack, nanmean, zeros
+from numpy import nanmean, zeros
 
+from ..utils.te_slicing import te_observations
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator
+from ..base import EffectiveTEMixin, TransferEntropyEstimator
 from ..utils.kde import kde_probability_density_function
 
 
-class KernelTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator):
+class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     """Estimator for transfer entropy using Kernel Density Estimation (KDE).
 
     Attributes
@@ -20,6 +21,12 @@ class KernelTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator
     kernel : str
         Type of kernel to use, compatible with the KDE
         implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Assumed time taken by info to transfer from source to destination.
+    step_size : int
+        Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
     base : int | float | "e", optional
@@ -34,6 +41,8 @@ class KernelTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator
         dest,
         bandwidth: float | int,
         kernel: str,
+        offset: int = 0,
+        step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         base: LogBaseType = Config.get("base"),
@@ -50,11 +59,17 @@ class KernelTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator
         src_hist_len, dest_hist_len : int
             Number of past observations to consider for the source and destination data.
         """
-        super().__init__(source, dest, base=base)
+        super().__init__(
+            source,
+            dest,
+            offset=offset,
+            step_size=step_size,
+            src_hist_len=src_hist_len,
+            dest_hist_len=dest_hist_len,
+            base=base,
+        )
         self.bandwidth = bandwidth
         self.kernel = kernel
-        self.src_hist_len = src_hist_len
-        self.dest_hist_len = dest_hist_len
 
     def _calculate(self):
         """Calculate the transfer entropy of the data.
@@ -66,132 +81,46 @@ class KernelTEEstimator(LogBaseMixin, EffectiveTEMixin, TransferEntropyEstimator
         average_te : float
             The average transfer entropy value.
         """
-        N = len(self.source)
-        local_te_values = zeros(N - max(self.src_hist_len, self.dest_hist_len))
-
         # Prepare multivariate data arrays for KDE: Numerators
         numerator_term1, numerator_term2, denominator_term1, denominator_term2 = (
-            _data_slice(self.source, self.dest, self.src_hist_len, self.dest_hist_len)
+            te_observations(
+                self.source, self.dest, self.src_hist_len, self.dest_hist_len
+            )
         )
+        local_te_values = zeros(len(numerator_term1))
 
         # Compute KDE for each term directly using slices
-        for i in range(len(local_te_values)):
+        for i in range(len(numerator_term1)):
             # g(x_{i+1}, x_i^{(k)}, y_i^{(l)})
             p_x_future_x_past_y_past = kde_probability_density_function(
                 numerator_term1, numerator_term1[i], self.bandwidth, self.kernel
             )
+            if p_x_future_x_past_y_past == 0:
+                continue
             # g(x_i^{(k)})
             p_x_past = kde_probability_density_function(
                 numerator_term2, numerator_term2[i], self.bandwidth, self.kernel
             )
+            numerator = p_x_future_x_past_y_past * p_x_past
+            if numerator <= 0:
+                continue
             # g(x_i^{(k)}, y_i^{(l)})
             p_xy_past = kde_probability_density_function(
                 denominator_term1, denominator_term1[i], self.bandwidth, self.kernel
             )
+            if p_xy_past == 0:
+                continue
             # g(x_{i+1}, x_i^{(k)})
             p_x_future_x_past = kde_probability_density_function(
                 denominator_term2, denominator_term2[i], self.bandwidth, self.kernel
             )
+            denominator = p_xy_past * p_x_future_x_past
+            if denominator <= 0:
+                continue
 
-            # Calculate local TE value
-            if (
-                p_x_future_x_past_y_past * p_x_past > 0
-                and p_xy_past * p_x_future_x_past > 0
-            ):
-                local_te_values[i] = self._log_base(
-                    p_x_future_x_past_y_past
-                    * p_x_past
-                    / (p_xy_past * p_x_future_x_past)
-                )
+            local_te_values[i] = self._log_base(numerator / denominator)
 
         # Calculate average TE
         average_te = nanmean(local_te_values)  # Using nanmean to ignore any NaNs
 
         return average_te, local_te_values
-
-
-def _data_slice(
-    source,
-    destination,
-    src_hist_len=1,
-    dest_hist_len=1,
-):
-    """
-    Slice the data arrays to prepare for kernel density estimation.
-
-    Parameters
-    ----------
-    source : array
-        A numpy array of data points for the source variable.
-    destination : array
-        A numpy array of data points for the destination variable.
-    src_hist_len : int
-        Number of past observations to consider for the source data.
-    dest_hist_len : int
-        Number of past observations to consider for the destination data.
-
-    Returns
-    -------
-    numerator_term1 : array
-    numerator_term2 : array
-    denominator_term1 : array
-    denominator_term2 : array
-    """
-    N = len(source)
-    # Prepare multivariate data arrays for KDE: Numerators
-    numerator_term1 = column_stack(
-        (
-            destination[max(dest_hist_len, src_hist_len) : N],
-            array(
-                [
-                    destination[i - dest_hist_len : i]
-                    for i in range(max(dest_hist_len, src_hist_len), N)
-                ]
-            ),
-            array(
-                [
-                    source[i - src_hist_len : i]
-                    for i in range(max(dest_hist_len, src_hist_len), N)
-                ]
-            ),
-        )
-    )
-
-    numerator_term2 = array(
-        [
-            destination[i - dest_hist_len : i]
-            for i in range(max(dest_hist_len, src_hist_len), N)
-        ]
-    )
-
-    # Prepare for KDE: Denominators
-    denominator_term1 = column_stack(
-        (
-            array(
-                [
-                    destination[i - dest_hist_len : i]
-                    for i in range(max(dest_hist_len, src_hist_len), N)
-                ]
-            ),
-            array(
-                [
-                    source[i - src_hist_len : i]
-                    for i in range(max(dest_hist_len, src_hist_len), N)
-                ]
-            ),
-        )
-    )
-
-    denominator_term2 = column_stack(
-        (
-            destination[max(dest_hist_len, src_hist_len) : N],
-            array(
-                [
-                    destination[i - dest_hist_len : i]
-                    for i in range(max(dest_hist_len, src_hist_len), N)
-                ]
-            ),
-        )
-    )
-
-    return numerator_term1, numerator_term2, denominator_term1, denominator_term2
