@@ -47,8 +47,8 @@ glob, local[:10], std
 For transfer entropy, you can use the following code:
 
 ```{code-cell}
-glob, local, std = im.transfer_entropy(a, b, approach="metric", k = 4, tau = 1, u = 0,
-                                       ds = 1, dd = 1, noise_level=1e-8)
+glob, local, std = im.transfer_entropy(a, b, approach="metric", k = 4,
+    step_size = 1, offset = 0, src_hist_len = 1, dest_hist_len = 1, noise_level=1e-8)
 glob, local[:10], std
 ```
 
@@ -100,7 +100,8 @@ Transfer entropy has an additional method to calculate the effective transfer en
 
 ```{code-cell}
 est = im.estimator(source=a, dest=b, measure="transfer_entropy", approach="metric",
-                   k = 4, tau = 1, u = 0, ds = 1, dd = 1, noise_level=1e-8)
+                   k = 4, step_size = 1, offset = 0,
+                   src_hist_len = 1, dest_hist_len = 1, noise_level=1e-8)
 est.effective_val()
 ```
 
@@ -144,6 +145,18 @@ The {ref}`following table <estimator-functions>` shows the available information
     -
     - X
     -
+*   - {py:class}`Rényi <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
+    - X
+    -
+    -
+    - X
+    -
+*   - {py:class}`Tsallis <infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator>`
+    - X
+    -
+    -
+    - X
+    -
 *   - {ref}`Mutual Information <mutual_information_overview>`
     -
     -
@@ -168,6 +181,12 @@ The {ref}`following table <estimator-functions>` shows the available information
     - X
     - X
     -
+*   - {py:class}`Rényi <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>`
+    - X
+    - X
+    - X
+    - X
+    -
 *   - {ref}`Transfer Entropy <transfer_entropy_overview>`
     -
     -
@@ -187,6 +206,12 @@ The {ref}`following table <estimator-functions>` shows the available information
     - X
     - X
 *   - {py:class}`KSG <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
+    - X
+    - X
+    - X
+    - X
+    - X
+*   - {py:class}`Rényi <infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator>`
     - X
     - X
     - X

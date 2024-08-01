@@ -3,7 +3,7 @@
 
 _general notes on mutual information_
 
-_other notes_ (maybe mention ``tau`` und ``time_diff`` formally)
+_other notes_ (maybe mention ``step_size`` und ``cutoff`` formally)
 
 
 ```{eval-rst}
