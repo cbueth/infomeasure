@@ -18,8 +18,8 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
 
     Attributes
     ----------
-    source, target : array-like
-        The source and target data used to estimate the transfer entropy.
+    source, dest : array-like
+        The source and dest data used to estimate the transfer entropy.
     order : int
         The order of the Symbolic entropy.
     offset : int, optional
@@ -60,10 +60,12 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         dest_hist_len: int = 1,
         base: LogBaseType = Config.get("base"),
     ):
-        r"""Initialize the estimator with the data and parameters.
+        """Initialize the estimator with the data and parameters.
 
         Parameters
         ----------
+        order : int
+            The order of the Symbolic entropy.
         """
         super().__init__(
             source,
@@ -193,7 +195,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
                 cond_prob_conditional,
             )
 
-        # Symbolize the time series target and source
+        # Symbolize the time series dest and source
         symbols_dest = _symbolize_series(self.dest, self.order, self.step_size)
         symbols_source = _symbolize_series(self.source, self.order, self.step_size)
 

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from typing import final
 
-from numpy import std as np_std, asarray
+from numpy import std as np_std, asarray, hstack
 from numpy import array, log, log2, log10
 from numpy import sum as np_sum
 from numpy.random import default_rng
@@ -13,6 +13,7 @@ from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
 from .utils.normalize import normalize_data_0_1
+from .utils.te_slicing import te_observations
 
 
 class Estimator(ABC):
@@ -229,6 +230,7 @@ class EntropyEstimator(Estimator, ABC):
     .entropy.discrete.DiscreteEntropyEstimator
     .entropy.kernel.KernelEntropyEstimator
     .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
+    .entropy.renyi.RenyiEntropyEstimator
     .entropy.symbolic.SymbolicEntropyEstimator
     """
 
@@ -238,7 +240,22 @@ class EntropyEstimator(Estimator, ABC):
         super().__init__(base=base)
 
 
-class MutualInformationEstimator(Estimator, ABC):
+class RandomGeneratorMixin:
+    """Mixin for random state generation.
+
+    Attributes
+    ----------
+    rng : Generator
+        The random state generator.
+    """
+
+    def __init__(self, *args, seed=None, **kwargs):
+        """Initialize the random state generator."""
+        self.rng = default_rng(seed)
+        super().__init__(*args, **kwargs)
+
+
+class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for mutual information estimators.
 
     Attributes
@@ -269,6 +286,7 @@ class MutualInformationEstimator(Estimator, ABC):
     .mutual_information.discrete.DiscreteMIEstimator
     .mutual_information.kernel.KernelMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
+    .mutual_information.renyi.RenyiMIEstimator
     .mutual_information.symbolic.SymbolicMIEstimator
     """
 
@@ -307,8 +325,62 @@ class MutualInformationEstimator(Estimator, ABC):
             self.data_y = normalize_data_0_1(self.data_y)
         super().__init__(base=base)
 
+    def _generic_mi_from_entropy(
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ) -> float:
+        """Calculate the mutual information with the entropy estimator.
 
-class TransferEntropyEstimator(Estimator, ABC):
+        Mutual Information (MI) between two random variables :math:`X` and :math:`Y`
+        quantifies the amount of information obtained about one variable through the
+        other. In terms of entropy (H), MI is expressed as:
+
+        .. math::
+
+                I(X, Y) = H(X) + H(Y) - H(X, Y)
+
+        where :math:`H(X)` is the entropy of :math:`X`, :math:`H(Y)` is the entropy of
+        :math:`Y`, and :math:`H(X, Y)` is the joint entropy of :math:`X` and :math:`Y`.
+
+        Parameters
+        ----------
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The mutual information between the two variables.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated mutual information method.
+        This helper method is provided as a generic fallback.
+        """
+
+        # Ensure source and dest are numpy arrays
+        data_x = self.data_x.astype(float).copy()
+        data_y = self.data_y.astype(float).copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            data_x += self.rng.normal(0, noise_level, data_x.shape)
+            data_y += self.rng.normal(0, noise_level, data_y.shape)
+
+        h_x = estimator(self.data_x, **kwargs).global_val()
+        h_y = estimator(self.data_y, **kwargs).global_val()
+        h_xy = estimator(hstack((self.data_x, self.data_y)), **kwargs).global_val()
+        return h_x + h_y - h_xy
+
+
+class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for transfer entropy estimators.
 
     Attributes
@@ -377,20 +449,88 @@ class TransferEntropyEstimator(Estimator, ABC):
         self.step_size = step_size
         super().__init__(base=base)
 
+    def _generic_te_from_entropy(
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ):
+        r"""Calculate the transfer entropy with the entropy estimator.
 
-class RandomGeneratorMixin:
-    """Mixin for random state generation.
+        Given the joint processes:
+        - :math:`X_{t_n}^{(k)} = (X_{t_n}, X_{t_n-1}, \ldots, X_{t_n-k+1})`
+        - :math:`Y_{t_n}^{(l)} = (Y_{t_n}, Y_{t_n-1}, \ldots, Y_{t_n-l+1})`
 
-    Attributes
-    ----------
-    rng : Generator
-        The random state generator.
-    """
+        The Transfer Entropy from :math:`Y` to :math:`X` can be computed using the
+        following formula, which is based on conditional mutual information (MI):
 
-    def __init__(self, *args, seed=None, **kwargs):
-        """Initialize the random state generator."""
-        self.rng = default_rng(seed)
-        super().__init__(*args, **kwargs)
+        .. math::
+
+                I(X_{t_{n+1}}; Y_{t_n}^{(l)} | X_{t_n}^{(k)}) = H(X_{t_{n+1}} | X_{t_n}^{(k)}) - H(X_{t_{n+1}} | Y_{t_n}^{(l)}, X_{t_n}^{(k)})
+
+        Now, we will rewrite the above expression by implementing the chain rule, as:
+
+        .. math::
+
+                I(X_{t_{n+1}} : Y_{t_n}^{(l)} | X_{t_n}^{(k)}) = H(X_{t_{n+1}}, X_{t_n}^{(k)}) + H(Y_{t_n}^{(l)}, X_{t_n}^{(k)}) - H(X_{t_{n+1}}, Y_{t_n}^{(l)}, X_{t_n}^{(k)}) - H(X_{t_n}^{(k)})
+
+        Parameters
+        ----------
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The transfer entropy from source to destination.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated transfer entropy method.
+        This helper method is provided as a generic fallback.
+        """
+
+        # Ensure source and dest are numpy arrays
+        source = self.source.astype(float).copy()
+        dest = self.dest.astype(float).copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            source += self.rng.normal(0, noise_level, source.shape)
+            dest += self.rng.normal(0, noise_level, dest.shape)
+
+        (
+            joint_space_data,
+            dest_past_embedded,
+            marginal_1_space_data,
+            marginal_2_space_data,
+        ) = te_observations(
+            source,
+            dest,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+        )
+
+        h_x_future_x_history = estimator(marginal_2_space_data, **kwargs).global_val()
+        h_x_future_x_history_y_history = estimator(
+            joint_space_data, **kwargs
+        ).global_val()
+        h_x_history = estimator(dest_past_embedded, **kwargs).global_val()
+        h_x_history_y_history = estimator(marginal_1_space_data, **kwargs).global_val()
+
+        # Compute Transfer Entropy
+        return (
+            h_x_future_x_history
+            - h_x_future_x_history_y_history
+            - h_x_history
+            + h_x_history_y_history
+        )
 
 
 class PValueMixin(RandomGeneratorMixin):

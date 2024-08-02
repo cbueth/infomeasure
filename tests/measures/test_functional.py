@@ -20,6 +20,7 @@ from infomeasure.measures.base import (
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 3}),
         ("permutation", {"order": 3}),
     ],
@@ -38,6 +39,7 @@ def test_entropy_functional_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 3}),
         ("permutation", {"order": 3}),
     ],
@@ -66,6 +68,7 @@ def test_entropy_class_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 2}),
     ],
@@ -103,6 +106,7 @@ def test_mutual_information_functional_addressing(approach, kwargs, offset, norm
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 2}),
     ],
@@ -129,7 +133,7 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach == "discrete":
+    if approach in ["discrete", "renyi"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
@@ -151,6 +155,7 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
         ("kernel", {"bandwidth": 3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 3}),
     ],
@@ -188,6 +193,7 @@ def test_transfer_entropy_functional_addressing(
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 3}),
     ],
@@ -206,7 +212,7 @@ def test_transfer_entropy_class_addressing(approach, kwargs):
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach == "discrete":
+    if approach in ["discrete", "renyi"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()

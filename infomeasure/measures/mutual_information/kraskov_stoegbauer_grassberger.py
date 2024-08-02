@@ -11,11 +11,10 @@ from ...utils.types import LogBaseType
 from ..base import (
     MutualInformationEstimator,
     PValueMixin,
-    RandomGeneratorMixin,
 )
 
 
-class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimator):
+class KSGMIEstimator(PValueMixin, MutualInformationEstimator):
     r"""Estimator for mutual information using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 
@@ -69,7 +68,7 @@ class KSGMIEstimator(PValueMixin, RandomGeneratorMixin, MutualInformationEstimat
             If True, normalize the data before analysis.
         offset : int, optional
             Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+            Delay/lag/shift between the variables. Default is no shift.
         """
         super().__init__(data_x, data_y, offset=offset, normalize=normalize, base=base)
         if self.data_x.ndim == 1:

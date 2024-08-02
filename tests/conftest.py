@@ -30,6 +30,7 @@ def entropy_estimator(request):
     kwargs = {
         "KernelEntropyEstimator": {"bandwidth": 0.3, "kernel": "box"},
         "SymbolicEntropyEstimator": {"order": 2},
+        "RenyiEntropyEstimator": {"alpha": 1.5},
     }
     return getattr(entropy, request.param), kwargs.get(request.param, {})
 
@@ -43,6 +44,7 @@ def mi_estimator(request):
     kwargs = {
         "KernelMIEstimator": {"bandwidth": 0.3, "kernel": "box"},
         "SymbolicMIEstimator": {"order": 2},
+        "RenyiMIEstimator": {"alpha": 1.5},
     }
     return getattr(mutual_information, request.param), kwargs.get(request.param, {})
 
@@ -56,5 +58,6 @@ def te_estimator(request):
     kwargs = {
         "KernelTEEstimator": {"bandwidth": 0.3, "kernel": "box"},
         "SymbolicTEEstimator": {"order": 2},
+        "RenyiTEEstimator": {"alpha": 1.5},
     }
     return getattr(transfer_entropy, request.param), kwargs.get(request.param, {})
