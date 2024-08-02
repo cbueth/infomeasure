@@ -31,6 +31,7 @@ def entropy_estimator(request):
         "KernelEntropyEstimator": {"bandwidth": 0.3, "kernel": "box"},
         "SymbolicEntropyEstimator": {"order": 2},
         "RenyiEntropyEstimator": {"alpha": 1.5},
+        "TsallisEntropyEstimator": {"q": 2.0},
     }
     return getattr(entropy, request.param), kwargs.get(request.param, {})
 

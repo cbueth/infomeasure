@@ -1,12 +1,13 @@
 """Module for the Rényi entropy estimator."""
 
-from numpy import mean as np_mean, pi
-from scipy.special import gamma, digamma
-from scipy.spatial import KDTree
-
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import EntropyEstimator, PValueMixin
+from ..utils.exponential_family import (
+    calculate_common_entropy_components,
+    exponential_family_iq,
+    exponential_family_i1,
+)
 
 
 class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
@@ -41,7 +42,7 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
         alpha: float | int = None,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the RenyiEntropyEstimator.
+        r"""Initialize the RenyiEntropyEstimator.
 
         Parameters
         ----------
@@ -70,29 +71,12 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
         float
             Renyi entropy of the data.
         """
-        N, m = self.data.shape
-
-        # Volume of the unit ball in m-dimensional space
-        V_m = pi ** (m / 2) / gamma(m / 2 + 1)
-
-        # Build k-d tree for nearest neighbor search
-        tree = KDTree(self.data)
-
-        # Get the k-th nearest neighbor distances
-        rho_k = tree.query(self.data, k=self.k + 1)[0][
-            :, self.k
-        ]  # k+1 because the point itself is included
+        V_m, rho_k, N, m = calculate_common_entropy_components(self.data, self.k)
 
         if self.alpha != 1:
             # Renyi entropy for alpha != 1
-            C_k = (gamma(self.k) / gamma(self.k + 1 - self.alpha)) ** (
-                1 / (1 - self.alpha)
-            )
-            zeta_N_i_k = (N - 1) * C_k * V_m * rho_k**m
-            I_N_k_a = np_mean(zeta_N_i_k ** (1 - self.alpha))
+            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, N, m)
             return self._log_base(I_N_k_a) / (1 - self.alpha)
         else:
             # Shannon entropy (limes for alpha = 1)
-            psi_k = digamma(self.k)
-            zeta_N_i_k = (N - 1) * self._log_base(-psi_k) * V_m * rho_k**m
-            return np_mean(self._log_base(zeta_N_i_k))
+            return exponential_family_i1(self.k, V_m, rho_k, N, m, self._log_base)

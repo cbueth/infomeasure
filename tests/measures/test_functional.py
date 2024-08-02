@@ -23,6 +23,7 @@ from infomeasure.measures.base import (
         ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 3}),
         ("permutation", {"order": 3}),
+        ("tsallis", {"q": 2.0}),
     ],
 )
 def test_entropy_functional_addressing(approach, kwargs):
@@ -42,6 +43,7 @@ def test_entropy_functional_addressing(approach, kwargs):
         ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 3}),
         ("permutation", {"order": 3}),
+        ("tsallis", {"q": 2.0}),
     ],
 )
 def test_entropy_class_addressing(approach, kwargs):
