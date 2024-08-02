@@ -20,6 +20,7 @@ entropy_estimators = {
     "renyi": "infomeasure.measures.entropy.renyi.RenyiEntropyEstimator",
     "symbolic": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
     "permutation": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
+    "tsallis": "infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator",
 }
 
 mi_estimators = {
@@ -149,6 +150,7 @@ def entropy(data, approach: str, *args, **kwargs):
     3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
     4. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
     5. [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
+    6. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator>`
 
     Parameters
     ----------
@@ -312,6 +314,7 @@ def estimator(
         - [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
         - ``renyi``: :func:`Renyi entropy estimator. <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
         - [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
+        - ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator>`
 
     2. Mutual Information:
         - ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>`
