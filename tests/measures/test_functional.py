@@ -13,43 +13,21 @@ from infomeasure.measures.base import (
 )
 
 
-@pytest.mark.parametrize(
-    "approach,kwargs",
-    [
-        ("discrete", {}),
-        ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
-        ("metric", {}),
-        ("kl", {}),
-        ("renyi", {"alpha": 1.5}),
-        ("symbolic", {"order": 3}),
-        ("permutation", {"order": 3}),
-        ("tsallis", {"q": 2.0}),
-    ],
-)
-def test_entropy_functional_addressing(approach, kwargs):
+def test_entropy_functional_addressing(entropy_approach):
     """Test addressing the entropy estimator classes."""
+    approach_str, needed_kwargs = entropy_approach
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    entropy = im.entropy(data, approach=approach, **kwargs)
+    entropy = im.entropy(data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
 
 
-@pytest.mark.parametrize(
-    "approach,kwargs",
-    [
-        ("discrete", {}),
-        ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
-        ("metric", {}),
-        ("kl", {}),
-        ("renyi", {"alpha": 1.5}),
-        ("symbolic", {"order": 3}),
-        ("permutation", {"order": 3}),
-        ("tsallis", {"q": 2.0}),
-    ],
-)
-def test_entropy_class_addressing(approach, kwargs):
+def test_entropy_class_addressing(entropy_approach):
     """Test addressing the entropy estimator classes."""
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    est = im.estimator(data=data, measure="entropy", approach=approach, **kwargs)
+    approach_str, needed_kwargs = entropy_approach
+    est = im.estimator(
+        data=data, measure="entropy", approach=approach_str, **needed_kwargs
+    )
     assert isinstance(est, EntropyEstimator)
     assert isinstance(est.results(), float)
     assert isinstance(est.global_val(), float)
@@ -63,35 +41,24 @@ def test_entropy_class_addressing(approach, kwargs):
         est.effective_val()
 
 
-@pytest.mark.parametrize(
-    "approach,kwargs",
-    [
-        ("discrete", {}),
-        ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
-        ("metric", {}),
-        ("ksg", {}),
-        ("renyi", {"alpha": 1.5}),
-        ("symbolic", {"order": 2}),
-        ("permutation", {"order": 2}),
-    ],
-)
 @pytest.mark.parametrize("offset", [0, 1, 5])
 @pytest.mark.parametrize("normalize", [True, False])
-def test_mutual_information_functional_addressing(approach, kwargs, offset, normalize):
+def test_mutual_information_functional_addressing(mi_approach, offset, normalize):
     """Test addressing the mutual information estimator classes."""
+    approach_str, needed_kwargs = mi_approach
     data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     data_y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     mi = im.mutual_information(
         data_x,
         data_y,
-        approach=approach,
+        approach=approach_str,
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "symbolic", "permutation"]
             else {}
         ),
-        **kwargs,
+        **needed_kwargs,
     )
     assert isinstance(mi, (float, tuple))
     if isinstance(mi, tuple):
@@ -101,41 +68,30 @@ def test_mutual_information_functional_addressing(approach, kwargs, offset, norm
         assert isinstance(mi[2], float)
 
 
-@pytest.mark.parametrize(
-    "approach,kwargs",
-    [
-        ("discrete", {}),
-        ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
-        ("metric", {}),
-        ("ksg", {}),
-        ("renyi", {"alpha": 1.5}),
-        ("symbolic", {"order": 2}),
-        ("permutation", {"order": 2}),
-    ],
-)
 @pytest.mark.parametrize("offset", [0, 1, 5])
 @pytest.mark.parametrize("normalize", [True, False])
-def test_mutual_information_class_addressing(approach, kwargs, offset, normalize):
+def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     """Test addressing the mutual information estimator classes."""
+    approach_str, needed_kwargs = mi_approach
     data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     data_y = np.array([1, 2, 3, 5, 5, 6, 7, 8, 9, 10])
     est = im.estimator(
         data_x=data_x,
         data_y=data_y,
         measure="mutual_information",
-        approach=approach,
+        approach=approach_str,
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "symbolic", "permutation"]
             else {}
         ),
-        **kwargs,
+        **needed_kwargs,
     )
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach in ["discrete", "renyi"]:
+    if approach_str in ["discrete", "renyi"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
@@ -150,35 +106,24 @@ def test_mutual_information_class_addressing(approach, kwargs, offset, normalize
         est.effective_val()
 
 
-@pytest.mark.parametrize(
-    "approach,kwargs",
-    [
-        ("discrete", {}),
-        ("kernel", {"bandwidth": 3, "kernel": "box"}),
-        ("metric", {}),
-        ("ksg", {}),
-        ("renyi", {"alpha": 1.5}),
-        ("symbolic", {"order": 2}),
-        ("permutation", {"order": 3}),
-    ],
-)
 @pytest.mark.parametrize("offset", [0, 1, 5])
 @pytest.mark.parametrize("src_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
 def test_transfer_entropy_functional_addressing(
-    approach, kwargs, offset, src_hist_len, dest_hist_len
+    te_approach, offset, src_hist_len, dest_hist_len
 ):
     """Test addressing the transfer entropy estimator classes."""
+    approach_str, needed_kwargs = te_approach
     source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     te = im.transfer_entropy(
         source,
         dest,
-        approach=approach,
+        approach=approach_str,
         offset=offset,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
-        **kwargs,
+        **needed_kwargs,
     )
     assert isinstance(te, (float, tuple))
     if isinstance(te, tuple):
@@ -188,33 +133,22 @@ def test_transfer_entropy_functional_addressing(
         assert isinstance(te[2], float)
 
 
-@pytest.mark.parametrize(
-    "approach,kwargs",
-    [
-        ("discrete", {}),
-        ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
-        ("metric", {}),
-        ("ksg", {}),
-        ("renyi", {"alpha": 1.5}),
-        ("symbolic", {"order": 2}),
-        ("permutation", {"order": 3}),
-    ],
-)
-def test_transfer_entropy_class_addressing(approach, kwargs):
+def test_transfer_entropy_class_addressing(te_approach):
     """Test addressing the transfer entropy estimator classes."""
+    approach_str, needed_kwargs = te_approach
     source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     est = im.estimator(
         source=source,
         dest=dest,
         measure="transfer_entropy",
-        approach=approach,
-        **kwargs,
+        approach=approach_str,
+        **needed_kwargs,
     )
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach in ["discrete", "renyi"]:
+    if approach_str in ["discrete", "renyi"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
