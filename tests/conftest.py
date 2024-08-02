@@ -58,5 +58,6 @@ def te_estimator(request):
     kwargs = {
         "KernelTEEstimator": {"bandwidth": 0.3, "kernel": "box"},
         "SymbolicTEEstimator": {"order": 2},
+        "RenyiTEEstimator": {"alpha": 1.5},
     }
     return getattr(transfer_entropy, request.param), kwargs.get(request.param, {})

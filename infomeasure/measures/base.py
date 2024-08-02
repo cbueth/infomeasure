@@ -13,6 +13,7 @@ from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
 from .utils.normalize import normalize_data_0_1
+from .utils.te_slicing import te_observations
 
 
 class Estimator(ABC):
@@ -379,7 +380,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
         return h_x + h_y - h_xy
 
 
-class TransferEntropyEstimator(Estimator, ABC):
+class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for transfer entropy estimators.
 
     Attributes
@@ -447,6 +448,89 @@ class TransferEntropyEstimator(Estimator, ABC):
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size
         super().__init__(base=base)
+
+    def _generic_te_from_entropy(
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ):
+        r"""Calculate the transfer entropy with the entropy estimator.
+
+        Given the joint processes:
+        - :math:`X_{t_n}^{(k)} = (X_{t_n}, X_{t_n-1}, \ldots, X_{t_n-k+1})`
+        - :math:`Y_{t_n}^{(l)} = (Y_{t_n}, Y_{t_n-1}, \ldots, Y_{t_n-l+1})`
+
+        The Transfer Entropy from :math:`Y` to :math:`X` can be computed using the
+        following formula, which is based on conditional mutual information (MI):
+
+        .. math::
+
+                I(X_{t_{n+1}}; Y_{t_n}^{(l)} | X_{t_n}^{(k)}) = H(X_{t_{n+1}} | X_{t_n}^{(k)}) - H(X_{t_{n+1}} | Y_{t_n}^{(l)}, X_{t_n}^{(k)})
+
+        Now, we will rewrite the above expression by implementing the chain rule, as:
+
+        .. math::
+
+                I(X_{t_{n+1}} : Y_{t_n}^{(l)} | X_{t_n}^{(k)}) = H(X_{t_{n+1}}, X_{t_n}^{(k)}) + H(Y_{t_n}^{(l)}, X_{t_n}^{(k)}) - H(X_{t_{n+1}}, Y_{t_n}^{(l)}, X_{t_n}^{(k)}) - H(X_{t_n}^{(k)})
+
+        Parameters
+        ----------
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The transfer entropy from source to destination.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated transfer entropy method.
+        This helper method is provided as a generic fallback.
+        """
+
+        # Ensure source and dest are numpy arrays
+        source = self.source.astype(float).copy()
+        dest = self.dest.astype(float).copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            source += self.rng.normal(0, noise_level, source.shape)
+            dest += self.rng.normal(0, noise_level, dest.shape)
+
+        (
+            joint_space_data,
+            dest_past_embedded,
+            marginal_1_space_data,
+            marginal_2_space_data,
+        ) = te_observations(
+            source,
+            dest,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+        )
+
+        h_x_future_x_history = estimator(marginal_2_space_data, **kwargs).global_val()
+        h_x_future_x_history_y_history = estimator(
+            joint_space_data, **kwargs
+        ).global_val()
+        h_x_history = estimator(dest_past_embedded, **kwargs).global_val()
+        h_x_history_y_history = estimator(marginal_1_space_data, **kwargs).global_val()
+
+        # Compute Transfer Entropy
+        return (
+            h_x_future_x_history
+            - h_x_future_x_history_y_history
+            - h_x_history
+            + h_x_history_y_history
+        )
 
 
 class PValueMixin(RandomGeneratorMixin):
