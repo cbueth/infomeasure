@@ -239,7 +239,22 @@ class EntropyEstimator(Estimator, ABC):
         super().__init__(base=base)
 
 
-class MutualInformationEstimator(Estimator, ABC):
+class RandomGeneratorMixin:
+    """Mixin for random state generation.
+
+    Attributes
+    ----------
+    rng : Generator
+        The random state generator.
+    """
+
+    def __init__(self, *args, seed=None, **kwargs):
+        """Initialize the random state generator."""
+        self.rng = default_rng(seed)
+        super().__init__(*args, **kwargs)
+
+
+class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for mutual information estimators.
 
     Attributes
@@ -309,10 +324,12 @@ class MutualInformationEstimator(Estimator, ABC):
             self.data_y = normalize_data_0_1(self.data_y)
         super().__init__(base=base)
 
-    @staticmethod
     def _generic_mi_from_entropy(
-        data_x, data_y, estimator: type(EntropyEstimator), kwargs: dict
-    ):
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ) -> float:
         """Calculate the mutual information with the entropy estimator.
 
         Mutual Information (MI) between two random variables :math:`X` and :math:`Y`
@@ -328,16 +345,37 @@ class MutualInformationEstimator(Estimator, ABC):
 
         Parameters
         ----------
-        data_x, data_y : array-like
-            The data arrays for the two variables.
         estimator : EntropyEstimator
             The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
         kwargs : dict
             Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The mutual information between the two variables.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated mutual information method.
+        This helper method is provided as a generic fallback.
         """
-        h_x = estimator(data_x, **kwargs).global_val()
-        h_y = estimator(data_y, **kwargs).global_val()
-        h_xy = estimator(hstack((data_x, data_y)), **kwargs).global_val()
+
+        # Ensure source and dest are numpy arrays
+        data_x = self.data_x.astype(float).copy()
+        data_y = self.data_y.astype(float).copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            data_x += self.rng.normal(0, noise_level, data_x.shape)
+            data_y += self.rng.normal(0, noise_level, data_y.shape)
+
+        h_x = estimator(self.data_x, **kwargs).global_val()
+        h_y = estimator(self.data_y, **kwargs).global_val()
+        h_xy = estimator(hstack((self.data_x, self.data_y)), **kwargs).global_val()
         return h_x + h_y - h_xy
 
 
@@ -409,21 +447,6 @@ class TransferEntropyEstimator(Estimator, ABC):
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size
         super().__init__(base=base)
-
-
-class RandomGeneratorMixin:
-    """Mixin for random state generation.
-
-    Attributes
-    ----------
-    rng : Generator
-        The random state generator.
-    """
-
-    def __init__(self, *args, seed=None, **kwargs):
-        """Initialize the random state generator."""
-        self.rng = default_rng(seed)
-        super().__init__(*args, **kwargs)
 
 
 class PValueMixin(RandomGeneratorMixin):

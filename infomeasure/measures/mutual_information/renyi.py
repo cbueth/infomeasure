@@ -87,18 +87,8 @@ class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
             Renyi mutual information of the data.
         """
 
-        # Ensure source and dest are numpy arrays
-        data_x = self.data_x.astype(float).copy()
-        data_y = self.data_y.astype(float).copy()
-
-        # Add Gaussian noise to the data if the flag is set
-        if self.noise_level:
-            data_x += self.rng.normal(0, self.noise_level, data_x.shape)
-            data_y += self.rng.normal(0, self.noise_level, data_y.shape)
-
         return self._generic_mi_from_entropy(
-            data_x,
-            data_y,
             estimator=RenyiEntropyEstimator,
+            noise_level=self.noise_level,
             kwargs={"alpha": self.alpha, "k": self.k, "base": self.base},
         )

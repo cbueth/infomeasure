@@ -20,6 +20,7 @@ from infomeasure.measures.base import (
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 3}),
         ("permutation", {"order": 3}),
     ],
@@ -38,6 +39,7 @@ def test_entropy_functional_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("kl", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 3}),
         ("permutation", {"order": 3}),
     ],
@@ -66,9 +68,9 @@ def test_entropy_class_addressing(approach, kwargs):
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 2}),
-        ("renyi", {"alpha": 1.5}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -104,9 +106,9 @@ def test_mutual_information_functional_addressing(approach, kwargs, offset, norm
         ("kernel", {"bandwidth": 0.3, "kernel": "box"}),
         ("metric", {}),
         ("ksg", {}),
+        ("renyi", {"alpha": 1.5}),
         ("symbolic", {"order": 2}),
         ("permutation", {"order": 2}),
-        ("renyi", {"alpha": 1.5}),
     ],
 )
 @pytest.mark.parametrize("offset", [0, 1, 5])

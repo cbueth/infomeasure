@@ -105,7 +105,6 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
                 # Get the pattern type (permutation) of the current subsequence
                 pattern = _get_pattern_type(time_series[i : i + order])
                 count[pattern] += 1  # Increment the count of this pattern
-                print(time_series[i : i + order], pattern)
 
             # Let's create a dictionary where each key is a permutation,
             # and each value is the probability of that permutation
