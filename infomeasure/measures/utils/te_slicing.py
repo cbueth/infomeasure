@@ -1,42 +1,8 @@
 """Generalized data slicing method for transfer entropy estimators."""
 
-from numpy import column_stack, arange, ndarray, array
+from numpy import arange, ndarray, column_stack
 
 from ...utils.config import logger
-
-
-def construct_embedded_data_vectorized(
-    data, step_size=1, emb_dim=1, other_emb_dim: int = None
-):
-    """Construct embedded data matrix for a single time series.
-
-    Parameters
-    ----------
-    data : array-like
-        The time series data.
-    step_size : int
-        Step size between elements for the state space reconstruction.
-    emb_dim : int
-        Embedding dimension.
-    other_emb_dim : int, optional
-        Embedding dimension for the other variable.
-        If provided, the larger of the two embedding dimensions is used,
-        so that the resulting matrix has the same number of columns.
-    """
-    n = len(data)
-    num_rows = (
-        n
-        - ((emb_dim if other_emb_dim is None else max(emb_dim, other_emb_dim)) - 1)
-        * step_size
-    )
-    if num_rows <= 0:
-        return array([])
-
-    initial_indices = arange(num_rows)
-    offset_indices = arange(0, emb_dim * step_size, step_size)
-    all_indices = initial_indices[:, None] + offset_indices
-
-    return data[all_indices]
 
 
 def te_observations(
@@ -98,43 +64,55 @@ def te_observations(
             "If both ``src_hist_len`` and ``dest_hist_len`` are 1, "
             "having ``step_size`` > 1 does not impact the TE calculation."
         )
-    # max_len = data_len - (max(src_hist_len, dest_hist_len) - 1) * step_size
-    # max_len cannot be negative
-    if len(source) - (max(src_hist_len, dest_hist_len) - 1) * step_size <= 0:
+    # error if vars are not positive integers
+    if not all(
+        isinstance(var, int) and var > 0
+        for var in (src_hist_len, dest_hist_len, step_size)
+    ):
+        raise ValueError(
+            "src_hist_len, dest_hist_len, and step_size must be positive integers."
+        )
+
+    max_delay = max(dest_hist_len, src_hist_len) * step_size
+    # max delay must be less than the length of the data, otherwise raise an error
+    if max_delay >= len(source):
         raise ValueError(
             "The history demanded by the source and destination data "
-            "is greater than the length of the data. "
-            f"Demand: {(max(src_hist_len, dest_hist_len) - 1) * step_size + 1}. "
-            f"Data length: {len(source)}."
+            "is greater than the length of the data and results in empty arrays."
         )
-    # Prepare multivariate data arrays
 
-    # y_i^{(l)}
-    sliced_source = construct_embedded_data_vectorized(
-        source, step_size=step_size, emb_dim=src_hist_len, other_emb_dim=dest_hist_len
-    )
-    # x_i^{(k)}
-    sliced_dest = construct_embedded_data_vectorized(
-        destination,
-        step_size=step_size,
-        emb_dim=dest_hist_len,
-        other_emb_dim=src_hist_len,
-    )
+    base_indices = arange(max_delay, len(source))
+    # Construct src_future
+    src_future = source[base_indices]
 
-    future_dest = destination[-len(sliced_dest) :]
+    # Construct src_history
+    offset_indices = arange(step_size, (src_hist_len + 1) * step_size, step_size)
+    src_history_indices = base_indices[:, None] - offset_indices[::-1]
+    src_history = source[src_history_indices]
+
+    # Construct dest_history
+    offset_indices = arange(step_size, (dest_hist_len + 1) * step_size, step_size)
+    y_history_indices = base_indices[:, None] - offset_indices[::-1]
+    dest_history = destination[y_history_indices]
 
     # g(\hat{x}_{i+1}, x_i^{(k)}, y_i^{(l)})
-    joint_space_data = column_stack((future_dest, sliced_dest, sliced_source))
+    joint_space_data = column_stack(
+        (
+            src_future,  # \hat{x}_{i+1}
+            src_history,  # x_i^{(k)}
+            dest_history,  # y_i^{(l)}
+        )
+    )
     # g(\hat{x}_i^{(k)})
-    # dest_past_embedded = sliced_dest
+    # src_past_embedded = src_history
     # g(x_i^{(k)}, y_i^{(l)})
-    marginal_1_space_data = column_stack((sliced_dest, sliced_source))
+    marginal_1_space_data = column_stack((src_history, dest_history))
     # g(\hat{x}_{i+1}, x_i^{(k)})
-    marginal_2_space_data = column_stack((future_dest, sliced_dest))
+    marginal_2_space_data = column_stack((src_future, src_history))
 
     return (
         joint_space_data,
-        sliced_dest,
+        src_history,
         marginal_1_space_data,
         marginal_2_space_data,
     )
