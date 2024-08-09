@@ -114,6 +114,7 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
+            permute_dest=self.permute_dest,
         )
 
         # Create KDTree for efficient nearest neighbor search in joint space

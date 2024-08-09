@@ -2,6 +2,7 @@
 
 import pytest
 from numpy import arange, array, hstack, array_equal
+from numpy.random import default_rng
 
 from infomeasure.measures.utils.te_slicing import (
     te_observations,
@@ -117,3 +118,60 @@ def test_te_observations_invalid_inputs(
         te_observations(
             arange(data_len), arange(data_len), src_hist_len, dest_hist_len, step_size
         )
+
+
+@pytest.mark.parametrize(
+    "src_hist_len, dest_hist_len, step_size",
+    [(1, 1, 1), (2, 2, 2), (1, 4, 1), (4, 2, 1)],
+)
+@pytest.mark.parametrize("permute_dest", [True, default_rng(5378)])
+def test_te_observations_permute_dest(
+    src_hist_len, dest_hist_len, step_size, permute_dest
+):
+    """Test the TE observations data arrays with permutation."""
+    source = arange(10)
+    destination = arange(10, 20)
+    (
+        joint_space_data,
+        data_dest_past_embedded,
+        marginal_1_space_data,
+        marginal_2_space_data,
+    ) = te_observations(
+        source,
+        destination,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        step_size=step_size,
+        permute_dest=False,
+    )
+    (
+        joint_space_data_permuted,
+        data_dest_past_embedded_permuted,
+        marginal_1_space_data_permuted,
+        marginal_2_space_data_permuted,
+    ) = te_observations(
+        source,
+        destination,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        step_size=step_size,
+        permute_dest=permute_dest,
+    )
+    assert array_equal(
+        joint_space_data[:, : src_hist_len + 1],
+        joint_space_data_permuted[:, : src_hist_len + 1],
+    )
+    assert not array_equal(  # permuted y_i^{(l)}
+        joint_space_data[:, src_hist_len + 1 :],
+        joint_space_data_permuted[:, src_hist_len + 1 :],
+    )
+    assert array_equal(data_dest_past_embedded, data_dest_past_embedded_permuted)
+    assert array_equal(
+        marginal_1_space_data[:, :src_hist_len],
+        marginal_1_space_data_permuted[:, :src_hist_len],
+    )
+    assert not array_equal(  # permuted y_i^{(l)}
+        marginal_1_space_data[:, src_hist_len:],
+        marginal_1_space_data_permuted[:, src_hist_len:],
+    )
+    assert array_equal(marginal_2_space_data, marginal_2_space_data_permuted)

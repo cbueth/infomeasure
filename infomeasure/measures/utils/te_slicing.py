@@ -1,6 +1,7 @@
 """Generalized data slicing method for transfer entropy estimators."""
 
 from numpy import arange, ndarray, column_stack
+from numpy.random import Generator, default_rng
 
 from ...utils.config import logger
 
@@ -11,6 +12,7 @@ def te_observations(
     src_hist_len=1,
     dest_hist_len=1,
     step_size=1,
+    permute_dest=False,
 ) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     r"""
     Slice the data arrays to prepare for TE calculation.
@@ -36,6 +38,12 @@ def te_observations(
         Default is 1, no history.
     step_size : int, optional
         Step size for the time delay in the embedding. Default is 1, no delay.
+    permute_dest : bool | Generator, optional
+        Whether to shuffle the sliced dest data. Default is False.
+        This is used for the permutation TE. Rows are permuted, keeping the
+        history intact.
+        If a random number generator is provided, it will be used for shuffling.
+        If True, a new random number generator will be created.
 
     Returns
     -------
@@ -93,6 +101,11 @@ def te_observations(
     # Construct dest_history
     offset_indices = arange(step_size, (dest_hist_len + 1) * step_size, step_size)
     y_history_indices = base_indices[:, None] - offset_indices[::-1]
+    if isinstance(permute_dest, Generator):
+        permute_dest.shuffle(y_history_indices, axis=0)
+    elif permute_dest:
+        rng = default_rng()
+        rng.shuffle(y_history_indices, axis=0)
     dest_history = destination[y_history_indices]
 
     # g(\hat{x}_{i+1}, x_i^{(k)}, y_i^{(l)})
