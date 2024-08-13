@@ -5,7 +5,7 @@ import pytest
 from infomeasure.measures.entropy import SymbolicEntropyEstimator
 
 
-@pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000])
+@pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000, int(1e5)])
 @pytest.mark.parametrize("order", [1, 2, 3, 4, 5])
 @pytest.mark.parametrize("per_symbol", [True, False])
 def test_symbolic_entropy(data_len, order, per_symbol, default_rng):
@@ -47,6 +47,13 @@ def test_symbolic_entropy(data_len, order, per_symbol, default_rng):
         # ([0, 7, 2, 3, 45, 7, 1, 8, 4, 5, 2, 7, 8], 12, 2, 1.0),  # TODO: not compatible yet, as code fails trying to generate all 12! combinations
         (["a", "b", "a", "b", "a"], 2, 2, 1.0),  # 2x(10), 2x(0,1): log_2(2) = 1
         ([0.0, 1.0, 0.0, 1.0, 0.0], 2, 2, 1.0),  # 2x(0,1), 2x(10): log_2(2) = 1
+        (
+            [0, 7, 2, 3, 45, 7, 1, 8, 4, 5, 2, 7, 8, 5, 8, 0, 7, 1, 3, 51, 6, 7],
+            4,
+            2,
+            3.5110854081804264,
+        ),
+        ([4, 7, 9, 10, 6, 11, 35, 0, 59, 4, 45, 46], 4, 3, 1.7195867761904635),
     ],
 )
 def test_symbolic_entropy_explicit(data, order, base, expected):
