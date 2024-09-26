@@ -7,31 +7,70 @@ kernelspec:
 (renyi_entropy)=
 # Rényi Entropy Estimation
 
-The Rényi entropy is a generalization of the Shannon entropy that includes a parameter $\alpha$ that controls the sensitivity of the entropy to the probabilities of the different states of the random variable {cite:p}``.
+The [**Rényi entropy**](index.md#renyi-alpha-entropy) is a generalization of the [Shannon entropy](index.md#shannon-entropy) which includes a parameter $\alpha$ that controls the sensitivity of the entropy to the probabilities of the different states of the random variable.
+For $\alpha < 1$, the small values of probabilities $p_i$ are emphasized and for $\alpha > 1$, on the contrary, higher probabilities are emphasized.
+For $\alpha = 1$ Rényi entropy reduces to Shannon Entropy.
+```{admonition} Rényi Entropy
+:class: tip
 
-[//]: # ({cite:p}``. Maybe https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/Proceedings-of-the-Fourth-Berkeley-Symposium-on-Mathematical-Statistics-and/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181?tab=ArticleFirstPage)
+The Rényi entropy of order $\alpha$ for a probability distribution with density function \(f\) is given by:
 
-```bibtex
-@inproceedings{renyi1961measures,
-  title={On measures of entropy and information},
-  author={R{\'e}nyi, Alfr{\'e}d},
-  booktitle={Proceedings of the fourth Berkeley symposium on mathematical statistics and probability, volume 1: contributions to the theory of statistics},
-  volume={4},
-  pages={547--562},
-  year={1961},
-  organization={University of California Press}
-}
+$$
+H^*_{\alpha} = \frac{1}{1-\alpha} \log \int_{\mathbb{R}^m} f^{\alpha}(x) \, dx, \quad \alpha \neq 1,
+$$
+When $ \alpha \rightarrow 1$, Rényi entropy converges to the Shannon entropy:
+
+$$
+H_1 = - \int_{\mathbb{R}^m} f(x) \log f(x) \, dx
+$$
 ```
+## Estimation Technique:
+**Leonenko et. al.** introduced a class of estimators for Rényi entropy by extending the [K-L entropy estimation](kozachenko_leonenko.md) technique which is based on the $K^{th}$-Nearest Neighbour (KNN) search approach, for detail refer to {cite:p}`RenyiTsallisEstimator2008` {cite:p}`LeonenkoRenyiEstimator`.
+Let us suppose the $X$ with $N$ datapoints.
+First for each points $ X_i $, compute the distances $ \rho(X_i, X_j) $ to all other points $ X_j $ (where $ j \neq i $) and record the $ \rho_{k,N-1}^{(i)} $ as the distance from $ X_i $ to its $K^{th}$-Nearest Neighbour.
+Renyi entropy $\hat{H}_{N,k,q}^*$ is estimated by:
 
-The Rényi entropy is defined as:
+**For $\alpha \neq 1$:**
 
 $$
-H_\alpha(X) = \frac{1}{1 - \alpha} \log \left( \sum_{x \in X} p(x)^\alpha \right)
+\hat{H}_{N,k,q}^* = \frac{\log \hat{I}_{N,k,q}}{1 - q}
+$$
+Where:
+
+$$
+\hat{I}_{N,k,q} = \frac{1}{N} \sum_{i=1}^N \left(\zeta_{N,i,k}\right)^{1-q}
 $$
 
-[//]: # (please check the formula)
+$$
+\zeta_{N,i,k} = (N-1) \, C_k \, V_m \, \left(\rho_{k,N-1}^{(i)}\right)^m
+$$
 
-where $X$ is the set of possible values of the random variable, $p(x)$ is the probability of the value $x$ occurring, and $\alpha$ is the parameter that controls the sensitivity of the entropy.
+- $V_m = \frac{\pi^{m/2}}{\Gamma(m/2 + 1)}$ is the volume of the unit ball in $\mathbb{R}^m$.
+- $C_k = \left[\frac{\Gamma(k)}{\Gamma(k+1-q)}\right]^{1/(1-q)}$
+- $\rho_{k,N-1}^{(i)}$ is the distance from the point $X_i$ to its $k^{th}$ nearest neighbor.
+
+**For $\alpha = 1$:**
+
+$$
+\hat{H}_{N,k,1} = \frac{1}{N} \sum_{i=1}^N \log \xi_{N,i,k}
+$$
+Where:
+
+$$
+\xi_{N,i,k} = (N-1) \exp[-\Psi(k)] \, V_m \, \left(\rho_{k,N-1}^{(i)}\right)^m
+$$
+
+- $\Psi(z) = \frac{\Gamma'(z)}{\Gamma(z)}$ is the digamma function.
+- For $k \geq 1$:
+
+$$
+\Psi(k) = -\gamma + A_{k-1}
+$$
+Where:
+
+- $\gamma$ is the Euler-Mascheroni constant.
+- $A_j = \sum_{j=1}^j \frac{1}{j}$ is the sum of the harmonic series up to $j$.
+
 
 ```{admonition} Alfréd Rényi (1921–1970)
 :class: tip
@@ -42,9 +81,7 @@ Alfréd Rényi was a Hungarian mathematician who made significant contributions 
 
 {cite:p}`suzuki2002history`
 ```
-
-For $\alpha = 1$, the Rényi entropy reduces to the Shannon entropy.
-Proof is left as an exercise to the reader 😆. (I think it needs $\sum_{x \in X} p(x) = 1$ to work)
+## Test: Renyi Entropy Estimation
 
 ```{code-cell}
 import infomeasure as im

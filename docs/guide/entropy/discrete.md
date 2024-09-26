@@ -6,16 +6,17 @@ kernelspec:
 
 (discrete_entropy)=
 # Discrete Entropy Estimation
+The discrete estimator for a discrete RV $X$ following the probability mass function (pmf) $p(x)$ is straight forward act of plug-in probability estimates in the discrete Entropy formula. 
 
-The entropy of a discrete random variable is a measure of the uncertainty of the variable.
-It is defined as
+```{admonition} Tsallis Entropy
+:class: tip
+The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` discrete entropy formula is as follows:
 
 $$
 H(X) = -\sum_{x \in X} p(x) \log_b p(x),
 $$
-
-where $X$ is the set of possible values of the random variable and $p(x)$ is the probability of the value $x$ occurring {cite:p}`shannonMathematicalTheoryCommunication1948`.
-``b`` is the base of the logarithm.
+where $x$ is the list of realization of RV $X$ with probabilitiy $p(x)$ and ``b`` is the base of the logarithm. 
+```
 
 ````{sidebar} Units of Information
 The unit of entropy is the bit when the base of the logarithm is 2.
