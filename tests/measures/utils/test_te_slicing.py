@@ -9,7 +9,7 @@ from infomeasure.measures.utils.te_slicing import (
 )
 
 
-@pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1e5])
+@pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1e4])
 @pytest.mark.parametrize("src_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("step_size", [1, 2, 3])
@@ -18,7 +18,7 @@ def test_te_observations_old_implementation(
 ):
     """Test the shape of the TE observations data arrays.
 
-    Compare output to old implementation.
+    Compare output to old/explicit implementation.
     """
     src = arange(data_len)
     dest = arange(data_len, 2 * data_len)
@@ -35,24 +35,24 @@ def test_te_observations_old_implementation(
 
     # Old implementation
     n = len(src)
-    max_delay = max(dest_hist_len * step_size, src_hist_len * step_size)
-    x_future = array([src[i + max_delay] for i in range(n - max_delay)])
-    x_history = array(
-        [src[i - src_hist_len * step_size : i : step_size] for i in range(max_delay, n)]
-    )
+    max_delay = max(src_hist_len * step_size, dest_hist_len * step_size)
+    y_future = array([dest[i + max_delay] for i in range(n - max_delay)])
     y_history = array(
         [
             dest[i - dest_hist_len * step_size : i : step_size]
             for i in range(max_delay, n)
         ]
     )
-    assert array_equal(
-        joint_space_data, hstack((x_future.reshape(-1, 1), x_history, y_history))
+    x_history = array(
+        [src[i - src_hist_len * step_size : i : step_size] for i in range(max_delay, n)]
     )
-    assert array_equal(data_dest_past_embedded, x_history)
-    assert array_equal(marginal_1_space_data, hstack((x_history, y_history)))
     assert array_equal(
-        marginal_2_space_data, hstack((x_future.reshape(-1, 1), x_history))
+        joint_space_data, hstack((y_future.reshape(-1, 1), y_history, x_history))
+    )
+    assert array_equal(data_dest_past_embedded, y_history)
+    assert array_equal(marginal_1_space_data, hstack((y_history, x_history)))
+    assert array_equal(
+        marginal_2_space_data, hstack((y_future.reshape(-1, 1), y_history))
     )
 
 
@@ -64,33 +64,82 @@ def test_te_observations():
         marginal_1_space_data,
         marginal_2_space_data,
     ) = te_observations(
-        arange(10), arange(10, 20), src_hist_len=2, dest_hist_len=3, step_size=2
+        arange(10), arange(10, 20), src_hist_len=3, dest_hist_len=2, step_size=2
     )
     assert (
         array(
             [
-                [6, 2, 4, 10, 12, 14],
-                [7, 3, 5, 11, 13, 15],
-                [8, 4, 6, 12, 14, 16],
-                [9, 5, 7, 13, 15, 17],
+                [16, 12, 14, 0, 2, 4],
+                [17, 13, 15, 1, 3, 5],
+                [18, 14, 16, 2, 4, 6],
+                [19, 15, 17, 3, 5, 7],
             ]
         )
         == joint_space_data
     ).all()
-    assert (array([[2, 4], [3, 5], [4, 6], [5, 7]]) == data_dest_past_embedded).all()
+    assert (
+        array([[12, 14], [13, 15], [14, 16], [15, 17]]) == data_dest_past_embedded
+    ).all()
     assert (
         array(
             [
-                [2, 4, 10, 12, 14],
-                [3, 5, 11, 13, 15],
-                [4, 6, 12, 14, 16],
-                [5, 7, 13, 15, 17],
+                [12, 14, 0, 2, 4],
+                [13, 15, 1, 3, 5],
+                [14, 16, 2, 4, 6],
+                [15, 17, 3, 5, 7],
             ]
         )
         == marginal_1_space_data
     ).all()
     assert (
-        array([[6, 2, 4], [7, 3, 5], [8, 4, 6], [9, 5, 7]]) == marginal_2_space_data
+        array([[16, 12, 14], [17, 13, 15], [18, 14, 16], [19, 15, 17]])
+        == marginal_2_space_data
+    ).all()
+
+
+def test_te_observations_chars():
+    """Test the TE observations data arrays with char arrays."""
+    source = array(["a", "b", "c", "d"])
+    destination = array(["e", "f", "g", "h"])
+    (
+        joint_space_data,
+        data_dest_past_embedded,
+        marginal_1_space_data,
+        marginal_2_space_data,
+    ) = te_observations(
+        source, destination, src_hist_len=1, dest_hist_len=2, step_size=1
+    )
+    assert (
+        array(
+            [
+                ["g", "e", "f", "b"],
+                ["h", "f", "g", "c"],
+            ]
+        )
+        == joint_space_data
+    ).all()
+
+
+def test_te_observations_tuple():
+    """Test the TE observations data arrays with tuple arrays."""
+    source = array([(1, 1), (2, 2), (3, 3), (4, 4)])
+    destination = array([(5, 5), (6, 6), (7, 7), (8, 8)])
+    (
+        joint_space_data,
+        data_dest_past_embedded,
+        marginal_1_space_data,
+        marginal_2_space_data,
+    ) = te_observations(
+        source, destination, src_hist_len=1, dest_hist_len=2, step_size=1
+    )
+    assert (
+        array(
+            [
+                [(7, 7), (5, 5), (6, 6), (2, 2)],
+                [(8, 8), (6, 6), (7, 7), (3, 3)],
+            ]
+        )
+        == joint_space_data
     ).all()
 
 
@@ -124,9 +173,9 @@ def test_te_observations_invalid_inputs(
     "src_hist_len, dest_hist_len, step_size",
     [(1, 1, 1), (2, 2, 2), (1, 4, 1), (4, 2, 1)],
 )
-@pytest.mark.parametrize("permute_dest", [True, default_rng(5378)])
-def test_te_observations_permute_dest(
-    src_hist_len, dest_hist_len, step_size, permute_dest
+@pytest.mark.parametrize("permute_src", [True, default_rng(5378)])
+def test_te_observations_permute_src(
+    src_hist_len, dest_hist_len, step_size, permute_src
 ):
     """Test the TE observations data arrays with permutation."""
     source = arange(10)
@@ -142,7 +191,7 @@ def test_te_observations_permute_dest(
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         step_size=step_size,
-        permute_dest=False,
+        permute_src=False,
     )
     (
         joint_space_data_permuted,
@@ -155,23 +204,27 @@ def test_te_observations_permute_dest(
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         step_size=step_size,
-        permute_dest=permute_dest,
+        permute_src=permute_src,
     )
-    assert array_equal(
-        joint_space_data[:, : src_hist_len + 1],
-        joint_space_data_permuted[:, : src_hist_len + 1],
+    assert array_equal(  # \hat{y}_{i+1}, y_i^{(k)} fixed
+        joint_space_data[:, : dest_hist_len + 1],
+        joint_space_data_permuted[:, : dest_hist_len + 1],
     )
-    assert not array_equal(  # permuted y_i^{(l)}
-        joint_space_data[:, src_hist_len + 1 :],
-        joint_space_data_permuted[:, src_hist_len + 1 :],
+    assert not array_equal(  # permuted x_i^{(l)}
+        joint_space_data[:, dest_hist_len + 1 :],
+        joint_space_data_permuted[:, dest_hist_len + 1 :],
     )
-    assert array_equal(data_dest_past_embedded, data_dest_past_embedded_permuted)
-    assert array_equal(
-        marginal_1_space_data[:, :src_hist_len],
-        marginal_1_space_data_permuted[:, :src_hist_len],
+    assert array_equal(  # y_i^{(k)} fixed
+        data_dest_past_embedded, data_dest_past_embedded_permuted
     )
-    assert not array_equal(  # permuted y_i^{(l)}
-        marginal_1_space_data[:, src_hist_len:],
-        marginal_1_space_data_permuted[:, src_hist_len:],
+    assert array_equal(  # y_i^{(k)} fixed
+        marginal_1_space_data[:, :dest_hist_len],
+        marginal_1_space_data_permuted[:, :dest_hist_len],
     )
-    assert array_equal(marginal_2_space_data, marginal_2_space_data_permuted)
+    assert not array_equal(  # permuted x_i^{(l)}
+        marginal_1_space_data[:, dest_hist_len:],
+        marginal_1_space_data_permuted[:, dest_hist_len:],
+    )
+    assert array_equal(  # \hat{y}_{i+1}, x_i^{(k)} fixed
+        marginal_2_space_data, marginal_2_space_data_permuted
+    )

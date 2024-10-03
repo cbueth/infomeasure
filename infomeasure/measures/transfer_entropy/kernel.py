@@ -89,7 +89,7 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
                 src_hist_len=self.src_hist_len,
                 dest_hist_len=self.dest_hist_len,
                 step_size=self.step_size,
-                permute_dest=self.permute_dest,
+                permute_src=self.permute_src,
             )
         )
         local_te_values = zeros(len(numerator_term1))

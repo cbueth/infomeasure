@@ -448,7 +448,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size
         # Permutation flag - used by the p-value method and te_observations slicing
-        self.permute_dest = False
+        self.permute_src = False
         # Initialize Estimator ABC with the base
         super().__init__(base=base)
 
@@ -518,7 +518,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
-            permute_dest=self.permute_dest,
+            permute_src=self.permute_src,
         )
 
         h_x_future_x_history = estimator(marginal_2_space_data, **kwargs).global_val()
@@ -720,12 +720,12 @@ class PValueMixin(RandomGeneratorMixin):
                 f"not {n_permutations} ({type(n_permutations)})."
             )
         # Activate the permutation flag
-        self.permute_dest = self.rng
+        self.permute_src = self.rng
         permuted_values = [self._calculate() for _ in range(n_permutations)]
         if isinstance(permuted_values[0], tuple):
             permuted_values = [x[0] for x in permuted_values]
         # Deactivate the permutation flag
-        self.permute_dest = False
+        self.permute_src = False
         return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
 
 
