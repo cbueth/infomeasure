@@ -26,7 +26,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     data : array-like
         The data used to estimate the entropy.
     order : int
-        The order of the Symbolic entropy.
+        The size of the permutation patterns.
     per_symbol : bool, optional
         If True, the entropy is divided by the order - 1.
     base : int | float | "e", optional
@@ -79,6 +79,8 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         """Simplified case for order 2."""
         gt = time_series[:-1] < time_series[1:]  # compare all neighboring elements
         gt = np_sum(gt) / (len(time_series) - 1)  # sum up the True values
+        if gt == 0 or gt == 1:
+            return array([1])  # output cannot include zeros
         return array([gt, 1 - gt])  # return the probabilities in the needed format
 
     @staticmethod
@@ -88,7 +90,8 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         gt2 = time_series[1:-1] < time_series[2:]  # 1 < 2
         gt3 = time_series[:-2] < time_series[2:]  # 0 < 2
         count = Counter(zip(gt1, gt2, gt3))
-        return array([v / (len(time_series) - 2) for v in count.values()])
+        probs = array([v / (len(time_series) - 2) for v in count.values()])
+        return probs[probs != 0]  # output cannot include zeros
 
     @staticmethod
     def _get_subarray_patterns(a, n):
