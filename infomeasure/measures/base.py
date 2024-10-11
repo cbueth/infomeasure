@@ -499,8 +499,8 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         """
 
         # Ensure source and dest are numpy arrays
-        source = self.source.astype(float).copy()
-        dest = self.dest.astype(float).copy()
+        source = self.source.copy()
+        dest = self.dest.copy()
 
         # Add Gaussian noise to the data if the flag is set
         if noise_level:

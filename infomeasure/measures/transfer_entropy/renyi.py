@@ -99,17 +99,12 @@ class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         float
             The Renyi transfer entropy.
         """
-
         # Ensure source and dest are numpy arrays
-        source = self.source.astype(float).copy()
-        dest = self.dest.astype(float).copy()
-
-        # Add Gaussian noise to the data if the flag is set
-        if self.noise_level:
-            source += self.rng.normal(0, self.noise_level, source.shape)
-            dest += self.rng.normal(0, self.noise_level, dest.shape)
+        self.source = self.source.astype(float)
+        self.dest = self.dest.astype(float)
 
         return self._generic_te_from_entropy(
             estimator=RenyiEntropyEstimator,
+            noise_level=self.noise_level,
             kwargs=dict(k=self.k, alpha=self.alpha, base=self.base),
         )
