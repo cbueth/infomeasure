@@ -66,7 +66,7 @@ def permutation_to_integer(perm: ndarray, dtype: type = uint64) -> int:
     for i in range(n):
         factoradic[i] = np_sum(perm[i] > perm[i + 1 :], dtype=dtype)
     integer = np_sum(
-        factoradic * array([factorial(n - 1 - i) for i in range(n)], dtype=dtype),
+        factoradic * array([factorial(n - 1 - i) for i in range(n)]),
         dtype=dtype,
     )
     return integer

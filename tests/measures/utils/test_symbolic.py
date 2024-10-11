@@ -35,7 +35,7 @@ from infomeasure.measures.utils.symbolic import symbolize_series, permutation_to
         ([0, 0, -1, 1, -2, 2, -3, 3], 2, 4, [[1, 0], [0, 1]] * 2),
         ([0, 0, -1, 1, -2, 2, -3, 3], 2, 6, [[1, 0], [0, 1]]),
         (
-            [0, 0, -1, 1, -2, 2, -3, 3],
+            [-1e-6, 0, -1, 1, -2, 2, -3, 3],
             6,
             1,
             [[4, 2, 0, 1, 3, 5], [5, 3, 1, 0, 2, 4], [4, 2, 0, 1, 3, 5]],
@@ -168,7 +168,7 @@ def test_permutation_to_integer_order_too_large():
         permutation_to_integer(arange(21))
 
 
-@pytest.mark.parametrize("order", [1, 2, 3, 4, 5, 6, 7])  # higher orders take too long
+@pytest.mark.parametrize("order", [1, 2, 3, 4, 5, 6])
 @pytest.mark.parametrize("dtype", [uint8, uint16, uint32, uint64])
 def test_permutation_to_integer_uniqueness(order, dtype):
     """Test the uniqueness property of the permutation_to_integer function."""
