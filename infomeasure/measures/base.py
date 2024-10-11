@@ -386,9 +386,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     Attributes
     ----------
     source : array-like
-        The source data used to estimate the transfer entropy.
+        The source data used to estimate the transfer entropy (X).
     dest : array-like
-        The destination data used to estimate the transfer entropy.
+        The destination data used to estimate the transfer entropy (Y).
     step_size : int
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
@@ -461,21 +461,21 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         r"""Calculate the transfer entropy with the entropy estimator.
 
         Given the joint processes:
-        - :math:`X_{t_n}^{(k)} = (X_{t_n}, X_{t_n-1}, \ldots, X_{t_n-k+1})`
-        - :math:`Y_{t_n}^{(l)} = (Y_{t_n}, Y_{t_n-1}, \ldots, Y_{t_n-l+1})`
+        - :math:`X_{t_n}^{(l)} = (X_{t_n}, X_{t_n-1}, \ldots, X_{t_n-k+1})`
+        - :math:`Y_{t_n}^{(k)} = (Y_{t_n}, Y_{t_n-1}, \ldots, Y_{t_n-l+1})`
 
-        The Transfer Entropy from :math:`Y` to :math:`X` can be computed using the
+        The Transfer Entropy from :math:`X` to :math:`Y` can be computed using the
         following formula, which is based on conditional mutual information (MI):
 
         .. math::
 
-                I(X_{t_{n+1}}; Y_{t_n}^{(l)} | X_{t_n}^{(k)}) = H(X_{t_{n+1}} | X_{t_n}^{(k)}) - H(X_{t_{n+1}} | Y_{t_n}^{(l)}, X_{t_n}^{(k)})
+                I(Y_{t_{n+1}}; X_{t_n}^{(l)} | Y_{t_n}^{(k)}) = H(Y_{t_{n+1}} | Y_{t_n}^{(k)}) - H(Y_{t_{n+1}} | X_{t_n}^{(l)}, Y_{t_n}^{(k)})
 
         Now, we will rewrite the above expression by implementing the chain rule, as:
 
         .. math::
 
-                I(X_{t_{n+1}} : Y_{t_n}^{(l)} | X_{t_n}^{(k)}) = H(X_{t_{n+1}}, X_{t_n}^{(k)}) + H(Y_{t_n}^{(l)}, X_{t_n}^{(k)}) - H(X_{t_{n+1}}, Y_{t_n}^{(l)}, X_{t_n}^{(k)}) - H(X_{t_n}^{(k)})
+                I(Y_{t_{n+1}} : X_{t_n}^{(l)} | Y_{t_n}^{(k)}) = H(Y_{t_{n+1}}, Y_{t_n}^{(k)}) + H(X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_{n+1}}, X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_n}^{(k)})
 
         Parameters
         ----------
@@ -521,19 +521,19 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             permute_src=self.permute_src,
         )
 
-        h_x_future_x_history = estimator(marginal_2_space_data, **kwargs).global_val()
-        h_x_future_x_history_y_history = estimator(
+        h_y_future_y_history = estimator(marginal_2_space_data, **kwargs).global_val()
+        h_y_history_x_history = estimator(marginal_1_space_data, **kwargs).global_val()
+        h_y_future_y_history_x_history = estimator(
             joint_space_data, **kwargs
         ).global_val()
-        h_x_history = estimator(dest_past_embedded, **kwargs).global_val()
-        h_x_history_y_history = estimator(marginal_1_space_data, **kwargs).global_val()
+        h_y_history = estimator(dest_past_embedded, **kwargs).global_val()
 
         # Compute Transfer Entropy
         return (
-            h_x_future_x_history
-            - h_x_future_x_history_y_history
-            - h_x_history
-            + h_x_history_y_history
+            h_y_future_y_history
+            + h_y_history_x_history
+            - h_y_future_y_history_x_history
+            - h_y_history
         )
 
 

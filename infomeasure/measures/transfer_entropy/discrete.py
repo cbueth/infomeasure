@@ -12,7 +12,7 @@ class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     Attributes
     ----------
     source, dest : array-like
-        The source and destination data used to estimate the transfer entropy.
+        The source (X) and destination (Y) data used to estimate the transfer entropy.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.

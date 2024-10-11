@@ -15,7 +15,7 @@ class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     Attributes
     ----------
     source, dest : array-like
-        The source and dest data used to estimate the transfer entropy.
+        The source (X) and dest (Y) data used to estimate the transfer entropy.
     k : int
         The number of nearest neighbors used in the estimation.
     alpha : float | int

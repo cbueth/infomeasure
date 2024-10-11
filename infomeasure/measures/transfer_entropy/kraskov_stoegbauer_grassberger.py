@@ -21,7 +21,7 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     Attributes
     ----------
     source, dest : array-like
-        The source and destination data used to estimate the transfer entropy.
+        The source (X) and destination (Y) data used to estimate the transfer entropy.
     k : int
         Number of nearest neighbors to consider.
     noise_level : float, None or False

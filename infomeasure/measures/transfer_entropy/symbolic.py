@@ -19,7 +19,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     Attributes
     ----------
     source, dest : array-like
-        The source and dest data used to estimate the transfer entropy.
+        The source (X) and dest (Y) data used to estimate the transfer entropy.
     order : int
         The size of the permutation patterns.
     offset : int, optional
