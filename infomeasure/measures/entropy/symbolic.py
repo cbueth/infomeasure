@@ -1,9 +1,8 @@
 """Module for the Symbolic / Permutation entropy estimator."""
 
 from collections import Counter
-from itertools import permutations
 
-from numpy import argsort
+from numpy import array, sum as np_sum
 
 from ... import Config
 from ...utils.config import logger
@@ -27,7 +26,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     data : array-like
         The data used to estimate the entropy.
     order : int
-        The order of the Symbolic entropy.
+        The size of the permutation patterns.
     per_symbol : bool, optional
         If True, the entropy is divided by the order - 1.
     base : int | float | "e", optional
@@ -75,6 +74,68 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         self.order = order
         self.per_symbol = per_symbol
 
+    @staticmethod
+    def _estimate_probabilities_order_2(time_series):
+        """Simplified case for order 2."""
+        gt = time_series[:-1] < time_series[1:]  # compare all neighboring elements
+        gt = np_sum(gt) / (len(time_series) - 1)  # sum up the True values
+        if gt == 0 or gt == 1:
+            return array([1])  # output cannot include zeros
+        return array([gt, 1 - gt])  # return the probabilities in the needed format
+
+    @staticmethod
+    def _estimate_probabilities_order_3(time_series):
+        """Simplified case for order 3."""
+        gt1 = time_series[:-2] < time_series[1:-1]  # 0 < 1
+        gt2 = time_series[1:-1] < time_series[2:]  # 1 < 2
+        gt3 = time_series[:-2] < time_series[2:]  # 0 < 2
+        count = Counter(zip(gt1, gt2, gt3))
+        probs = array([v / (len(time_series) - 2) for v in count.values()])
+        return probs[probs != 0]  # output cannot include zeros
+
+    @staticmethod
+    def _get_subarray_patterns(a, n):
+        r"""Get the subarray patterns for a given array and order.
+
+        Only sorts the array once and then uses the sorted indices to create the
+        patterns.
+        This approach is more efficient than the naive approach for these cases:
+        Small ascii plot of length against order:
+        ```
+        length \ order | 2 - 5 | 6 | 7 | 8 | 9 | 12 |
+        ---------------------------------------------
+        10.000.000     |   X   |   |   |   |   |    |
+         1.000.000     |   X   | X |   |   |   |    |
+           500.000     |   X   | X | X |   |   |    |
+           200.000     |   X   | X | X | X |   |    |
+            20.000     |   X   | X | X | X | X |    |
+          < 20.000     |   X   | X | X | X | X |  X |
+        ```
+        Otherwise, the naive approach is faster.
+        We do not give the naive approach as alternative, as orders >4 are not to be
+        often expected in practice, neither such long time series.
+        """
+        sorted_indices_a = a.argsort()
+        subarray_patterns = [[] for _ in range(len(a))]
+        for i in range(len(a)):
+            idx = sorted_indices_a[i]
+            for i_n in range(n):
+                subarray_patterns[idx - i_n].append(i_n)
+        return subarray_patterns[: len(a) - n + 1]
+
+    def _estimate_probabilities(self, time_series, order):
+        if order == 2:
+            return self._estimate_probabilities_order_2(time_series)
+        if order == 3:
+            return self._estimate_probabilities_order_3(time_series)
+
+        # Get the length of the time series
+        total_patterns = len(time_series) - order + 1
+        # Create a Counter object to count the occurrences of each permutation
+        count = Counter(map(tuple, self._get_subarray_patterns(time_series, order)))
+        # Return array of non-zero probabilities
+        return array([v / total_patterns for v in count.values()])
+
     def _calculate(self):
         """Calculate the entropy of the data.
 
@@ -86,45 +147,12 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
 
         if self.order == 1:
             return 0.0
+        elif self.order == len(self.data):
+            return 0.0
 
-        def _get_pattern_type(subsequence):
-            return tuple(argsort(subsequence))
-
-        def _estimate_probabilities(time_series, order):
-            # Get the length of the time series
-            T = len(time_series)
-            # Generate all possible permutations of the given order
-            permutations_list = list(permutations(range(order)))
-            # Create a Counter object to count the occurrences of each permutation
-            count = Counter()
-
-            # Lets counts the occurrences of each permutation pattern in the time series
-            # using the Counter object.
-            # Iterate through the time series with a sliding window of size 'order'
-            for i in range(T - order + 1):
-                # Get the pattern type (permutation) of the current subsequence
-                pattern = _get_pattern_type(time_series[i : i + order])
-                count[pattern] += 1  # Increment the count of this pattern
-
-            # Let's create a dictionary where each key is a permutation,
-            # and each value is the probability of that permutation
-            # (count divided by the total number of patterns).
-            # The total number of patterns we have observed
-            total_patterns = T - order + 1
-            # Calculate the probability of each permutation
-            probs = {perm: count[perm] / total_patterns for perm in permutations_list}
-            return probs
-
-        def _compute_entropy(probs):
-            h = 0
-            # loop iterates over the values of the probabilities dictionary
-            for p in probs.values():
-                if p > 0:
-                    h -= p * self._log_base(p)
-            return h
-
-        probabilities = _estimate_probabilities(self.data, self.order)
-        entropy = _compute_entropy(probabilities)
+        probabilities = self._estimate_probabilities(self.data, self.order)
+        # sum over probabilities, multiplied by the logarithm of the probabilities
+        entropy = np_sum(-probabilities * self._log_base(probabilities))
 
         if self.per_symbol:
             entropy /= self.order - 1

@@ -6,15 +6,15 @@ from numpy import isnan
 from infomeasure.measures.transfer_entropy import SymbolicTEEstimator
 
 
-@pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000])
-@pytest.mark.parametrize("order", [1, 2, 5])
+@pytest.mark.parametrize("data_len", [1, 2, 3, 10, 100, 1000])
+@pytest.mark.parametrize("order", [2, 3, 5])
 @pytest.mark.parametrize("step_size", [1, 2, 3])
 @pytest.mark.parametrize("offset", [0, 1, 4])
 def test_symbolic_entropy(data_len, order, step_size, offset, default_rng):
     """Test the discrete entropy estimator."""
     source = default_rng.integers(0, 10, data_len)
     dest = default_rng.integers(0, 10, data_len)
-    if data_len - abs(offset) < (order - 1) * step_size + 1:
+    if data_len - abs(offset) <= (order - 1) * step_size + 1:
         with pytest.raises(ValueError):
             est = SymbolicTEEstimator(
                 source,

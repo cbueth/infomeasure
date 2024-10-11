@@ -84,7 +84,12 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         # Prepare multivariate data arrays for KDE: Numerators
         numerator_term1, numerator_term2, denominator_term1, denominator_term2 = (
             te_observations(
-                self.source, self.dest, self.src_hist_len, self.dest_hist_len
+                self.source,
+                self.dest,
+                src_hist_len=self.src_hist_len,
+                dest_hist_len=self.dest_hist_len,
+                step_size=self.step_size,
+                permute_src=self.permute_src,
             )
         )
         local_te_values = zeros(len(numerator_term1))

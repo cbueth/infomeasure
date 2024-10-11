@@ -447,6 +447,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         # Slicing parameters
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size
+        # Permutation flag - used by the p-value method and te_observations slicing
+        self.permute_src = False
+        # Initialize Estimator ABC with the base
         super().__init__(base=base)
 
     def _generic_te_from_entropy(
@@ -496,8 +499,8 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         """
 
         # Ensure source and dest are numpy arrays
-        source = self.source.astype(float).copy()
-        dest = self.dest.astype(float).copy()
+        source = self.source.copy()
+        dest = self.dest.copy()
 
         # Add Gaussian noise to the data if the flag is set
         if noise_level:
@@ -515,6 +518,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
+            permute_src=self.permute_src,
         )
 
         h_x_future_x_history = estimator(marginal_2_space_data, **kwargs).global_val()
@@ -580,9 +584,9 @@ class PValueMixin(RandomGeneratorMixin):
         if isinstance(self, EntropyEstimator):
             self.permutation_data_attribute = "data"
         elif isinstance(self, MutualInformationEstimator):
-            self.permutation_data_attribute = "data_x"
+            self.permutation_data_attribute = "data_y"
         elif isinstance(self, TransferEntropyEstimator):
-            self.permutation_data_attribute = "source"
+            self.permutation_data_attribute = "dest"
         else:
             raise NotImplementedError(
                 "P-value method is not implemented for the estimator."
@@ -619,8 +623,11 @@ class PValueMixin(RandomGeneratorMixin):
             f"using the {method} method."
         )
         self.p_val_method = method
-        if method == "permutation_test":
-            self.p_val = self.permutation_test(*args, **kwargs)
+        if method == "permutation_test":  # Permutation test
+            if self.permutation_data_attribute == "source":
+                self.p_val = self.permutation_test_te(*args, **kwargs)
+            else:  # entropy or mutual information
+                self.p_val = self.permutation_test(*args, **kwargs)
         elif method == "bootstrap":
             raise NotImplementedError("Bootstrap method is not implemented.")  # TODO
         else:
@@ -687,6 +694,38 @@ class PValueMixin(RandomGeneratorMixin):
         # Restore the original data
         setattr(self, self.permutation_data_attribute, original_data)
         # Calculate the p-value
+        return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
+
+    def permutation_test_te(self, n_permutations: int) -> float:
+        """Calculate the permutation test for transfer entropy.
+
+        Parameters
+        ----------
+        n_permutations : int
+            The number of permutations to perform.
+
+        Returns
+        -------
+        float
+            The p-value of the measure.
+
+        Raises
+        ------
+        ValueError
+            If the number of permutations is not a positive integer.
+        """
+        if not isinstance(n_permutations, int) or n_permutations < 1:
+            raise ValueError(
+                "Number of permutations must be a positive integer, "
+                f"not {n_permutations} ({type(n_permutations)})."
+            )
+        # Activate the permutation flag
+        self.permute_src = self.rng
+        permuted_values = [self._calculate() for _ in range(n_permutations)]
+        if isinstance(permuted_values[0], tuple):
+            permuted_values = [x[0] for x in permuted_values]
+        # Deactivate the permutation flag
+        self.permute_src = False
         return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
 
 
