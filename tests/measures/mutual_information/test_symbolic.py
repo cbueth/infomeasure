@@ -9,20 +9,18 @@ from infomeasure.measures.mutual_information import SymbolicMIEstimator
 @pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000])
 @pytest.mark.parametrize("order", [1, 2, 5])
 @pytest.mark.parametrize("per_symbol", [True, False])
-@pytest.mark.parametrize("step_size", [1, 2, 3])
 @pytest.mark.parametrize("offset", [0, 1, 4])
-def test_symbolic_entropy(data_len, order, per_symbol, step_size, offset, default_rng):
+def test_symbolic_entropy(data_len, order, per_symbol, offset, default_rng):
     """Test the discrete entropy estimator."""
     data_x = default_rng.integers(0, 10, data_len)
     data_y = default_rng.integers(0, 10, data_len)
-    if data_len - abs(offset) < (order - 1) * step_size + 1:
+    if data_len - abs(offset) < (order - 1) + 1:
         with pytest.raises(ValueError):
             est = SymbolicMIEstimator(
                 data_x,
                 data_y,
                 order,
                 per_symbol=per_symbol,
-                step_size=step_size,
                 offset=offset,
             )
             est.results()
@@ -33,7 +31,6 @@ def test_symbolic_entropy(data_len, order, per_symbol, step_size, offset, defaul
             data_y,
             order,
             per_symbol=per_symbol,
-            step_size=step_size,
             offset=offset,
         )
         assert est.global_val() == 0
@@ -46,7 +43,6 @@ def test_symbolic_entropy(data_len, order, per_symbol, step_size, offset, defaul
         data_y,
         order,
         per_symbol=per_symbol,
-        step_size=step_size,
         offset=offset,
     )
     max_val = est._log_base(data_len)
