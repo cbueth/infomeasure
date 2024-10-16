@@ -30,9 +30,10 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     minkowski_p : float, :math:`1 \leq p \leq \infty`
         The power parameter for the Minkowski metric.
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
     step_size : int
         Step size between elements for the state space reconstruction.
@@ -49,7 +50,7 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         source,
         dest,
         k: int = 4,
-        offset: int = 0,
+        prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
@@ -73,7 +74,7 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         super().__init__(
             source,
             dest,
-            offset=offset,
+            prop_time=prop_time,
             step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
@@ -126,16 +127,16 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         )
         kth_distances = distances[:, -1]  # get last column with k-th distances
 
-        # Count points for count_Y_present_past
-        tree_dest_present_past = KDTree(marginal_2_space_data)
-        count_dest_present_past = [
-            len(tree_dest_present_past.query_ball_point(p, r=d)) - 1
+        # Count points for count_Y_past_present
+        tree_dest_past_present = KDTree(marginal_2_space_data)
+        count_dest_past_present = [
+            len(tree_dest_past_present.query_ball_point(p, r=d)) - 1
             for p, d in zip(marginal_2_space_data, kth_distances)
         ]
-        # Count points for count_Y_past_X_past
-        tree_dest_past_source_past = KDTree(marginal_1_space_data)
-        count_dest_past_source_past = [
-            len(tree_dest_past_source_past.query_ball_point(p, r=d)) - 1
+        # Count points for count_X_past_Y_past
+        tree_source_past_dest_past = KDTree(marginal_1_space_data)
+        count_source_past_dest_past = [
+            len(tree_source_past_dest_past.query_ball_point(p, r=d)) - 1
             for p, d in zip(marginal_1_space_data, kth_distances)
         ]
         # Count points for Count_Y_past
@@ -148,8 +149,8 @@ class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         # Compute local transfer entropy
         local_te = (
             digamma(self.k)
-            - digamma(array(count_dest_present_past) + 1)
-            - digamma(array(count_dest_past_source_past) + 1)
+            - digamma(array(count_dest_past_present) + 1)
+            - digamma(array(count_source_past_dest_past) + 1)
             + digamma(array(count_dest_past) + 1)
         )
 

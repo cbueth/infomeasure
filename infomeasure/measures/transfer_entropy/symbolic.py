@@ -22,9 +22,10 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         The source (X) and dest (Y) data used to estimate the transfer entropy.
     order : int
         The size of the permutation patterns.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
     step_size : int
         Step size between elements for the state space reconstruction.
@@ -42,7 +43,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     ValueError
         If the ``order`` is too large for the given data.
     ValueError
-        If ``step_size``, ``offset``, and ``order`` are such that the data is too small.
+        If ``step_size``, ``prop_time``, and ``order`` are such that the data is too small.
 
     Warning
     -------
@@ -54,7 +55,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         source,
         dest,
         order: int,
-        offset: int = 0,
+        prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
@@ -70,7 +71,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         super().__init__(
             source,
             dest,
-            offset=offset,
+            prop_time=prop_time,
             step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
@@ -187,24 +188,24 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         # Calculate Local Transfer Entropy
         local_te = []
         for pattern in joint_prob:
-            p_joint = joint_prob[pattern]  # p(y_{t+1}, y^k_t, x^l_t)
+            p_joint = joint_prob[pattern]  # p(x^l_t, y^k_t, y_{t+1})
 
             # Define conditional patterns
-            cond_pattern_joint = (pattern[1], pattern[2])  # (y^k_t, x^l_t)
+            cond_pattern_joint = (pattern[1], pattern[2])  # (x^l_t, y^k_t)
             cond_pattern_marginal = pattern[1]  # y^k_t
-            cond_pattern_conditional = (pattern[0], pattern[1])  # (y_{t+1}, y^k_t)
+            cond_pattern_conditional = (pattern[0], pattern[1])  # (y^k_t, y_{t+1})
 
             # Retrieve probabilities from the precomputed dictionaries
-            p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(y^k_t, x^l_t)
+            p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(x^l_t, y^k_t)
             p_cond_marginal = dest_past_prob.get(cond_pattern_marginal, 0)  # p(y^k_t)
             p_cond_conditional = marginal_2_prob.get(
                 cond_pattern_conditional, 0
-            )  # p(y_{t+1}, y^k_t)
+            )  # p(y^k_t, y_{t+1})
 
             # Compute the conditional probabilities
             p_conditional_joint = (
                 p_joint / p_cond_joint if p_cond_joint > 0 else 0
-            )  # p(y_{t+1} | y^k_t, x^l_t)
+            )  # p(y_{t+1} | x^l_t, y^k_t)
             p_conditional_marginal = (
                 p_cond_conditional / p_cond_marginal if p_cond_marginal > 0 else 0
             )  # p(y_{t+1} | y^k_t)
@@ -214,9 +215,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
                 local_te_value = self._log_base(
                     p_conditional_joint / p_conditional_marginal
                 )
-                local_te.extend(
-                    [local_te_value] * int(p_joint * len(symbols_dest))
-                )  # TODO: Explain this *int() list repetition
+                local_te.append(local_te_value)
         if len(local_te) == 0:
             return 0.0, array([])
         # Compute average of Local Transfer Entropy values

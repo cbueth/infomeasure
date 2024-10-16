@@ -49,9 +49,9 @@ def te_observations(
 
     Parameters
     ----------
-    source : array
+    source : array, shape (n,)
         A numpy array of data points for the source variable (X).
-    destination : array
+    destination : array, shape (n,)
         A numpy array of data points for the destination variable (Y).
     src_hist_len : int, optional
         Number of past observations (l) to consider for the source data (X).
@@ -61,7 +61,9 @@ def te_observations(
         Number of past observations (k) to consider for the destination data (Y).
         Default is 1, only one current observation, no further history.
     step_size : int, optional
-        Step size for the time delay in the embedding. Default is 1, no delay.
+        Step size for the time delay in the embedding.
+        Default is None, which equals to 1, every observation is considered.
+        If step_size is greater than 1, the history is subsampled.
         This applies to both the source and destination data.
     permute_src : bool | Generator, optional
         Whether to shuffle the sliced source history data. Default is False.
@@ -73,14 +75,14 @@ def te_observations(
     Returns
     -------
     joint_space_data : array, shape (max_len, src_hist_len + dest_hist_len + 1)
-        :math:`g(\hat{y}_{i+1}, y_i^{(k)}, x_i^{(l)})`: Joint space data.
+        :math:`g(x_i^{(l)}, y_i^{(k)}, \hat{y}_{i+1})`: Joint space data.
     dest_past_embedded : array, shape (max_len, dest_hist_len)
         :math:`g(\hat y_i^{(k)})` : Embedded past destination data.
     marginal_1_space_data : array, shape (max_len, dest_hist_len + src_hist_len)
-        :math:`g(y_i^{(k)}, x_i^{(l)})` : Marginal space data for destination and
+        :math:`g(x_i^{(l)}, y_i^{(k)})` : Marginal space data for destination and
         source.
     marginal_2_space_data : array, shape (max_len, dest_hist_len + 1)
-        :math:`g(\hat{y}_{i+1}, y_i^{(k)})` : Marginal space data for destination.
+        :math:`g(y_i^{(k)}, \hat{y}_{i+1})` : Marginal space data for destination.
 
 
     With ``max_len = data_len - (max(src_hist_len, dest_hist_len) - 1) * step_size``.
@@ -90,6 +92,9 @@ def te_observations(
     ValueError
         If the history (``src_hist_len`` or ``dest_hist_len`` times ``step_size``) is
         greater than the length of the data.
+    ValueError
+        If ``src_hist_len``, ``dest_hist_len``, or ``step_size`` are
+        not positive integers.
     """
     # log warning if step_size is >1 while src_hist_len or dest_hist_len are both 1
     if step_size > 1 and src_hist_len == 1 and dest_hist_len == 1:
@@ -114,14 +119,7 @@ def te_observations(
             "is greater than the length of the data and results in empty arrays."
         )
 
-    base_indices = arange(max_delay, len(destination))
-    # Construct dest_future
-    dest_future = destination[base_indices]
-
-    # Construct dest_history
-    offset_indices = arange(step_size, (dest_hist_len + 1) * step_size, step_size)
-    dest_history_indices = base_indices[:, None] - offset_indices[::-1]
-    dest_history = destination[dest_history_indices]
+    base_indices = arange(max_delay, len(destination), step_size)
 
     # Construct src_history
     offset_indices = arange(step_size, (src_hist_len + 1) * step_size, step_size)
@@ -133,24 +131,31 @@ def te_observations(
         rng.shuffle(src_history_indices, axis=0)
     src_history = source[src_history_indices]
 
+    # Construct dest_history
+    offset_indices = arange(step_size, (dest_hist_len + 1) * step_size, step_size)
+    dest_history_indices = base_indices[:, None] - offset_indices[::-1]
+    dest_history = destination[dest_history_indices]
+
+    # Construct dest_future
+    dest_future = destination[base_indices]
     # src_future: (data_len,) -> (data_len, 1); or (data_len, m) -> (data_len, 1, m)
     dest_future = expand_dims(dest_future, axis=1)
 
-    # g(\hat{y}_{i+1}, y_i^{(k)}, x_i^{(l)})
+    # g(x_i^{(l)}, y_i^{(k)}, \hat{y}_{i+1})
     joint_space_data = concatenate(
         (
-            dest_future,  # \hat{y}_{i+1}
-            dest_history,  # y_i^{(k)}
             src_history,  # x_i^{(l)}
+            dest_history,  # y_i^{(k)}
+            dest_future,  # \hat{y}_{i+1}
         ),
         axis=1,
     )
     # g(\hat{y}_i^{(k)})
     # dest_past_embedded = dest_history
-    # g(y_i^{(k)}, x_i^{(l)})
-    marginal_1_space_data = concatenate((dest_history, src_history), axis=1)
+    # g(x_i^{(l)}, y_i^{(k)})
+    marginal_1_space_data = concatenate((src_history, dest_history), axis=1)
     # g(\hat{y}_{i+1}, y_i^{(k)})
-    marginal_2_space_data = concatenate((dest_future, dest_history), axis=1)
+    marginal_2_space_data = concatenate((dest_history, dest_future), axis=1)
 
     return (
         joint_space_data,
