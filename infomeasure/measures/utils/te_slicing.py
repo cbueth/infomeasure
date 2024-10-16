@@ -49,9 +49,9 @@ def te_observations(
 
     Parameters
     ----------
-    source : array
+    source : array, shape (n,)
         A numpy array of data points for the source variable (X).
-    destination : array
+    destination : array, shape (n,)
         A numpy array of data points for the destination variable (Y).
     src_hist_len : int, optional
         Number of past observations (l) to consider for the source data (X).
@@ -61,7 +61,8 @@ def te_observations(
         Number of past observations (k) to consider for the destination data (Y).
         Default is 1, only one current observation, no further history.
     step_size : int, optional
-        Step size for the time delay in the embedding. Default is 1, no delay.
+        Step size for the time delay in the embedding.
+        Default is None, which equals to 1, no delay.
         This applies to both the source and destination data.
     permute_src : bool | Generator, optional
         Whether to shuffle the sliced source history data. Default is False.
@@ -90,6 +91,9 @@ def te_observations(
     ValueError
         If the history (``src_hist_len`` or ``dest_hist_len`` times ``step_size``) is
         greater than the length of the data.
+    ValueError
+        If ``src_hist_len``, ``dest_hist_len``, or ``step_size`` are
+        not positive integers.
     """
     # log warning if step_size is >1 while src_hist_len or dest_hist_len are both 1
     if step_size > 1 and src_hist_len == 1 and dest_hist_len == 1:

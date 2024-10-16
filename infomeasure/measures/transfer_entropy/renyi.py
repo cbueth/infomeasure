@@ -24,9 +24,10 @@ class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     noise_level : float
         The standard deviation of the Gaussian noise to add to the data to avoid
         issues with zero distances.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
     step_size : int
         Step size between elements for the state space reconstruction.
@@ -54,7 +55,7 @@ class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         k: int = 4,
         alpha: float | int = None,
         noise_level=1e-8,
-        offset: int = 0,
+        prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
@@ -73,7 +74,7 @@ class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         super().__init__(
             source,
             dest,
-            offset=offset,
+            prop_time=prop_time,
             step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,

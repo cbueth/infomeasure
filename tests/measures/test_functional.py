@@ -106,11 +106,11 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         est.effective_val()
 
 
-@pytest.mark.parametrize("offset", [0, 1, 5])
+@pytest.mark.parametrize("prop_time", [0, 1, 5])
 @pytest.mark.parametrize("src_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
 def test_transfer_entropy_functional_addressing(
-    te_approach, offset, src_hist_len, dest_hist_len
+    te_approach, prop_time, src_hist_len, dest_hist_len
 ):
     """Test addressing the transfer entropy estimator classes."""
     approach_str, needed_kwargs = te_approach
@@ -120,7 +120,7 @@ def test_transfer_entropy_functional_addressing(
         source,
         dest,
         approach=approach_str,
-        offset=offset,
+        prop_time=prop_time,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         **needed_kwargs,

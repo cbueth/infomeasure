@@ -393,9 +393,11 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
+        Default is no shift.
         Assumed time taken by info to transfer from source to destination.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
@@ -418,7 +420,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         self,
         source,
         dest,
-        offset: int = 0,
+        prop_time: int = 0,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         step_size: int = 1,
@@ -430,20 +432,20 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
                 "Data arrays must be of the same length, "
                 f"not {len(source)} and {len(dest)}."
             )
-        if not isinstance(offset, int):
-            raise ValueError(f"Offset must be an integer, not {offset}.")
+        if not isinstance(prop_time, int):
+            raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
         if self.source.ndim != 1 or self.dest.ndim != 1:
             raise ValueError("Data arrays must be 1D.")
-        # Apply the offset
-        self.offset = offset
-        if self.offset > 0:
-            self.source = self.source[: -self.offset or None]
-            self.dest = self.dest[self.offset :]
-        elif self.offset < 0:
-            self.source = self.source[-self.offset :]
-            self.dest = self.dest[: self.offset or None]
+        # Apply the prop_time
+        self.prop_time = prop_time
+        if self.prop_time > 0:
+            self.source = self.source[: -self.prop_time * step_size or None]
+            self.dest = self.dest[self.prop_time * step_size :]
+        elif self.prop_time < 0:
+            self.source = self.source[-self.prop_time * step_size :]
+            self.dest = self.dest[: self.prop_time * step_size or None]
         # Slicing parameters
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size

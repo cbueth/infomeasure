@@ -3,6 +3,7 @@
 import pytest
 from numpy import arange, array, hstack, array_equal
 from numpy.random import default_rng
+from numpy.testing import assert_equal
 
 from infomeasure.measures.utils.te_slicing import (
     te_observations,
@@ -228,3 +229,58 @@ def test_te_observations_permute_src(
     assert array_equal(  # \hat{y}_{i+1}, x_i^{(k)} fixed
         marginal_2_space_data, marginal_2_space_data_permuted
     )
+
+
+@pytest.mark.parametrize(
+    "array_len,step_size,match_str",
+    [
+        (3, 1, "The history demanded"),
+        (10, 1.0, "must be positive integers"),  # wrong type
+        (10, 0, "must be positive integers"),  # non-positive
+        (10, -1, "must be positive integers"),  # non-positive
+    ],
+)
+def test_te_observations_value_errors(array_len, step_size, match_str):
+    """Test the TE observations data arrays for value errors.
+
+    - The demanded history is greater than the length of the data.
+    - Both ``step_size_src`` or ``step_size_dest`` are set along with ``step_size``.
+    - They are not positive integers.
+    """
+    with pytest.raises(ValueError, match=match_str):
+        te_observations(
+            arange(array_len),
+            arange(array_len),
+            src_hist_len=3,
+            dest_hist_len=2,
+            step_size=step_size,
+        )
+
+
+@pytest.mark.parametrize(  # old
+    "src_hist_len, dest_hist_len, step_size, expected",
+    [
+        (1, 1, 1, array([11, 10, 0]) + arange(9)[:, None]),
+        (1, 1, 2, array([12, 10, 0]) + arange(8)[:, None]),
+        (1, 1, 3, array([13, 10, 0]) + arange(7)[:, None]),
+        (2, 1, 1, array([12, 11, 0, 1]) + arange(8)[:, None]),
+        (1, 2, 1, array([12, 10, 11, 1]) + arange(8)[:, None]),
+        (1, 1, 2, array([12, 10, 0]) + arange(8)[:, None]),
+        (2, 1, 2, array([14, 12, 0, 2]) + arange(6)[:, None]),
+        (3, 1, 2, array([16, 14, 0, 2, 4]) + arange(4)[:, None]),
+        (2, 2, 2, array([14, 10, 12, 0, 2]) + arange(6)[:, None]),
+        (1, 2, 2, array([14, 10, 12, 2]) + arange(6)[:, None]),
+        (3, 2, 2, array([16, 12, 14, 0, 2, 4]) + arange(4)[:, None]),
+        (3, 2, 3, array([19, 13, 16, 0, 3, 6]) + arange(1)[:, None]),
+    ],
+)
+def test_te_observations_step_sizes(src_hist_len, dest_hist_len, step_size, expected):
+    """Test the TE observations data arrays with different step sizes."""
+    joint_space_data, _, _, _ = te_observations(
+        arange(10),
+        arange(10, 20),
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        step_size=step_size,
+    )
+    assert_equal(joint_space_data, expected)

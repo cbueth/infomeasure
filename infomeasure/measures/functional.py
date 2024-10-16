@@ -296,6 +296,7 @@ def estimator(
     measure: str = None,
     approach: str = None,
     step_size: int = 1,
+    prop_time: int = 0,
     src_hist_len: int = 1,
     dest_hist_len: int = 1,
     offset: int = 0,
@@ -399,10 +400,10 @@ def estimator(
         return EstimatorClass(
             source,
             dest,
-            step_size=step_size,
+            prop_time=prop_time,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
-            offset=offset,
+            step_size=step_size,
             **kwargs,
         )
     else:
