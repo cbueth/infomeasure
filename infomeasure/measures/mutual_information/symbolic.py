@@ -8,6 +8,7 @@ from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
 from ..base import PValueMixin, MutualInformationEstimator
+from ..utils.symbolic import symbolize_series
 
 
 class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
@@ -18,11 +19,9 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
     data_x, data_y : array-like
         The data used to estimate the mutual information.
     order : int
-        The order of the Symbolic entropy.
+        The size of the permutation patterns.
     per_symbol : bool, optional
         If True, the entropy is divided by the order - 1.
-    step_size : int
-        Step size between elements for the ordinal pattern reconstruction.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -41,9 +40,7 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
     ValueError
         If the ``order`` is negative or not an integer.
     ValueError
-        If the ``step_size`` is negative or not an integer.
-    ValueError
-        If ``step_size``, ``offset``, and ``order`` are such that the data is too small.
+        If ``offset`` and ``order`` are such that the data is too small.
 
     Warning
     -------
@@ -56,7 +53,6 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
         data_y,
         order: int,
         per_symbol: bool = False,
-        step_size: int = 1,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
     ):
@@ -73,11 +69,8 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
         if order == 1:
             logger.warning("The Symbolic mutual information is always 0 for order=1.")
         self.order = order
-        if not isinstance(step_size, int) or step_size < 0:
-            raise ValueError("The step_size must be a non-negative integer.")
-        if len(self.data_x) < (order - 1) * step_size + 1:
-            raise ValueError("The data is too small for the given step_size and order.")
-        self.step_size = step_size
+        if len(self.data_x) < (order - 1) + 1:
+            raise ValueError("The data is too small for the given order.")
         self.per_symbol = per_symbol
 
     def _calculate(self):
@@ -106,28 +99,6 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
             """
             return tuple(argsort(subsequence))
 
-        def _symbolize_series(series, order, step_size):
-            """
-            Convert a time series into a sequence of symbols (permutation patterns).
-
-            Parameters:
-            series (list or array): The time series to be symbolized.
-            order (int): The length of the subsequence to be symbolized.
-            step_size (int): The steps between elements in the subsequence.
-
-            Returns:
-            list: A list of tuples representing the symbolized series.
-            """
-            T = len(series)  # Length of the time series
-            patterns = []
-            for i in range(T - (order - 1) * step_size):  # Iterate over time series
-                subsequence = [
-                    series[i + j * step_size] for j in range(order)
-                ]  # Extract subsequence
-                pattern = _get_pattern_type(subsequence)  # Determine pattern type
-                patterns.append(pattern)  # Append pattern to list
-            return patterns
-
         def _estimate_probabilities(symbols_x, symbols_y):
             """
             Estimate the joint and marginal probabilities of the symbol sequences.
@@ -146,6 +117,7 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
             y_counts = Counter()  # Counter for y occurrences
 
             for sx, sy in zip(symbols_x, symbols_y):  # Iterate over symbolized series
+                sx, sy = tuple(sx), tuple(sy)  # Convert to tuples
                 joint_pattern = (sx, sy)  # (x_i, y_i)
                 x_pattern = sx  # x_i
                 y_pattern = sy  # y_i
@@ -168,8 +140,8 @@ class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
             return joint_prob, x_prob, y_prob
 
         # Symbolize the time series x and y
-        symbols_x = _symbolize_series(self.data_x, self.order, self.step_size)
-        symbols_y = _symbolize_series(self.data_y, self.order, self.step_size)
+        symbols_x = symbolize_series(self.data_x, self.order)
+        symbols_y = symbolize_series(self.data_y, self.order)
 
         # Estimate joint and marginal probabilities
         joint_prob, x_prob, y_prob = _estimate_probabilities(symbols_x, symbols_y)

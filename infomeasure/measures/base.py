@@ -13,6 +13,7 @@ from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
 from .utils.normalize import normalize_data_0_1
+from .utils.te_slicing import te_observations
 
 
 class Estimator(ABC):
@@ -242,7 +243,22 @@ class EntropyEstimator(Estimator, ABC):
         super().__init__(base=base)
 
 
-class MutualInformationEstimator(Estimator, ABC):
+class RandomGeneratorMixin:
+    """Mixin for random state generation.
+
+    Attributes
+    ----------
+    rng : Generator
+        The random state generator.
+    """
+
+    def __init__(self, *args, seed=None, **kwargs):
+        """Initialize the random state generator."""
+        self.rng = default_rng(seed)
+        super().__init__(*args, **kwargs)
+
+
+class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for mutual information estimators.
 
     Attributes
@@ -312,10 +328,12 @@ class MutualInformationEstimator(Estimator, ABC):
             self.data_y = normalize_data_0_1(self.data_y)
         super().__init__(base=base)
 
-    @staticmethod
     def _generic_mi_from_entropy(
-        data_x, data_y, estimator: type(EntropyEstimator), kwargs: dict
-    ):
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ) -> float:
         """Calculate the mutual information with the entropy estimator.
 
         Mutual Information (MI) between two random variables :math:`X` and :math:`Y`
@@ -331,35 +349,58 @@ class MutualInformationEstimator(Estimator, ABC):
 
         Parameters
         ----------
-        data_x, data_y : array-like
-            The data arrays for the two variables.
         estimator : EntropyEstimator
             The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
         kwargs : dict
             Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The mutual information between the two variables.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated mutual information method.
+        This helper method is provided as a generic fallback.
         """
-        h_x = estimator(data_x, **kwargs).global_val()
-        h_y = estimator(data_y, **kwargs).global_val()
-        h_xy = estimator(hstack((data_x, data_y)), **kwargs).global_val()
+
+        # Ensure source and dest are numpy arrays
+        data_x = self.data_x.astype(float).copy()
+        data_y = self.data_y.astype(float).copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            data_x += self.rng.normal(0, noise_level, data_x.shape)
+            data_y += self.rng.normal(0, noise_level, data_y.shape)
+
+        h_x = estimator(self.data_x, **kwargs).global_val()
+        h_y = estimator(self.data_y, **kwargs).global_val()
+        h_xy = estimator(hstack((self.data_x, self.data_y)), **kwargs).global_val()
         return h_x + h_y - h_xy
 
 
-class TransferEntropyEstimator(Estimator, ABC):
+class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for transfer entropy estimators.
 
     Attributes
     ----------
     source : array-like
-        The source data used to estimate the transfer entropy.
+        The source data used to estimate the transfer entropy (X).
     dest : array-like
-        The destination data used to estimate the transfer entropy.
+        The destination data used to estimate the transfer entropy (Y).
     step_size : int
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
+        Default is no shift.
         Assumed time taken by info to transfer from source to destination.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
@@ -382,7 +423,7 @@ class TransferEntropyEstimator(Estimator, ABC):
         self,
         source,
         dest,
-        offset: int = 0,
+        prop_time: int = 0,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         step_size: int = 1,
@@ -394,39 +435,111 @@ class TransferEntropyEstimator(Estimator, ABC):
                 "Data arrays must be of the same length, "
                 f"not {len(source)} and {len(dest)}."
             )
-        if not isinstance(offset, int):
-            raise ValueError(f"Offset must be an integer, not {offset}.")
+        if not isinstance(prop_time, int):
+            raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
         if self.source.ndim != 1 or self.dest.ndim != 1:
             raise ValueError("Data arrays must be 1D.")
-        # Apply the offset
-        self.offset = offset
-        if self.offset > 0:
-            self.source = self.source[: -self.offset or None]
-            self.dest = self.dest[self.offset :]
-        elif self.offset < 0:
-            self.source = self.source[-self.offset :]
-            self.dest = self.dest[: self.offset or None]
+        # Apply the prop_time
+        self.prop_time = prop_time
+        if self.prop_time > 0:
+            self.source = self.source[: -self.prop_time * step_size or None]
+            self.dest = self.dest[self.prop_time * step_size :]
+        elif self.prop_time < 0:
+            self.source = self.source[-self.prop_time * step_size :]
+            self.dest = self.dest[: self.prop_time * step_size or None]
         # Slicing parameters
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size
+        # Permutation flag - used by the p-value method and te_observations slicing
+        self.permute_src = False
+        # Initialize Estimator ABC with the base
         super().__init__(base=base)
 
+    def _generic_te_from_entropy(
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ):
+        r"""Calculate the transfer entropy with the entropy estimator.
 
-class RandomGeneratorMixin:
-    """Mixin for random state generation.
+        Given the joint processes:
+        - :math:`X_{t_n}^{(l)} = (X_{t_n}, X_{t_n-1}, \ldots, X_{t_n-k+1})`
+        - :math:`Y_{t_n}^{(k)} = (Y_{t_n}, Y_{t_n-1}, \ldots, Y_{t_n-l+1})`
 
-    Attributes
-    ----------
-    rng : Generator
-        The random state generator.
-    """
+        The Transfer Entropy from :math:`X` to :math:`Y` can be computed using the
+        following formula, which is based on conditional mutual information (MI):
 
-    def __init__(self, *args, seed=None, **kwargs):
-        """Initialize the random state generator."""
-        self.rng = default_rng(seed)
-        super().__init__(*args, **kwargs)
+        .. math::
+
+                I(Y_{t_{n+1}}; X_{t_n}^{(l)} | Y_{t_n}^{(k)}) = H(Y_{t_{n+1}} | Y_{t_n}^{(k)}) - H(Y_{t_{n+1}} | X_{t_n}^{(l)}, Y_{t_n}^{(k)})
+
+        Now, we will rewrite the above expression by implementing the chain rule, as:
+
+        .. math::
+
+                I(Y_{t_{n+1}} : X_{t_n}^{(l)} | Y_{t_n}^{(k)}) = H(Y_{t_{n+1}}, Y_{t_n}^{(k)}) + H(X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_{n+1}}, X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_n}^{(k)})
+
+        Parameters
+        ----------
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The transfer entropy from source to destination.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated transfer entropy method.
+        This helper method is provided as a generic fallback.
+        """
+
+        # Ensure source and dest are numpy arrays
+        source = self.source.copy()
+        dest = self.dest.copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            source += self.rng.normal(0, noise_level, source.shape)
+            dest += self.rng.normal(0, noise_level, dest.shape)
+
+        (
+            joint_space_data,
+            dest_past_embedded,
+            marginal_1_space_data,
+            marginal_2_space_data,
+        ) = te_observations(
+            source,
+            dest,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+            permute_src=self.permute_src,
+        )
+
+        h_y_history_y_future = estimator(marginal_2_space_data, **kwargs).global_val()
+        h_x_history_y_history = estimator(marginal_1_space_data, **kwargs).global_val()
+        h_x_history_y_history_y_future = estimator(
+            joint_space_data, **kwargs
+        ).global_val()
+        h_y_history = estimator(dest_past_embedded, **kwargs).global_val()
+
+        # Compute Transfer Entropy
+        return (
+            h_y_history_y_future
+            + h_x_history_y_history
+            - h_x_history_y_history_y_future
+            - h_y_history
+        )
 
 
 class PValueMixin(RandomGeneratorMixin):
@@ -476,9 +589,9 @@ class PValueMixin(RandomGeneratorMixin):
         if isinstance(self, EntropyEstimator):
             self.permutation_data_attribute = "data"
         elif isinstance(self, MutualInformationEstimator):
-            self.permutation_data_attribute = "data_x"
+            self.permutation_data_attribute = "data_y"
         elif isinstance(self, TransferEntropyEstimator):
-            self.permutation_data_attribute = "source"
+            self.permutation_data_attribute = "dest"
         else:
             raise NotImplementedError(
                 "P-value method is not implemented for the estimator."
@@ -515,8 +628,11 @@ class PValueMixin(RandomGeneratorMixin):
             f"using the {method} method."
         )
         self.p_val_method = method
-        if method == "permutation_test":
-            self.p_val = self.permutation_test(*args, **kwargs)
+        if method == "permutation_test":  # Permutation test
+            if self.permutation_data_attribute == "source":
+                self.p_val = self.permutation_test_te(*args, **kwargs)
+            else:  # entropy or mutual information
+                self.p_val = self.permutation_test(*args, **kwargs)
         elif method == "bootstrap":
             raise NotImplementedError("Bootstrap method is not implemented.")  # TODO
         else:
@@ -583,6 +699,38 @@ class PValueMixin(RandomGeneratorMixin):
         # Restore the original data
         setattr(self, self.permutation_data_attribute, original_data)
         # Calculate the p-value
+        return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
+
+    def permutation_test_te(self, n_permutations: int) -> float:
+        """Calculate the permutation test for transfer entropy.
+
+        Parameters
+        ----------
+        n_permutations : int
+            The number of permutations to perform.
+
+        Returns
+        -------
+        float
+            The p-value of the measure.
+
+        Raises
+        ------
+        ValueError
+            If the number of permutations is not a positive integer.
+        """
+        if not isinstance(n_permutations, int) or n_permutations < 1:
+            raise ValueError(
+                "Number of permutations must be a positive integer, "
+                f"not {n_permutations} ({type(n_permutations)})."
+            )
+        # Activate the permutation flag
+        self.permute_src = self.rng
+        permuted_values = [self._calculate() for _ in range(n_permutations)]
+        if isinstance(permuted_values[0], tuple):
+            permuted_values = [x[0] for x in permuted_values]
+        # Deactivate the permutation flag
+        self.permute_src = False
         return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
 
 

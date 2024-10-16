@@ -15,15 +15,16 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
     Attributes
     ----------
     source, dest : array-like
-        The source and destination data used to estimate the transfer entropy.
+        The source (X) and destination (Y) data used to estimate the transfer entropy.
     bandwidth : float | int
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
         implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
     step_size : int
         Step size between elements for the state space reconstruction.
@@ -41,7 +42,7 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         dest,
         bandwidth: float | int,
         kernel: str,
-        offset: int = 0,
+        prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
@@ -62,7 +63,7 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         super().__init__(
             source,
             dest,
-            offset=offset,
+            prop_time=prop_time,
             step_size=step_size,
             src_hist_len=src_hist_len,
             dest_hist_len=dest_hist_len,
@@ -82,39 +83,53 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
             The average transfer entropy value.
         """
         # Prepare multivariate data arrays for KDE: Numerators
-        numerator_term1, numerator_term2, denominator_term1, denominator_term2 = (
-            te_observations(
-                self.source, self.dest, self.src_hist_len, self.dest_hist_len
-            )
+        (
+            joint_space_data,
+            dest_past_embedded,
+            marginal_1_space_data,
+            marginal_2_space_data,
+        ) = te_observations(
+            self.source,
+            self.dest,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+            permute_src=self.permute_src,
         )
-        local_te_values = zeros(len(numerator_term1))
+        local_te_values = zeros(len(joint_space_data))
 
         # Compute KDE for each term directly using slices
-        for i in range(len(numerator_term1)):
-            # g(x_{i+1}, x_i^{(k)}, y_i^{(l)})
-            p_x_future_x_past_y_past = kde_probability_density_function(
-                numerator_term1, numerator_term1[i], self.bandwidth, self.kernel
+        for i in range(len(joint_space_data)):
+            # g(x_i^{(l)}, y_i^{(k)}, y_{i+1})
+            p_x_past_y_past_y_future = kde_probability_density_function(
+                joint_space_data, joint_space_data[i], self.bandwidth, self.kernel
             )
-            if p_x_future_x_past_y_past == 0:
+            if p_x_past_y_past_y_future == 0:
                 continue
-            # g(x_i^{(k)})
-            p_x_past = kde_probability_density_function(
-                numerator_term2, numerator_term2[i], self.bandwidth, self.kernel
+            # g(y_i^{(k)})
+            p_y_past = kde_probability_density_function(
+                dest_past_embedded, dest_past_embedded[i], self.bandwidth, self.kernel
             )
-            numerator = p_x_future_x_past_y_past * p_x_past
+            numerator = p_x_past_y_past_y_future * p_y_past
             if numerator <= 0:
                 continue
-            # g(x_i^{(k)}, y_i^{(l)})
+            # g(x_i^{(l)}, y_i^{(k)})
             p_xy_past = kde_probability_density_function(
-                denominator_term1, denominator_term1[i], self.bandwidth, self.kernel
+                marginal_1_space_data,
+                marginal_1_space_data[i],
+                self.bandwidth,
+                self.kernel,
             )
             if p_xy_past == 0:
                 continue
-            # g(x_{i+1}, x_i^{(k)})
-            p_x_future_x_past = kde_probability_density_function(
-                denominator_term2, denominator_term2[i], self.bandwidth, self.kernel
+            # g(y_i^{(k)}, y_{i+1})
+            p_y_past_y_future = kde_probability_density_function(
+                marginal_2_space_data,
+                marginal_2_space_data[i],
+                self.bandwidth,
+                self.kernel,
             )
-            denominator = p_xy_past * p_x_future_x_past
+            denominator = p_xy_past * p_y_past_y_future
             if denominator <= 0:
                 continue
 

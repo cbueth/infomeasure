@@ -13,7 +13,7 @@ def test_renyi_entropy(data_len, k, alpha, default_rng):
     data = default_rng.integers(0, 10, data_len)
     est = RenyiEntropyEstimator(data, k=k, alpha=alpha)
     # if alpha == 1:
-    #     est_discrete = DiscreteEntropyEstimator(data)
+    #     est_discrete = KozachenkoLeonenkoEntropyEstimator(data)
     #     assert est.results() == est_discrete.results()
     est.results()
 
