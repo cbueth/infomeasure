@@ -523,18 +523,18 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             permute_src=self.permute_src,
         )
 
-        h_y_future_y_history = estimator(marginal_2_space_data, **kwargs).global_val()
-        h_y_history_x_history = estimator(marginal_1_space_data, **kwargs).global_val()
-        h_y_future_y_history_x_history = estimator(
+        h_y_history_y_future = estimator(marginal_2_space_data, **kwargs).global_val()
+        h_x_history_y_history = estimator(marginal_1_space_data, **kwargs).global_val()
+        h_x_history_y_history_y_future = estimator(
             joint_space_data, **kwargs
         ).global_val()
         h_y_history = estimator(dest_past_embedded, **kwargs).global_val()
 
         # Compute Transfer Entropy
         return (
-            h_y_future_y_history
-            + h_y_history_x_history
-            - h_y_future_y_history_x_history
+            h_y_history_y_future
+            + h_x_history_y_history
+            - h_x_history_y_history_y_future
             - h_y_history
         )
 

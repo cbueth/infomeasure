@@ -100,36 +100,36 @@ class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
 
         # Compute KDE for each term directly using slices
         for i in range(len(joint_space_data)):
-            # g(y_{i+1}, y_i^{(k)}, x_i^{(l)})
-            p_y_future_y_past_x_past = kde_probability_density_function(
+            # g(x_i^{(l)}, y_i^{(k)}, y_{i+1})
+            p_x_past_y_past_y_future = kde_probability_density_function(
                 joint_space_data, joint_space_data[i], self.bandwidth, self.kernel
             )
-            if p_y_future_y_past_x_past == 0:
+            if p_x_past_y_past_y_future == 0:
                 continue
             # g(y_i^{(k)})
             p_y_past = kde_probability_density_function(
                 dest_past_embedded, dest_past_embedded[i], self.bandwidth, self.kernel
             )
-            numerator = p_y_future_y_past_x_past * p_y_past
+            numerator = p_x_past_y_past_y_future * p_y_past
             if numerator <= 0:
                 continue
-            # g(y_i^{(k)}, x_i^{(l)})
-            p_yx_past = kde_probability_density_function(
+            # g(x_i^{(l)}, y_i^{(k)})
+            p_xy_past = kde_probability_density_function(
                 marginal_1_space_data,
                 marginal_1_space_data[i],
                 self.bandwidth,
                 self.kernel,
             )
-            if p_yx_past == 0:
+            if p_xy_past == 0:
                 continue
-            # g(y_{i+1}, y_i^{(k)})
-            p_y_future_y_past = kde_probability_density_function(
+            # g(y_i^{(k)}, y_{i+1})
+            p_y_past_y_future = kde_probability_density_function(
                 marginal_2_space_data,
                 marginal_2_space_data[i],
                 self.bandwidth,
                 self.kernel,
             )
-            denominator = p_yx_past * p_y_future_y_past
+            denominator = p_xy_past * p_y_past_y_future
             if denominator <= 0:
                 continue
 

@@ -48,12 +48,12 @@ def test_te_observations_old_implementation(
         [src[i - src_hist_len * step_size : i : step_size] for i in range(max_delay, n)]
     )
     assert array_equal(
-        joint_space_data, hstack((y_future.reshape(-1, 1), y_history, x_history))
+        joint_space_data, hstack((x_history, y_history, y_future.reshape(-1, 1)))
     )
     assert array_equal(data_dest_past_embedded, y_history)
-    assert array_equal(marginal_1_space_data, hstack((y_history, x_history)))
+    assert array_equal(marginal_1_space_data, hstack((x_history, y_history)))
     assert array_equal(
-        marginal_2_space_data, hstack((y_future.reshape(-1, 1), y_history))
+        marginal_2_space_data, hstack((y_history, y_future.reshape(-1, 1)))
     )
 
 
@@ -70,8 +70,8 @@ def test_te_observations():
     assert (
         array(
             [
-                [16, 12, 14, 0, 2, 4],
-                [18, 14, 16, 2, 4, 6],
+                [0, 2, 4, 12, 14, 16],
+                [2, 4, 6, 14, 16, 18],
             ]
         )
         == joint_space_data
@@ -88,8 +88,8 @@ def test_te_observations():
     assert (
         array(
             [
-                [12, 14, 0, 2, 4],
-                [14, 16, 2, 4, 6],
+                [0, 2, 4, 12, 14],
+                [2, 4, 6, 14, 16],
             ]
         )
         == marginal_1_space_data
@@ -97,8 +97,8 @@ def test_te_observations():
     assert (
         array(
             [
-                [16, 12, 14],
-                [18, 14, 16],
+                [12, 14, 16],
+                [14, 16, 18],
             ]
         )
         == marginal_2_space_data
@@ -120,8 +120,8 @@ def test_te_observations_chars():
     assert (
         array(
             [
-                ["g", "e", "f", "b"],
-                ["h", "f", "g", "c"],
+                ["b", "e", "f", "g"],
+                ["c", "f", "g", "h"],
             ]
         )
         == joint_space_data
@@ -143,8 +143,8 @@ def test_te_observations_tuple():
     assert (
         array(
             [
-                [(7, 7), (5, 5), (6, 6), (2, 2)],
-                [(8, 8), (6, 6), (7, 7), (3, 3)],
+                [(2, 2), (5, 5), (6, 6), (7, 7)],
+                [(3, 3), (6, 6), (7, 7), (8, 8)],
             ]
         )
         == joint_space_data
@@ -214,26 +214,26 @@ def test_te_observations_permute_src(
         step_size=step_size,
         permute_src=permute_src,
     )
-    assert array_equal(  # \hat{y}_{i+1}, y_i^{(k)} fixed
-        joint_space_data[:, : dest_hist_len + 1],
-        joint_space_data_permuted[:, : dest_hist_len + 1],
+    assert array_equal(  # y_i^{(k)}, \hat{y}_{i+1} fixed
+        joint_space_data[:, src_hist_len + 1 :],
+        joint_space_data_permuted[:, src_hist_len + 1 :],
     )
     assert not array_equal(  # permuted x_i^{(l)}
-        joint_space_data[:, dest_hist_len + 1 :],
-        joint_space_data_permuted[:, dest_hist_len + 1 :],
+        joint_space_data[:, :src_hist_len],
+        joint_space_data_permuted[:, :src_hist_len],
     )
     assert array_equal(  # y_i^{(k)} fixed
         data_dest_past_embedded, data_dest_past_embedded_permuted
     )
     assert array_equal(  # y_i^{(k)} fixed
-        marginal_1_space_data[:, :dest_hist_len],
-        marginal_1_space_data_permuted[:, :dest_hist_len],
+        marginal_1_space_data[:, src_hist_len:],
+        marginal_1_space_data_permuted[:, src_hist_len:],
     )
     assert not array_equal(  # permuted x_i^{(l)}
-        marginal_1_space_data[:, dest_hist_len:],
-        marginal_1_space_data_permuted[:, dest_hist_len:],
+        marginal_1_space_data[:, :src_hist_len],
+        marginal_1_space_data_permuted[:, :src_hist_len],
     )
-    assert array_equal(  # \hat{y}_{i+1}, x_i^{(k)} fixed
+    assert array_equal(  # x_i^{(k)}, \hat{y}_{i+1} fixed
         marginal_2_space_data, marginal_2_space_data_permuted
     )
 
@@ -267,18 +267,18 @@ def test_te_observations_value_errors(array_len, step_size, match_str):
 @pytest.mark.parametrize(  # old
     "src_hist_len, dest_hist_len, step_size, expected",
     [
-        (1, 1, 1, array([11, 10, 0]) + arange(9)[:, None]),
-        (1, 1, 2, array([12, 10, 0]) + arange(0, 8, 2)[:, None]),
-        (1, 1, 3, array([13, 10, 0]) + arange(0, 7, 3)[:, None]),
-        (2, 1, 1, array([12, 11, 0, 1]) + arange(8)[:, None]),
-        (1, 2, 1, array([12, 10, 11, 1]) + arange(8)[:, None]),
-        (1, 1, 2, array([12, 10, 0]) + arange(0, 8, 2)[:, None]),
-        (2, 1, 2, array([14, 12, 0, 2]) + arange(0, 6, 2)[:, None]),
-        (3, 1, 2, array([16, 14, 0, 2, 4]) + arange(0, 4, 2)[:, None]),
-        (2, 2, 2, array([14, 10, 12, 0, 2]) + arange(0, 6, 2)[:, None]),
-        (1, 2, 2, array([14, 10, 12, 2]) + arange(0, 6, 2)[:, None]),
-        (3, 2, 2, array([16, 12, 14, 0, 2, 4]) + arange(0, 4, 2)[:, None]),
-        (3, 2, 3, array([19, 13, 16, 0, 3, 6]) + arange(0, 1, 2)[:, None]),
+        (1, 1, 1, array([0, 10, 11]) + arange(9)[:, None]),
+        (1, 1, 2, array([0, 10, 12]) + arange(0, 8, 2)[:, None]),
+        (1, 1, 3, array([0, 10, 13]) + arange(0, 7, 3)[:, None]),
+        (2, 1, 1, array([0, 1, 11, 12]) + arange(8)[:, None]),
+        (1, 2, 1, array([1, 10, 11, 12]) + arange(8)[:, None]),
+        (1, 1, 2, array([0, 10, 12]) + arange(0, 8, 2)[:, None]),
+        (2, 1, 2, array([0, 2, 12, 14]) + arange(0, 6, 2)[:, None]),
+        (3, 1, 2, array([0, 2, 4, 14, 16]) + arange(0, 4, 2)[:, None]),
+        (2, 2, 2, array([0, 2, 10, 12, 14]) + arange(0, 6, 2)[:, None]),
+        (1, 2, 2, array([2, 10, 12, 14]) + arange(0, 6, 2)[:, None]),
+        (3, 2, 2, array([0, 2, 4, 12, 14, 16]) + arange(0, 4, 2)[:, None]),
+        (3, 2, 3, array([0, 3, 6, 13, 16, 19]) + arange(0, 1, 2)[:, None]),
     ],
 )
 def test_te_observations_step_sizes(src_hist_len, dest_hist_len, step_size, expected):

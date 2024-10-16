@@ -188,24 +188,24 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
         # Calculate Local Transfer Entropy
         local_te = []
         for pattern in joint_prob:
-            p_joint = joint_prob[pattern]  # p(y_{t+1}, y^k_t, x^l_t)
+            p_joint = joint_prob[pattern]  # p(x^l_t, y^k_t, y_{t+1})
 
             # Define conditional patterns
-            cond_pattern_joint = (pattern[1], pattern[2])  # (y^k_t, x^l_t)
+            cond_pattern_joint = (pattern[1], pattern[2])  # (x^l_t, y^k_t)
             cond_pattern_marginal = pattern[1]  # y^k_t
-            cond_pattern_conditional = (pattern[0], pattern[1])  # (y_{t+1}, y^k_t)
+            cond_pattern_conditional = (pattern[0], pattern[1])  # (y^k_t, y_{t+1})
 
             # Retrieve probabilities from the precomputed dictionaries
-            p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(y^k_t, x^l_t)
+            p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(x^l_t, y^k_t)
             p_cond_marginal = dest_past_prob.get(cond_pattern_marginal, 0)  # p(y^k_t)
             p_cond_conditional = marginal_2_prob.get(
                 cond_pattern_conditional, 0
-            )  # p(y_{t+1}, y^k_t)
+            )  # p(y^k_t, y_{t+1})
 
             # Compute the conditional probabilities
             p_conditional_joint = (
                 p_joint / p_cond_joint if p_cond_joint > 0 else 0
-            )  # p(y_{t+1} | y^k_t, x^l_t)
+            )  # p(y_{t+1} | x^l_t, y^k_t)
             p_conditional_marginal = (
                 p_cond_conditional / p_cond_marginal if p_cond_marginal > 0 else 0
             )  # p(y_{t+1} | y^k_t)
