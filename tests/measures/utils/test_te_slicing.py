@@ -13,13 +13,13 @@ from infomeasure.measures.utils.te_slicing import (
 @pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1e4])
 @pytest.mark.parametrize("src_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
-@pytest.mark.parametrize("step_size", [1, 2, 3])
 def test_te_observations_old_implementation(
-    data_len, src_hist_len, dest_hist_len, step_size
+    data_len, src_hist_len, dest_hist_len, step_size=1
 ):
     """Test the shape of the TE observations data arrays.
 
     Compare output to old/explicit implementation.
+    The old implementation did not correctly implement the ``step_size`` subsampling.
     """
     src = arange(data_len)
     dest = arange(data_len, 2 * data_len)
@@ -71,29 +71,36 @@ def test_te_observations():
         array(
             [
                 [16, 12, 14, 0, 2, 4],
-                [17, 13, 15, 1, 3, 5],
                 [18, 14, 16, 2, 4, 6],
-                [19, 15, 17, 3, 5, 7],
             ]
         )
         == joint_space_data
     ).all()
     assert (
-        array([[12, 14], [13, 15], [14, 16], [15, 17]]) == data_dest_past_embedded
+        array(
+            [
+                [12, 14],
+                [14, 16],
+            ]
+        )
+        == data_dest_past_embedded
     ).all()
     assert (
         array(
             [
                 [12, 14, 0, 2, 4],
-                [13, 15, 1, 3, 5],
                 [14, 16, 2, 4, 6],
-                [15, 17, 3, 5, 7],
             ]
         )
         == marginal_1_space_data
     ).all()
     assert (
-        array([[16, 12, 14], [17, 13, 15], [18, 14, 16], [19, 15, 17]])
+        array(
+            [
+                [16, 12, 14],
+                [18, 14, 16],
+            ]
+        )
         == marginal_2_space_data
     ).all()
 
@@ -261,17 +268,17 @@ def test_te_observations_value_errors(array_len, step_size, match_str):
     "src_hist_len, dest_hist_len, step_size, expected",
     [
         (1, 1, 1, array([11, 10, 0]) + arange(9)[:, None]),
-        (1, 1, 2, array([12, 10, 0]) + arange(8)[:, None]),
-        (1, 1, 3, array([13, 10, 0]) + arange(7)[:, None]),
+        (1, 1, 2, array([12, 10, 0]) + arange(0, 8, 2)[:, None]),
+        (1, 1, 3, array([13, 10, 0]) + arange(0, 7, 3)[:, None]),
         (2, 1, 1, array([12, 11, 0, 1]) + arange(8)[:, None]),
         (1, 2, 1, array([12, 10, 11, 1]) + arange(8)[:, None]),
-        (1, 1, 2, array([12, 10, 0]) + arange(8)[:, None]),
-        (2, 1, 2, array([14, 12, 0, 2]) + arange(6)[:, None]),
-        (3, 1, 2, array([16, 14, 0, 2, 4]) + arange(4)[:, None]),
-        (2, 2, 2, array([14, 10, 12, 0, 2]) + arange(6)[:, None]),
-        (1, 2, 2, array([14, 10, 12, 2]) + arange(6)[:, None]),
-        (3, 2, 2, array([16, 12, 14, 0, 2, 4]) + arange(4)[:, None]),
-        (3, 2, 3, array([19, 13, 16, 0, 3, 6]) + arange(1)[:, None]),
+        (1, 1, 2, array([12, 10, 0]) + arange(0, 8, 2)[:, None]),
+        (2, 1, 2, array([14, 12, 0, 2]) + arange(0, 6, 2)[:, None]),
+        (3, 1, 2, array([16, 14, 0, 2, 4]) + arange(0, 4, 2)[:, None]),
+        (2, 2, 2, array([14, 10, 12, 0, 2]) + arange(0, 6, 2)[:, None]),
+        (1, 2, 2, array([14, 10, 12, 2]) + arange(0, 6, 2)[:, None]),
+        (3, 2, 2, array([16, 12, 14, 0, 2, 4]) + arange(0, 4, 2)[:, None]),
+        (3, 2, 3, array([19, 13, 16, 0, 3, 6]) + arange(0, 1, 2)[:, None]),
     ],
 )
 def test_te_observations_step_sizes(src_hist_len, dest_hist_len, step_size, expected):

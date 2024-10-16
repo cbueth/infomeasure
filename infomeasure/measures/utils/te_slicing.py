@@ -62,7 +62,8 @@ def te_observations(
         Default is 1, only one current observation, no further history.
     step_size : int, optional
         Step size for the time delay in the embedding.
-        Default is None, which equals to 1, no delay.
+        Default is None, which equals to 1, every observation is considered.
+        If step_size is greater than 1, the history is subsampled.
         This applies to both the source and destination data.
     permute_src : bool | Generator, optional
         Whether to shuffle the sliced source history data. Default is False.
@@ -118,7 +119,7 @@ def te_observations(
             "is greater than the length of the data and results in empty arrays."
         )
 
-    base_indices = arange(max_delay, len(destination))
+    base_indices = arange(max_delay, len(destination), step_size)
     # Construct dest_future
     dest_future = destination[base_indices]
 
