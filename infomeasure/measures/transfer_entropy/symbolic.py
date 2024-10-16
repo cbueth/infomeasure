@@ -215,9 +215,7 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
                 local_te_value = self._log_base(
                     p_conditional_joint / p_conditional_marginal
                 )
-                local_te.extend(
-                    [local_te_value] * int(p_joint * len(symbols_dest))
-                )  # TODO: Explain this *int() list repetition
+                local_te.append(local_te_value)
         if len(local_te) == 0:
             return 0.0, array([])
         # Compute average of Local Transfer Entropy values
