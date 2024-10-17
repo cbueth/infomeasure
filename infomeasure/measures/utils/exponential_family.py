@@ -5,7 +5,7 @@ family of exponential family distributions. This module provides helper
 functions for these distributions.
 """
 
-from numpy import pi, mean as np_mean
+from numpy import pi, mean as np_mean, exp as np_exp
 from scipy.special import gamma, digamma
 from scipy.spatial import KDTree
 
@@ -101,5 +101,5 @@ def exponential_family_i1(k, V_m, rho_k, N, m, log_base_func):
     float
         The :math:`I_1` of the exponential family distribution
     """
-    zeta_N_i_k = (N - 1) * log_base_func(-digamma(k)) * V_m * rho_k**m
+    zeta_N_i_k = (N - 1) * np_exp(-digamma(k)) * V_m * rho_k**m
     return np_mean(log_base_func(zeta_N_i_k))
