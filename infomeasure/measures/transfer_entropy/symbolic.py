@@ -191,9 +191,9 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
             p_joint = joint_prob[pattern]  # p(x^l_t, y^k_t, y_{t+1})
 
             # Define conditional patterns
-            cond_pattern_joint = (pattern[1], pattern[2])  # (x^l_t, y^k_t)
-            cond_pattern_marginal = pattern[1]  # y^k_t
-            cond_pattern_conditional = (pattern[0], pattern[1])  # (y^k_t, y_{t+1})
+            cond_pattern_joint = (pattern[0], pattern[1])  # (x^l_t, y^k_t)
+            cond_pattern_marginal = (pattern[1],)  # y^k_t
+            cond_pattern_conditional = (pattern[1], pattern[2])  # (y^k_t, y_{t+1})
 
             # Retrieve probabilities from the precomputed dictionaries
             p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(x^l_t, y^k_t)
@@ -212,8 +212,9 @@ class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
 
             if p_joint > 0 and p_conditional_joint > 0 and p_conditional_marginal > 0:
                 # Using the TE formula
-                local_te_value = self._log_base(
-                    p_conditional_joint / p_conditional_marginal
+                local_te_value = (
+                    self._log_base(p_conditional_joint / p_conditional_marginal)
+                    * p_joint
                 )
                 local_te.append(local_te_value)
         if len(local_te) == 0:
