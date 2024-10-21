@@ -1,13 +1,13 @@
-"""Module for the Renyi mutual information estimator."""
+"""Module for the Tsallis mutual information estimator."""
 
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import PValueMixin, MutualInformationEstimator
-from ..entropy.renyi import RenyiEntropyEstimator
+from ..entropy.tsallis import TsallisEntropyEstimator
 
 
-class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
-    r"""Estimator for the Renyi mutual information.
+class TsallisMIEstimator(PValueMixin, MutualInformationEstimator):
+    r"""Estimator for the Tsallis mutual information.
 
     Attributes
     ----------
@@ -15,9 +15,9 @@ class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
         The data used to estimate the mutual information.
     k : int
         The number of nearest neighbors used in the estimation.
-    alpha : float | int
-        The Rényi parameter, order or exponent.
-        Sometimes denoted as :math:`\alpha` or :math:`q`.
+    q : float
+        The Tsallis parameter, order or exponent.
+        Sometimes denoted as :math:`q`, analogous to the Rényi parameter :math:`\alpha`.
     noise_level : float
         The standard deviation of the Gaussian noise to add to the data to avoid
         issues with zero distances.
@@ -33,7 +33,7 @@ class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
     Raises
     ------
     ValueError
-        If the Renyi parameter is not a positive number.
+        If the Tsallis parameter is not a positive number.
     ValueError
         If the number of nearest neighbors is not a positive integer.
     """
@@ -43,21 +43,22 @@ class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
         data_x,
         data_y,
         k: int = 4,
-        alpha: float | int = None,
+        q: float | int = None,
         noise_level=1e-8,
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the RenyiEntropyEstimator.
+        """Initialize the TsallisMIEstimator.
 
         Parameters
         ----------
         k : int
             The number of nearest neighbors to consider.
-        alpha : float | int
-            The Renyi parameter, order or exponent.
-            Sometimes denoted as :math:`\alpha` or :math:`q`.
+        q : float | int
+            The Tsallis parameter, order or exponent.
+            Sometimes denoted as :math:`q`,
+            analogous to the Rényi parameter :math:`\alpha`.
         noise_level : float
             The standard deviation of the Gaussian noise to add to the data to avoid
             issues with zero distances.
@@ -68,14 +69,14 @@ class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
             Delay/lag/shift between the variables. Default is no shift.
         """
         super().__init__(data_x, data_y, offset=offset, normalize=normalize, base=base)
-        if not isinstance(alpha, (int, float)) or alpha <= 0:
-            raise ValueError("The Renyi parameter must be a positive number.")
+        if not isinstance(q, (int, float)) or q <= 0:
+            raise ValueError("The Tsallis parameter ``q`` must be a positive number.")
         if not isinstance(k, int) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )
         self.k = k
-        self.alpha = alpha
+        self.q = q
         self.noise_level = noise_level
 
     def _calculate(self):
@@ -84,11 +85,11 @@ class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
         Returns
         -------
         float
-            Renyi mutual information of the data.
+            Tsallis mutual information of the data.
         """
 
         return self._generic_mi_from_entropy(
-            estimator=RenyiEntropyEstimator,
+            estimator=TsallisEntropyEstimator,
             noise_level=self.noise_level,
-            kwargs={"alpha": self.alpha, "k": self.k, "base": self.base},
+            kwargs={"q": self.q, "k": self.k, "base": self.base},
         )

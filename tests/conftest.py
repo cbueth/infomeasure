@@ -60,6 +60,10 @@ MI_APPROACHES = {
         "functional_str": ["symbolic", "permutation"],
         "needed_kwargs": {"order": 2},
     },
+    "TsallisMIEstimator": {
+        "functional_str": ["tsallis"],
+        "needed_kwargs": {"q": 2.0},
+    },
 }
 
 TE_APPROACHES = {
@@ -82,6 +86,10 @@ TE_APPROACHES = {
     "SymbolicTEEstimator": {
         "functional_str": ["symbolic", "permutation"],
         "needed_kwargs": {"order": 2},
+    },
+    "TsallisTEEstimator": {
+        "functional_str": ["tsallis"],
+        "needed_kwargs": {"q": 2.0},
     },
 }
 

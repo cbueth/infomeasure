@@ -5,6 +5,7 @@ from .kernel import KernelMIEstimator
 from .kraskov_stoegbauer_grassberger import KSGMIEstimator
 from .renyi import RenyiMIEstimator
 from .symbolic import SymbolicMIEstimator
+from .tsallis import TsallisMIEstimator
 
 __all__ = [
     "DiscreteMIEstimator",
@@ -12,4 +13,5 @@ __all__ = [
     "KSGMIEstimator",
     "RenyiMIEstimator",
     "SymbolicMIEstimator",
+    "TsallisMIEstimator",
 ]

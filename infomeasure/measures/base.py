@@ -235,6 +235,7 @@ class EntropyEstimator(Estimator, ABC):
     .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
     .entropy.renyi.RenyiEntropyEstimator
     .entropy.symbolic.SymbolicEntropyEstimator
+    .entropy.tsallis.TsallisEntropyEstimator
     """
 
     def __init__(self, data, base: LogBaseType = Config.get("base")):
@@ -291,6 +292,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     .mutual_information.renyi.RenyiMIEstimator
     .mutual_information.symbolic.SymbolicMIEstimator
+    .mutual_information.tsallis.TsallisMIEstimator
     """
 
     def __init__(
@@ -417,6 +419,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     .transfer_entropy.discrete.DiscreteTEEstimator
     .transfer_entropy.kernel.KernelTEEstimator
     .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
+    .transfer_entropy.renyi.RenyiTEEstimator
+    .transfer_entropy.symbolic.SymbolicTEEstimator
+    .transfer_entropy.tsallis.TsallisTEEstimator
     """
 
     def __init__(

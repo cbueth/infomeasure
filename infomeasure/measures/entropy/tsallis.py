@@ -30,7 +30,7 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
     Raises
     ------
     ValueError
-        If the Renyi parameter is not a positive number.  # TODO: Correct condition?
+        If the Tsallis parameter is not a positive number.
     ValueError
         If the number of nearest neighbors is not a positive integer.
     """
@@ -42,7 +42,7 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
         q: float | int = None,
         base: LogBaseType = Config.get("base"),
     ):
-        r"""Initialize the TsallisEntropyEstimator.
+        r"""Initialize the TsallisMIEstimator.
 
         Parameters
         ----------

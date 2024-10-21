@@ -30,7 +30,7 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
     Raises
     ------
     ValueError
-        If the Renyi parameter is not a positive number.  # TODO: Correct condition?
+        If the Renyi parameter is not a positive number.
     ValueError
         If the number of nearest neighbors is not a positive integer.
     """

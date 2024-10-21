@@ -91,7 +91,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach_str in ["discrete", "renyi"]:
+    if approach_str in ["discrete", "renyi", "tsallis"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
@@ -148,7 +148,7 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach_str in ["discrete", "renyi"]:
+    if approach_str in ["discrete", "renyi", "tsallis"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
