@@ -102,8 +102,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         assert isinstance(est.local_val(), np.ndarray)
         assert isinstance(est.std_val(), float)
     assert 0 <= est.p_value(10) <= 1
-    with pytest.raises(AttributeError):
-        est.effective_val()
+    assert -0.2 <= est.effective_val()
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])

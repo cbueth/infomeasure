@@ -3,13 +3,13 @@
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
-    EffectiveTEMixin,
+    EffectiveValueMixin,
     TransferEntropyEstimator,
 )
 from ..entropy.renyi import RenyiEntropyEstimator
 
 
-class RenyiTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
+class RenyiTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
     r"""Estimator for the Renyi transfer entropy.
 
     Attributes

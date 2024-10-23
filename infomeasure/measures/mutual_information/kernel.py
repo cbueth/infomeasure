@@ -6,11 +6,11 @@ from numpy import newaxis
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import PValueMixin, MutualInformationEstimator
+from ..base import EffectiveValueMixin, MutualInformationEstimator
 from ..utils.kde import kde_probability_density_function
 
 
-class KernelMIEstimator(PValueMixin, MutualInformationEstimator):
+class KernelMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     """Estimator for mutual information using Kernel Density Estimation (KDE).
 
     Attributes

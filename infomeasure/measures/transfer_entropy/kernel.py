@@ -5,11 +5,11 @@ from numpy import nanmean, zeros
 from ..utils.te_slicing import te_observations
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EffectiveTEMixin, TransferEntropyEstimator
+from ..base import EffectiveValueMixin, TransferEntropyEstimator
 from ..utils.kde import kde_probability_density_function
 
 
-class KernelTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
+class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
     """Estimator for transfer entropy using Kernel Density Estimation (KDE).
 
     Attributes

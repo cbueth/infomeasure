@@ -9,12 +9,12 @@ from ..utils.te_slicing import te_observations
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
-    EffectiveTEMixin,
+    EffectiveValueMixin,
     TransferEntropyEstimator,
 )
 
 
-class KSGTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
+class KSGTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
     r"""Estimator for transfer entropy using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 

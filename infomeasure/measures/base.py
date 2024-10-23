@@ -742,50 +742,52 @@ class PValueMixin(RandomGeneratorMixin):
         return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
 
 
-class EffectiveTEMixin(PValueMixin):
-    """Mixin for effective transfer entropy calculation.
+class EffectiveValueMixin(PValueMixin):
+    """Mixin for effective value calculation.
 
     To be used as a mixin class with :class:`TransferEntropyEstimator`
-    derived classes. Inherit before the main class.
+    and :class:`MutualInformationEstimator` derived classes.
+    Inherit before the main class.
 
     Attributes
     ----------
     res_effective : float | None
-        The effective transfer entropy.
+        The effective transfer entropy/mutual information.
 
     Notes
     -----
-    The effective transfer entropy is the difference between the original
-    transfer entropy and the transfer entropy calculated for the permuted data.
+    The effective value is the difference between the original
+    value and the value calculated for the permuted data.
     This adds the :class:`PValueMixin` for the permutation test.
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize the transfer entropy estimator with the effective TE."""
+        """Initialize the estimator with the effective value."""
         self.res_effective = None
         super().__init__(*args, **kwargs)
 
     def effective_val(self):
-        """Return the effective transfer entropy.
+        """Return the effective value (MI/TE).
 
-        Calculate the effective transfer entropy if not already calculated.
+        Calculates the effective value if not already done,
+        otherwise returns the stored value.
 
         Returns
         -------
         effective : float
-            The effective transfer entropy.
+            The effective value.
         """
         if self.res_effective is None:
             self.res_effective = self._calculate_effective()
         return self.res_effective
 
     def _calculate_effective(self):
-        """Calculate the effective transfer entropy.
+        """Calculate the effective value.
 
         Returns
         -------
         effective : float
-            The effective transfer entropy.
+            The effective value.
         """
         global_permuted = self.calculate_permuted()
         if isinstance(global_permuted, tuple):

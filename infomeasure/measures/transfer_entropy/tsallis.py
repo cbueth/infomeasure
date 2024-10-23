@@ -3,13 +3,13 @@
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
-    EffectiveTEMixin,
+    EffectiveValueMixin,
     TransferEntropyEstimator,
 )
 from ..entropy.tsallis import TsallisEntropyEstimator
 
 
-class TsallisTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
+class TsallisTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
     r"""Estimator for the Tsallis transfer entropy.
 
     Attributes

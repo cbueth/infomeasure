@@ -2,11 +2,11 @@
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import PValueMixin, MutualInformationEstimator
+from ..base import EffectiveValueMixin, MutualInformationEstimator
 from ..entropy.tsallis import TsallisEntropyEstimator
 
 
-class TsallisMIEstimator(PValueMixin, MutualInformationEstimator):
+class TsallisMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     r"""Estimator for the Tsallis mutual information.
 
     Attributes

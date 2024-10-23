@@ -2,11 +2,11 @@
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import PValueMixin, MutualInformationEstimator
+from ..base import EffectiveValueMixin, MutualInformationEstimator
 from ..entropy.renyi import RenyiEntropyEstimator
 
 
-class RenyiMIEstimator(PValueMixin, MutualInformationEstimator):
+class RenyiMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     r"""Estimator for the Renyi mutual information.
 
     Attributes

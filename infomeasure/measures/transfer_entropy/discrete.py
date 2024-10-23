@@ -2,11 +2,11 @@
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EffectiveTEMixin, TransferEntropyEstimator
+from ..base import EffectiveValueMixin, TransferEntropyEstimator
 from ..entropy.discrete import DiscreteEntropyEstimator
 
 
-class DiscreteTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
+class DiscreteTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
     """Estimator for discrete transfer entropy.
 
     Attributes

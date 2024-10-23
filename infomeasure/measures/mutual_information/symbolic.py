@@ -7,11 +7,11 @@ from numpy import argsort, mean as np_mean, array
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import PValueMixin, MutualInformationEstimator
+from ..base import EffectiveValueMixin, MutualInformationEstimator
 from ..utils.symbolic import symbolize_series
 
 
-class SymbolicMIEstimator(PValueMixin, MutualInformationEstimator):
+class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     r"""Estimator for the Symbolic mutual information.
 
     Attributes

@@ -8,12 +8,12 @@ from ...utils.types import LogBaseType
 from ..utils.symbolic import symbolize_series
 from ..utils.te_slicing import te_observations
 from ..base import (
-    EffectiveTEMixin,
+    EffectiveValueMixin,
     TransferEntropyEstimator,
 )
 
 
-class SymbolicTEEstimator(EffectiveTEMixin, TransferEntropyEstimator):
+class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
     r"""Estimator for the Symbolic / Permutation transfer entropy.
 
     Attributes

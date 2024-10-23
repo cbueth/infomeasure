@@ -10,11 +10,11 @@ from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
     MutualInformationEstimator,
-    PValueMixin,
+    EffectiveValueMixin,
 )
 
 
-class KSGMIEstimator(PValueMixin, MutualInformationEstimator):
+class KSGMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     r"""Estimator for mutual information using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 
