@@ -7,6 +7,7 @@ from typing import final
 from numpy import std as np_std, asarray, hstack
 from numpy import array, log, log2, log10
 from numpy import sum as np_sum
+from numpy.ma.extras import column_stack
 from numpy.random import default_rng
 
 from .. import Config
@@ -381,7 +382,9 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 
         h_x = estimator(self.data_x, **kwargs).global_val()
         h_y = estimator(self.data_y, **kwargs).global_val()
-        h_xy = estimator(hstack((self.data_x, self.data_y)), **kwargs).global_val()
+        h_xy = estimator(
+            column_stack((self.data_x, self.data_y)), **kwargs
+        ).global_val()
         return h_x + h_y - h_xy
 
 
