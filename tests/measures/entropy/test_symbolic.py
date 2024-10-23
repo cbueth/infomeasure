@@ -193,7 +193,7 @@ def uniform_data(order, min_length=10, rng=default_rng(), max_len_abort=int(1e5)
 @pytest.mark.parametrize("min_length", [10, 100, 1000])
 def test_symbolic_entropy_maximum(order, min_length, default_rng):
     """Test the discrete entropy estimator with data resulting in maximum entropy."""
-    max_len_abort = int(1e3)
+    max_len_abort = int(1e4)
     data = uniform_data(
         order, min_length=min_length, rng=default_rng, max_len_abort=max_len_abort
     )
@@ -203,7 +203,7 @@ def test_symbolic_entropy_maximum(order, min_length, default_rng):
         assert est.results() == est._log_base(factorial(order))
     else:
         # approximate match, should be close to the maximum
-        assert pytest.approx(est.results(), abs=0.2) == est._log_base(factorial(order))
+        assert pytest.approx(est.results(), abs=0.1) == est._log_base(factorial(order))
         # but cannot be larger
         assert est.results() <= est._log_base(factorial(order))
 
