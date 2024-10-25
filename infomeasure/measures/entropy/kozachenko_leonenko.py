@@ -1,6 +1,6 @@
 """Module for the Kozacenko-Leonenko entropy estimator."""
 
-from numpy import inf
+from numpy import inf, log
 from numpy import sum as np_sum
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -8,6 +8,7 @@ from scipy.special import digamma
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import EntropyEstimator, PValueMixin
+from ..utils.unit_ball_volume import unit_ball_volume
 
 
 class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
@@ -29,6 +30,15 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
         The logarithm base for the entropy calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Raises
+    ------
+    ValueError
+        If the number of nearest neighbors is not a positive integer
+    ValueError
+        If the noise level is negative
+    ValueError
+        If the Minkowski power parameter is invalid
     """
 
     def __init__(
@@ -52,6 +62,20 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
             The power parameter for the Minkowski metric.
             Default is np.inf for maximum norm. Use 2 for Euclidean distance.
         """
+        if not isinstance(k, int) or k <= 0:
+            raise ValueError(
+                "The number of nearest neighbors (k) must be a positive "
+                f"integer, but got {k}."
+            )
+        if noise_level < 0:
+            raise ValueError(
+                f"The noise level must be non-negative, but got {noise_level}."
+            )
+        if not (1 <= minkowski_p <= inf):
+            raise ValueError(
+                "The Minkowski power parameter must be positive, "
+                f"but got {minkowski_p}."
+            )
         super().__init__(data, base=base)
         if self.data.ndim == 1:
             self.data = self.data.reshape(-1, 1)
@@ -85,15 +109,16 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
         # Constants for the entropy formula
         N = self.data.shape[0]
         d = self.data.shape[1]
-        c_d = 1  # Volume of the d-dimensional unit ball for maximum norm
+        # Volume of the d-dimensional unit ball for maximum norm
+        c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
 
         # Compute the entropy estimator considering that the distances are
         # already doubled
         entropy = (
             -digamma(self.k)
             + digamma(N)
-            + self._log_base(c_d)
-            + (d / N) * np_sum(self._log_base(2 * distances))
+            + log(c_d)
+            + (d / N) * np_sum(log(2 * distances))
         )
-
-        return entropy
+        # return in desired base
+        return entropy / log(self.base) if self.base != "e" else entropy
