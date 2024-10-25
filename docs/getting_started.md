@@ -42,14 +42,36 @@ submodule
 import infomeasure as im
 
 data = [0, 1, 0, 1, 0, 1, 0, 1]
-entropy = im.entropy(data, estimator="kde")
+entropy = im.entropy(data, approach="kernel", bandwidth=3, kernel="box")
 # or
-entropy = im.estimators.kde.entropy(data)
+est = im.estimator(data, measure="entropy", approach="kernel", bandwidth=3, kernel="box")
+est.results()
 ```
 
-[...]
+For mutual information, there is a similar function:
 
-[//]: # (TODO: Also show MI and TE examples)
+```{code-cell}
+data_x = [0, 1, 0, 1, 0, 1, 0, 1]
+data_y = [0, 0, 1, 1, 0, 0, 1, 1]
+mi = im.mutual_information(data_x, data_y, approach="discrete")
+# or
+est = im.estimator(data_x=data_x, data_y=data_y, measure="mutual_information",
+                   approach="discrete", time_diff=1)
+est.results()
+```
+
+Transfer entropy can be calculated as follows:
+
+```{code-cell}
+source = [0.1, 0.2, 0.3, 0.4, 0.5]
+dest = [0.2, 0.3, 0.3, 0.5, 0.6]
+te = im.transfer_entropy(source, dest, approach="metric")
+# or
+est = im.estimator(source=source, dest=dest, measure="transfer_entropy", approach="metric")
+est.results()
+```
+
+In [Estimator Usage](guide/estimator_usage.md), you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
 
 For more insight into the package, read the [Guide](guide/index.myst)
 or the [API Reference](api/index.rst).

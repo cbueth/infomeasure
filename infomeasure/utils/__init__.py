@@ -1,5 +1,5 @@
 """Utility functions for infomeasure."""
 
-from .logging import logging
+from .config import Config
 
-__all__ = ["logging"]
+__all__ = ["Config"]

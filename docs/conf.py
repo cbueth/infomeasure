@@ -21,7 +21,7 @@
 project = "infomeasure"
 copyright = "2024, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.0.0"
+version = "0.1.0dev1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -29,12 +29,13 @@ version = "0.0.0"
 extensions = [
     "sphinx.ext.autodoc",
     "myst_nb",  # Parse and execute ipynb files in Sphinx
-    "numpydoc",  #
+    "numpydoc",
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.inheritance_diagram",
     "sphinxcontrib.bibtex",
 ]
 
@@ -42,6 +43,8 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 bibtex_bibfiles = ["refs.bib"]
+
+inheritance_graph_attrs = dict(size='""', fontsize=14, ratio="compress", dpi=300)
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -55,6 +58,8 @@ language = "en"
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath", "amsmath"]
 myst_heading_anchors = 3
 nb_execution_timeout = 180
+
+numpydoc_xref_param_type = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -80,5 +85,6 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
+    "scikit-learn": ("https://scikit-learn.org/stable", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
 }

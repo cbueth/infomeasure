@@ -23,8 +23,8 @@ test:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - infomeasure/**
-        - tests/**
+        - infomeasure/**/*
+        - tests/**/*
         - pyproject.toml
         - requirements.txt
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -40,10 +40,12 @@ coverage:
   needs: []
   rules:
     - changes:
-      - infomeasure/**
-      - tests/**
-      - pyproject.toml
-      - requirements.txt
+        compare_to: 'refs/heads/main'
+        paths:
+          - infomeasure/**/*
+          - tests/**/*
+          - pyproject.toml
+          - requirements.txt
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - pytest --cov --cov-report term

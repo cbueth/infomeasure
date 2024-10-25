@@ -1,11 +1,17 @@
 # Reference Guide
 -----------------
 
-Example reference to {cite:p}`zaninAssessingGrangerCausality2021`.
+On these pages you can find documentation for `infomeasure`.
+The {ref}`Estimator Usage` explains the by-design usage of the package,
+while the following pages describe the theoretical background of each estimator.
+For the detailed API documentation, see the {ref}`API Reference`.
 
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
 
-   20_kernel_estimation_techniques
+   estimator_usage
+   entropy/index
+   mutual_information/index
+   transfer_entropy/index
 ```

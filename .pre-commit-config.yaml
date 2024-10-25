@@ -24,16 +24,16 @@ repos:
       - id: update-citation-version
         name: Update package version in CITATION.cff and docs/conf.py
         entry: >
-          bash -c 'version=$(grep -oP "(?<=__version__ = \")[^\"]+" infomeasure/_version.py) &&
-          sed -i "s/^version: .*/version: $version/" CITATION.cff &&
-          sed -i "s/^version = .*/version = \"$version\"/" docs/conf.py'
+          sh -c '
+          if command -v pwsh >/dev/null 2>&1 || [ "$0" = "pwsh" ]; then
+            echo "Skipping in PowerShell";
+          else
+            version=$(grep -oP "(?<=__version__ = \")[^\"]+" infomeasure/_version.py) &&
+            sed -i "s/^version: .*/version: $version/" CITATION.cff &&
+            sed -i "s/^version = .*/version = \"$version\"/" docs/conf.py;
+          fi'
         language: system
         files: 'CITATION\.cff|infomeasure/_version\.py|docs/conf\.py'
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.7

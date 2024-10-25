@@ -45,7 +45,7 @@ Issues = "https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/issues"
 Changelog = "https://carlson.pages.ifisc.uib-csic.es/infomeasure/changelog/"
 
 [project.optional-dependencies]
-lint = ["ruff", "isort"]
+lint = ["ruff"]
 test = ["pytest", "pytest-cov", "coverage"]
 doc = ["sphinx", "numpydoc", "myst-nb", "sphinx-book-theme", "sphinxcontrib-bibtex"]
 plot = ["matplotlib"]
@@ -68,8 +68,9 @@ version = { attr = "infomeasure._version.__version__" }
 [tool.ruff]
 target-version = "py312"
 
-[tool.isort]
-py_version = "312"
+[tool.ruff.lint]
+ignore = ["E741"]
+select = ["NPY201"]
 
 # --------------------------------------------------------------------------------------
 # Testing

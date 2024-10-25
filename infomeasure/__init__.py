@@ -1,11 +1,29 @@
 """infomeasure package."""
 
-from ._version import __version__
-
 # Expose most common functions
-# from .x import y, z
+from ._version import __version__
+from .utils import Config
+from .measures.functional import (
+    entropy,
+    mutual_information,
+    transfer_entropy,
+    estimator,
+)
+
+h, mi, te = entropy, mutual_information, transfer_entropy
 
 # Set package attributes
 __author__ = "Carlson Büth"
 
-__all__ = ["__version__", "__author__"]
+__all__ = [
+    "__version__",
+    "__author__",
+    "Config",
+    "entropy",
+    "mutual_information",
+    "transfer_entropy",
+    "h",
+    "mi",
+    "te",
+    "estimator",
+]

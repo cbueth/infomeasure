@@ -3,7 +3,6 @@ scipy
 # Code Quality
 pre-commit
 ruff
-isort
 # Testing
 pytest
 pytest-cov
