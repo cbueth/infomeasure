@@ -28,7 +28,16 @@ def kde_probability_density_function(data, x, bandwidth, kernel="box"):
     -------
     float
         Estimated probability density at point x.
+
+    Raises
+    ------
+    ValueError
+        If the kernel type is not supported
+    ValueError
+        If the bandwidth is not a positive number.
     """
+    if not isinstance(bandwidth, (float, int)) or bandwidth <= 0:
+        raise ValueError("The bandwidth must be a positive number.")
     if kernel == "gaussian":
         kde = gaussian_kde(data.T, bw_method=bandwidth)
         return kde.evaluate(x)

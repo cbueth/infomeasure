@@ -1,4 +1,4 @@
-"""Explicit symbolic / permutation mutual information estimator."""
+"""Explicit symbolic / permutation mutual information estimator tests."""
 
 import pytest
 from numpy import isnan

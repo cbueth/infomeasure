@@ -2,19 +2,21 @@
 
 import pytest
 
-from infomeasure.measures.entropy import TsallisEntropyEstimator
+from infomeasure.measures.entropy import (
+    TsallisEntropyEstimator,
+    DiscreteEntropyEstimator,
+)
 
 
-@pytest.mark.parametrize("data_len", [100, 1000])
 @pytest.mark.parametrize("k", [1, 2, 5, 10])
 @pytest.mark.parametrize("q", [0.5, 1.0, 1.5, 2.0, 3.0])
-def test_tsallis_entropy(data_len, k, q, default_rng):
+def test_tsallis_entropy(k, q, default_rng):
     """Test the discrete entropy estimator."""
-    data = default_rng.integers(0, 10, data_len)
+    data = default_rng.normal(0, 10, 1000)
     est = TsallisEntropyEstimator(data, k=k, q=q)
-    # if q == 1:
-    #     est_discrete = DiscreteEntropyEstimator(data)
-    #     assert est.results() == est_discrete.results()
+    if q == 1:
+        est_discrete = DiscreteEntropyEstimator(data.astype(int))
+        assert pytest.approx(est.results(), rel=0.1) == est_discrete.results()
     est.results()
 
 

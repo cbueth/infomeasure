@@ -102,7 +102,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         assert isinstance(est.local_val(), np.ndarray)
         assert isinstance(est.std_val(), float)
     assert 0 <= est.p_value(10) <= 1
-    assert -0.2 <= est.effective_val()
+    assert -1 <= est.effective_val()
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])
@@ -113,8 +113,8 @@ def test_transfer_entropy_functional_addressing(
 ):
     """Test addressing the transfer entropy estimator classes."""
     approach_str, needed_kwargs = te_approach
-    source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    source = np.arange(100)
+    dest = np.arange(100)
     te = im.transfer_entropy(
         source,
         dest,

@@ -19,17 +19,25 @@ def calculate_common_entropy_components(data, k):
         The data used to estimate the entropy.
     k : int
         The number of nearest neighbors used in the estimation.
-    q : float | int
-        The Rényi or Tsallis parameter, order or exponent.
-        Sometimes denoted as :math:`\alpha` or :math:`q`.
 
     Returns
     -------
     tuple
         Volume of the unit ball, k-th nearest neighbor distances,
         number of data points, and dimensionality of the data.
+
+    Raises
+    ------
+    ValueError
+        If the parameter ``k`` is selected too large.
     """
     N, m = data.shape
+
+    if k >= N:
+        raise ValueError(
+            "The number of nearest neighbors must be smaller "
+            "than the number of data points."
+        )
 
     # Volume of the unit ball in m-dimensional space
     V_m = pi ** (m / 2) / gamma(m / 2 + 1)
