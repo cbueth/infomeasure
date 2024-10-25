@@ -40,7 +40,7 @@ def kde_probability_density_function(data, x, bandwidth, kernel="box"):
         raise ValueError("The bandwidth must be a positive number.")
     if kernel == "gaussian":
         kde = gaussian_kde(data.T, bw_method=bandwidth)
-        return kde.evaluate(x)
+        return kde.evaluate(x).squeeze()
     elif kernel == "box":
         # Convert x to an array to ensure compatibility with numpy operations
         x = asarray(x)

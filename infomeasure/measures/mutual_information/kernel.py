@@ -120,11 +120,7 @@ class KernelMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         source_density[source_density == 0] = finfo(float).eps
         dest_density[dest_density == 0] = finfo(float).eps
 
-        # Compute mutual information
-        # mi = np.mean(np.log(joint_density / (source_density * dest_density)))
-        # return mi
-
-        # New section for computing and returning local MI, mean, and Std
+        # Compute local mutual information values
         local_mi_values = self._log_base(
             joint_density / (source_density * dest_density)
         )

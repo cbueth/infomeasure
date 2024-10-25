@@ -186,8 +186,8 @@ def test_te_observations_permute_src(
     src_hist_len, dest_hist_len, step_size, permute_src
 ):
     """Test the TE observations data arrays with permutation."""
-    source = arange(10)
-    destination = arange(10, 20)
+    source = arange(100)
+    destination = arange(100, 200)
     (
         joint_space_data,
         data_dest_past_embedded,
