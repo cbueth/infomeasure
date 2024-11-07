@@ -27,10 +27,6 @@ the experience for all involved. The community looks forward to your contributio
     - [Reporting Bugs](#reporting-bugs)
     - [Suggesting Enhancements](#suggesting-enhancements)
     - [Your First Code Contribution](#your-first-code-contribution)
-    - [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
-    - [Commit Messages](#commit-messages)
-- [Join The Project Team](#join-the-project-team)
 
 ## I Have a Question
 
@@ -45,7 +41,7 @@ question in this issue. It is also advisable to search the internet for answers 
 If you then still feel the need to ask a question and need clarification, we recommend
 the following:
 
-- Open an [Issue](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/issues/new).
+- Open an [Issue](https://github.com/NERDSITU/superblockify/issues/new).
 - Provide as much context as you can about what you're running into.
 - Provide project and platform versions (operating system, `conda list`/`pip list`), depending on
   what seems relevant.
@@ -116,7 +112,7 @@ Once it's filed:
   will not be addressed until they are reproduced.
 - If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as
   possibly other tags (such as `critical`), and the issue will be left to
-  be implemented by someone.
+  be [implemented by someone](#your-first-code-contribution).
 
 ### Suggesting Enhancements
 
@@ -160,7 +156,37 @@ as [GitLab issues](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/issues).
 
 <!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
-<!-- omit in toc -->
+### Your First Code Contribution
+
+If you prefer to directly put your enhancement into code, you are welcome to submit a
+pull request.
+When doing so, we recommend setting up your development environment with the
+development dependencies and an editable installation of the package, like so:
+
+```bash
+conda create -n im_env -c conda-forge python=3.12 -f requirements.txt
+conda activate im_env
+pip install --no-build-isolation --no-deps -e .
+```
+
+This will install the package in editable mode, so you can make changes to the code and
+see the effects immediately.
+Take into consideration the same guidelines as
+for [enhancement suggestions](#suggesting-enhancements) when submitting a pull request.
+
+Additionally, make sure to include tests for your changes.
+To test your changes, you can run all tests with:
+
+```bash
+pytest tests/
+```
+
+Before submitting a pull request, make sure to run the pre-commit hooks to ensure that
+your code is formatted correctly and passes all checks:
+
+```bash
+pre-commit run --all-files
+```
 
 ## Attribution
 

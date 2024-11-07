@@ -17,8 +17,10 @@ url: 'https://carlson.pages.ifisc.uib-csic.es/infomeasure/'
 keywords:
     - entropy
     - mutual information
+    - transfer entropy
     - information theory
     - information measures
+    - conditional probability
 license: AGPL-3.0-or-later
 version: 0.1.0dev1
 
