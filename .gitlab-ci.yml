@@ -81,9 +81,9 @@ build:
     - python -m build
     - twine check dist/*
     - |
-      twine upload
-      --repository-url https://gitlab.ifisc.uib-csic.es/api/v4/projects/${CI_PROJECT_ID}/packages/pypi/
-      --non-interactive --skip-existing dist/*
+      twine upload \
+      --repository-url https://gitlab.ifisc.uib-csic.es/api/v4/projects/${CI_PROJECT_ID}/packages/pypi/ \
+      --non-interactive --skip-existing dist/* \
       --username $CI_REGISTRY_USER --password $CI_JOB_TOKEN
   dependencies:
     - test
