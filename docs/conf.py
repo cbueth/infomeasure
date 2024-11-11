@@ -21,7 +21,7 @@
 project = "infomeasure"
 copyright = "2024, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.1.1dev0"
+version = "0.1.1dev1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
