@@ -41,7 +41,7 @@ question in this issue. It is also advisable to search the internet for answers 
 If you then still feel the need to ask a question and need clarification, we recommend
 the following:
 
-- Open an [Issue](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/issues/new).
+- Open an [Issue](https://github.com/NERDSITU/superblockify/issues/new).
 - Provide as much context as you can about what you're running into.
 - Provide project and platform versions (operating system, `conda list`/`pip list`), depending on
   what seems relevant.
