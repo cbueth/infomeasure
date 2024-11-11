@@ -16,6 +16,7 @@ stages:
 before_script:
   - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
   - pip install --no-build-isolation --no-deps -e .
+  - micromamba install -y -n base -c conda-forge twine python-build
 
 # Test on all python versions on push to main branch, and on bi-weekly schedule
 test:
@@ -39,7 +40,7 @@ test:
 coverage:
   stage: coverage
   coverage: /^TOTAL.+?(\d+\%)$/
-  needs: []
+  needs: [ ]
   rules:
     - changes:
         compare_to: 'refs/heads/main'
@@ -69,3 +70,27 @@ pages:
   environment:
     name: production
     url: https://${CI_PROJECT_NAMESPACE}.pages.ifisc.uib-csic.es/${CI_PROJECT_NAME}
+
+# deploy to gitlab package registry on tag and latest main branch
+build:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    # if not on tag, change _version to dev
+    - if [ -z "$CI_COMMIT_TAG" ]; then \
+      sed -i 's/__version__ = .*/__version__ = "dev"/' infomeasure/_version.py; \
+      fi
+    - mkdir -p dist
+    - python -m build
+    - twine check dist/*
+    - twine upload \
+      --repository-url https://gitlab.ifisc.uib-csic.es/api/v4/projects/${CI_PROJECT_ID}/packages/pypi/ \
+      --non-interactive --skip-existing dist/* \
+      --username $CI_REGISTRY_USER --password $CI_JOB_TOKEN
+  dependencies:
+    - test
+  environment:
+    name: production
+    url: https://pypi.org/project/${CI_PROJECT_NAME}

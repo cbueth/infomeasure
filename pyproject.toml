@@ -29,7 +29,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Scientific/Engineering :: Mathematics",
-    "Private :: Do Not Upload", # Remove this line to upload to PyPI
 ]
 dynamic = ["version"]
 requires-python = ">=3.10"
