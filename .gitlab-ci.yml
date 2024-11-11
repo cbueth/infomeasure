@@ -14,9 +14,8 @@ stages:
       - PYTHON_VERSION: [ "3.12" ]
 
 before_script:
-  - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt
+  - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt twine python-build
   - pip install --no-build-isolation --no-deps -e .
-  - micromamba install -y -n base -c conda-forge twine python-build
 
 # Test on all python versions on push to main branch, and on bi-weekly schedule
 test:
@@ -78,8 +77,6 @@ build:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
-    # if not on tag, change _version to dev
-    - if [ -z "$CI_COMMIT_TAG" ]; then sed -i 's/__version__ = .*/__version__ = "dev"/' infomeasure/_version.py; fi
     - mkdir -p dist
     - python -m build
     - twine check dist/*

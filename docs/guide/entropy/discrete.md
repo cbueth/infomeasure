@@ -6,7 +6,7 @@ kernelspec:
 
 (discrete_entropy)=
 # Discrete Entropy Estimation
-The discrete estimator for a discrete RV $X$ following the probability mass function (pmf) $p(x)$ is straight forward act of plug-in probability estimates in the discrete Entropy formula. 
+The discrete estimator for a discrete RV $X$ following the probability mass function (pmf) $p(x)$ is straight forward act of plug-in probability estimates in the discrete Entropy formula.
 
 ```{admonition} Tsallis Entropy
 :class: tip
@@ -15,7 +15,7 @@ The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` discrete entrop
 $$
 H(X) = -\sum_{x \in X} p(x) \log_b p(x),
 $$
-where $x$ is the list of realization of RV $X$ with probabilitiy $p(x)$ and ``b`` is the base of the logarithm. 
+where $x$ is the list of realization of RV $X$ with probabilitiy $p(x)$ and ``b`` is the base of the logarithm.
 ```
 
 ````{sidebar} Units of Information

@@ -8,7 +8,7 @@ kernelspec:
 # Kozachenko-Leonenko (KL) / Metric / kNN Entropy Estimation
 
 
-The Kozachenko-Leonenko (KL) entropy estimator is a non-parametric method for estimating the entropy of a continuous random variable based on the $k^{th}$-Nearest Neighbor (KNN) distances of the data points. 
+The Kozachenko-Leonenko (KL) entropy estimator is a non-parametric method for estimating the entropy of a continuous random variable based on the $k^{th}$-Nearest Neighbor (KNN) distances of the data points.
 For simplicity imagine point in 2-D space $R^2$  and the idea is to rank the each points (say each point $z_i = (x_i, y_i) \in R^2$) by its neighbour´s distance $d_{i,j} = \|z_i - z_j\| : d_{i,j1} \le d_{i,j2} \le \cdots$ (supposing $\|\cdot\|$ be a metric).
 Finally estimate $H(X)$ from the average distance to the $k$-nearest neighbor.
 The full derivation of KL estimator for entropy calculation can be found in following citations {cite:p}`kozachenko1987sample` {cite:p}`RevieEstimators` {cite:p}`miKSG2004` ,here we will just write the final expression:

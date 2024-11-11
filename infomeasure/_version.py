@@ -1,3 +1,3 @@
 """infomeasure package version."""
 
-__version__ = "0.1.0dev1"
+__version__ = "0.1.1dev0"

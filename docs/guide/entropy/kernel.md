@@ -6,41 +6,41 @@ kernelspec:
 
 # Kernel Entropy Estimation
 
-Kernel entropy estimation technique relies on the probability density function (pdf) estimates as estimated by the **kernel density estimation (KDE)** method. 
-Density estimation is about constructing the estimate of density function from the available dataset. 
-KDE taken an approach of estimating the density of a reference point by potentially considers all samples and weighting them based on their distance from a reference point with the help of Kernel Function $K$ {cite:p}`silverman1986density`.  
-Essentially this will allow for the points near to the reference points to contribute more to the density than for the points further way. 
+Kernel entropy estimation technique relies on the probability density function (pdf) estimates as estimated by the **kernel density estimation (KDE)** method.
+Density estimation is about constructing the estimate of density function from the available dataset.
+KDE taken an approach of estimating the density of a reference point by potentially considers all samples and weighting them based on their distance from a reference point with the help of Kernel Function $K$ {cite:p}`silverman1986density`.
+Essentially this will allow for the points near to the reference points to contribute more to the density than for the points further way.
 The KDE estimate of a point $ x_n $ is calculated by following relation:
 
 $$
-    \hat{p}_r(x_n) = \frac{1}{N r^d} \sum_{n'=1}^{N} K \left( \frac{x_n - x_{n'}}{r} \right) 
+    \hat{p}_r(x_n) = \frac{1}{N r^d} \sum_{n'=1}^{N} K \left( \frac{x_n - x_{n'}}{r} \right)
 $$
 where:
 - $N$ is the number of data points,
 - $r$ is bandwidth or kernel radius,
-- $d$ is the dimension of the data, 
+- $d$ is the dimension of the data,
 - $x_n$ and $x_{n'}$ are the data points,
 - $\hat{p}_r(x_n)$ probability estimates.
 
 In order to take care for the multivariate kernel functions, in the above equation _pdf_ is estimated by dividing by a factor of $r$, or $r^d$ with $d$ being the number of dimensions.
 This package allows to implement two different kernel functions: box kernel or step kernel, defined as
-$( K (|u| \geq 1) = 0 )$ 
-and 
+$( K (|u| \geq 1) = 0 )$
+and
 $( K(|u| < 1) = 1 )$,
-which basically calculates 
+which basically calculates
 $ ( \hat{p}_r(x_n) )$
-as the fraction of the $N$ values situated within a distance $r$ from $x_n$ and second, 
-gaussian kernel 
-$( \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}r^2} )$ 
-offering a gradual decline at the bin boundaries away from $x_n$. 
+as the fraction of the $N$ values situated within a distance $r$ from $x_n$ and second,
+gaussian kernel
+$( \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}r^2} )$
+offering a gradual decline at the bin boundaries away from $x_n$.
 
-We use the estimated _pdf_ to compute the Shannon differential entropy by averaging the computed Shannon information content over all samples. 
+We use the estimated _pdf_ to compute the Shannon differential entropy by averaging the computed Shannon information content over all samples.
 
 
 > Note: Even though Kernel estimation is a model-free technique, but its accuracy hinges on the choice of resolution parameter $( r )$. Picking the right value is challenging: a small value can result in under-sampling, while a large one might gloss over data nuances.
 
 ### Test: pdf estimator
-Let´s test the KDE function (as implemented in the package) to estimate  the pdf of a RV $X$. The RV $X$ in this case will be a synthetically generated gaussian dataset. 
+Let´s test the KDE function (as implemented in the package) to estimate  the pdf of a RV $X$. The RV $X$ in this case will be a synthetically generated gaussian dataset.
 
 ```{code-cell}
 import numpy as np

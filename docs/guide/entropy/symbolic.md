@@ -7,11 +7,11 @@ kernelspec:
 (symbolic_entropy)=
 # Symbolic / Permutation Entropy Estimation
 
-For a provided (let's say) time series data set $ \{x_t\}_{t=1, \ldots, T}$ with finite values, one can replace each of those values with a symbol sequence $s(t)$ of a length defined the order parameter $s$. 
-Imagine a dynamic window of size $s$ (order) which runs across all the datapoints generating the subset for each datapoint. 
+For a provided (let's say) time series data set $ \{x_t\}_{t=1, \ldots, T}$ with finite values, one can replace each of those values with a symbol sequence $s(t)$ of a length defined the order parameter $s$.
+Imagine a dynamic window of size $s$ (order) which runs across all the datapoints generating the subset for each datapoint.
 This subset is further symbolize by certain specific symbolization technique.
-It is important to remember, that the symbol assigned to every datapoints will carry certain attributes of the data in according to the symbolization technique. 
-There are several ways to symbolize the data, in this package we will take the approach of ordinal pattern, for detail refer to artile {cite:p}`PermutationEntropy2002`. 
+It is important to remember, that the symbol assigned to every datapoints will carry certain attributes of the data in according to the symbolization technique.
+There are several ways to symbolize the data, in this package we will take the approach of ordinal pattern, for detail refer to artile {cite:p}`PermutationEntropy2002`.
 ```{Note}
 **Example of Ordinal Pattern symbolization:**
 
@@ -22,8 +22,8 @@ For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time serie
 ```
 
 
-After mapping the time series data into symbolic space, it is straightforward to estimate the probability distribution computing the relative frequency yof symbols, 
-i.e we will study all  $n!$  permutations  $\pi$ of order  $n$ which are considered here as possible order types of  $n$  different numbers. 
+After mapping the time series data into symbolic space, it is straightforward to estimate the probability distribution computing the relative frequency yof symbols,
+i.e we will study all  $n!$  permutations  $\pi$ of order  $n$ which are considered here as possible order types of  $n$  different numbers.
 Hence, for each $\pi$ we determine the relative frequency (\# means number) as follows:
 
 $$
