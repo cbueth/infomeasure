@@ -19,7 +19,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     For a given ``order`` (length of considered subsequences),
     all :math:`n!` possible permutations are considered
     and their relative frequencies are calculated
-    :cite:p:`bandtPermutationEntropyNatural2002`.
+    :cite:p:`PermutationEntropy2002`.
 
     Attributes
     ----------

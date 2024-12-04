@@ -7,7 +7,7 @@ kernelspec:
 (tsallis_entropy)=
 # Tsallis Entropy Estimation
 
-The [**Tsallis entropy**](index.md#renyi-alpha-entropy) is a generalization of the [Shannon entropy](index.md#shannon-entropy) by modifying the additivity law, for detail read {cite:p}`articleTsallis,Tsallis1999,Tsallis1998`.
+The [**Tsallis entropy**](index.md#renyi-alpha-entropy) is a generalization of the [Shannon entropy](index.md#shannon-entropy) by modifying the additivity law, for detail read {cite:p}`tsallis1988,tsallis1999,tsallis1998`.
 
 ```{admonition} Tsallis Entropy
 :class: tip
@@ -24,7 +24,7 @@ H_1 = - \int_{\mathbb{R}^m} f(x) \log f(x) \, dx.
 $$
 ```
 ## Estimation Technique:
-**Leonenko et. al.** in the same article to that of Rényi entropy estimator, introduced a class of estimators for Tallis entropy by extending the [K-L entropy estimation](kozachenko_leonenko.md) technique which is based on the $K^{th}$-Nearest Neighbour (KNN) search approach, for detail refer to {cite:p}`RenyiTsallisEstimator2008` {cite:p}`LeonenkoRenyiEstimator`.
+**Leonenko et. al.** in the same article to that of Rényi entropy estimator, introduced a class of estimators for Tallis entropy by extending the [K-L entropy estimation](kozachenko_leonenko.md) technique which is based on the $K^{th}$-Nearest Neighbour (KNN) search approach, for detail refer to {cite:p}`leonenkoEstimationEntropiesDivergences2006` {cite:p}`leonenkoClassRenyiInformation2008`.
 Let us suppose the $X$ with $N$ datapoints.
 First for each points $ X_i $, compute the distances $ \rho(X_i, X_j) $ to all other points $ X_j $ (where $ j \neq i $) and record the $ \rho_{k,N-1}^{(i)} $ as the distance from $ X_i $ to its $K^{th}$-Nearest Neighbour.
 Tallis entropy $\hat{H}_{N,k,q}$ is estimated by:
