@@ -20,8 +20,6 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         The data used to estimate the mutual information.
     order : int
         The size of the permutation patterns.
-    per_symbol : bool, optional
-        If True, the entropy is divided by the order - 1.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -52,7 +50,6 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         data_x,
         data_y,
         order: int,
-        per_symbol: bool = False,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
     ):
@@ -71,7 +68,6 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         self.order = order
         if len(self.data_x) < (order - 1) + 1:
             raise ValueError("The data is too small for the given order.")
-        self.per_symbol = per_symbol
 
     def _calculate(self):
         """Calculate the mutual information of the data.
