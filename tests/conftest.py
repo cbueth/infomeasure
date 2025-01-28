@@ -1,6 +1,9 @@
 """Module for test fixtures available for all test files"""
 
+from functools import cache
+
 import pytest
+from numpy import zeros
 from numpy.random import default_rng as rng
 
 from infomeasure import Config
@@ -199,3 +202,18 @@ te_approach_kwargs = [
 def te_approach(request):
     """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
     return request.param
+
+
+@cache
+def generate_autoregressive_series(rng_int, alpha, beta, gamma, length=1000, scale=10):
+    # Initialize the series with zeros
+    X = zeros(length)
+    Y = zeros(length)
+    generator = rng(rng_int)
+    # Generate the series
+    for i in range(length - 1):
+        eta_X = generator.normal(loc=0, scale=scale)
+        eta_Y = generator.normal(loc=0, scale=scale)
+        X[i + 1] = alpha * X[i] + eta_X
+        Y[i + 1] = beta * Y[i] + gamma * X[i] + eta_Y
+    return X, Y
