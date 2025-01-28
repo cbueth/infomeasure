@@ -33,7 +33,7 @@ class KSGMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
-    normalize
+    normalize : bool, optional
         If True, normalize the data before analysis.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
