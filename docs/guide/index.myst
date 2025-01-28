@@ -3,7 +3,7 @@
 
 On these pages you can find documentation for `infomeasure`.
 The {ref}`Estimator Usage` explains the by-design usage of the package,
-while the following pages describe the theoretical background of each estimator.
+while the following pages describe the implemented information-theoretic measures like Entropy (H), Mutual Information (MI), Conditional MI, Transfer Entropy (TE), Conditional TE, etc. for both the discrete and continuous-valued data and by using several estimation techniques (eg: Kernel method, Kraskov-Stögbauer-Grassberger method, etc).
 For the detailed API documentation, see the {ref}`API Reference`.
 
 ```{eval-rst}

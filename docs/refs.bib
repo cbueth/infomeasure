@@ -55,6 +55,57 @@
   year      = {1976}
 }
 
+@book{cover2012elements,
+  title={Elements of Information Theory},
+  author={Cover, T.M. and Thomas, J.A.},
+  isbn={9781118585771},
+  lccn={2005047799},
+  url={https://books.google.ee/books?id=VWq5GG6ycxMC},
+  year={2012},
+  publisher={Wiley}
+}
+
+@book{manning1999foundations,
+  title={Foundations of Statistical Natural Language Processing},
+  author={Manning, C. and Schutze, H.},
+  isbn={9780262133609},
+  lccn={99021137},
+  series={Foundations of Statistical Natural Language Processing},
+  url={https://books.google.ee/books?id=YiFDxbEX3SUC},
+  year={1999},
+  publisher={MIT Press}
+}
+
+# local Entropy
+@Inbook{Lizier2014,
+author="Lizier, Joseph T.",
+editor="Wibral, Michael
+and Vicente, Raul
+and Lizier, Joseph T.",
+title="Measuring the Dynamics of Information Processing on a Local Scale in Time and Space",
+bookTitle="Directed Information Measures in Neuroscience",
+year="2014",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="161--193",
+abstract="Studies of how information is processed in natural systems, in particular in nervous systems, are rapidly gaining attention. Less known however is that the local dynamics of such information processing in space and time can be measured. In this chapter, we review the mathematics of how to measure local entropy and mutual information values at specific observations of time-series processes.We then review how these techniques are used to construct measures of local information storage and transfer within a distributed system, and we describe how these measures can reveal much more intricate details about the dynamics of complex systems than their more well-known ``average'' measures do. This is done by examining their application to cellular automata, a classic complex system, where these local information profiles have provided quantitative evidence for long-held conjectures regarding the information transfer and processing role of gliders and glider collisions. Finally, we describe the outlook in anticipating the broad application of these local measures of information processing in computational neuroscience.",
+isbn="978-3-642-54474-3",
+doi="10.1007/978-3-642-54474-3_7",
+url="https://doi.org/10.1007/978-3-642-54474-3_7"
+}
+
+#local MI
+@book{fano1961transmission,
+  author    = {Fano, R. M.},
+  title     = {Transmission of Information: A Statistical Theory of Communications},
+  publisher = {M.I.T. Press},
+  address   = {Cambridge, MA, USA},
+  year      = {1961},
+  note      = {See Chapter 2}
+}
+
+
+
 @article{Jizba2003,
 author = {Jizba, Peter},
 year = {2003},
@@ -181,96 +232,93 @@ doi = {10.1103/PhysRevE.83.019903}
 }
 
 
-
-
-%---------------Trail
-@article{bandtPermutationEntropyNatural2002,
-  title = {Permutation Entropy: A Natural Complexity Measure for Time Series},
-  author = {Bandt, Christoph and Pompe, Bernd},
-  year = {2002},
-  month = apr,
-  journal = {Physical Review Letters},
-  volume = {88},
-  number = {17},
-  pages = {174102},
+% TE
+@article{Schreiber.paper,
+  title = {Measuring Information Transfer},
+  author = {Schreiber, Thomas},
+  journal = {Phys. Rev. Lett.},
+  volume = {85},
+  issue = {2},
+  pages = {461--464},
+  numpages = {0},
+  year = {2000},
+  month = {Jul},
   publisher = {American Physical Society},
-  doi = {10.1103/PhysRevLett.88.174102}
+  doi = {10.1103/PhysRevLett.85.461},
+  url = {https://link.aps.org/doi/10.1103/PhysRevLett.85.461}
 }
 
-@misc{iso/tc12IEC800001320082008,
-  title = {{{IEC}} 80000-13:2008},
-  author = {{ISO/TC 12}},
+@article{article_KSG_TE,
+author = {Gomez-Herrero, German and Wu, Wei and Rutanen, Kalle and Soriano, Miguel and Pipa, Gordon and Vicente, Raul},
+year = {2010},
+month = {08},
+pages = {},
+title = {Assessing Coupling Dynamics from an Ensemble of Time Series},
+volume = {17},
+journal = {Entropy},
+doi = {10.3390/e17041958}
+}
+
+@article{article_eTE_Computation,
+author = {Marschinski, R. and Kantz, H.},
+year = {2002},
+month = {11},
+pages = {275-281},
+title = {Analysing the information flow between financial time series . An improved estimator for transfer entropy},
+volume = {30},
+journal = {European Physical Journal B},
+doi = {10.1140/epjb/e2002-00379-2}
+}
+
+@article{articleKantz,
+author = {Marschinski, R. and Kantz, H.},
+year = {2002},
+month = {11},
+pages = {275-281},
+title = {Analysing the information flow between financial time series . An improved estimator for transfer entropy},
+volume = {30},
+journal = {European Physical Journal B},
+doi = {10.1140/epjb/e2002-00379-2}
+}
+
+@article{TE_Kernel_Kaiser,
+author = {Kaiser, A. and Schreiber, Thomas},
+year = {2002},
+month = {06},
+pages = {},
+title = {Information transfer in continuous processes},
+volume = {166},
+journal = {Physica D, v.166, 43-62 (2002)},
+doi = {10.1016/S0167-2789(02)00432-3}
+}
+
+@article{KSG_TE,
+    doi = {10.1371/journal.pone.0055809},
+    author = {Wibral, Michael AND Pampu, Nicolae AND Priesemann, Viola AND Siebenhühner, Felix AND Seiwert, Hannes AND Lindner, Michael AND Lizier, Joseph T. AND Vicente, Raul},
+    journal = {PLOS ONE},
+    publisher = {Public Library of Science},
+    title = {Measuring Information-Transfer Delays},
+    year = {2013},
+    month = {02},
+    volume = {8},
+    url = {https://doi.org/10.1371/journal.pone.0055809},
+    pages = {1-19},
+    abstract = {In complex networks such as gene networks, traffic systems or brain circuits it is important to understand how long it takes for the different parts of the network to effectively influence one another. In the brain, for example, axonal delays between brain areas can amount to several tens of milliseconds, adding an intrinsic component to any timing-based processing of information. Inferring neural interaction delays is thus needed to interpret the information transfer revealed by any analysis of directed interactions across brain structures. However, a robust estimation of interaction delays from neural activity faces several challenges if modeling assumptions on interaction mechanisms are wrong or cannot be made. Here, we propose a robust estimator for neuronal interaction delays rooted in an information-theoretic framework, which allows a model-free exploration of interactions. In particular, we extend transfer entropy to account for delayed source-target interactions, while crucially retaining the conditioning on the embedded target state at the immediately previous time step. We prove that this particular extension is indeed guaranteed to identify interaction delays between two coupled systems and is the only relevant option in keeping with Wiener’s principle of causality. We demonstrate the performance of our approach in detecting interaction delays on finite data by numerical simulations of stochastic and deterministic processes, as well as on local field potential recordings. We also show the ability of the extended transfer entropy to detect the presence of multiple delays, as well as feedback loops. While evaluated on neuroscience data, we expect the estimator to be useful in other fields dealing with network dynamics.},
+    number = {2},
+
+}
+
+@article{Symbolic_TE,
+  title = {Symbolic Transfer Entropy},
+  author = {Staniek, Matth\"aus and Lehnertz, Klaus},
+  journal = {Phys. Rev. Lett.},
+  volume = {100},
+  issue = {15},
+  pages = {158101},
+  numpages = {4},
   year = {2008},
-  month = mar
-}
-
-@book{suzuki2002history,
-  title = {A History of Mathematics},
-  author = {Suzuki, J.},
-  year = {2002},
-  publisher = {Prentice Hall},
-  isbn = {978-0-13-019074-1},
-  lccn = {2001045936}
-}
-
-@article{laisantNumerationFactorielleApplication1888,
-  title = {Sur La Num{\'e}ration Factorielle, Application Aux Permutations},
-  author = {Laisant, C.- A.},
-  year = {1888},
-  journal = {Bulletin de la Soci\&\#233;t\&\#233; math\&\#233;matique de France},
-  volume = {2},
-  pages = {176--183},
-  issn = {0037-9484, 2102-622X},
-  doi = {10.24033/bsmf.378},
-  urldate = {2024-10-10}
-}
-
-@inproceedings{Lehmer1960TeachingCT,
-  title = {Teaching Combinatorial Tricks to a Computer},
-  author = {Lehmer, D. H.},
-  year = {1960},
-  series = {Proceedings of {{Symposia}} in {{Applied Mathematics}}},
-  volume = {10},
-  publisher = {American Mathematical Society},
-  address = {Providence, Rhode Island},
-  doi = {10.1090/psapm/010}
-}
-
-@article{shannonMathematicalTheoryCommunication1948,
-  title = {A {{Mathematical Theory}} of {{Communication}}},
-  author = {Shannon, C. E.},
-  year = {1948},
-  month = oct,
-  journal = {Bell System Technical Journal},
-  volume = {27},
-  number = {4},
-  pages = {623--656},
-  issn = {00058580},
-  doi = {10.1002/j.1538-7305.1948.tb00917.x},
-  urldate = {2024-06-25},
-  langid = {english}
-}
-
-@article{zaninAssessingGrangerCausality2021,
-  title = {Assessing {{Granger Causality}} on {{Irregular Missing}} and {{Extreme Data}}},
-  author = {Zanin, Massimiliano},
-  year = {2021},
-  journal = {IEEE Access},
-  volume = {9},
-  pages = {75362--75374},
-  issn = {2169-3536},
-  doi = {10.1109/ACCESS.2021.3082014},
-  urldate = {2024-03-15},
-  abstract = {The Granger test is one of the best known techniques to detect causality relationships among time series, and has been used uncountable times in science and engineering. The quality of its results strongly depends on the quality of the underlying data, and different approaches have been proposed to reduce the impact of, for instance, observational noise or irregular sampling. Less attention has nevertheless been devoted to situations in which the analysed time series are irregularly polluted with missing and extreme values. In this contribution I tackle this problem by comparing four different data pre-processing strategies and evaluating their performance with synthetic time series, both in dyadic tests and functional network contexts. I further apply these strategies to a real-world problem, involving inferring the structure behind the propagation of delays in an air transport system. Finally, some guidelines are provided on when and how these strategies ought to be used.},
-  keywords = {Couplings,Dynamics,Europe,functional networks,Granger causality,missing data,Pollution measurement,Predictive models,Standards,Time series analysis}
-}
-
-@article{acharya2024representative,
-  title={How representative are air transport functional complex networks? A quantitative validation},
-  author={Acharya, Kishor and Olivares, Felipe and Zanin, Massimiliano},
-  journal={Chaos: An Interdisciplinary Journal of Nonlinear Science},
-  volume={34},
-  number={4},
-  year={2024},
-  publisher={AIP Publishing}
+  month = {Apr},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRevLett.100.158101},
+  url = {https://link.aps.org/doi/10.1103/PhysRevLett.100.158101}
 }

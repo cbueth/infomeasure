@@ -6,12 +6,18 @@ kernelspec:
 
 (symbolic_entropy)=
 # Symbolic / Permutation Entropy Estimation
+The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` differential entropy formula is given as:
 
-For a provided (let's say) time series data set $ \{x_t\}_{t=1, \ldots, T}$ with finite values, one can replace each of those values with a symbol sequence $s(t)$ of a length defined the order parameter $s$.
-Imagine a dynamic window of size $s$ (order) which runs across all the datapoints generating the subset for each datapoint.
-This subset is further symbolize by certain specific symbolization technique.
-It is important to remember, that the symbol assigned to every datapoints will carry certain attributes of the data in according to the symbolization technique.
-There are several ways to symbolize the data, in this package we will take the approach of ordinal pattern, for detail refer to artile {cite:p}`PermutationEntropy2002`.
+$$
+H(X) = -\int_{X} p(x) \log_b p(x) \, dx,
+$$
+
+where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. Further details can be read in the section {ref}`Entropy / Uncertainty`.  
+
+For a given time series dataset $\{x_t\}_{t=1, \ldots, T}$, where $T$ is the number of time points, each value can be replaced by a symbolic sequence $s(t)$ of length $s$, defined by the order parameter $s$. Using a sliding window of size $s$, subsets of the data are generated sequentially, and each subset is symbolized using a specific symbolization technique.  
+
+The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **ordinal pattern approach** is used for symbolization. For details, refer to {cite:p}`PermutationEntropy2002`. 
+
 ```{Note}
 **Example of Ordinal Pattern symbolization:**
 
@@ -21,30 +27,19 @@ For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time serie
 - Conversely, if $( x(t) > x(t+1) )$, the pattern type is $(1, 0)$.
 ```
 
-
-After mapping the time series data into symbolic space, it is straightforward to estimate the probability distribution computing the relative frequency yof symbols,
-i.e we will study all  $n!$  permutations  $\pi$ of order  $n$ which are considered here as possible order types of  $n$  different numbers.
-Hence, for each $\pi$ we determine the relative frequency (\# means number) as follows:
+Once the time series is mapped into the symbolic space, the probability distribution is estimated by computing the relative frequencies of symbols. Specifically, all $n!$ permutations $\pi$ of order $n$ are considered as possible order types of $n$ consecutive data points. For each permutation $\pi$, the relative frequency is:
 
 $$
-p(\pi) = \frac{\#\{t | t \leq T - n, \{x_t, \ldots, x_{t+n}\} \text{ has type } \pi\}}{T - n + 1}
+p(\pi) = \frac{\#\{t \mid t \leq T - n, \{x_t, \ldots, x_{t+n}\} \text{ has type } \pi\}}{T - n + 1}.
 $$
 
-The permutation entropy of order $ n $  is defined as:
+The **permutation entropy** of order $n$ is then defined as:
 
 $$
 H(n) = -\sum p(\pi) \log p(\pi),
 $$
-where the sum runs over all $( n! )$ permutations $( \pi $ of order $( n )$. This is the information contained in comparing $( n )$ consecutive values of the time series.
 
-Finally, the permutation entropy per symbol is computed as an optional step,
-dividing by $( n - 1 )$ since comparisons start with the second value:
-
-$$
-h_n = \frac{H(n)}{n - 1}.
-$$
-
-This additional step provides a more granular understanding of the entropy distribution within the time series data.
+where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures the information contained in comparing $n$ consecutive values of the time series. 
 
 ```{note}
 - **Example**:
@@ -55,10 +50,22 @@ This additional step provides a more granular understanding of the entropy distr
   $\approx -\left(0.6667 \times -0.5849 + 0.3333 \times -1.5849\right) \approx 0.918 \text{ bits} $
  ```
 
+Finally, the **permutation entropy per symbol** can be computed as an optional step by normalizing $H(n)$ with $(n - 1)$, since comparisons begin with the second value:
+
+$$
+h_n = \frac{H(n)}{n - 1}.
+$$
+
+This step provides a more granular understanding of the entropy distribution within the time series data.  
+> Note:
+> The package allows user to obtain both the local and global (average) values to the Entropy computation.
+> Further one can also compute the entropy per symbol as optional choice.
+
+
 The estimator is implemented in the {py:class}`SymbolicEntropyEstimator <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>` class,
 which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
 
-```{eval-rst}
+```{eval-rst} 
 .. autoclass:: infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator
     :noindex:
     :undoc-members:

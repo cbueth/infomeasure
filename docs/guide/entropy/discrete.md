@@ -6,27 +6,20 @@ kernelspec:
 
 (discrete_entropy)=
 # Discrete Entropy Estimation
-The discrete estimator for a discrete RV $X$ following the probability mass function (pmf) $p(x)$ is straight forward act of plug-in probability estimates in the discrete Entropy formula.
-
-```{admonition} Tsallis Entropy
-:class: tip
-The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` discrete entropy formula is as follows:
+The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` discrete entropy formula is given by:
 
 $$
 H(X) = -\sum_{x \in X} p(x) \log_b p(x),
 $$
-where $x$ is the list of realization of RV $X$ with probabilitiy $p(x)$ and ``b`` is the base of the logarithm.
-```
 
-````{sidebar} Units of Information
-The unit of entropy is the bit when the base of the logarithm is 2.
-When the base is 10, the unit is the nat.
-Historically, there have been various other units, such as the ban, the hartley, and the shannon.
-{cite:p}`iso/tc12IEC800001320082008`
-````
+where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. Further details can be found in the section {ref}`Entropy / Uncertainty`.
 
-In contrast to other implementations, our entropy estimator accepts a list of observations, not a probability distribution.
+To estimate the entropy of a discrete random variable $X$, our implementation uses a plug-in method. Unlike other implementations that require a predefined probability distribution, our entropy estimator directly accepts a list of observations. 
+Probabilities are estimated by counting occurrences of each configuration in the dataset, and these frequencies are substituted into the formula.
+This estimator is simple and computationally efficient, however it currently does not include bias correction techniques yet. 
 
+## Implementation
+Let's compute the Shanon entropy.
 ```{code-cell}
 import infomeasure as im
 

@@ -6,23 +6,31 @@ kernelspec:
 
 (entropy_kozachenko_leonenko)=
 # Kozachenko-Leonenko (KL) / Metric / kNN Entropy Estimation
-
-
-The Kozachenko-Leonenko (KL) entropy estimator is a non-parametric method for estimating the entropy of a continuous random variable based on the $k^{th}$-Nearest Neighbor (KNN) distances of the data points.
-For simplicity imagine point in 2-D space $R^2$  and the idea is to rank the each points (say each point $z_i = (x_i, y_i) \in R^2$) by its neighbour´s distance $d_{i,j} = \|z_i - z_j\| : d_{i,j1} \le d_{i,j2} \le \cdots$ (supposing $\|\cdot\|$ be a metric).
-Finally estimate $H(X)$ from the average distance to the $k$-nearest neighbor.
-The full derivation of KL estimator for entropy calculation can be found in following citations {cite:p}`kozachenko1987sample` {cite:p}`RevieEstimators` {cite:p}`miKSG2004` ,here we will just write the final expression:
+The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` differential entropy formula is given as:
 
 $$
-    H(X) = \psi(N) - \psi(k) + \log c_d + \frac{d}{N} \sum_{i=1}^{N} \log \epsilon_i
+H(X) = -\int_{X} p(x) \log_b p(x) \, dx,
 $$
-where,
-- $\psi$ is the _digamma function_, the derivative of the logarithm of the gamma function $\Gamma(x)$,
-- $k$ number of neared neighbour,
-- $\epsilon_i$ is twice the distance from $x_i$ to its $k^{th}$ nearest neighbor,
-- $c_d$ is the volume of the unit ball in the $d$-dimensional space and for the maximum norm, $\log c_d$ becomes zero, for Euclidean, $c_d = \pi^{d/2} / \Gamma(1 + d/2) / 2^d$.
 
-## Test: KL Estimator
+where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. Further details can be read in the section {ref}`Entropy / Uncertainty`.
+
+``Kozachenko-Leonenko (KL) entropy estimator`` estimates the probability density function (PDF) using $k^{th}$-Nearest Neighbor (KNN) distances.  
+For points $z_i = (x_i, y_i) \in \mathbb{R}^2$ (generalizable to $\mathbb{R}^d$), distances are computed as $d_{i,j} = \|z_i - z_j\|$, ranked as $d_{i,j1} \leq d_{i,j2} \leq \cdots$. The entropy $H(X)$ is then estimated from the average distance to the $k$-nearest neighbor. This method efficiently links local densities to global entropy in multidimensional spaces.  
+
+The full derivation of the KL estimator can be found in {cite:p}`kozachenko1987sample`, {cite:p}`RevieEstimators`, and {cite:p}`miKSG2004`. The final expression is:
+
+$$
+    H(X) = \psi(N) - \psi(k) + \log c_d + \frac{d}{N} \sum_{i=1}^{N} \log \epsilon_i,
+$$
+
+where:
+- $\psi$ is the _digamma function_, the derivative of the logarithm of the gamma function $\Gamma(x)$,  
+- $k$ is the number of nearest neighbors,  
+- $\epsilon_i$ is twice the distance from $x_i$ to its $k^{th}$ nearest neighbor, representing the diameter of the hypersphere encompassing the $k$ neighbors,  
+- $c_d$ is the volume of the unit ball in $d$-dimensional space, where $\log c_d = 0$ for the maximum norm and $c_d = \pi^{d/2} / (\Gamma(1 + d/2) \cdot 2^d)$ for Euclidean spaces.  
+
+
+## Implementation
 This is a test of the entropy KL estimator (as developed above) on synthetically generated Gaussian distributed datasets. Since there is an analytical function for computing the entropy (H) for a Gaussian distribution, this allows us to check if our estimator's estimates are close to the analytical values.
 
 ```{code-cell}
