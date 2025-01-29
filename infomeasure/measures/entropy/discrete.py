@@ -4,6 +4,7 @@ from numpy import add as np_add
 from numpy import unique, zeros
 
 from ... import Config
+from ...utils.config import logger
 from ...utils.types import LogBaseType
 from ..base import EntropyEstimator, PValueMixin
 
@@ -24,6 +25,14 @@ class DiscreteEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(self, data, base: LogBaseType = Config.get("base")):
         """Initialize the DiscreteEntropyEstimator."""
         super().__init__(data, base=base)
+        # warn if the data looks like a float array
+        if self.data.dtype.kind == "f":
+            logger.warning(
+                "The data looks like a float array ("
+                f"{data.dtype}). "
+                "Make sure it is properly symbolized or discretized "
+                "for the entropy estimation."
+            )
 
     def _calculate(self):
         """Calculate the entropy of the data.
