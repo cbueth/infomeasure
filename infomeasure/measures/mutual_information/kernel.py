@@ -1,16 +1,107 @@
 """Module for the kernel-based mutual information estimator."""
 
+from abc import ABC
 from numpy import array, finfo, hstack
 from numpy import mean as np_mean
 from numpy import newaxis
 
+from ..entropy import KernelEntropyEstimator
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EffectiveValueMixin, MutualInformationEstimator
+from ..base import (
+    EffectiveValueMixin,
+    MutualInformationEstimator,
+    ConditionalMutualInformationEstimator,
+)
 from ..utils.kde import kde_probability_density_function
 
 
-class KernelMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
+class BaseKernelMIEstimator(ABC):
+    """Base class for mutual information using Kernel Density Estimation (KDE).
+
+    Attributes
+    ----------
+    data_x, data_y : array-like
+        The data used to estimate the (conditional) mutual information.
+    data_z : array-like, optional
+        The conditional data used to estimate the conditional mutual information.
+    bandwidth : float | int
+        The bandwidth for the kernel.
+    kernel : str
+        Type of kernel to use, compatible with the KDE
+        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Not compatible with the ``data_z`` parameter / conditional MI.
+    normalize : bool, optional
+        If True, normalize the data before analysis.
+    base : int | float | "e", optional
+        The logarithm base for the mutual information calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+    """
+
+    def __init__(
+        self,
+        data_x,
+        data_y,
+        bandwidth: float | int,
+        kernel: str,
+        data_z=None,
+        offset: int = 0,
+        normalize: bool = False,
+        base: LogBaseType = Config.get("base"),
+    ):
+        """Initialize the estimator with specific bandwidth and kernel.
+
+        Parameters
+        ----------
+        data_x, data_y : array-like
+            The data used to estimate the (conditional) mutual information.
+        data_z : array-like, optional
+            The conditional data used to estimate the conditional mutual information.
+        bandwidth : float | int
+            The bandwidth for the kernel.
+        kernel : str
+            Type of kernel to use, compatible with the KDE
+            implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        offset : int, optional
+            Number of positions to shift the X and Y data arrays relative to each other.
+            Delay/lag/shift between the variables. Default is no shift.
+            Not compatible with the ``data_z`` parameter / conditional MI.
+        normalize
+            If True, normalize the data before analysis.
+        base : int | float | "e", optional
+            The logarithm base for the transfer entropy calculation.
+            The default can be set
+            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+        """
+        self.data_y = None
+        self.data_x = None
+        if data_z is None:
+            super().__init__(
+                data_x, data_y, offset=offset, normalize=normalize, base=base
+            )
+        else:
+            super().__init__(
+                data_x, data_y, data_z, offset=offset, normalize=normalize, base=base
+            )
+            # Ensure self.data_z is a 2D array
+            if self.data_z.ndim == 1:
+                self.data_z = self.data_z[:, newaxis]
+        self.bandwidth = bandwidth
+        self.kernel = kernel
+        # Ensure self.data_x and self.data_y are 2D arrays
+        if self.data_x.ndim == 1:
+            self.data_x = self.data_x[:, newaxis]
+        if self.data_y.ndim == 1:
+            self.data_y = self.data_y[:, newaxis]
+
+
+class KernelMIEstimator(
+    BaseKernelMIEstimator, EffectiveValueMixin, MutualInformationEstimator
+):
     """Estimator for mutual information using Kernel Density Estimation (KDE).
 
     Attributes
@@ -32,41 +123,6 @@ class KernelMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
-
-    def __init__(
-        self,
-        data_x,
-        data_y,
-        bandwidth: float | int,
-        kernel: str,
-        offset: int = 0,
-        normalize: bool = False,
-        base: LogBaseType = Config.get("base"),
-    ):
-        """Initialize the estimator with specific bandwidth and kernel.
-
-        Parameters
-        ----------
-        bandwidth : float | int
-            The bandwidth for the kernel.
-        kernel : str
-            Type of kernel to use, compatible with the KDE
-            implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
-        offset : int, optional
-            Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
-        normalize
-            If True, normalize the data before analysis.
-        """
-        super().__init__(data_x, data_y, offset=offset, normalize=normalize, base=base)
-        self.bandwidth = bandwidth
-        self.kernel = kernel
-
-        # Ensure self.data_x and self.data_y are 2D arrays
-        if self.data_x.ndim == 1:
-            self.data_x = self.data_x[:, newaxis]
-        if self.data_y.ndim == 1:
-            self.data_y = self.data_y[:, newaxis]
 
     def _calculate(self) -> tuple:
         """Calculate the mutual information of the data.
@@ -127,3 +183,37 @@ class KernelMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         average_mi = np_mean(local_mi_values)  # Global mutual information
 
         return average_mi, local_mi_values
+
+
+class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEstimator):
+    """Estimator for conditional mutual information using Kernel Density Estimation (KDE).
+
+    Attributes
+    ----------
+    data_x, data_y, data_z : array-like
+        The data used to estimate the conditional mutual information.
+    bandwidth : float | int
+        The bandwidth for the kernel.
+    kernel : str
+        Type of kernel to use, compatible with the KDE
+        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+    normalize : bool, optional
+        If True, normalize the data before analysis.
+    base : int | float | "e", optional
+        The logarithm base for the mutual information calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+    """
+
+    def _calculate(self):
+        """Calculate the conditional mutual information of the data.
+
+        Returns
+        -------
+        float
+            The calculated conditional mutual information.
+        """
+        return self._generic_cmi_from_entropy(
+            estimator=KernelEntropyEstimator,
+            kwargs=dict(bandwidth=self.bandwidth, kernel=self.kernel, base=self.base),
+        )

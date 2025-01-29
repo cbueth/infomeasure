@@ -1,17 +1,95 @@
 """Module for the discrete mutual information estimator."""
 
-from numpy import abs as np_abs
+from abc import ABC
+from numpy import abs as np_abs, ndarray
 from numpy import clip, finfo, int64, ravel, where
 from scipy.sparse import find as sp_find
 from scipy.stats.contingency import crosstab
 
+from ..entropy import DiscreteEntropyEstimator
 from ... import Config
+from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import EffectiveValueMixin, MutualInformationEstimator
+from ..base import (
+    EffectiveValueMixin,
+    MutualInformationEstimator,
+    ConditionalMutualInformationEstimator,
+)
 
 
-class DiscreteMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
-    """Estimator for discrete mutual information.
+class BaseDiscreteMIEstimator(ABC):
+    """Base class for discrete mutual information estimators.
+
+    Attributes
+    ----------
+    data_x, data_y : array-like
+        The data used to estimate the (conditional) mutual information.
+    data_z : array-like, optional
+        The conditional data used to estimate the conditional mutual information.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Not compatible with the ``data_z`` parameter / conditional MI.
+    base : int | float | "e", optional
+        The logarithm base for the mutual information calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+    """
+
+    def __init__(
+        self,
+        data_x,
+        data_y,
+        data_z=None,
+        offset: int = 0,
+        base: LogBaseType = Config.get("base"),
+    ):
+        """Initialize the BaseDiscreteMIEstimator.
+
+        Parameters
+        ----------
+        data_x, data_y : array-like
+            The data used to estimate the (conditional) mutual information.
+        data_z : array-like, optional
+            The conditional data used to estimate the conditional mutual information.
+        offset : int, optional
+            Number of positions to shift the X and Y data arrays relative to each other.
+            Delay/lag/shift between the variables. Default is no shift.
+            Not compatible with the ``data_z`` parameter / conditional MI.
+        base : int | float | "e", optional
+            The logarithm base for the transfer entropy calculation.
+            The default can be set
+            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+        """
+        self.data_y: ndarray = None
+        self.data_x: ndarray = None
+        if data_z is None:
+            super().__init__(data_x, data_y, offset=offset, normalize=False, base=base)
+        else:
+            super().__init__(
+                data_x, data_y, data_z, offset=offset, normalize=False, base=base
+            )
+        if self.data_x.dtype.kind == "f" or self.data_y.dtype.kind == "f":
+            logger.warning(
+                "The data looks like a float array ("
+                f"data_x: {self.data_x.dtype}, data_y: {self.data_y.dtype}). "
+                "Make sure it is properly symbolized or discretized "
+                "for the mutual information estimation."
+            )
+        if hasattr(self, "data_z") and self.data_z.dtype.kind == "f":
+            logger.warning(
+                "The conditional data looks like a float array ("
+                f"{self.data_z.dtype}). "
+                "Make sure it is properly symbolized or discretized "
+                "for the conditional mutual information estimation."
+            )
+
+
+class DiscreteMIEstimator(
+    BaseDiscreteMIEstimator, EffectiveValueMixin, MutualInformationEstimator
+):
+    """Estimator for the discrete mutual information.
 
     Attributes
     ----------
@@ -25,19 +103,6 @@ class DiscreteMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
-
-    def __init__(
-        self, data_x, data_y, offset: int = 0, base: LogBaseType = Config.get("base")
-    ):
-        """Initialize the estimator with specific offset.
-
-        Parameters
-        ----------
-        offset : int, optional
-            Number of positions to shift the data arrays relative to each other.
-            Delay/lag/shift between the variables. Default is no shift.
-        """
-        super().__init__(data_x, data_y, offset=offset, normalize=False, base=base)
 
     def _calculate(self):
         """Calculate the mutual information of the data.
@@ -90,3 +155,31 @@ class DiscreteMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         mi = where(np_abs(mi) < finfo(mi.dtype).eps, 0.0, mi)
         # Clip negative values to zero
         return clip(mi.sum(), 0.0, None)
+
+
+class DiscreteCMIEstimator(
+    BaseDiscreteMIEstimator, ConditionalMutualInformationEstimator
+):
+    """Estimator for the discrete conditional mutual information.
+
+    Attributes
+    ----------
+    data_x, data_y, data_z : array-like
+        The data used to estimate the conditional mutual information.
+    base : int | float | "e", optional
+        The logarithm base for the mutual information calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+    """
+
+    def _calculate(self):
+        """Calculate the conditional mutual information of the data.
+
+        Returns
+        -------
+        float
+            The calculated conditional mutual information.
+        """
+        return self._generic_cmi_from_entropy(
+            estimator=DiscreteEntropyEstimator, kwargs=dict(base=self.base)
+        )

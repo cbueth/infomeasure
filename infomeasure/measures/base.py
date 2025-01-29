@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from typing import final
 
-from numpy import std as np_std, asarray, hstack
+from numpy import std as np_std, asarray
 from numpy import array, log, log2, log10
 from numpy import sum as np_sum
 from numpy.ma.extras import column_stack
@@ -310,6 +310,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
                 "Data arrays must be of the same length, "
                 f"not {len(data_x)} and {len(data_y)}."
             )
+        offset = offset or 0  # `Ensure offset is an integer (`None` -> 0)
         if not isinstance(offset, int):
             raise ValueError(f"Offset must be an integer, not {offset}.")
         self.data_x = asarray(data_x)
@@ -386,6 +387,152 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
             column_stack((self.data_x, self.data_y)), **kwargs
         ).global_val()
         return h_x + h_y - h_xy
+
+
+class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
+    """Abstract base class for conditional mutual information estimators.
+
+    Attributes
+    ----------
+    data_x, data_y, data_z : array-like
+        The data used to estimate the conditional mutual information.
+        They should be 1D and of the same length.
+    normalize : bool, optional
+        If True, normalize the data before analysis. Default is False.
+    offset : None
+        Not compatible with the conditional mutual information.
+    base : int | float | "e", optional
+        The logarithm base for the entropy calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Raises
+    ------
+    ValueError
+        If the data arrays are not 1D or of different lengths.
+
+    See Also
+    --------
+    .mutual_information.discrete.DiscreteCMIEstimator
+    .mutual_information.kernel.KernelCMIEstimator
+    .mutual_information.kraskov_stoegbauer_grassberger.KSGCMIEstimator
+    .mutual_information.symbolic.SymbolicCMIEstimator
+    """
+
+    def __init__(
+        self,
+        data_x,
+        data_y,
+        data_z,
+        normalize: bool = False,
+        offset=None,
+        base: LogBaseType = Config.get("base"),
+    ):
+        """Initialize the estimator with the data."""
+        if len(data_x) != len(data_y) or len(data_x) != len(data_z):
+            raise ValueError(
+                "Data arrays must be of the same length, "
+                f"not {len(data_x)}, {len(data_y)}, and {len(data_z)}."
+            )
+        if offset not in (None, 0):
+            raise ValueError(
+                "`offset` is not compatible with the conditional mutual information."
+            )
+        self.data_x = asarray(data_x)
+        self.data_y = asarray(data_y)
+        self.data_z = asarray(data_z)
+        if self.data_x.ndim != 1 or self.data_y.ndim != 1 or self.data_z.ndim != 1:
+            raise ValueError("Data arrays must be 1D.")
+        # Normalize the data
+        self.normalize = normalize
+        if self.normalize:
+            self.data_x = normalize_data_0_1(self.data_x)
+            self.data_y = normalize_data_0_1(self.data_y)
+            self.data_z = normalize_data_0_1(self.data_z)
+        super().__init__(base=base)
+
+    def _generic_cmi_from_entropy(
+        self,
+        estimator: type(EntropyEstimator) | type(MutualInformationEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ) -> float:
+        """Calculate the conditional mutual information with the entropy estimator.
+
+        Conditional Mutual Information (CMI) between two random variables :math:`X` and
+        :math:`Y` given a third variable :math:`Z` quantifies the amount of information
+        obtained about one variable through the other, conditioned on the third.
+        In terms of entropy (H), CMI is expressed as:
+
+        .. math::
+
+                I(X, Y | Z) = H(X, Z) + H(Y, Z) - H(X, Y, Z) - H(Z)
+
+        where :math:`H(X, Z)` is the joint entropy of :math:`X` and :math:`Z`,
+        :math:`H(Y, Z)` is the joint entropy of :math:`Y` and :math:`Z`,
+        :math:`H(X, Y, Z)` is the joint entropy of :math:`X`, :math:`Y`, and :math:`Z`,
+        and :math:`H(Z)` is the entropy of :math:`Z`.
+
+        Parameters
+        ----------
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The conditional mutual information between the two variables given the third.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated conditional mutual information method.
+        This helper method is provided as a generic fallback.
+        """
+
+        # Ensure source and dest are numpy arrays
+        data_x = self.data_x.copy()
+        data_y = self.data_y.copy()
+        data_z = self.data_z.copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if noise_level:
+            data_x = data_x if data_x.dtype == float else data_x.astype(float)
+            data_y = data_y if data_y.dtype == float else data_y.astype(float)
+            data_z = data_z if data_z.dtype == float else data_z.astype(float)
+            data_x += self.rng.normal(0, noise_level, data_x.shape)
+            data_y += self.rng.normal(0, noise_level, data_y.shape)
+            data_z += self.rng.normal(0, noise_level, data_z.shape)
+
+        # Make sure that no second noise is in `kwargs`
+        if kwargs is not None and "noise_level" in kwargs:
+            logger.warning(
+                "Do not pass the noise_level as a keyword argument for the estimator, "
+                "as it is already handled by the CMI method. Noise level is set to 0. "
+                f"Received noise_level={kwargs['noise_level']} when constructing CMI "
+                f"with {estimator.__name__}."
+            )
+            del kwargs["noise_level"]
+
+        # Entropy-based CMI calculation
+        if issubclass(estimator, EntropyEstimator):
+            h_x_z = estimator(
+                column_stack((self.data_x, self.data_z)), **kwargs
+            ).global_val()
+            h_y_z = estimator(
+                column_stack((self.data_y, self.data_z)), **kwargs
+            ).global_val()
+            h_x_y_z = estimator(
+                column_stack((self.data_x, self.data_y, self.data_z)), **kwargs
+            ).global_val()
+            h_z = estimator(self.data_z, **kwargs).global_val()
+            return h_x_z + h_y_z - h_x_y_z - h_z
+        else:
+            raise ValueError(f"Estimator must be an EntropyEstimator, not {estimator}.")
 
 
 class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
@@ -732,7 +879,7 @@ class PValueMixin(RandomGeneratorMixin):
                 "Number of permutations must be a positive integer, "
                 f"not {n_permutations} ({type(n_permutations)})."
             )
-        # Activate the permutation flag
+        # Activate the permutation flag to permute the source data when slicing
         self.permute_src = self.rng
         permuted_values = [self._calculate() for _ in range(n_permutations)]
         if isinstance(permuted_values[0], tuple):

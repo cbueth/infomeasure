@@ -9,6 +9,7 @@ import infomeasure as im
 from infomeasure.measures.base import (
     EntropyEstimator,
     MutualInformationEstimator,
+    ConditionalMutualInformationEstimator,
     TransferEntropyEstimator,
 )
 
@@ -103,6 +104,63 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         assert isinstance(est.std_val(), float)
     assert 0 <= est.p_value(10) <= 1
     assert -1 <= est.effective_val()
+
+
+@pytest.mark.parametrize("normalize", [True, False])
+def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
+    """Test addressing the conditional mutual information estimator classes."""
+    approach_str, needed_kwargs = cmi_approach
+    data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    data_y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    data_z = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    mi = im.mutual_information(
+        data_x,
+        data_y,
+        data_z=data_z,
+        approach=approach_str,
+        **(
+            {"normalize": normalize}
+            if approach_str not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
+        **needed_kwargs,
+    )
+    assert isinstance(mi, (float, tuple))
+    if isinstance(mi, tuple):
+        assert len(mi) == 3
+        assert isinstance(mi[0], float)
+        assert isinstance(mi[1], np.ndarray)
+        assert isinstance(mi[2], float)
+
+
+@pytest.mark.parametrize("normalize", [True, False])
+def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
+    """Test addressing the conditional mutual information estimator classes."""
+    approach_str, needed_kwargs = cmi_approach
+    data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    data_y = np.array([1, 2, 3, 5, 5, 6, 7, 8, 9, 10])
+    data_z = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    est = im.estimator(
+        data_x=data_x,
+        data_y=data_y,
+        data_z=data_z,
+        measure="mutual_information",
+        approach=approach_str,
+        **(
+            {"normalize": normalize}
+            if approach_str not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
+        **needed_kwargs,
+    )
+    assert isinstance(est, ConditionalMutualInformationEstimator)
+    assert isinstance(est.global_val(), float)
+    assert est.global_val() == est.res_global
+    assert isinstance(est.results(), float)
+    with pytest.raises(UnsupportedOperation):
+        est.local_val()
+    with pytest.raises(UnsupportedOperation):
+        est.std_val()
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])

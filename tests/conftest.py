@@ -69,6 +69,33 @@ MI_APPROACHES = {
     },
 }
 
+CMI_APPROACHES = {
+    "DiscreteCMIEstimator": {
+        "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "KernelCMIEstimator": {
+        "functional_str": ["kernel"],
+        "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
+    },
+    # "KSGCMIEstimator": {
+    #     "functional_str": ["metric", "ksg"],
+    #     "needed_kwargs": {},
+    # },
+    "RenyiCMIEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    # "SymbolicCMIEstimator": {
+    #     "functional_str": ["symbolic", "permutation"],
+    #     "needed_kwargs": {"order": 2},
+    # },
+    "TsallisCMIEstimator": {
+        "functional_str": ["tsallis"],
+        "needed_kwargs": {"q": 2.0},
+    },
+}
+
 TE_APPROACHES = {
     "DiscreteTEEstimator": {
         "functional_str": ["discrete"],
@@ -97,6 +124,34 @@ TE_APPROACHES = {
 }
 
 
+CTE_APPROACHES = {
+    # "DiscreteCTEEstimator": {
+    #     "functional_str": ["discrete"],
+    #     "needed_kwargs": {},
+    # },
+    # "KernelCTEEstimator": {
+    #     "functional_str": ["kernel"],
+    #     "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
+    # },
+    # "KSGCTEEstimator": {
+    #     "functional_str": ["metric", "ksg"],
+    #     "needed_kwargs": {},
+    # },
+    # "RenyiCTEEstimator": {
+    #     "functional_str": ["renyi"],
+    #     "needed_kwargs": {"alpha": 1.5},
+    # },
+    # "SymbolicCTEEstimator": {
+    #     "functional_str": ["symbolic", "permutation"],
+    #     "needed_kwargs": {"order": 2},
+    # },
+    # "TsallisCTEEstimator": {
+    #     "functional_str": ["tsallis"],
+    #     "needed_kwargs": {"q": 2.0},
+    # },
+}
+
+
 @pytest.fixture(
     scope="function",
 )
@@ -113,7 +168,7 @@ def activate_debug_logging():
 
 @pytest.fixture(
     scope="session",
-    params=entropy.__all__,
+    params=ENTROPY_APPROACHES.keys(),
 )
 def entropy_estimator(request):
     """A fixture that yields entropy estimator classes, with specific kwargs for one."""
@@ -123,12 +178,9 @@ def entropy_estimator(request):
 
 
 entropy_approach_kwargs = [
-    (
-        ENTROPY_APPROACHES[est]["functional_str"][i],
-        ENTROPY_APPROACHES[est]["needed_kwargs"],
-    )
-    for est in entropy.__all__
-    for i in range(len(ENTROPY_APPROACHES[est]["functional_str"]))
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in ENTROPY_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
 ]
 
 
@@ -144,7 +196,7 @@ def entropy_approach(request):
 
 @pytest.fixture(
     scope="session",
-    params=mutual_information.__all__,
+    params=MI_APPROACHES.keys(),
 )
 def mi_estimator(request):
     """A fixture that yields mutual information estimator classes."""
@@ -154,12 +206,9 @@ def mi_estimator(request):
 
 
 mi_approach_kwargs = [
-    (
-        MI_APPROACHES[est]["functional_str"][i],
-        MI_APPROACHES[est]["needed_kwargs"],
-    )
-    for est in mutual_information.__all__
-    for i in range(len(MI_APPROACHES[est]["functional_str"]))
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in MI_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
 ]
 
 
@@ -175,7 +224,35 @@ def mi_approach(request):
 
 @pytest.fixture(
     scope="session",
-    params=transfer_entropy.__all__,
+    params=CMI_APPROACHES.keys(),
+)
+def cmi_estimator(request):
+    """A fixture that yields conditional mutual information estimator classes."""
+    return getattr(mutual_information, request.param), CMI_APPROACHES[request.param][
+        "needed_kwargs"
+    ]
+
+
+cmi_approach_kwargs = [
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in CMI_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
+]
+
+
+@pytest.fixture(
+    scope="session",
+    params=cmi_approach_kwargs,
+    ids=[mak[0] for mak in cmi_approach_kwargs],
+)
+def cmi_approach(request):
+    """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
+    return request.param
+
+
+@pytest.fixture(
+    scope="session",
+    params=TE_APPROACHES.keys(),
 )
 def te_estimator(request):
     """A fixture that yields transfer entropy estimator classes."""
@@ -185,12 +262,9 @@ def te_estimator(request):
 
 
 te_approach_kwargs = [
-    (
-        TE_APPROACHES[est]["functional_str"][i],
-        TE_APPROACHES[est]["needed_kwargs"],
-    )
-    for est in transfer_entropy.__all__
-    for i in range(len(TE_APPROACHES[est]["functional_str"]))
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in TE_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
 ]
 
 
@@ -200,6 +274,34 @@ te_approach_kwargs = [
     ids=[tak[0] for tak in te_approach_kwargs],
 )
 def te_approach(request):
+    """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
+    return request.param
+
+
+@pytest.fixture(
+    scope="session",
+    params=CTE_APPROACHES.keys(),
+)
+def cte_estimator(request):
+    """A fixture that yields conditional transfer entropy estimator classes."""
+    return getattr(transfer_entropy, request.param), CTE_APPROACHES[request.param][
+        "needed_kwargs"
+    ]
+
+
+cte_approach_kwargs = [
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in CTE_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
+]
+
+
+@pytest.fixture(
+    scope="session",
+    params=cte_approach_kwargs,
+    ids=[tak[0] for tak in cte_approach_kwargs],
+)
+def cte_approach(request):
     """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
     return request.param
 

@@ -37,6 +37,20 @@ mi_estimators = {
     "SymbolicMIEstimator",
 }
 
+cmi_estimators = {
+    "discrete": "infomeasure.measures.mutual_information.discrete.DiscreteCMIEstimator",
+    "kernel": "infomeasure.measures.mutual_information.kernel.KernelCMIEstimator",
+    "metric": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
+    "KSGCMIEstimator",
+    "ksg": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
+    "KSGCMIEstimator",
+    "renyi": "infomeasure.measures.mutual_information.renyi.RenyiCMIEstimator",
+    "tsallis": "infomeasure.measures.mutual_information.tsallis.TsallisCMIEstimator",
+    "symbolic": "infomeasure.measures.mutual_information.symbolic.SymbolicCMIEstimator",
+    "permutation": "infomeasure.measures.mutual_information.symbolic."
+    "SymbolicCMIEstimator",
+}
+
 te_estimators = {
     "discrete": "infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator",
     "kernel": "infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator",
@@ -48,6 +62,20 @@ te_estimators = {
     "symbolic": "infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator",
     "permutation": "infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator",
     "tsallis": "infomeasure.measures.transfer_entropy.tsallis.TsallisTEEstimator",
+}
+
+cte_estimators = {
+    "discrete": "infomeasure.measures.transfer_entropy.discrete.DiscreteCTEEstimator",
+    "kernel": "infomeasure.measures.transfer_entropy.kernel.KernelCTEEstimator",
+    "metric": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
+    "KSGCTEEstimator",
+    "ksg": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
+    "KSGCTEEstimator",
+    "renyi": "infomeasure.measures.transfer_entropy.renyi.RenyiCTEEstimator",
+    "symbolic": "infomeasure.measures.transfer_entropy.symbolic.SymbolicCTEEstimator",
+    "permutation": "infomeasure.measures.transfer_entropy.symbolic."
+    "SymbolicCTEEstimator",
+    "tsallis": "infomeasure.measures.transfer_entropy.tsallis.TsallisCTEEstimator",
 }
 
 
@@ -110,9 +138,10 @@ def _dynamic_estimator(estimators) -> callable:
 
     Parameters
     ----------
-    estimators : dict
+    estimators : dict | [dict, dict]
         The dictionary of available estimators.
         Structure: {estimator_name: class_path}
+        Or two of these, one normal and one for conditional estimators.
 
     Returns
     -------
@@ -126,12 +155,21 @@ def _dynamic_estimator(estimators) -> callable:
             estimator_name = kwargs.get("approach")
             if estimator_name is None:
                 raise ValueError(
-                    "Estimator name is required, choose one of: "
-                    f"{', '.join(estimators.keys())}"
+                    "Estimator name is required, choose one of: " ", ".join(
+                        estimators.keys()
+                        if isinstance(estimators, dict)
+                        else estimators[0].keys()
+                    )
                 )
-            kwargs["EstimatorClass"] = _get_estimator(
-                estimators, estimator_name
-            )  # Inject EstimatorClass into kwargs
+            # if `data_z` or `cond` is passed, it is a conditional estimator
+            if isinstance(estimators, dict):
+                kwargs["EstimatorClass"] = _get_estimator(
+                    estimators, estimator_name
+                )  # Inject EstimatorClass into kwargs
+            elif kwargs.get("data_z") is not None or kwargs.get("cond") is not None:
+                kwargs["EstimatorClass"] = _get_estimator(estimators[1], estimator_name)
+            else:
+                kwargs["EstimatorClass"] = _get_estimator(estimators[0], estimator_name)
             return func(
                 *args, **kwargs
             )  # Pass all arguments as they are, including modified kwargs
@@ -179,7 +217,7 @@ def entropy(data, approach: str, *args, **kwargs):
     return EstimatorClass(data, *args, **kwargs).results()
 
 
-@_dynamic_estimator(mi_estimators)
+@_dynamic_estimator([mi_estimators, cmi_estimators])
 def mutual_information(
     data_x,
     data_y,
@@ -203,13 +241,16 @@ def mutual_information(
     Parameters
     ----------
     data_x, data_y : array-like
-        The data used to estimate the mutual information.
+        The data used to estimate the (conditional) mutual information.
+    data_z : array-like, optional
+        The conditional data used to estimate the conditional mutual information.
     approach : str
         The name of the estimator to use.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Assumed time taken by info to transfer from X to Y.
+        Not compatible with the ``data_z`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis. Default is False.
         Not available for the discrete estimator.
@@ -232,15 +273,11 @@ def mutual_information(
     return EstimatorClass(data_x, data_y, *args, offset=offset, **kwargs).results()
 
 
-@_dynamic_estimator(te_estimators)
+@_dynamic_estimator([te_estimators, cte_estimators])
 def transfer_entropy(
     source,
     dest,
     approach: str,
-    step_size: int = 1,
-    src_hist_len: int = 1,
-    dest_hist_len: int = 1,
-    offset: int = 0,
     *args,
     **kwargs,
 ):
@@ -271,6 +308,7 @@ def transfer_entropy(
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Assumed time taken by info to transfer from source to destination.
+        Not compatible with the ``cond`` parameter / conditional TE.
     *args: tuple
         Additional arguments to pass to the estimator.
     **kwargs: dict
@@ -303,7 +341,7 @@ def estimator(
     prop_time: int = 0,
     src_hist_len: int = 1,
     dest_hist_len: int = 1,
-    offset: int = 0,
+    offset: int = None,
     **kwargs,
 ) -> Estimator:
     """Get an estimator for a specific measure.
@@ -345,6 +383,10 @@ def estimator(
         Only if the measure is mutual information.
     source, dest : array-like, optional
         Only if the measure is transfer entropy.
+    data_z : array-like, optional
+        Only if the measure is conditional mutual information.
+    cond : array-like, optional
+        Only if the measure is conditional transfer entropy.
     measure : str
         The measure to estimate.
         Options: ``entropy``, ``mutual_information``, ``transfer_entropy``;
@@ -372,10 +414,13 @@ def estimator(
     elif measure.lower() in ["entropy", "h"]:
         if data is None:
             raise ValueError("``data`` is required for entropy estimation.")
-        if any([data_x, data_y, source, dest]):
+        if any(
+            [data_x, data_y, source, dest, kwargs.get("data_z"), kwargs.get("cond")]
+        ):
             raise ValueError(
                 "Only ``data`` is required for entropy estimation, "
-                "not ``data_x``, ``data_y``, ``source``, or ``dest``."
+                "not ``data_x``, ``data_y``, ``source``, ``dest``, "
+                "``data_z``, or ``cond``."
             )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
         return EstimatorClass(data, **kwargs)
@@ -385,24 +430,30 @@ def estimator(
                 "``data_x`` and ``data_y`` are required for "
                 "mutual information estimation."
             )
-        if any([data, source, dest]):
+        if any([data, source, dest, kwargs.get("cond")]):
             raise ValueError(
                 "Only ``data_x`` and ``data_y`` are required for mutual information "
-                "estimation, not ``data``, ``source``, or ``dest``."
+                "estimation, not ``data``, ``source``, ``dest``, or ``cond``."
             )
-        EstimatorClass = _get_estimator(mi_estimators, approach)
+        if kwargs.get("data_z") is not None:
+            EstimatorClass = _get_estimator(cmi_estimators, approach)
+        else:
+            EstimatorClass = _get_estimator(mi_estimators, approach)
         return EstimatorClass(data_x, data_y, offset=offset, **kwargs)
     elif measure.lower() in ["transfer_entropy", "te"]:
         if source is None or dest is None:
             raise ValueError(
                 "``source`` and ``dest`` are required for transfer entropy estimation."
             )
-        if any([data, data_x, data_y]):
+        if any([data, data_x, data_y, kwargs.get("data_z")]):
             raise ValueError(
                 "Only ``source`` and ``dest`` are required for transfer entropy "
-                "estimation, not ``data``, ``data_x``, or ``data_y``."
+                "estimation, not ``data``, ``data_x``, ``data_y``, or ``data_z``."
             )
-        EstimatorClass = _get_estimator(te_estimators, approach)
+        if kwargs.get("cond"):
+            EstimatorClass = _get_estimator(cte_estimators, approach)
+        else:
+            EstimatorClass = _get_estimator(te_estimators, approach)
         return EstimatorClass(
             source,
             dest,
