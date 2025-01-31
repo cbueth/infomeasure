@@ -65,6 +65,8 @@ This step provides a more granular understanding of the entropy distribution wit
 The estimator is implemented in the {py:class}`SymbolicEntropyEstimator <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>` class,
 which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
 
+## Implementation
+
 ```{eval-rst} 
 .. autoclass:: infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator
     :noindex:

@@ -14,24 +14,18 @@ $$
 
 where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. Further details can be read in the section {ref}`Entropy / Uncertainty`.
 
-``Kernel entropy estimation`` technique relies on probability density function (PDF) estimates derived using the **kernel density estimation (KDE)** method to approximate the required probability for the above formula.  
-Density estimation involves constructing an estimate of the density function from the available dataset.  
-KDE estimates the density at a reference point by considering all samples and weighting them based on their distance from the reference point. This weighting is determined using a kernel function \(K\) {cite:p}`silverman1986density`.  
-Nearby points contribute more significantly to the density estimate, while distant points contribute less. The KDE estimate of a point $x_n$ is calculated using:
+``Kernel entropy estimation`` relies on probability density function (_pdf_) estimates obtained via **kernel density estimation (KDE)** to approximate the required probability in the given formula. Density estimation involves constructing an estimate of the _pdf_ from the available dataset. KDE estimates density at a reference point by weighting all samples based on their distance from it, using a kernel function \(K\) {cite:p}`silverman1986density`. Nearby points contribute more to the estimate, while distant points contribute less. The KDE estimate at a point \(x_n\) is given by:
 
 $$
-    \hat{p}_r(x_n) = \frac{1}{N r^d} \sum_{n'=1}^{N} K \left( \frac{x_n - x_{n'}}{r} \right),
+    \hat{p}_r(x_n) = \frac{1}{N r^d} \sum_{n'=1}^{N} K \left( \frac{x_n - x_{n'}}{r} \right).
 $$
-
 where:
 - $N$ is the number of data points,  
 - $r$ is the bandwidth or kernel radius,  
 - $d$ is the dimension of the data,  
 - $x_n$ and $x_{n'}$ are the data points,  
-- $\hat{p}_r(x_n)$ is the estimated probability density.  
-
-For multivariate kernel functions, the _PDF_ is estimated by dividing by a factor of $r^d$, where $d$ is the number of dimensions.  
-The estimated _PDF_ is then used to compute the Shannon entropy.  
+- $\hat{p}_r(x_n)$ is the estimated probability density.
+For multivariate kernel functions, the **_pdf_** is estimated by dividing by a factor of $r^d$, where $d$ is the number of dimensions. Thus estimated **_pdf_** is then used to compute the Shannon entropy.  
 
 ``kernel functions:``  
 This package supports two types of kernel functions:  
@@ -52,9 +46,9 @@ This package supports two types of kernel functions:
    $$
    providing a smooth decline in weight with increasing distance from $x_n$.  
 
-> **Note:** Kernel estimation is model-free but depends on the resolution parameter $(r)$. A small \(r\) can lead to under-sampling, while a large \(r\) may oversmooth the data, obscuring details.  
+> **Note:** Kernel estimation is model-free but depends on the Kernel-width parameter $(r)$. A small \(r\) can lead to under-sampling, while a large \(r\) may oversmooth the data, obscuring details.  
 
-### Implementation
+## Implementation
 This is a test of the entropy kernel estimator (as developed above) on synthetically generated Gaussian distributed datasets. 
 Since there is an analytical function for computing the entropy (H) for a Gaussian distribution, this allows us to check if our estimator's estimates are close to the analytical values.
 

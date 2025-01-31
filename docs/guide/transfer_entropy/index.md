@@ -13,7 +13,7 @@ However, one has to be careful in interpreting the results, as well as in constr
 
 ``Local Transfer Entropy:`` 
 
-Similar to entropy and mutual information measures, we can extract the **local transfer entropy** as a local conditional mutual information, which is the amount of information transfer attributed to the specific realization:
+Similar to entropy and mutual information measures, we can extract the **local transfer entropy** as a local conditional mutual information, which is the amount of information transfer attributed to the specific realization {cite:p}`Lizier2014_localinfomeasure`:
 $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
 
 $$t_{X \rightarrow Y}(n+1, k, l) = i(\mathbf{x}_n^{(k)}; y_{n+1} \mid \mathbf{Y}_n^{(l)}).$$
@@ -38,7 +38,8 @@ $$
 > The package allows user to obtain both the local and global (average) values to the MI computation.
 > The package allows user to set the desired time-lag between the series. The default value is set to $u=0$, no lag. 
 
-``Effective Transfer Entropy:`` 
+``Effective Transfer Entropy:``
+
 The time series data as available from the real word is usually biased due to the finite size effect. 
 Depending on the type of estimators implemented the bias can be small or big but it is usually present. 
 In order to correct the bias from the finite sample side effect, it is necessary to estimate the expected values of TE estimator for finite data that are close as possible to the original data but doesn´t represent the information transfer.
@@ -53,14 +54,20 @@ $$
 
 > Note:
 > The package also has an option to obtain eTE computation.
->
-### List of Estimation Techniques Implemented:
+
+## List of Estimation Techniques Implemented:
 
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
+   :caption: Discrete RV
 
    discrete
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Continuous RV
+   
    kernel
    kraskov_stoegbauer_grassberger
    symbolic

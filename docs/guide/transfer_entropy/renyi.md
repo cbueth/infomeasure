@@ -31,7 +31,7 @@ Where:
 **Rényi TE estimate** is computed by plugging-in the entropy and the join entropy estimates by using the estimation method explained in the {ref}`Rényi Entropy Estimation <renyi_entropy>`.
 **Tsallis TE estimate** is computed by plugging-in the entropy and the join entropy estimates by using the estimation method explained in the {ref}`Tsallis Entropy Estimation <tsallis_entropy>`.
 
-# Implementation
+## Implementation
 The estimator is implemented in the {py:class}`RenyiTEEstimator <infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.transfer_entropy>` module.
 

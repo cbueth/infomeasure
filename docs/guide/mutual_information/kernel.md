@@ -19,7 +19,7 @@ where,
 MI is computed by plugging-in the all the probabilities terms in the above equation. 
 The probabilities are estimated by using suitable kernel functions as explained in detail in the {ref}`Kernel Entropy Estimation` section. 
 
-# Implementation
+## Implementation
 The estimator is implemented in the {py:class}`KernelMIEstimator <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
 
@@ -29,4 +29,3 @@ which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measur
     :undoc-members:
     :show-inheritance:
 ```
-# Usage Example

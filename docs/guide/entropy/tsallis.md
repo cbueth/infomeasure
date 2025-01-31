@@ -22,19 +22,16 @@ When $q \to 1$, Tsallis entropy converges to Shannon entropy:
 $$
 H_1 = - \int_{\mathbb{R}^m} f(x) \log f(x) \, dx.
 $$
-```  
+```
+``Estimation Technique:``
 
-Here is the corrected and consistent version of the draft:
-
----
-
-## Estimation Technique:
 **Leonenko et al.** introduced a class of estimators for Tsallis entropy in the same article as the Rényi entropy estimator by extending the [K-L entropy estimation](kozachenko_leonenko.md) technique, which is based on the $K^{th}$-Nearest Neighbour (KNN) search approach. For details, refer to {cite:p}`RenyiTsallisEstimator2008` {cite:p}`LeonenkoRenyiEstimator`.
 
 Let us suppose $X$ has $N$ data points.  
 First, for each point $X_i$, compute the distances $\rho(X_i, X_j)$ to all other points $X_j$ (where $j \neq i$) and record $\rho_{k,N-1}^{(i)}$ as the distance from $X_i$ to its $K^{th}$-Nearest Neighbour.  
 
 The Tsallis entropy $\hat{H}_{N,k,q}$ is estimated as follows:
+
 ---
 **For $q \neq 1$:**
 

@@ -25,8 +25,8 @@ $$
 H_1 = - \int_{\mathbb{R}^m} f(x) \log f(x) \, dx.
 $$
 ```
+``Estimation Technique:``
 
-## Estimation Technique:
 **Leonenko et al.** introduced a class of estimators for Rényi entropy by extending the [K-L entropy estimation](kozachenko_leonenko.md) technique, which is based on the $K^{th}$-Nearest Neighbour (KNN) search approach. For details, refer to {cite:p}`RenyiTsallisEstimator2008` {cite:p}`LeonenkoRenyiEstimator`.  
 
 Let us suppose $X$ has $N$ data points.  

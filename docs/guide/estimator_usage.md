@@ -5,54 +5,114 @@ kernelspec:
 ---
 
 # Introduction
-### Work on Progress
-In this era of modernity, the systems we study and the problems we deal with is becoming more and more complex and hence requires innovative angle to address them. 
-One of such approaches has been by using the "Information Theory" (cite). 
-The idea is to boil down any problems at hand in terms of Information as the fundamental entiries, hence  
-In formation theoretic measures has not only been limited to communication theory but is in growing use to investigate the  variety of systems from the  diverse fields of sciences (cite). 
-Recently, the interest in the systems we study becoming complex and so are the problems like climate change, financial crash,  etc.  
+In this era of modernity, the systems we study and the problems we tackle are becoming increasingly complex, demanding innovative approaches to address them. 
+One such approach involves leveraging **Information Theory** (cite).
+The core idea is to distill any given problem into its fundamental informational components and analyze the underlying dynamics through the lens of information sharing and transfer. 
+In recent years, **information-theoretic measures**—such as entropy, mutual information, and transfer entropy—have gained significant traction across diverse scientific disciplines (cite). 
+Researchers from various fields, many of whom are not formally trained in information theory, often seek to apply these measures to their specific problems of interest.
+However, a common challenge arises: despite the growing interest, there is often a lack of accessible tools that allow users to estimate these measures using their preferred estimation techniques. 
+This Python package is designed for anyone looking to implement **information-theoretic measures** within their field of study. 
+It provides comprehensive descriptions and implementations of these measures, making them accessible and practical to use.  
 
-## Discrete and Continuous RV
-Real-life data from experiments or observations are recorded in a wide variety of formats. Nevertheless, one can categorize them into discrete and continuous datasets.
-A discrete dataset consists of integer values (e.g., 0 and 1) and can be considered the realization of a discrete random variable (RV). Similarly, a continuous dataset consists of real numbers and can be considered the realization of a continuous RV.
-Until now, we have not delved into the subtle differences between discrete and continuous random variables, instead using RVs in general. This distinction leads to discrete Shannon information and differential Shannon information for discrete and continuous RVs, respectively.
-A simpler way to comprehend entropy formulation is by replacing the summation sign with the integral when moving from discrete to continuous RVs. One thing is clear: information theory is grounded in probability theory.
-The entropy measure is seen as a function of the underlying probability distribution function \( p(x) \): the probability mass function (pmf) for discrete RVs and the probability density function (pdf) for continuous RVs.
-This python package provides both the discrete estimation technique (for shannon information) and many continuous estimation techniques as will be described in subsequent sections.
+The package includes implementations of the following information (shannon) -theoretic measures:
+- Entropy $(H)$
+- Conditional Entropy $(CH)$
+- Mutual Information $(MI)$
+- Conditional Mutual Information $(CMI)$
+- Transfer Entropy $(TE)$
+- Conditional Transfer Entropy $(CTE)$
+- Jensen Shannon Distance $JSD$
 
-### Parametric and non-parametric techniques
-When estimating the entropy measure and for that matter the underlying probability distribution function, the approach depends on the system of interest.
-Parametric estimation techniques assume the probability distribution falls within a defined family (Gaussian, Poisson, Student-t, etc.) with a shape adjusted by certain parameters.
-On the flip side, non-parametric estimation doesn’t commit to any specific distribution shape. This is often the case for systems of interest where there is no prior knowledge of the probability distribution, and the shape may not fit existing families of distributions.
-This Python package focuses on non-parametric estimation techniques.
+Few more measures such as:
+- Renyi H, MI and TE
+- Tsallis H, MI and TE
 
+# Estimation 
+Experimental or observational data come in various formats but generally fall into discrete or continuous categories. Discrete datasets consist of integer values (e.g., 0,1) and represented as the realization of discrete random variables (RVs). Continuous datasets contain real numbers and can be represented as realization of continuous RVs.  The  **_probability mass function (pmf)_** defines discrete RVs while the **_probability density function (pdf)_** applies to continuous RVs.
+> Note: This package provides estimation techniques for both discrete and continuous variables. 
 
-### Bias and Errors
-The act of estimating entropic measures associated with real-life datasets always involves **bias** and **variance**. **Bias** is the expected difference between the true value and the estimated value, while **variance** refers to the variability in the estimated value. Thus, every estimation must address errors arising from both bias and variance and strive to minimize their effects.
+When estimating information theoretic measures—especially the underlying probability distribution function $ p(x)$—one must choose between **_parametric_** and **_non-parametric_** techniques to begin with.
+- **_Parametric estimation_** assumes $ p(x)$ belongs to a known family (e.g., Gaussian, Poisson, Student-t), with its shape defined by a set of parameters.  
+- **_Non-parametric estimation_** makes no such assumptions, making it ideal when the distribution is unknown or doesn’t fit standard families.
+> Note: This package focuses on non-parametric estimation techniques.
 
-Minimizing estimation error has led to various estimation techniques, sometimes reporting values in terms of p-values under certain null hypotheses. The diversity in estimation techniques arises from factors such as computational cost, the nature of dataset availability, the specific question at stake, and so on. Therefore, users must be diligent in selecting appropriate estimators.
+Estimating information measures (for that matter any measures) from real-life data inherently involves **bias** (the expected difference between the true and estimated values) and **variance** (the variability in estimates).  To ensure accuracy, estimation techniques must minimize both. This package offers a variety of estimation methods, allowing users to choose the most suitable one.  Additionally, it provides an option to compute **_p-values_** for measures like Mutual Information (MI) and Transfer Entropy (TE) by assuming no relationship as the null hypothesis.  For TE, we implement effective Transfer Entropy $( eTE )$, a method designed to reduce bias from finite sample effects. More details are available in the TE section {ref}`transfer_entropy_overview`.
+> Note: This Package 
+> - allows users to compute **p-values** for MI and TE to assess significance.  
+> - includes an implementation of **Effective Transfer Entropy $(eTE)$**, reducing bias from finite sample sizes.
 
-### Statistical Testing
-The time series data as available from the real word is usually biased due to the finite size effect. 
-Depending on the type of estimators implemented the bias can be small or big but it is usually present. 
-In order to correct the bias from the finite sample side effect, it is necessary to estimate the expected values of estimator (eg: TE) for finite data that are close as possible to the original data but doesn´t represent the information transfer.
-We can crease such dataset, known as surrogate data. 
+This package will also allow one to compute the **local information measure** together with their well-known average counterparts. Such local values within their global values are known to provide insights into the dynamic of the system being studied .
 
+## Types of Estimation techniques available
+For discrete variable we have discrete estimation and for the continuous variable we have the following three estimation techniques implemented:
+- Kernel Estimation 
+- Symbolic Estimation / Permutation Estimation 
+- Kraskov-Stoegbauer-Grassberger (KSG) / Metric / kNN  Estimation
 
-### Kinds of Estimators Available
-This package will allow one to compute the local information measure together with their well-known average counter parts. Such local values within their global values are known to provide insights into the dynamic of the sytme being studied.
+Let's compile all the estimation techniques along with the corresponding Shannon information measures they can estimate into a single table, as shown below:
+:::{list-table} Information (Shannon) Measures  and Estimation Methods
+:name: information-measures
+:widths: 2 1 1 1 1 1
+:header-rows: 1
+:stub-columns: 1
 
-For discrete dataset, estimation of informaiton measures is strraightforward. Ususlly the required probabaility are estimated by simply coutnting the matchning configurations available int he data. Then, these estimates are plug-in to the informaiton emasure formula.
-For continuous-valued datas, one has several ways to estimate the probabaility and subsequently their information -theoritic measures. We have three different estimation techniques, Kernal, metric (kl & KSG) and symbolic. 
-Kernel estimators estimates the required probability mas functions by using suitable kernel funcitons and then these estimated probabaility values are used directly in the equation. 
-Metric method bypasses the pdf estimation with some tricks and instead estimates the infomraiton theoritic measures based on the nearest neighbour counts in the marginal and joint spaces.
-The symbolic method estimates the required probabailities based on the ordinal structure and then uses it in equations of respective informaiton-theoritic measures. 
-The above menthioned estimation method is only available for the Shannon information-theoritic measures (i.e. H, MI and TE). Whereas for the Renyi and Tallis, especially MI and TE, is obtained from the sums and difference of the joint entropies.
+*   - Measures
+    - Notation
+    - Discrete Estimator
+    - Kernel Estimator
+    - KSG Estimator$^*$
+    - Symbolic Estimator
+*   - Entropy
+    - $H(X)$
+    - ✓
+    - ✓
+    - ✓
+    - ✓
+*   - Conditional H
+    - $H(X|Y)$
+    - ✓$^+$
+    - ✓$^+$
+    - ✓$^+$
+    - ✓$^+$
+*   - Mutual Information (MI)
+    - $I(X;Y)$
+    - ✓
+    - ✓
+    - ✓
+    - ✓
+*   - Conditional MI
+    - $I(X;Y|Z)$
+    - ✓$^+$
+    - ✓$^+$
+    - ✓$^+$
+    - ✓$^+$
+*   - Transfer Entropy (TE)
+    - $T_{X \to Y}$
+    - ✓
+    - ✓
+    - ✓
+    - ✓
+*   - Conditional TE
+    - $T_{X \to Y|Z}$
+    - ✓$^+$
+    - ✓$^+$
+    - ✓$^+$
+    - ✓$^+$
+*   - Jensen Shannon Distance (JSD)
+    - JSD
+    - ✓$^++$
+    - ✓$^++$
+    - ✓$^++$
+    - ✓$^++$
+:::
 
+In the table,
+- $^*$: Though it is written KSG as generic estimation techniques, for Entropy estimation it is known as KL estimator ({ref}`entropy_kozachenko_leonenko`)
+- $^+$: Conditional measures are estimated by using the entropy and joint entropy estimators, which are further estimated by the techniques where the tick mark is located. 
+- $^++$: JSD is estimated by using the entropy estimator which are further estimated by the techniques where the tick mark is located. 
 
 
 # Estimator Usage
-
 This notebook provides a brief overview of how to use the entropy estimation functions provided in the `infomeasure` package.
 There are multiple functional ways to use this package, for entropy, mutual information, (effective) transfer entropy and hypothesis testing (p-value estimation).
 

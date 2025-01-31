@@ -30,7 +30,7 @@ where,
 **Tsallis TE estimate** is computed by plugging-in the entropy and the join entropy estimates by using the estimation method explained in the {ref}`Tsallis Entropy Estimation <tsallis_entropy>`.
 
 
-# Implementation
+## Implementation
 The estimator is implemented in the {py:class}`RenyiMIEstimator <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
 

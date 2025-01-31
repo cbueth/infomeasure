@@ -8,20 +8,18 @@ $$
 I(X; Y) = \sum_{x, y} p(x, y) \log_2 \frac{p(x,y)}{p(x) p(y)}.
 $$
 where,
-- $X$: The set of possible values of the random variable $X$.
-- $Y$: The set of possible values of the random variable $Y$.
-- $p(x,y)$: The joint probability distribution $p(x,y)$.
+- $X$: The set of possible values of the random variable $X$,
+- $Y$: The set of possible values of the random variable $Y$,
+- $p(x,y)$: The joint probability distribution $p(x,y)$,
 - $b$: The base of the logarithm.
 
-MI allows to detect the both liner and non-liner relationships between the variables hence making it very popular in the investigating of systems showing complex behaviours.  
-MI can also be thought as the measure of mutual dependence between the random varaibles, with $I(X; Y) = 0$ signifying the independencies between the $X$ and $Y$.
-
+MI allows to detect the both liner and non-liner relationships between the variables hence making it very popular in the investigating of systems showing complex behaviours. MI can also be thought as the measure of mutual dependence between the random varaibles, with $I(X; Y) = 0$ signifying the independencies between the $X$ and $Y$.
 
 ``Local Mutual Information:`` 
 
 Similar to entropy, one can build the local mutual information directly from its average counterparts by alignining with the average definitation of MI {cite:p}`Lizier2014` {cite:p}`manning1999foundations` {cite:p}`fano1961transmission` .
 The local MI values can be either positive or negative , in contrast to the local entropy which cannot take negative values. One can integrate the negative local MI (i.e$i(x: y)=-ve$ ) as knowing the event $y$ increasing the uncertainity about $x$. 
-However, these local MI will always average to the non-negative global MI value. 
+However, these local MI will always average to the non-negative global MI value {cite:p}`Lizier2014_localinfomeasure`. 
 The local MI (or shared information content) between the two events $x$ and $y$, also known as **point-wise mutual information** is given as:
 
  $$
@@ -29,21 +27,16 @@ The local MI (or shared information content) between the two events $x$ and $y$,
   $$
 
 The MI can be also be expressed as the average of local MI:
+
 $$
 I(X; Y) = \langle i(x: y) \rangle.
 $$
-
- $$
-   I(x; y) = \sum_{x, y} p(x, y) \log_b \left( \frac{p(x, y)}{p(x) p(y)} \right)
-  $$
-where,
--  $p(x, y)$ is the joint probability of $X$ and $Y$
--  $p(x)$ and $p(y)$ are the marginal probabilities of $X$ and $Y$, respectively.
 
 > Note:
 > The package allows user to obtain both the local and global (average) values to the MI computation.
 
 ``Time-lagged Mutual Information:`` 
+
 If the RV are time series then one can implement the time-lagged MI in between the $X$ and $Y$ time series.
 
 $$
@@ -57,13 +50,22 @@ where,
 > Note:
 > The package allows user to set the desired time-lag between the series. The default value is set to $u=0$, no lag. 
 
-# List of Estimation Techniques Implemented:
+## List of MI Estimation Techniques Implemented:
+
+
+
 
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
+   :caption: Discrete RV
 
    discrete
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Continuous RV
+
    kernel
    kraskov_stoegbauer_grassberger
    symbolic

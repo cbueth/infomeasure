@@ -12,7 +12,7 @@ $$
 H(X) = -\sum_{x \in X} p(x) \log_b p(x),
 $$
 
-where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. Further details can be found in the section {ref}`Entropy / Uncertainty`.
+where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. More details on Entropy can be found in the {ref}`Entropy / Uncertainty` section.
 
 To estimate the entropy of a discrete random variable $X$, our implementation uses a plug-in method. Unlike other implementations that require a predefined probability distribution, our entropy estimator directly accepts a list of observations. 
 Probabilities are estimated by counting occurrences of each configuration in the dataset, and these frequencies are substituted into the formula.

@@ -38,7 +38,7 @@ The methodology is based on the article "Estimating mutual information" {cite:p}
 Authors have purposed two algorithms to estimate the MI in the article, as they have stated "In general they perform very similarly, as far as CPU
  times, statistical errors, and systematic errors are concerned", hence we have implemented only the first algorithm  in this package.   
 
-# Implementation
+## Implementation
 The estimator is implemented in the {py:class}`KSGMIEstimator <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
 

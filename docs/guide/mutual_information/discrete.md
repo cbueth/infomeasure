@@ -19,7 +19,7 @@ where,
 MI is computed by plugging-in the all the probabilities terms in the above equation. 
 The probabilities are estimated by simply counting the matching configurations available in the datasets.
 
-# Implementation
+## Implementation
 The estimator is implemented in the {py:class}`DiscreteMIEstimator <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
 

@@ -55,4 +55,3 @@ which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measur
     :undoc-members:
     :show-inheritance:
 ```
-## Usage

@@ -34,7 +34,6 @@ The probabilities on above expression are estimated by considering the appropria
 
 ```{note}
 - This package allows to implement two different kernel functions: box kernel or step kernel.
-- In timeseries dataset, we calculated the transfer entropy contribution for each time step and average them to get the global transfer entropy.
  ```
 
 ## Implementation
@@ -47,4 +46,3 @@ which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measur
     :undoc-members:
     :show-inheritance:
 ```
-## Usage

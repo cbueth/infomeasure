@@ -38,7 +38,7 @@ It is the measure of amount of information in message expressed in binary digits
 > Note: That the base of the algorithm in entropy formula only changes the value of the entropy by a multiplicative constant, hence using one form to another is only a matter of convenience.
 
 ``Local Entropy:``  
-The local information measure also refer to as a point-wise information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ rather than the average information associated with the variables $X$.
+The local information measure also refer to as a point-wise information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
 Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook. For example, it highlights how the data fluctuates over time, offering insights into its temporal behavior.
 The  **local entropy** of an outcome $x$ of measurement of the variable $X$ is give by:
 
@@ -54,8 +54,8 @@ H(X) = \langle h(x) \rangle.
 $$
 
 > Note:
-> The package allows user to obtain both the local and global (average) values to the Entropy computation.
-> A lower-case symbol is used to denote local information-theoretic measures in this documentation. 
+> - The package allows user to obtain both the local and global (average) values to the Entropy computation.
+> - A lower-case symbol is used to denote local information-theoretic measures in this documentation. 
 
 As successful as Shannon’s information theory has been, with time, it was clear that it is capable of dealing with only a limited class of systems one might hope to address in statistical physics.
 There was a growing interest to look for more general form of information applicable to diverse complex systems, such as stock market returns, protein folding, percolation, etc.
@@ -101,14 +101,13 @@ where,
 In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to ordinary summation, and the Tallis entropy reduces to Shannon Entropy.
 This class of entropy measure is in particularly useful in the study in connection with long–range correlated systems and with non–equilibrium phenomena.
 
-## Estimation Techniques
+## Entropy Estimation
+When estimating entropy, several factors must be considered. First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, along with non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
 > Note:
 > - This package consists of non-parametric estimation techniques for both the discrete and continuous RV.
 > - All the estimators are based on Shannon information except explicitly mentioned: Rényi entropy estimator & Tsallis entropy estimator
 
-When estimating entropy, several factors must be considered. First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. 
-This package provides methods for both discrete and continuous random variables, along with non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
-### List of Estimation Techniques Implemented:
+### List of Entropy Estimators
 
 ```{eval-rst}
 .. toctree::

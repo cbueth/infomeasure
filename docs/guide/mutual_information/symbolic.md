@@ -20,7 +20,7 @@ The required probabilities on above expression to compute MI  are estimated by t
 The details on the probability based on ordinal structure is provided in {ref}`Symbolic / Permutation Entropy Estimation` 
 
 
-# Implementation
+## Implementation
 The estimator is implemented in the {py:class}`SymbolicMIEstimator <infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
 

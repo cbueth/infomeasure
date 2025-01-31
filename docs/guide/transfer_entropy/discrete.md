@@ -43,8 +43,6 @@ which is part of the {py:mod}`im.measures.transfer_entropy <infomeasure.measures
     :show-inheritance:
 ```
 
-## Usage
-
 ```{code-cell}
 import infomeasure as im
 source = [0, 1, 0, 1, 0, 1, 0, 1]
