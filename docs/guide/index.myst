@@ -12,6 +12,11 @@ For the detailed API documentation, see the {ref}`API Reference`.
 
    estimator_usage
    entropy/index
+   entropy/cond_entropy/index
    mutual_information/index
+   mutual_information/cond_MI/index
    transfer_entropy/index
+   transfer_entropy/cond_TE/index
+   JSD
+   demo_tests/index
 ```

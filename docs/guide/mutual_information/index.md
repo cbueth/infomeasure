@@ -58,6 +58,10 @@ where,
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
+   mutual_information/cond_MI/index
+   
+.. toctree::
+   :maxdepth: 2
    :caption: Discrete RV
 
    discrete

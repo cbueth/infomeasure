@@ -112,6 +112,11 @@ When estimating entropy, several factors must be considered. First, identify whe
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
+
+   entropy/conditional_entropy/index
+   
+.. toctree::
+   :maxdepth: 2
    :caption: Discrete RV
 
    discrete
@@ -125,3 +130,4 @@ When estimating entropy, several factors must be considered. First, identify whe
    symbolic
    renyi
    tsallis
+```

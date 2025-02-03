@@ -60,6 +60,10 @@ $$
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
+   transfer_entropy/cond_TE/index
+
+.. toctree::
+   :maxdepth: 2
    :caption: Discrete RV
 
    discrete
