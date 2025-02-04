@@ -1,7 +1,6 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) mutual information estimator."""
 
-from numpy import column_stack, inf, array
-from numpy import mean as np_mean
+from numpy import column_stack, inf, array, ndarray
 from numpy import newaxis
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -85,13 +84,11 @@ class KSGMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         if self.data_y.ndim == 1:
             self.data_y = self.data_y[:, newaxis]
 
-    def _calculate(self) -> tuple:
+    def _calculate(self) -> ndarray:
         """Calculate the mutual information of the data.
 
         Returns
         -------
-        mi : float
-            Estimated mutual information between the two datasets.
         local_mi : array
             Local mutual information for each point.
         """
@@ -109,7 +106,7 @@ class KSGMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
 
         # Create a KDTree for joint data to find nearest neighbors using the maximum
         # norm
-        tree_joint = KDTree(data_joint, leafsize=10)  # default leafsize is 10
+        tree_joint = KDTree(data_joint)  # default leafsize is 10
 
         # Find the k-th nearest neighbor distance for each point in joint space using
         # the maximum norm
@@ -118,8 +115,8 @@ class KSGMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
 
         # Create KDTree objects for X and Y to count neighbors in marginal spaces using
         # the maximum norm
-        tree_x = KDTree(self.data_x, leafsize=10)
-        tree_y = KDTree(self.data_y, leafsize=10)
+        tree_x = KDTree(self.data_x)
+        tree_y = KDTree(self.data_y)
 
         # Count neighbors within k-th nearest neighbor distance in X and Y spaces using
         # the maximum norm
@@ -142,7 +139,4 @@ class KSGMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
             ]
         )
 
-        # Compute aggregated mutual information
-        mi = np_mean(local_mi)
-
-        return mi, local_mi
+        return local_mi

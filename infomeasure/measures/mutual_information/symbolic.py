@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from numpy import argsort, mean as np_mean, array
+from numpy import mean as np_mean, ndarray
 
 from ... import Config
 from ...utils.config import logger
@@ -69,7 +69,7 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         if len(self.data_x) < (order - 1) + 1:
             raise ValueError("The data is too small for the given order.")
 
-    def _calculate(self):
+    def _calculate(self) -> ndarray | float:
         """Calculate the mutual information of the data.
 
         Returns
@@ -81,19 +81,7 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         """
 
         if self.order == 1:
-            return 0.0, array([])
-
-        def _get_pattern_type(subsequence):
-            """
-            Determine the permutation pattern type of a given subsequence.
-
-            Parameters:
-            subsequence (list or array): A subsequence of the time series.
-
-            Returns:
-            tuple: A tuple representing the permutation pattern type.
-            """
-            return tuple(argsort(subsequence))
+            return 0.0
 
         def _estimate_probabilities(symbols_x, symbols_y):
             """
@@ -152,7 +140,8 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
                 local_mi_value = self._log_base(p_joint / (p_x * p_y))
                 local_mi.extend([local_mi_value] * int(p_joint * len(self.data_x)))
 
-        # Compute average and standard deviation of Local Mutual Information values
-        average_mi = np_mean(local_mi)
-
-        return average_mi, array(local_mi)
+        # Compute average mutual information for the permutation coindidences
+        # we do not return these 'local' values, as these are not local to the input
+        # data, but local in relation to the permutation patterns, so the identity
+        # used in the Estimator parent class does not work here
+        return np_mean(local_mi)

@@ -1,6 +1,6 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) transfer entropy estimator."""
 
-from numpy import array, inf
+from numpy import array, inf, ndarray
 from numpy import mean as np_mean
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -84,15 +84,13 @@ class KSGTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
-    def _calculate(self):
+    def _calculate(self) -> ndarray:
         """Calculate the transfer entropy of the data.
 
         Returns
         -------
-        global_te : float
-            Estimated transfer entropy from X to Y.
         local_te : array
-            Local transfer entropy for each point.
+            Local transfer entropy from X to Y for each point.
         """
 
         # Ensure source and dest are numpy arrays
@@ -154,7 +152,4 @@ class KSGTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
             + digamma(array(count_dest_past) + 1)
         )
 
-        # Compute global transfer entropy as the mean of the local transfer entropy
-        global_te = np_mean(local_te)
-
-        return global_te, local_te
+        return local_te

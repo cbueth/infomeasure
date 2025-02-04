@@ -2,8 +2,10 @@
 
 from collections import Counter
 
-from numpy import array, sum as np_sum
+from numpy import array, sum as np_sum, ndarray
 
+from ..utils.symbolic import reduce_joint_space, symbolize_series
+from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
@@ -136,25 +138,43 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # Return array of non-zero probabilities
         return array([v / total_patterns for v in count.values()])
 
-    def _calculate(self):
+    def _simple_entropy(self) -> ndarray | float:
         """Calculate the entropy of the data.
 
         Returns
         -------
-        float
-            The calculated entropy.
+        local_mi : array
+            Local mutual information for each point.
         """
 
         if self.order == 1:
             return 0.0
-        elif self.order == len(self.data):
+        elif self.order == self.data.shape[0]:
             return 0.0
 
         probabilities = self._estimate_probabilities(self.data, self.order)
         # sum over probabilities, multiplied by the logarithm of the probabilities
-        entropy = np_sum(-probabilities * self._log_base(probabilities))
+        # we do not return these 'local' values, as these are not local to the input
+        # data, but local in relation to the permutation patterns, so the identity
+        # used in the Estimator parent class does not work here
+        return np_sum(-probabilities * self._log_base(probabilities))
 
-        if self.per_symbol:
-            entropy /= self.order - 1
+    def _joint_entropy(self):
+        """Calculate the joint entropy of the data.
 
-        return entropy
+        Returns
+        -------
+        float
+            The calculated joint entropy.
+        """
+        # Symbolize separately (permutation patterns -> Lehmer codes)
+        symbols = (
+            symbolize_series(marginal, self.order, to_int=True)
+            for marginal in self.data  # data is tuple of time series
+        )  # shape (n - (order - 1), num_joints)
+        # Reduce the joint space
+        self.data = reduce_joint_space(symbols)  # reduction columns stacks the symbols
+        # Calculate frequencies of co-ocurrent patterns
+        histogram = histogram_unique_values(self.data)
+        # Calculate the entropy
+        return -np_sum(histogram * self._log_base(histogram))

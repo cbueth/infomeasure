@@ -5,9 +5,9 @@ from io import UnsupportedOperation
 from typing import final
 
 from numpy import std as np_std, asarray
-from numpy import array, log, log2, log10
+from numpy import array, log, log2, log10, ndarray
 from numpy import sum as np_sum
-from numpy.ma.extras import column_stack
+from numpy import mean as np_mean
 from numpy.random import default_rng
 
 from .. import Config
@@ -63,17 +63,27 @@ class Estimator(ABC):
         Estimate the measure and store the results in the attributes.
         """
         results = self._calculate()
-        if isinstance(results, tuple):
-            self.res_global, self.res_local = results
+        if isinstance(results, ndarray):
+            if results.ndim != 1:
+                raise RuntimeError(
+                    "Local values must be a 1D array. "
+                    f"Received {results.ndim}D array with shape {results.shape}."
+                )
+            self.res_global, self.res_local = np_mean(results), results
+            # TODO: better nanmean?
             logger.debug(
                 f"Global: {self.res_global:.4e}, "
                 # show the first max 5 local values
                 f"Local: {', '.join([f'{x:.2e}' for x in self.res_local[:5]])}"
                 f"{', ...' if len(self.res_local) > 5 else ''}"
             )
-        else:
+        elif isinstance(results, (int, float)):
             self.res_global = results
             logger.debug(f"Global: {self.res_global:.4e}")
+        else:
+            raise RuntimeError(
+                f"Invalid result type {type(results)} for {self.__class__.__name__}."
+            )
 
     def results(self):
         """Return the (global, local, std) if available.
@@ -169,9 +179,8 @@ class Estimator(ABC):
 
         Returns
         -------
-        result : tuple[float, array] | float
-            Tuple of the global and local values,
-            or just the global value if local values are not available.
+        result : float | array-like
+            The entropy as float, or an array of local values.
         """
         pass
 
@@ -219,15 +228,22 @@ class Estimator(ABC):
 class EntropyEstimator(Estimator, ABC):
     """Abstract base class for entropy estimators.
 
+    Estimates simple entropy of a data array or joint entropy of two data arrays.
+
     Attributes
     ----------
-    data : array-like
+    data : array-like, shape (n_samples,) or tuple of array-like
         The data used to estimate the entropy.
+        When passing tuple of arrays, the joint entropy is considered.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
+    Raises
+    ------
+    ValueError
+        If the data is not an array or arrays tuple/list.
 
     See Also
     --------
@@ -241,8 +257,53 @@ class EntropyEstimator(Estimator, ABC):
 
     def __init__(self, data, base: LogBaseType = Config.get("base")):
         """Initialize the estimator with the data."""
-        self.data = asarray(data)
+        if isinstance(data, tuple):
+            if all(isinstance(d, (ndarray, list)) for d in data):
+                self.data = tuple(asarray(d) for d in data)
+            else:
+                raise ValueError(
+                    "Data in the tuple must be arrays, not "
+                    f"{[type(d) for d in data if not isinstance(d, ndarray)]}."
+                )
+        else:
+            self.data = asarray(data)
         super().__init__(base=base)
+
+    def _calculate(self) -> tuple | float:
+        """Calculate the entropy of the data.
+
+        Depending on the `data` type, chooses simple or joint entropy calculation.
+
+        Returns
+        -------
+        float | array-like
+            The calculated entropy, or local values if available.
+        """
+        if isinstance(self.data, tuple):
+            return self._joint_entropy()
+        return self._simple_entropy()
+
+    @abstractmethod
+    def _simple_entropy(self) -> tuple | float:
+        """Calculate the entropy of one random variable.
+
+        Returns
+        -------
+        float | array-like
+            The calculated entropy, or local values if available.
+        """
+        pass
+
+    @abstractmethod
+    def _joint_entropy(self) -> tuple | float:
+        """Calculate the joint entropy of two random variables.
+
+        Returns
+        -------
+        float | array-like
+            The calculated entropy, or local values if available.
+        """
+        pass
 
 
 class RandomGeneratorMixin:
@@ -265,9 +326,8 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 
     Attributes
     ----------
-    data_x, data_y : array-like
-        The data used to estimate the mutual information. The data should be
-        1D and of the same length.
+    data_x, data_y : array-like, shape (n_samples,)
+        The data used to estimate the mutual information.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -282,9 +342,11 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     Raises
     ------
     ValueError
-        If the data arrays are not 1D or of different lengths.
+        If the data arrays have different lengths.
     ValueError
         If the offset is not an integer.
+    ValueError
+        If the data arrays are not of the same length.
 
     See Also
     --------
@@ -305,18 +367,16 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data."""
-        if len(data_x) != len(data_y):
-            raise ValueError(
-                "Data arrays must be of the same length, "
-                f"not {len(data_x)} and {len(data_y)}."
-            )
-        offset = offset or 0  # `Ensure offset is an integer (`None` -> 0)
+        offset = offset or 0  # Ensure offset is an integer (`None` -> 0)
         if not isinstance(offset, int):
             raise ValueError(f"Offset must be an integer, not {offset}.")
         self.data_x = asarray(data_x)
         self.data_y = asarray(data_y)
-        if self.data_x.ndim != 1 or self.data_y.ndim != 1:
-            raise ValueError("Data arrays must be 1D.")
+        if self.data_x.shape[0] != self.data_y.shape[0]:
+            raise ValueError(
+                "Data arrays must have the same first dimension, "
+                f"not {self.data_x.shape[0]} and {self.data_y.shape[0]}."
+            )
         # Apply the offset
         self.offset = offset
         if self.offset > 0:
@@ -327,6 +387,8 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
             self.data_y = self.data_y[: self.offset or None]
         # Normalize the data
         self.normalize = normalize
+        if self.normalize and (self.data_x.ndim != 1 or self.data_y.ndim != 1):
+            raise ValueError("Data arrays must be 1D for normalization.")
         if self.normalize:
             self.data_x = normalize_data_0_1(self.data_x)
             self.data_y = normalize_data_0_1(self.data_y)
@@ -383,9 +445,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 
         h_x = estimator(self.data_x, **kwargs).global_val()
         h_y = estimator(self.data_y, **kwargs).global_val()
-        h_xy = estimator(
-            column_stack((self.data_x, self.data_y)), **kwargs
-        ).global_val()
+        h_xy = estimator((self.data_x, self.data_y), **kwargs).global_val()
         return h_x + h_y - h_xy
 
 
@@ -394,9 +454,8 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
     Attributes
     ----------
-    data_x, data_y, data_z : array-like
+    data_x, data_y, data_z : array-like, shape (n_samples,)
         The data used to estimate the conditional mutual information.
-        They should be 1D and of the same length.
     normalize : bool, optional
         If True, normalize the data before analysis. Default is False.
     offset : None
@@ -409,7 +468,13 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
     Raises
     ------
     ValueError
-        If the data arrays are not 1D or of different lengths.
+        If the data arrays have different lengths.
+    ValueError
+        If an offset is provided.
+    ValueError
+        If the data arrays are not of the same length.
+    ValueError
+        If normalization is requested for non-1D data.
 
     See Also
     --------
@@ -441,10 +506,20 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
         self.data_x = asarray(data_x)
         self.data_y = asarray(data_y)
         self.data_z = asarray(data_z)
-        if self.data_x.ndim != 1 or self.data_y.ndim != 1 or self.data_z.ndim != 1:
-            raise ValueError("Data arrays must be 1D.")
+        if (
+            self.data_x.shape[0] != self.data_y.shape[0]
+            or self.data_x.shape[0] != self.data_z.shape[0]
+        ):
+            raise ValueError(
+                "Data arrays must have the same first dimension, "
+                f"not {self.data_x.shape[0]}, {self.data_y.shape[0]}, and {self.data_z.shape[0]}."
+            )
         # Normalize the data
         self.normalize = normalize
+        if self.normalize and (
+            self.data_x.ndim != 1 or self.data_y.ndim != 1 or self.data_z.ndim != 1
+        ):
+            raise ValueError("Data arrays must be 1D for normalization.")
         if self.normalize:
             self.data_x = normalize_data_0_1(self.data_x)
             self.data_y = normalize_data_0_1(self.data_y)
@@ -520,14 +595,10 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
         # Entropy-based CMI calculation
         if issubclass(estimator, EntropyEstimator):
-            h_x_z = estimator(
-                column_stack((self.data_x, self.data_z)), **kwargs
-            ).global_val()
-            h_y_z = estimator(
-                column_stack((self.data_y, self.data_z)), **kwargs
-            ).global_val()
+            h_x_z = estimator((self.data_x, self.data_z), **kwargs).global_val()
+            h_y_z = estimator((self.data_y, self.data_z), **kwargs).global_val()
             h_x_y_z = estimator(
-                column_stack((self.data_x, self.data_y, self.data_z)), **kwargs
+                (self.data_x, self.data_y, self.data_z), **kwargs
             ).global_val()
             h_z = estimator(self.data_z, **kwargs).global_val()
             return h_x_z + h_y_z - h_x_y_z - h_z
@@ -540,9 +611,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
 
     Attributes
     ----------
-    source : array-like
+    source : array-like, shape (n_samples,)
         The source data used to estimate the transfer entropy (X).
-    dest : array-like
+    dest : array-like, shape (n_samples,)
         The destination data used to estimate the transfer entropy (Y).
     step_size : int
         Step size between elements for the state space reconstruction.
@@ -562,7 +633,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     Raises
     ------
     ValueError
-        If the data arrays are not 1D or of different lengths.
+        If the data arrays have different lengths.
+    ValueError
+        If the propagation time is not an integer.
 
     See Also
     --------
@@ -594,8 +667,6 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
-        if self.source.ndim != 1 or self.dest.ndim != 1:
-            raise ValueError("Data arrays must be 1D.")
         # Apply the prop_time
         self.prop_time = prop_time
         if self.prop_time > 0:
@@ -662,8 +733,16 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         source = self.source.copy()
         dest = self.dest.copy()
 
+        # If Discrete Estimator and noise_level is set, raise an error
+        if estimator.__name__ == "DiscreteEntropyEstimator" and noise_level:
+            raise ValueError(
+                "Discrete entropy estimator does not support noise_level. "
+                "Please use a different estimator."
+            )
         # Add Gaussian noise to the data if the flag is set
-        if noise_level:
+        if isinstance(noise_level, (int, float)) and noise_level != 0:
+            source = source.astype(float)
+            dest = dest.astype(float)
             source += self.rng.normal(0, noise_level, source.shape)
             dest += self.rng.normal(0, noise_level, dest.shape)
 
@@ -820,7 +899,10 @@ class PValueMixin(RandomGeneratorMixin):
             self.rng.permutation(getattr(self, self.permutation_data_attribute)),
         )
         # Calculate the measure
-        return self._calculate()
+        res_permuted = self._calculate()
+        return (
+            res_permuted if isinstance(res_permuted, float) else np_mean(res_permuted)
+        )
 
     def permutation_test(self, n_permutations: int) -> float:
         """Calculate the permutation test.

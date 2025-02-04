@@ -154,7 +154,7 @@ def te_observations(
     # dest_past_embedded = dest_history
     # g(x_i^{(l)}, y_i^{(k)})
     marginal_1_space_data = concatenate((src_history, dest_history), axis=1)
-    # g(\hat{y}_{i+1}, y_i^{(k)})
+    # g(y_i^{(k)}, \hat{y}_{i+1})
     marginal_2_space_data = concatenate((dest_history, dest_future), axis=1)
 
     return (

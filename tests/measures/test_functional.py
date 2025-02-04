@@ -19,7 +19,7 @@ def test_entropy_functional_addressing(entropy_approach):
     approach_str, needed_kwargs = entropy_approach
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     entropy = im.entropy(data, approach=approach_str, **needed_kwargs)
-    assert isinstance(entropy, float)
+    assert isinstance(entropy, (float, tuple))
 
 
 def test_entropy_class_addressing(entropy_approach):
@@ -30,13 +30,8 @@ def test_entropy_class_addressing(entropy_approach):
         data=data, measure="entropy", approach=approach_str, **needed_kwargs
     )
     assert isinstance(est, EntropyEstimator)
-    assert isinstance(est.results(), float)
+    assert isinstance(est.results(), (float, tuple))
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.results()
-    with pytest.raises(UnsupportedOperation):
-        est.local_val()
-    with pytest.raises(UnsupportedOperation):
-        est.std_val()
     assert 0 <= est.p_value(10) <= 1
     with pytest.raises(AttributeError):
         est.effective_val()
@@ -92,7 +87,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach_str in ["discrete", "renyi", "tsallis"]:
+    if approach_str in ["discrete", "renyi", "tsallis", "symbolic", "permutation"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
@@ -156,11 +151,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est, ConditionalMutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.results(), float)
-    with pytest.raises(UnsupportedOperation):
-        est.local_val()
-    with pytest.raises(UnsupportedOperation):
-        est.std_val()
+    assert isinstance(est.results(), (float, tuple))
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])

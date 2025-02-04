@@ -1,5 +1,6 @@
 """Explicit symbolic / permutation entropy estimator tests."""
 
+from array import array
 from itertools import permutations
 from math import factorial
 
@@ -25,7 +26,7 @@ def test_symbolic_entropy(data_len, order, per_symbol, default_rng):
             est.results()
         return
     est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
-    assert 0 <= est.results() <= est._log_base(data_len)
+    assert 0 <= est.global_val() <= est._log_base(data_len)
 
 
 @pytest.mark.parametrize(
@@ -71,7 +72,7 @@ def test_symbolic_entropy_explicit(data, order, base, expected):
     """Test the discrete entropy estimator with explicit values."""
     assert SymbolicEntropyEstimator(
         data, order=order, base=base
-    ).results() == pytest.approx(expected, rel=1e-10)
+    ).global_val() == pytest.approx(expected, rel=1e-10)
 
 
 @pytest.mark.parametrize("order", [1, 2, 3, 4, 5])
@@ -200,12 +201,14 @@ def test_symbolic_entropy_maximum(order, min_length, default_rng):
     est = SymbolicEntropyEstimator(data, order=order)
     if len(data) < max_len_abort:
         # exact match
-        assert est.results() == est._log_base(factorial(order))
+        assert est.global_val() == est._log_base(factorial(order))
     else:
         # approximate match, should be close to the maximum
-        assert pytest.approx(est.results(), abs=0.1) == est._log_base(factorial(order))
+        assert pytest.approx(est.global_val(), abs=0.1) == est._log_base(
+            factorial(order)
+        )
         # but cannot be larger
-        assert est.results() <= est._log_base(factorial(order))
+        assert est.global_val() <= est._log_base(factorial(order))
 
 
 @pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])

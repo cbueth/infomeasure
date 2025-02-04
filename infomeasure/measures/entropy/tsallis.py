@@ -1,5 +1,7 @@
 """Module for Tsallis entropy estimator."""
 
+from numpy import column_stack, newaxis, ndarray
+
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import EntropyEstimator, PValueMixin
@@ -53,7 +55,6 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
             Sometimes denoted as :math:`q`, analogous to the Rényi parameter :math:`\alpha`.
         """
         super().__init__(data, base)
-        self.data = self.data.reshape(-1, 1) if self.data.ndim == 1 else self.data
         if not isinstance(q, (int, float)) or q <= 0:
             raise ValueError("The Tsallis parameter ``q`` must be a positive number.")
         if not isinstance(k, int) or k <= 0:
@@ -62,8 +63,17 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
             )
         self.k = k
         self.q = q
+        if isinstance(self.data, ndarray) and self.data.ndim == 1:
+            self.data = self.data[:, newaxis]
+        elif isinstance(self.data, tuple):
+            self.data = tuple(
+                marginal[:, newaxis]
+                if isinstance(marginal, ndarray) and marginal.ndim == 1
+                else marginal
+                for marginal in self.data
+            )
 
-    def _calculate(self):
+    def _simple_entropy(self):
         """Calculate the entropy of the data.
 
         Returns
@@ -80,3 +90,17 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
         else:
             # Shannon entropy (limes for alpha = 1)
             return exponential_family_i1(self.k, V_m, rho_k, N, m, self._log_base)
+
+    def _joint_entropy(self):
+        """Calculate the joint Tsallis entropy of the data.
+
+        This is done by joining the variables into one space
+        and calculating the entropy.
+
+        Returns
+        -------
+        float
+            The joint Tsallis entropy.
+        """
+        self.data = column_stack(self.data)
+        return self._simple_entropy()

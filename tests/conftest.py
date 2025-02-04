@@ -319,3 +319,22 @@ def generate_autoregressive_series(rng_int, alpha, beta, gamma, length=1000, sca
         X[i + 1] = alpha * X[i] + eta_X
         Y[i + 1] = beta * Y[i] + gamma * X[i] + eta_Y
     return X, Y
+
+
+@cache
+def discrete_random_variables(rng_int, prop_time=0, low=0, high=4, length=1000):
+    """Generate two coupled discrete random variables.
+
+    The first variable is a uniform random variable with values in [low, high-1].
+    Variable 2 takes the highest bit of the previous value of Variable 1
+    (if we take a 2 bit representation of variable 1)
+    as its own lowest bit, then assigns its highest bit at random.
+
+    So, the two should have ~1 bit of mutual information.
+    """
+    generator = rng(rng_int)
+    X = generator.integers(low, high, length)
+    Y = [0] * length
+    for i in range(1, length):
+        Y[i] = (X[i - 1 - prop_time] & 1) + (generator.integers(0, 2) << 1)
+    return X, Y

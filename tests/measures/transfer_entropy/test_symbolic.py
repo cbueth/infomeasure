@@ -88,16 +88,17 @@ def test_symbolic_te(rng_int, order, expected):
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
     est = SymbolicTEEstimator(data_source, data_dest, order, base=2)
     res = est.results()
+    if order == 1:
+        assert isinstance(res, float)
+        assert res == 0.0
+        return
     assert isinstance(res, tuple)
     assert len(res) == 3
     assert isinstance(res[0], float)
     assert isinstance(res[1], ndarray)
     assert isinstance(res[2], float)
     assert res[0] == pytest.approx(expected)
-    if order == 1:
-        assert isnan(res[2])
-    else:
-        assert res[2] == pytest.approx(std(res[1]))
+    assert res[2] == pytest.approx(std(res[1]))
 
 
 @pytest.mark.parametrize(

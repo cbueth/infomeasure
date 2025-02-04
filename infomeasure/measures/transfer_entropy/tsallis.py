@@ -102,10 +102,6 @@ class TsallisTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
         float
             The Tsallis transfer entropy.
         """
-        # Ensure source and dest are numpy arrays
-        self.source = self.source.astype(float)
-        self.dest = self.dest.astype(float)
-
         return self._generic_te_from_entropy(
             estimator=TsallisEntropyEstimator,
             noise_level=self.noise_level,

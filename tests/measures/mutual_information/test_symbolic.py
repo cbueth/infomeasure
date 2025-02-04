@@ -21,7 +21,7 @@ def test_symbolic_entropy(data_len, order, offset, default_rng):
                 order,
                 offset=offset,
             )
-            est.results()
+            est.global_val()
         return
     if order == 1:
         est = SymbolicMIEstimator(
@@ -30,10 +30,7 @@ def test_symbolic_entropy(data_len, order, offset, default_rng):
             order,
             offset=offset,
         )
-        assert est.global_val() == 0
-        for i in est.local_val():
-            assert i == 0
-        assert isnan(est.std_val())
+        assert est.global_val() == 0.0  # no local values returned
         return
     est = SymbolicMIEstimator(
         data_x,
@@ -43,9 +40,6 @@ def test_symbolic_entropy(data_len, order, offset, default_rng):
     )
     max_val = est._log_base(data_len)
     assert 0 <= est.global_val() <= max_val
-    for i in est.local_val():
-        assert isinstance(i, float)
-    assert 0 <= est.std_val() <= max_val
 
 
 @pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
@@ -105,5 +99,4 @@ def test_symbolic_entropy_invalid_order(order, default_rng):
 def test_symbolic_mi(data_x, data_y, order, expected):
     """Test the symbolic mutual information estimator."""
     est = SymbolicMIEstimator(data_x, data_y, order)
-    res = est.results()
-    assert res[0] == pytest.approx(expected)
+    assert est.global_val() == pytest.approx(expected)

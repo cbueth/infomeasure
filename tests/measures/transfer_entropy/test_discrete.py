@@ -2,88 +2,116 @@
 
 import pytest
 
+import infomeasure as im
+from tests.conftest import discrete_random_variables
 from infomeasure.measures.transfer_entropy import DiscreteTEEstimator
 
 
 @pytest.mark.parametrize(
-    "data_source,data_dest,prop_time,step_size,src_hist_len,dest_hist_len,expected",
+    "rng_int_prop,prop_time,expected_xy,expected_yx",
     [
-        # prop_time = 0, no slicing
-        ([1, 1], [0, 0], 0, 1, 1, 1, 0.0),
-        ([1, 1], [1, 1], 0, 1, 1, 1, 0.7548875021634682),
-        ([1, 1, 1, 1, 1], [1, 1, 1, 1, 1], 0, 1, 1, 1, 0.7548875021634682),
-        ([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], 0, 1, 1, 1, 0.5661656266226016),
-        ([0, 1, 2, 3, 4], [1, 2, 3, 4, 5], 0, 1, 1, 1, 0.3774437510817341),
-        ([1, 2, 3, 4, 5], [0, 1, 2, 3, 4], 0, 1, 1, 1, 1.0661656266226016),
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 0, 1, 1, 1, 0.7354632006732273),
-        ([1, 0, 1, 0, 1, 0], [0, 1, 0, 1, 0, 1], 0, 1, 1, 1, 0.7935620117638902),
-        # prop_time = 1, no slicing
-        ([1, 1, 1, 1, 1], [1, 1, 1, 1, 1], 1, 1, 1, 1, 0.7548875021634682),
-        ([1, 1, 1, 1, 1], [0, 0, 0, 0, 0], 1, 1, 1, 1, 0.0),
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 1, 1, 1, 1, 0.7548875021634687),
-        ([1, 0, 1, 0, 1, 0], [0, 1, 0, 1, 0, 1], 1, 1, 1, 1, 0.7548875021634687),
-        # prop_time = 2, no slicing
-        ([1, 1, 1, 1, 1], [1, 1, 1, 1, 1], 2, 1, 1, 1, 0.7548875021634682),
-        ([1, 1, 1, 1, 1], [0, 0, 0, 0, 0], 2, 1, 1, 1, 0.0),
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 2, 1, 1, 1, 0.6999551567032918),
-        ([1, 0, 1, 0, 1, 0], [0, 1, 0, 1, 0, 1], 2, 1, 1, 1, 0.8633634885943124),
-        # prop_time = 0, slicing
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 0, 1, 2, 2, 0.854752972273344),
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 0, 1, 3, 3, 0.8812794235977364),
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 0, 1, 1, 2, 0.49022499567306266),
-        ([1, 0, 1, 0, 1, 0], [1, 0, 1, 0, 1, 0], 0, 1, 2, 1, 1.2451124978365313),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 1, 1, 1, 0.7542380832531079),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 2, 1, 1, 0.7535544844000959),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 1, 1, 2, 0.4902247133356856),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 1, 2, 1, 1.243779197735782),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 1, 3, 1, 1.609401128930581),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 1, 1, 3, 0.36431916874493986),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 1, 3, 2, 1.1449594037442017),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 0, 4, 1, 1, 0.7548875021634682),
-        # further
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 1, 4, 2, 1, 1.2451124978365318),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 2, 4, 1, 1, 0.7548875021634682),
-        ([1, 2, 3, 4] * 10, [1, 2, 3, 4] * 10, 3, 2, 1, 2, 0.4912940766856413),
+        ((1, 0), -1, 0.025234998, 0.00964492),
+        ((1, 0), 0, 1.004240718338, 0.01829086716204),
+        ((1, 0), 1, 0.0094448344, 0.029392028),
+        ((1, 0), 2, 0.03151492418, 0.031049501713),
+        ((2, 0), 0, 1.00477430056, 0.0197437874713),
+        ((3, 0), 0, 1.00248452504, 0.02438039984412),
+        ((4, 0), 0, 1.0035104973, 0.0246556093),
+        ((5, 0), 0, 1.0048684585, 0.0334493497),
+        ((6, 0), 0, 1.00555947, 0.0218590040),
+        ((1, 1), 0, 0.020519982911, 0.02183675871687),
+        ((1, 1), 1, 0.999339606768, 0.035131412276),
+        ((1, 10), 10, 0.99837037816, 0.024663735071),
     ],
 )
-def test_discrete_te(
-    data_source,
-    data_dest,
-    prop_time,
-    step_size,
-    src_hist_len,
-    dest_hist_len,
-    expected,
-):
-    """Test the discrete transfer entropy estimator."""
-    est = DiscreteTEEstimator(
-        data_source,
-        data_dest,
-        prop_time=prop_time,
-        step_size=step_size,
-        src_hist_len=src_hist_len,
-        dest_hist_len=dest_hist_len,
-        base=2,
+def test_discrete_autoregressive(rng_int_prop, prop_time, expected_xy, expected_yx):
+    """Test the discrete transfer entropy estimator with autoregressive data."""
+    data_source, data_dest = discrete_random_variables(
+        rng_int_prop[0], prop_time=rng_int_prop[1]
     )
-    res = est.results()
-    assert isinstance(res, float)
-    assert res == pytest.approx(expected)
+    est_xy = DiscreteTEEstimator(data_source, data_dest, base=2, prop_time=prop_time)
+    res_xy = est_xy.results()
+    assert isinstance(res_xy, float)
+    assert res_xy == pytest.approx(expected_xy)
+    assert im.transfer_entropy(
+        data_source, data_dest, approach="discrete", base=2, prop_time=prop_time
+    ) == pytest.approx(expected_xy)
+    est_yx = DiscreteTEEstimator(data_dest, data_source, base=2, prop_time=prop_time)
+    res_yx = est_yx.results()
+    assert isinstance(res_yx, float)
+    assert res_yx == pytest.approx(expected_yx)
+    assert im.transfer_entropy(
+        data_dest, data_source, approach="discrete", base=2, prop_time=prop_time
+    ) == pytest.approx(expected_yx)
 
 
 @pytest.mark.parametrize(
-    "data_source,data_dest,base,expected",
+    "rng_int_prop,step_size,src_hist_len,dest_hist_len,expected_xy,expected_yx",
     [
-        ([1, 1], [0, 0], 2, 0.0),
-        ([1, 1], [0, 0], 10, 0.0),
-        ([1, 1], [0, 0], 16, 0.0),
-        ([1, 0, 1, 1, 0, 1], [0, 1, 0, 1, 0, 1], 2, 0.7935620117638902),
-        ([1, 0, 1, 1, 0, 1], [0, 1, 0, 1, 0, 1], 10, 0.23888596896038405),
-        ([1, 0, 1, 1, 0, 1], [0, 1, 0, 1, 0, 1], 16, 0.19839050294097255),
+        ((1, 0), 1, 1, 1, 1.004240718338, 0.01829086716204),
+        ((1, 0), 2, 1, 1, 0.044603138521, 0.05864109478),
+        ((1, 0), 1, 2, 1, 1.018586121810, 0.043963834185),
+        ((1, 0), 1, 1, 2, 1.01092219403, 0.128475623742),
+        ((1, 1), 1, 1, 1, 0.020519982, 0.02183675871),
+        ((1, 2), 1, 1, 1, 0.030291914, 0.025516281045),
     ],
 )
-def test_discrete_te_base(data_source, data_dest, base, expected):
+def test_discrete_te_slicing(
+    rng_int_prop, step_size, src_hist_len, dest_hist_len, expected_xy, expected_yx
+):
+    """Test the discrete transfer entropy estimator with slicing."""
+    data_source, data_dest = discrete_random_variables(
+        rng_int_prop[0], prop_time=rng_int_prop[1]
+    )
+    assert im.transfer_entropy(
+        data_source,
+        data_dest,
+        approach="discrete",
+        base=2,
+        step_size=step_size,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+    ) == pytest.approx(expected_xy)
+    assert im.transfer_entropy(
+        data_dest,
+        data_source,
+        approach="discrete",
+        base=2,
+        step_size=step_size,
+        src_hist_len=dest_hist_len,
+        dest_hist_len=src_hist_len,
+    ) == pytest.approx(expected_yx)
+
+
+@pytest.mark.parametrize(
+    "rng_int,base,expected_xy,expected_yx",
+    [
+        (1, 2, 1.004240718, 0.01829086716204),
+        (1, 10, 0.302306579086, 0.00550609966247),
+        (1, 16, 0.251060179584, 0.00457271679051),
+        (2, 2, 1.00477430056, 0.0197437874713),
+        (2, 10, 0.302467203341, 0.00594347225689),
+        (2, 16, 0.251193575140, 0.00493594686783),
+    ],
+)
+def test_discrete_te_base(rng_int, base, expected_xy, expected_yx):
     """Test the discrete transfer entropy estimator with different bases."""
-    est = DiscreteTEEstimator(data_source, data_dest, base=base)
-    res = est.results()
-    assert isinstance(res, float)
-    assert res == pytest.approx(expected)
+    data_source, data_dest = discrete_random_variables(rng_int)
+    assert im.transfer_entropy(
+        data_source, data_dest, approach="discrete", base=base
+    ) == pytest.approx(expected_xy)
+    assert im.transfer_entropy(
+        data_dest, data_source, approach="discrete", base=base
+    ) == pytest.approx(expected_yx)
+
+
+def test_discrete_te_uncoupled(default_rng):
+    """Test the discrete transfer entropy estimator with uncoupled data."""
+    x = default_rng.integers(0, 4, 10000)
+    y = default_rng.integers(0, 4, 10000)
+    assert im.transfer_entropy(x, y, approach="discrete") == pytest.approx(
+        0.0, abs=1e-2
+    )
+    assert im.transfer_entropy(y, x, approach="discrete") == pytest.approx(
+        0.0, abs=1e-2
+    )

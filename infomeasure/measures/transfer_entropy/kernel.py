@@ -79,8 +79,6 @@ class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
         -------
         local_te_values : array
             Local transfer entropy values.
-        average_te : float
-            The average transfer entropy value.
         """
         # Prepare multivariate data arrays for KDE: Numerators
         (
@@ -100,15 +98,17 @@ class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
 
         # Compute KDE for each term directly using slices
         for i in range(len(joint_space_data)):
+            # TODO: Vectorized version speeds up kde computation,
+            #  should outweigh the early stopping in this loop
             # g(x_i^{(l)}, y_i^{(k)}, y_{i+1})
             p_x_past_y_past_y_future = kde_probability_density_function(
-                joint_space_data, joint_space_data[i], self.bandwidth, self.kernel
+                joint_space_data, self.bandwidth, joint_space_data[i], self.kernel
             )
             if p_x_past_y_past_y_future == 0:
                 continue
             # g(y_i^{(k)})
             p_y_past = kde_probability_density_function(
-                dest_past_embedded, dest_past_embedded[i], self.bandwidth, self.kernel
+                dest_past_embedded, self.bandwidth, dest_past_embedded[i], self.kernel
             )
             numerator = p_x_past_y_past_y_future * p_y_past
             if numerator <= 0:
@@ -116,8 +116,8 @@ class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
             # g(x_i^{(l)}, y_i^{(k)})
             p_xy_past = kde_probability_density_function(
                 marginal_1_space_data,
-                marginal_1_space_data[i],
                 self.bandwidth,
+                marginal_1_space_data[i],
                 self.kernel,
             )
             if p_xy_past == 0:
@@ -125,8 +125,8 @@ class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
             # g(y_i^{(k)}, y_{i+1})
             p_y_past_y_future = kde_probability_density_function(
                 marginal_2_space_data,
-                marginal_2_space_data[i],
                 self.bandwidth,
+                marginal_2_space_data[i],
                 self.kernel,
             )
             denominator = p_xy_past * p_y_past_y_future
@@ -135,7 +135,4 @@ class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
 
             local_te_values[i] = self._log_base(numerator / denominator)
 
-        # Calculate average TE
-        average_te = nanmean(local_te_values)  # Using nanmean to ignore any NaNs
-
-        return average_te, local_te_values
+        return local_te_values
