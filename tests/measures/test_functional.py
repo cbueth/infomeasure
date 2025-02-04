@@ -196,7 +196,7 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach_str in ["discrete", "renyi", "tsallis"]:
+    if approach_str in ["discrete", "renyi", "tsallis", "symbolic", "permutation"]:
         assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()

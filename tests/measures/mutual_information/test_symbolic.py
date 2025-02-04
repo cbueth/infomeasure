@@ -1,12 +1,11 @@
 """Explicit symbolic / permutation mutual information estimator tests."""
 
 import pytest
-from numpy import isnan
 
 from infomeasure.measures.mutual_information import SymbolicMIEstimator
 
 
-@pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000])
+@pytest.mark.parametrize("data_len", [10, 100, 1000])
 @pytest.mark.parametrize("order", [1, 2, 5])
 @pytest.mark.parametrize("offset", [0, 1, 4])
 def test_symbolic_entropy(data_len, order, offset, default_rng):

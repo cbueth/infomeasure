@@ -51,12 +51,6 @@ def test_symbolic_entropy(data_len, order, step_size, prop_time, default_rng):
     )
     max_val = est._log_base(data_len)
     assert 0 <= est.global_val() <= max_val
-    for i in est.local_val():
-        assert isinstance(i, float)
-    if len(est.local_val()) > 0:
-        assert 0 <= est.std_val() <= max_val
-    else:
-        assert isnan(est.std_val())
 
 
 @pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
@@ -92,13 +86,7 @@ def test_symbolic_te(rng_int, order, expected):
         assert isinstance(res, float)
         assert res == 0.0
         return
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == pytest.approx(std(res[1]))
+    assert res == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
@@ -142,13 +130,4 @@ def test_symbolic_te_slicing(
         order=order,
     )
     res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
-    assert res[0] == pytest.approx(expected)
-    if order == 1:
-        assert isnan(res[2])
-    else:
-        assert res[2] == pytest.approx(std(res[1]))
+    assert res == pytest.approx(expected)

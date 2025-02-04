@@ -1,6 +1,6 @@
 """Module for the Symbolic / Permutation transfer entropy estimator."""
 
-from numpy import array, unique, ndarray
+from numpy import mean as np_mean, unique, ndarray
 
 from ... import Config
 from ...utils.config import logger
@@ -184,8 +184,8 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
             )
         )
 
-        # Calculate Local Transfer Entropy
-        local_te = []
+        # Calculate Transfer Entropy for each permutation pattern
+        te_perm = []
         for pattern in joint_prob:
             p_joint = joint_prob[pattern]  # p(x^l_t, y^k_t, y_{t+1})
 
@@ -215,12 +215,11 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
 
             if p_joint > 0 and p_conditional_joint > 0 and p_conditional_marginal > 0:
                 # Using the TE formula
-                local_te_value = (
+                te_perm.append(
                     self._log_base(p_conditional_joint / p_conditional_marginal)
                     * p_joint
                 )
-                local_te.append(local_te_value)
-        if len(local_te) == 0:
+        if len(te_perm) == 0:
             return 0.0
-
-        return array(local_te)
+        # Compute average of Local Transfer Entropy values
+        return np_mean(te_perm)

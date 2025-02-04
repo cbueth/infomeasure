@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from numpy import mean as np_mean, ndarray
+from numpy import ndarray, sum as np_sum
 
 from ... import Config
 from ...utils.config import logger
@@ -130,18 +130,29 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         # Estimate joint and marginal probabilities
         joint_prob, x_prob, y_prob = _estimate_probabilities(symbols_x, symbols_y)
 
-        # Calculate Local Mutual Information
-        local_mi = []
+        # Calculate Mutual Information for each pattern
+        mi_perm = []
         for (sx, sy), p_joint in joint_prob.items():
             p_x = x_prob.get(sx, 0)  # p(x)
             p_y = y_prob.get(sy, 0)  # p(y)
 
-            if p_joint > 0 and p_x > 0 and p_y > 0:
-                local_mi_value = self._log_base(p_joint / (p_x * p_y))
-                local_mi.extend([local_mi_value] * int(p_joint * len(self.data_x)))
+            if p_joint > 0 and p_x > 0 and p_y > 0:  # can be assured due to the counter
+                mi_perm.append(p_joint * self._log_base(p_joint / (p_x * p_y)))
+        if len(mi_perm) == 0:
+            return 0.0
 
-        # Compute average mutual information for the permutation coindidences
-        # we do not return these 'local' values, as these are not local to the input
-        # data, but local in relation to the permutation patterns, so the identity
-        # used in the Estimator parent class does not work here
-        return np_mean(local_mi)
+        # # Compute average mutual information for the permutation coincidences
+        # # we do not return these 'local' values, as these are not local to the input
+        # # data, but local in relation to the permutation patterns, so the identity
+        # # used in the Estimator parent class does not work here
+        # # it could be done like this:
+        # symbols_x_prob = asarray([x_prob.get(tuple(sx), 0) for sx in symbols_x])
+        # symbols_y_prob = asarray([y_prob.get(tuple(sy), 0) for sy in symbols_y])
+        # joint_prob = asarray(
+        #     [joint_prob[(tuple(sx), tuple(sy))] for sx, sy in zip(symbols_x, symbols_y)]
+        # )
+        #
+        # print(f"len(symbols_x_prob): {len(symbols_x_prob)}")
+        # return self._log_base(joint_prob / (symbols_x_prob * symbols_y_prob))
+
+        return np_sum(mi_perm)

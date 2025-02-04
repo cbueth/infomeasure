@@ -157,7 +157,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # we do not return these 'local' values, as these are not local to the input
         # data, but local in relation to the permutation patterns, so the identity
         # used in the Estimator parent class does not work here
-        return np_sum(-probabilities * self._log_base(probabilities))
+        return -np_sum(probabilities * self._log_base(probabilities))
 
     def _joint_entropy(self):
         """Calculate the joint entropy of the data.
@@ -175,6 +175,6 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # Reduce the joint space
         self.data = reduce_joint_space(symbols)  # reduction columns stacks the symbols
         # Calculate frequencies of co-ocurrent patterns
-        histogram = histogram_unique_values(self.data)
+        probabilities = histogram_unique_values(self.data)
         # Calculate the entropy
-        return -np_sum(histogram * self._log_base(histogram))
+        return -np_sum(probabilities * self._log_base(probabilities))
