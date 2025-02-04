@@ -1,6 +1,6 @@
 """Module for the Symbolic / Permutation transfer entropy estimator."""
 
-from numpy import mean as np_mean, array, unique
+from numpy import array, unique, ndarray
 
 from ... import Config
 from ...utils.config import logger
@@ -104,13 +104,13 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
         Returns
         -------
         joint_prob : dict
-            Joint probabilities: p(y_{t+1}, y^k_t, x^l_t)
+            Joint probabilities: p(x^l_t, y^k_t, y_{t+1})
         dest_past_prob : dict
             Embedded past destination probabilities: p(y^k_t)
         marginal_1_prob : dict
-            Marginal probabilities: p(y^k_t, x^l_t)
+            Marginal probabilities: p(x^l_t, y^k_t)
         marginal_2_prob : dict
-            Marginal probabilities: p(y_{t+1}, y^k_t).
+            Marginal probabilities: p(y^k_t, y_{t+1}).
         """
         # Slicing
         (
@@ -153,19 +153,18 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
 
         return joint_prob, dest_past_prob, marginal_1_prob, marginal_2_prob
 
-    def _calculate(self) -> tuple:
+    def _calculate(self) -> ndarray | float:
         """Calculate the Symbolic / Permutation transfer entropy.
 
         Returns
         -------
-        global_te : float
-            Estimated transfer entropy from X to Y.
         local_te : array
-            Local transfer entropy for each point.
+            Local transfer entropy from X to Y for each point.
+            In case of zero transfer entropy, returns 0.0.
         """
 
         if self.order == 1:
-            return 0.0, array([])
+            return 0.0
 
         # Symbolize the time series dest and source, use Lehmer code
         symbols_dest = symbolize_series(
@@ -191,9 +190,13 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
             p_joint = joint_prob[pattern]  # p(x^l_t, y^k_t, y_{t+1})
 
             # Define conditional patterns
-            cond_pattern_joint = (pattern[0], pattern[1])  # (x^l_t, y^k_t)
-            cond_pattern_marginal = (pattern[1],)  # y^k_t
-            cond_pattern_conditional = (pattern[1], pattern[2])  # (y^k_t, y_{t+1})
+            cond_pattern_joint = pattern[
+                : self.src_hist_len + self.dest_hist_len
+            ]  # (x^l_t, y^k_t)
+            cond_pattern_marginal = pattern[
+                self.src_hist_len : self.src_hist_len + self.dest_hist_len
+            ]  # y^k_t
+            cond_pattern_conditional = pattern[self.src_hist_len :]  # (y^k_t, y_{t+1})
 
             # Retrieve probabilities from the precomputed dictionaries
             p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(x^l_t, y^k_t)
@@ -218,8 +221,6 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
                 )
                 local_te.append(local_te_value)
         if len(local_te) == 0:
-            return 0.0, array([])
-        # Compute average of Local Transfer Entropy values
-        average_te = np_mean(local_te)
+            return 0.0
 
-        return average_te, array(local_te)
+        return array(local_te)
