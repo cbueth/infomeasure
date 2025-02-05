@@ -1,5 +1,5 @@
 (entropy_overview)=
-# Entropy / Uncertainty 
+# Entropy **(H)**
 
 Entropy is the amount of uncertainty associated to a Random variable (RV), on the flip side, this uncertainty is nothing but the lack of information.
 The larger the information required to accurately predict the state of RV, the higher is the uncertainty we initially had about it; hence information and uncertainty can be seen as two sides of the same coin.
@@ -22,11 +22,12 @@ where,
   - If $b = e$, the unit of information is "nat".
 
 ````{sidebar} Continuous Variable
-For a continuous random variable $X$, the entropy is written as:
+For a continuous random variable $X$ with the probability distribution funciton $p(x)$ the differential entropy is written as:
 
 $$
-H(X) = -\int_{X} p(x) \log_b p(x) \, dx,
+H(X) = -\int_{X} p(x) \log_b p(x) \, dx
 $$
+The differential entropy is closely related to the Shannon entropy {cite:p}`cover2012elements`.  
 ````
 
 The shannon formulation is generic and of which the Hartly would be a special case where all elements are eqi-probable.
@@ -39,7 +40,7 @@ It is the measure of amount of information in message expressed in binary digits
 
 ``Local Entropy:``  
 The local information measure also refer to as a point-wise information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
-Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook. For example, it highlights how the data fluctuates over time, offering insights into its temporal behavior.
+Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook.
 The  **local entropy** of an outcome $x$ of measurement of the variable $X$ is give by:
 
 $$
@@ -102,7 +103,7 @@ In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to ordinary summa
 This class of entropy measure is in particularly useful in the study in connection with long–range correlated systems and with non–equilibrium phenomena.
 
 ## Entropy Estimation
-When estimating entropy, several factors must be considered. First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, along with non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
+When estimating entropy, several factors must be considered. First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, and the non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
 > Note:
 > - This package consists of non-parametric estimation techniques for both the discrete and continuous RV.
 > - All the estimators are based on Shannon information except explicitly mentioned: Rényi entropy estimator & Tsallis entropy estimator

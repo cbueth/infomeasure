@@ -1,11 +1,11 @@
 (mutual_information_overview)=
-# Mutual Information
+# Mutual Information **(MI)**
 Mutual Information (MI) quantifies the information shared between two random variables $X$ and $Y$. 
 In another word, MI measures the average reduction in uncertainity about $X$ that results from learning the value of $Y$, or vice versa.{cite:p}`cover2012elements`
 Mathamatically it is expressed as:
 
 $$
-I(X; Y) = \sum_{x, y} p(x, y) \log_2 \frac{p(x,y)}{p(x) p(y)}.
+I(X;Y) = \sum_{x, y} p(x, y) \log_2 \frac{p(x,y)}{p(x) p(y)}
 $$
 where,
 - $X$: The set of possible values of the random variable $X$,
@@ -26,7 +26,7 @@ The local MI (or shared information content) between the two events $x$ and $y$,
    i(x; y) = \log_b \left( \frac{p(x, y)}{p(x) p(y)} \right)
   $$
 
-The MI can be also be expressed as the average of local MI:
+The MI can be expressed as the average of local MI:
 
 $$
 I(X; Y) = \langle i(x: y) \rangle.
@@ -43,8 +43,8 @@ $$
 I(X_{t-u}; Y_t) = \sum_{x_{t-u}, y_t} p(x_{t-u}, y_t) \log \frac{p(x_{t-u}, y_t)}{p(x_{t-u}) p(y_t)}
 $$
 where,
-- $p(x_t,y_t)$: The joint probability distribution at time $t$.
-- $p(x_t)$ and  $p(y_t)$ are the marginal probabilities of $X_t$ and $Y_t$, respectively
+- $p(x_t,y_t)$: the joint probability distribution at time $t$,
+- $p(x_t)$ and  $p(y_t)$ are the marginal probabilities of $X_t$ and $Y_t$ respectively,
 - $u$: the propagation time or the lag between two time series.
 
 > Note:

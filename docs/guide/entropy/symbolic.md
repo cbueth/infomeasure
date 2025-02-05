@@ -16,7 +16,7 @@ where $x$ denotes the realizations of the random variable $X$ with probability $
 
 For a given time series dataset $\{x_t\}_{t=1, \ldots, T}$, where $T$ is the number of time points, each value can be replaced by a symbolic sequence $s(t)$ of length $s$, defined by the order parameter $s$. Using a sliding window of size $s$, subsets of the data are generated sequentially, and each subset is symbolized using a specific symbolization technique.  
 
-The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **ordinal pattern approach** is used for symbolization. For details, refer to {cite:p}`PermutationEntropy2002`. 
+The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **ordinal pattern approach** is used for symbolization. For details, refer to article {cite:p}`PermutationEntropy2002` by Bandt and Pompe. 
 
 ```{Note}
 **Example of Ordinal Pattern symbolization:**

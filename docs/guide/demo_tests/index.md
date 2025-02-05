@@ -1,5 +1,5 @@
 (implementation_overview)=
-# Demo
+# **Demos**
 This section is dedicated to demonstrate the info measure...
 
 
