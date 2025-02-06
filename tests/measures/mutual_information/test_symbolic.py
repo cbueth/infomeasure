@@ -8,8 +8,8 @@ from infomeasure.measures.mutual_information import SymbolicMIEstimator
 @pytest.mark.parametrize("data_len", [10, 100, 1000])
 @pytest.mark.parametrize("order", [1, 2, 5])
 @pytest.mark.parametrize("offset", [0, 1, 4])
-def test_symbolic_entropy(data_len, order, offset, default_rng):
-    """Test the discrete entropy estimator."""
+def test_symbolic_mi(data_len, order, offset, default_rng):
+    """Test the discrete mutual information estimator."""
     data_x = default_rng.integers(0, 10, data_len)
     data_y = default_rng.integers(0, 10, data_len)
     if data_len - abs(offset) < (order - 1) + 1:
@@ -42,8 +42,8 @@ def test_symbolic_entropy(data_len, order, offset, default_rng):
 
 
 @pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
-def test_symbolic_entropy_invalid_order(order, default_rng):
-    """Test the discrete entropy estimator with invalid order."""
+def test_symbolic_mi_invalid_order(order, default_rng):
+    """Test the discrete mutual information estimator with invalid order."""
     data = list(range(10))
     with pytest.raises(ValueError):
         SymbolicMIEstimator(data, data, order)
@@ -95,7 +95,7 @@ def test_symbolic_entropy_invalid_order(order, default_rng):
         ),
     ],
 )
-def test_symbolic_mi(data_x, data_y, order, expected):
+def test_symbolic_mi_values(data_x, data_y, order, expected):
     """Test the symbolic mutual information estimator."""
     est = SymbolicMIEstimator(data_x, data_y, order)
     assert est.global_val() == pytest.approx(expected)
