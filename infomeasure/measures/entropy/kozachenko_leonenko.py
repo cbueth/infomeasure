@@ -45,6 +45,7 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         noise_level=1e-10,
         minkowski_p=inf,

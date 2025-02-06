@@ -44,6 +44,7 @@ class BaseTsallisMIEstimator(ABC):
         data_x,
         data_y,
         data_z=None,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         q: float | int = None,
         noise_level: float = 1e-8,

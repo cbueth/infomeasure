@@ -23,7 +23,7 @@ class DiscreteEntropyEstimator(PValueMixin, EntropyEstimator):
         with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
-    def __init__(self, data, base: LogBaseType = Config.get("base")):
+    def __init__(self, data, *, base: LogBaseType = Config.get("base")):
         """Initialize the DiscreteEntropyEstimator."""
         super().__init__(data, base=base)
         # warn if the data looks like a float array

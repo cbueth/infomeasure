@@ -45,6 +45,7 @@ class BaseRenyiMIEstimator(ABC):
         data_x,
         data_y,
         data_z=None,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         alpha: float | int = None,
         noise_level=1e-8,

@@ -29,6 +29,7 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         bandwidth: float | int,
         kernel: str,
         base: LogBaseType = Config.get("base"),

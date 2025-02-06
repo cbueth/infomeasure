@@ -55,6 +55,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         order: int,
         per_symbol: bool = False,
         base: LogBaseType = Config.get("base"),

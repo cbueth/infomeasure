@@ -50,6 +50,7 @@ class BaseKSGMIEstimator(ABC):
         data_x,
         data_y,
         data_z=None,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         noise_level=1e-10,
         minkowski_p=inf,

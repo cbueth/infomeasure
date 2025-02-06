@@ -219,11 +219,9 @@ def entropy(data, approach: str, *args, **kwargs):
 
 @_dynamic_estimator([mi_estimators, cmi_estimators])
 def mutual_information(
-    data_x,
-    data_y,
+    *data,
     approach: str,
     offset: int = 0,
-    *args,
     **kwargs,
 ):
     """Calculate the mutual information using a functional interface of different
@@ -270,15 +268,13 @@ def mutual_information(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(data_x, data_y, *args, offset=offset, **kwargs).results()
+    return EstimatorClass(*data, **kwargs).results()
 
 
 @_dynamic_estimator([te_estimators, cte_estimators])
 def transfer_entropy(
-    source,
-    dest,
+    *data,
     approach: str,
-    *args,
     **kwargs,
 ):
     """Calculate the transfer entropy using a functional interface of different estimators.
@@ -325,22 +321,25 @@ def transfer_entropy(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(source, dest, *args, **kwargs).results()
+    return EstimatorClass(*data, **kwargs).results()
 
 
 def estimator(
-    data=None,
+    data=None,  # only positional in case of entropy
+    *,  # all arguments after this are keyword-only
     data_x=None,
     data_y=None,
+    data_z=None,
     source=None,
     dest=None,
-    *,  # the rest of the arguments are keyword-only
+    cond=None,
     measure: str = None,
     approach: str = None,
     step_size: int = 1,
     prop_time: int = 0,
     src_hist_len: int = 1,
     dest_hist_len: int = 1,
+    cond_hist_len: int = 1,
     offset: int = None,
     **kwargs,
 ) -> Estimator:
@@ -414,9 +413,7 @@ def estimator(
     elif measure.lower() in ["entropy", "h"]:
         if data is None:
             raise ValueError("``data`` is required for entropy estimation.")
-        if any(
-            [data_x, data_y, source, dest, kwargs.get("data_z"), kwargs.get("cond")]
-        ):
+        if any([data_x, data_y, source, dest, data_z, cond]):
             raise ValueError(
                 "Only ``data`` is required for entropy estimation, "
                 "not ``data_x``, ``data_y``, ``source``, ``dest``, "
@@ -430,38 +427,50 @@ def estimator(
                 "``data_x`` and ``data_y`` are required for "
                 "mutual information estimation."
             )
-        if any([data, source, dest, kwargs.get("cond")]):
+        if any([data, source, dest, cond]):
             raise ValueError(
                 "Only ``data_x`` and ``data_y`` are required for mutual information "
                 "estimation, not ``data``, ``source``, ``dest``, or ``cond``."
             )
-        if kwargs.get("data_z") is not None:
+        if data_z is not None:
             EstimatorClass = _get_estimator(cmi_estimators, approach)
+            return EstimatorClass(data_x, data_y, data_z, offset=offset, **kwargs)
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
-        return EstimatorClass(data_x, data_y, offset=offset, **kwargs)
+            return EstimatorClass(data_x, data_y, offset=offset, **kwargs)
     elif measure.lower() in ["transfer_entropy", "te"]:
         if source is None or dest is None:
             raise ValueError(
                 "``source`` and ``dest`` are required for transfer entropy estimation."
             )
-        if any([data, data_x, data_y, kwargs.get("data_z")]):
+        if any([data, data_x, data_y, data_z]):
             raise ValueError(
                 "Only ``source`` and ``dest`` are required for transfer entropy "
                 "estimation, not ``data``, ``data_x``, ``data_y``, or ``data_z``."
             )
-        if kwargs.get("cond"):
+        if cond is not None:
             EstimatorClass = _get_estimator(cte_estimators, approach)
+            return EstimatorClass(
+                source,
+                dest,
+                cond,
+                prop_time=prop_time,
+                src_hist_len=src_hist_len,
+                dest_hist_len=dest_hist_len,
+                cond_hist_len=cond_hist_len,
+                step_size=step_size,
+                **kwargs,
+            )
         else:
             EstimatorClass = _get_estimator(te_estimators, approach)
-        return EstimatorClass(
-            source,
-            dest,
-            prop_time=prop_time,
-            src_hist_len=src_hist_len,
-            dest_hist_len=dest_hist_len,
-            step_size=step_size,
-            **kwargs,
-        )
+            return EstimatorClass(
+                source,
+                dest,
+                prop_time=prop_time,
+                src_hist_len=src_hist_len,
+                dest_hist_len=dest_hist_len,
+                step_size=step_size,
+                **kwargs,
+            )
     else:
         raise ValueError(f"Unknown measure: {measure}")

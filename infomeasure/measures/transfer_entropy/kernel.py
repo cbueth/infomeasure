@@ -40,8 +40,9 @@ class KernelTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
         self,
         source,
         dest,
-        bandwidth: float | int,
-        kernel: str,
+        *,  # all following parameters are keyword-only
+        bandwidth: float | int = None,
+        kernel: str = None,
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,

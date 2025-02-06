@@ -58,6 +58,7 @@ class BaseSymbolicMIEstimator(ABC):
         data_x,
         data_y,
         data_z=None,
+        *,  # all following parameters are keyword-only
         order: int = None,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),

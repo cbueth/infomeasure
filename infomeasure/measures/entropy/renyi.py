@@ -40,6 +40,7 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         alpha: float | int = None,
         base: LogBaseType = Config.get("base"),

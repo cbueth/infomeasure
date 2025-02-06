@@ -45,6 +45,7 @@ class BaseKernelMIEstimator(ABC):
         data_x,
         data_y,
         data_z=None,
+        *,  # all following parameters are keyword-only
         bandwidth: float | int = None,
         kernel: str = None,
         offset: int = 0,

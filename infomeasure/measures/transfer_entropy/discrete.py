@@ -32,6 +32,7 @@ class DiscreteTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
         self,
         source,
         dest,
+        *,  # all following parameters are keyword-only
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,

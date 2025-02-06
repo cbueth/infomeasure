@@ -40,6 +40,7 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         q: float | int = None,
         base: LogBaseType = Config.get("base"),

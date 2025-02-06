@@ -41,6 +41,7 @@ class BaseDiscreteMIEstimator(ABC):
         data_x,
         data_y,
         data_z=None,
+        *,  # all following parameters are keyword-only
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
     ):
