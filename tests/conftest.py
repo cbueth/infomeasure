@@ -78,18 +78,18 @@ CMI_APPROACHES = {
         "functional_str": ["kernel"],
         "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
     },
-    # "KSGCMIEstimator": {
-    #     "functional_str": ["metric", "ksg"],
-    #     "needed_kwargs": {},
-    # },
+    "KSGCMIEstimator": {
+        "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
     "RenyiCMIEstimator": {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    # "SymbolicCMIEstimator": {
-    #     "functional_str": ["symbolic", "permutation"],
-    #     "needed_kwargs": {"order": 2},
-    # },
+    "SymbolicCMIEstimator": {
+        "functional_str": ["symbolic", "permutation"],
+        "needed_kwargs": {"order": 2},
+    },
     "TsallisCMIEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
@@ -319,6 +319,27 @@ def generate_autoregressive_series(rng_int, alpha, beta, gamma, length=1000, sca
         X[i + 1] = alpha * X[i] + eta_X
         Y[i + 1] = beta * Y[i] + gamma * X[i] + eta_Y
     return X, Y
+
+
+@cache
+def generate_autoregressive_series_condition(
+    rng_int, alpha: tuple, beta, gamma: tuple, length=1000, scale=10
+):
+    # Initialize the series with zeros
+    X = zeros(length)
+    Y = zeros(length)
+    Z = zeros(length)
+    generator = rng(rng_int)
+    # Generate the series
+    for i in range(length - 1):
+        eta_X = generator.normal(loc=0, scale=scale)
+        eta_Y = generator.normal(loc=0, scale=scale)
+        eta_Z = generator.normal(loc=0, scale=scale)
+        X[i + 1] = alpha[0] * X[i] + eta_X
+        Z[i + 1] = alpha[1] * Z[i] + eta_Z
+        Y[i + 1] = beta * Y[i] + gamma[0] * X[i] + gamma[1] * Z[i] + eta_Y
+
+    return X, Y, Z
 
 
 @cache

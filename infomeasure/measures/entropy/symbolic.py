@@ -138,14 +138,8 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # Return array of non-zero probabilities
         return array([v / total_patterns for v in count.values()])
 
-    def _simple_entropy(self) -> ndarray | float:
-        """Calculate the entropy of the data.
-
-        Returns
-        -------
-        local_mi : array
-            Local mutual information for each point.
-        """
+    def _simple_entropy(self) -> float:
+        """Calculate the entropy of the data."""
 
         if self.order == 1:
             return 0.0
@@ -159,14 +153,8 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # used in the Estimator parent class does not work here
         return -np_sum(probabilities * self._log_base(probabilities))
 
-    def _joint_entropy(self):
-        """Calculate the joint entropy of the data.
-
-        Returns
-        -------
-        float
-            The calculated joint entropy.
-        """
+    def _joint_entropy(self) -> float:
+        """Calculate the joint entropy of the data."""
         # Symbolize separately (permutation patterns -> Lehmer codes)
         symbols = (
             symbolize_series(marginal, self.order, to_int=True)

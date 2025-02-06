@@ -44,9 +44,9 @@ class BaseKernelMIEstimator(ABC):
         self,
         data_x,
         data_y,
-        bandwidth: float | int,
-        kernel: str,
         data_z=None,
+        bandwidth: float | int = None,
+        kernel: str = None,
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
@@ -169,7 +169,8 @@ class KernelMIEstimator(
 
 
 class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEstimator):
-    """Estimator for conditional mutual information using Kernel Density Estimation (KDE).
+    """Estimator for conditional mutual information using
+    Kernel Density Estimation (KDE).
 
     .. math::
 

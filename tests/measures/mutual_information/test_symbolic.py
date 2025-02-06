@@ -2,7 +2,10 @@
 
 import pytest
 
-from infomeasure.measures.mutual_information import SymbolicMIEstimator
+from infomeasure.measures.mutual_information import (
+    SymbolicMIEstimator,
+    SymbolicCMIEstimator,
+)
 
 
 @pytest.mark.parametrize("data_len", [10, 100, 1000])
@@ -17,7 +20,7 @@ def test_symbolic_mi(data_len, order, offset, default_rng):
             est = SymbolicMIEstimator(
                 data_x,
                 data_y,
-                order,
+                order=order,
                 offset=offset,
             )
             est.global_val()
@@ -26,7 +29,7 @@ def test_symbolic_mi(data_len, order, offset, default_rng):
         est = SymbolicMIEstimator(
             data_x,
             data_y,
-            order,
+            order=order,
             offset=offset,
         )
         assert est.global_val() == 0.0  # no local values returned
@@ -34,7 +37,7 @@ def test_symbolic_mi(data_len, order, offset, default_rng):
     est = SymbolicMIEstimator(
         data_x,
         data_y,
-        order,
+        order=order,
         offset=offset,
     )
     max_val = est._log_base(data_len)
@@ -46,7 +49,7 @@ def test_symbolic_mi_invalid_order(order, default_rng):
     """Test the discrete mutual information estimator with invalid order."""
     data = list(range(10))
     with pytest.raises(ValueError):
-        SymbolicMIEstimator(data, data, order)
+        SymbolicMIEstimator(data, data, order=order)
 
 
 @pytest.mark.parametrize(
@@ -97,5 +100,63 @@ def test_symbolic_mi_invalid_order(order, default_rng):
 )
 def test_symbolic_mi_values(data_x, data_y, order, expected):
     """Test the symbolic mutual information estimator."""
-    est = SymbolicMIEstimator(data_x, data_y, order)
+    est = SymbolicMIEstimator(data_x, data_y, order=order)
+    assert est.global_val() == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "data_x,data_y,data_z,order,expected",
+    [
+        ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 1, 0.0),
+        ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 2, 1 / 2),
+        ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 3, 2 / 3),
+        ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 1, 0, 1, 2], 4, 0.0),
+        ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 5, 0.0),
+        (
+            [0.74, 0.64, 0.03, 0.67, 0.84, 0.3, 0.84, 0.62, 0.79, 0.28],
+            [0.25, 0.65, 0.05, 0.73, 0.57, 0.31, 0.71, 0.7, 0.59, 0.26],
+            [0.26, 0.65, 0.05, 0.73, 0.31, 0.71, 0.7, 0.59, 0.57, 0.25],
+            2,
+            0.211126058876,
+        ),
+        (
+            [0.74, 0.64, 0.03, 0.67, 0.84, 0.3, 0.84, 0.62, 0.79, 0.28],
+            [0.25, 0.65, 0.05, 0.73, 0.57, 0.31, 0.71, 0.7, 0.59, 0.26],
+            [0.26, 0.65, 0.05, 0.73, 0.31, 0.71, 0.7, 0.59, 0.57, 0.25],
+            3,
+            0.59436093777,
+        ),
+        (
+            [0.78, 0.92, 0.96, 0.16, 0.13, 0.03, 0.95, 0.44, 0.27, 0.33],
+            [0.39, 0.72, 0.54, 0.97, 0.61, 0.06, 0.85, 0.8, 0.64, 0.41],
+            [0.26, 0.65, 0.05, 0.73, 0.31, 0.71, 0.7, 0.59, 0.57, 0.25],
+            2,
+            0.211126058876,
+        ),
+        (
+            [0.78, 0.92, 0.96, 0.16, 0.13, 0.03, 0.95, 0.44, 0.27, 0.33],
+            [0.39, 0.72, 0.54, 0.97, 0.61, 0.06, 0.85, 0.8, 0.64, 0.41],
+            [0.26, 0.65, 0.05, 0.73, 0.31, 0.71, 0.7, 0.59, 0.57, 0.25],
+            3,
+            0.59436093777,
+        ),
+        (
+            [0.78, 0.92, 0.96, 0.16, 0.13, 0.03, 0.95, 0.44, 0.27, 0.33],
+            [0.39, 0.72, 0.54, 0.97, 0.61, 0.06, 0.85, 0.8, 0.64, 0.41],
+            [0.26, 0.65, 0.05, 0.73, 0.31, 0.71, 0.7, 0.59, 0.57, 0.25],
+            4,
+            0.285714285714,
+        ),
+        (
+            [0.78, 0.92, 0.13, 0.96, 0.16, 0.03, 0.95, 0.44, 0.27, 0.33],
+            [0.39, 0.72, 0.54, 0.97, 0.61, 0.06, 0.85, 0.8, 0.64, 0.41],
+            [0.26, 0.65, 0.05, 0.73, 0.31, 0.71, 0.7, 0.59, 0.57, 0.25],
+            5,
+            0.0,
+        ),
+    ],
+)
+def test_symbolic_cmi_values(data_x, data_y, data_z, order, expected):
+    """Test the symbolic conditional mutual information estimator."""
+    est = SymbolicCMIEstimator(data_x, data_y, order=order, data_z=data_z)
     assert est.global_val() == pytest.approx(expected)

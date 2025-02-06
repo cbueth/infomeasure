@@ -452,6 +452,20 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for conditional mutual information estimators.
 
+    Conditional Mutual Information (CMI) between two random variables :math:`X` and
+    :math:`Y` given a third variable :math:`Z` quantifies the amount of information
+    obtained about one variable through the other, conditioned on the third.
+    In terms of entropy (H), CMI is expressed as:
+
+    .. math::
+
+            I(X, Y | Z) = H(X, Z) + H(Y, Z) - H(X, Y, Z) - H(Z)
+
+    where :math:`H(X, Z)` is the joint entropy of :math:`X` and :math:`Z`,
+    :math:`H(Y, Z)` is the joint entropy of :math:`Y` and :math:`Z`,
+    :math:`H(X, Y, Z)` is the joint entropy of :math:`X`, :math:`Y`, and :math:`Z`,
+    and :math:`H(Z)` is the entropy of :math:`Z`.
+
     Attributes
     ----------
     data_x, data_y, data_z : array-like, shape (n_samples,)
@@ -528,25 +542,11 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
     def _generic_cmi_from_entropy(
         self,
-        estimator: type(EntropyEstimator) | type(MutualInformationEstimator),
+        estimator: type(EntropyEstimator),
         noise_level: float = 0,
         kwargs: dict = None,
     ) -> float:
         """Calculate the conditional mutual information with the entropy estimator.
-
-        Conditional Mutual Information (CMI) between two random variables :math:`X` and
-        :math:`Y` given a third variable :math:`Z` quantifies the amount of information
-        obtained about one variable through the other, conditioned on the third.
-        In terms of entropy (H), CMI is expressed as:
-
-        .. math::
-
-                I(X, Y | Z) = H(X, Z) + H(Y, Z) - H(X, Y, Z) - H(Z)
-
-        where :math:`H(X, Z)` is the joint entropy of :math:`X` and :math:`Z`,
-        :math:`H(Y, Z)` is the joint entropy of :math:`Y` and :math:`Z`,
-        :math:`H(X, Y, Z)` is the joint entropy of :math:`X`, :math:`Y`, and :math:`Z`,
-        and :math:`H(Z)` is the entropy of :math:`Z`.
 
         Parameters
         ----------

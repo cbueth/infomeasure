@@ -3,7 +3,10 @@
 import pytest
 from numpy import e, log
 
-from infomeasure.measures.mutual_information import DiscreteMIEstimator
+from infomeasure.measures.mutual_information import (
+    DiscreteMIEstimator,
+    DiscreteCMIEstimator,
+)
 
 
 @pytest.mark.parametrize(
@@ -56,6 +59,28 @@ def test_discrete_mi(data_x, data_y, base, expected):
 def test_discrete_mi_offset(data_x, data_y, offset, expected):
     """Test the discrete mutual information estimator with offset."""
     est = DiscreteMIEstimator(data_x, data_y, offset=offset, base=2)
+    res = est.results()
+    assert isinstance(res, float)
+    assert res == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "data_x,data_y,data_z,base,expected",
+    [
+        ([1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], 2, 0.0),
+        ([1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], 10, 0.0),
+        ([1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0], 2, 0.0),
+        ([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 1, 5], 2, 0.399999999),
+        ([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 2, 4, 5], 10, 0.1204119982),
+        ([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [5, 2, 3, 4, 5], "e", 0.2772588722),
+        ([1, 0, 1, 0], [0, 1, 0, 1], [0, 1, 0, 1], 2, 0.0),
+        ([1, 1, 0, 0], [0, 0, 1, 1], [0, 1, 0, 0], 2, 0.688721875),
+        ([1, 1, 0, 0], [0, 1, 0, 1], [1, 1, 0, 1], 2, 0.18872187554),
+    ],
+)
+def test_discrete_cmi(data_x, data_y, data_z, base, expected):
+    """Test the discrete conditional mutual information estimator."""
+    est = DiscreteCMIEstimator(data_x, data_y, data_z, base=base)
     res = est.results()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)

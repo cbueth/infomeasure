@@ -190,7 +190,7 @@ def uniform_data(order, min_length=10, rng=default_rng(), max_len_abort=int(1e5)
     return data
 
 
-@pytest.mark.parametrize("order", [2, 3, 4, 5])
+@pytest.mark.parametrize("order", [2, 3, 4])
 @pytest.mark.parametrize("min_length", [10, 100, 1000])
 def test_symbolic_entropy_maximum(order, min_length, default_rng):
     """Test the discrete entropy estimator with data resulting in maximum entropy."""

@@ -153,15 +153,8 @@ class SymbolicTEEstimator(EffectiveValueMixin, TransferEntropyEstimator):
 
         return joint_prob, dest_past_prob, marginal_1_prob, marginal_2_prob
 
-    def _calculate(self) -> ndarray | float:
-        """Calculate the Symbolic / Permutation transfer entropy.
-
-        Returns
-        -------
-        local_te : array
-            Local transfer entropy from X to Y for each point.
-            In case of zero transfer entropy, returns 0.0.
-        """
+    def _calculate(self) -> float:
+        """Calculate the Symbolic / Permutation transfer entropy."""
 
         if self.order == 1:
             return 0.0

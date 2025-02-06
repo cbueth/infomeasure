@@ -1,5 +1,6 @@
 """Module for the Symbolic / Permutation mutual information estimator."""
 
+from abc import ABC
 from collections import Counter
 
 from numpy import ndarray, sum as np_sum
@@ -7,11 +8,87 @@ from numpy import ndarray, sum as np_sum
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import EffectiveValueMixin, MutualInformationEstimator
+from ..base import (
+    EffectiveValueMixin,
+    MutualInformationEstimator,
+    ConditionalMutualInformationEstimator,
+)
 from ..utils.symbolic import symbolize_series
 
 
-class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
+class BaseSymbolicMIEstimator(ABC):
+    r"""Base class for the Symbolic mutual information.
+
+    Attributes
+    ----------
+    data_x, data_y : array-like
+        The data used to estimate the (conditional) mutual information.
+    data_z : array-like, optional
+        The conditional data used to estimate the conditional mutual information.
+    order : int
+        The size of the permutation patterns.
+    offset : int, optional
+        Number of positions to shift the data arrays relative to each other.
+        Delay/lag/shift between the variables. Default is no shift.
+        Not compatible with the ``data_z`` parameter / conditional MI.
+    base : int | float | "e", optional
+        The logarithm base for the mutual information calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Notes
+    -----
+    The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+    There is no ``normalize`` option, as this would not influence the order of the data.
+
+    Raises
+    ------
+    ValueError
+        If the ``order`` is negative or not an integer.
+    ValueError
+        If ``offset`` and ``order`` are such that the data is too small.
+
+    Warning
+    -------
+    If ``order`` is set to 1, the mutual information is always 0.
+    """
+
+    def __init__(
+        self,
+        data_x,
+        data_y,
+        data_z=None,
+        order: int = None,
+        offset: int = 0,
+        base: LogBaseType = Config.get("base"),
+    ):
+        """Initialize the SymbolicMIEstimator.
+
+        Parameters
+        ----------
+        data_x, data_y : array-like, shape (n_samples,)
+            The data used to estimate the (conditional) mutual information.
+        data_z : array-like, optional
+            The conditional data used to estimate the conditional mutual information.
+        order : int
+            The order of the Symbolic entropy.
+        """
+        if data_z is None:
+            super().__init__(data_x, data_y, offset=offset, base=base)
+        else:
+            super().__init__(data_x, data_y, data_z, offset=offset, base=base)
+        if not isinstance(order, int) or order < 0:
+            raise ValueError("The order must be a non-negative integer.")
+        if order == 1:
+            logger.warning("The Symbolic mutual information is always 0 for order=1.")
+        self.order = order
+        if len(self.data_x) < (order - 1) + 1:
+            raise ValueError("The data is too small for the given order.")
+
+
+class SymbolicMIEstimator(
+    BaseSymbolicMIEstimator, EffectiveValueMixin, MutualInformationEstimator
+):
     r"""Estimator for the Symbolic mutual information.
 
     Attributes
@@ -45,40 +122,8 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
     If ``order`` is set to 1, the mutual information is always 0.
     """
 
-    def __init__(
-        self,
-        data_x,
-        data_y,
-        order: int,
-        offset: int = 0,
-        base: LogBaseType = Config.get("base"),
-    ):
-        """Initialize the SymbolicMIEstimator.
-
-        Parameters
-        ----------
-        order : int
-            The order of the Symbolic entropy.
-        """
-        super().__init__(data_x, data_y, offset=offset, base=base)
-        if not isinstance(order, int) or order < 0:
-            raise ValueError("The order must be a non-negative integer.")
-        if order == 1:
-            logger.warning("The Symbolic mutual information is always 0 for order=1.")
-        self.order = order
-        if len(self.data_x) < (order - 1) + 1:
-            raise ValueError("The data is too small for the given order.")
-
-    def _calculate(self) -> ndarray | float:
-        """Calculate the mutual information of the data.
-
-        Returns
-        -------
-        mi : float
-            Estimated mutual information between the two datasets.
-        local_mi : array
-            Local mutual information for each point.
-        """
+    def _calculate(self) -> float:
+        """Calculate the mutual information of the data."""
 
         if self.order == 1:
             return 0.0
@@ -156,3 +201,94 @@ class SymbolicMIEstimator(EffectiveValueMixin, MutualInformationEstimator):
         # return self._log_base(joint_prob / (symbols_x_prob * symbols_y_prob))
 
         return np_sum(mi_perm)
+
+
+class SymbolicCMIEstimator(
+    BaseSymbolicMIEstimator, ConditionalMutualInformationEstimator
+):
+    """Estimator for the Symbolic conditional mutual information.
+
+    Attributes
+    ----------
+    data_x, data_y, data_z : array-like
+        The data used to estimate the conditional mutual information.
+    order : int
+        The size of the permutation patterns.
+    base : int | float | "e", optional
+        The logarithm base for the mutual information calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+
+    Notes
+    -----
+    The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+    There is no ``normalize`` option, as this would not influence the order of the data.
+
+    Raises
+    ------
+    ValueError
+        If the ``order`` is negative or not an integer.
+    ValueError
+        If ``offset`` and ``order`` are such that the data is too small.
+
+    Warning
+    -------
+    If ``order`` is set to 1, the mutual information is always 0.
+    """
+
+    def _calculate(self) -> float:
+        """Calculate the conditional mutual information of the data."""
+
+        if self.order == 1:
+            return 0.0
+
+        def _estimate_probabilities(symbols_x, symbols_y, symbols_z):
+            xyz_counts = Counter()
+            xz_counts = Counter()
+            yz_counts = Counter()
+            z_counts = Counter()
+
+            for sx, sy, sz in zip(symbols_x, symbols_y, symbols_z):
+                sx, sy, sz = tuple(sx), tuple(sy), tuple(sz)  # Convert to tuples
+                xyz_counts[(sx, sy, sz)] += 1
+                xz_counts[(sx, sz)] += 1
+                yz_counts[(sy, sz)] += 1
+                z_counts[sz] += 1
+
+            # Calculate total counts
+            xyz_total = sum(xyz_counts.values())
+            xz_total = sum(xz_counts.values())
+            yz_total = sum(yz_counts.values())
+            z_total = sum(z_counts.values())
+
+            # Calculate probabilities
+            xyz_prob = {k: v / xyz_total for k, v in xyz_counts.items()}
+            xz_prob = {k: v / xz_total for k, v in xz_counts.items()}
+            yz_prob = {k: v / yz_total for k, v in yz_counts.items()}
+            z_prob = {k: v / z_total for k, v in z_counts.items()}
+
+            return xyz_prob, xz_prob, yz_prob, z_prob
+
+        # Symbolize the time series
+        symbols_x = symbolize_series(self.data_x, self.order)
+        symbols_y = symbolize_series(self.data_y, self.order)
+        symbols_z = symbolize_series(self.data_z, self.order)
+
+        # Estimate joint and marginal probabilities
+        # joint_prob, x_prob, y_prob = _estimate_probabilities(symbols_x, symbols_y)
+        xyz_prob, xz_prob, yz_prob, z_prob = _estimate_probabilities(
+            symbols_x, symbols_y, symbols_z
+        )
+
+        cmi_perm = []
+        for (sx, sy, sz), p_xyz in xyz_prob.items():
+            p_xz = xz_prob.get((sx, sz), 0)
+            p_yz = yz_prob.get((sy, sz), 0)
+            p_z = z_prob.get(sz, 0)
+
+            if p_xyz > 0 and p_xz > 0 and p_yz > 0 and p_z > 0:
+                cmi_perm.append(p_xyz * self._log_base(p_xyz * p_z / (p_xz * p_yz)))
+        if len(cmi_perm) == 0:
+            return 0.0
+
+        return np_sum(cmi_perm)
