@@ -23,8 +23,8 @@ $$
 ````
 We will use this formulation to compute the conditional entropy in our package. The joint and marginal entropy are computed using all available estimation methods, meaning that the selected estimation method for conditional entropy corresponds to the one used for computing the respective joint and marginal entropy
 
-``Local conditional entropy``
-Similar to shannon local entropy $h(x)$ (detail:{ref}`Shannon Entropy`), one can also define **local conditional entropy** $h(x \mid y)$ as follows:
+#### Local Conditional H
+Similar to shannon {ref}`Local Entropy` $h(x)$, one can also define **local or point-wise conditional entropy** $h(x \mid y)$ as follows:
 
 $$
 h(x \mid y) = - \log p(x \mid y)

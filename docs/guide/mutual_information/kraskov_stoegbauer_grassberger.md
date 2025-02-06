@@ -22,15 +22,15 @@ The key insight of the KSG method is that $r_i$ can be used to estimate local de
 In the KSG method, mutual information is estimated as:
 
 $$
-I(X; Y) = \psi(k) + \psi(N)- \frac{1}{N} \sum_{i=1}^{N} \left[ \psi(\nu_x(i)) + \psi(\nu_y(i)) \right]
+I(X; Y) = \psi(k) + \psi(N)- \frac{1}{N} \sum_{i=1}^{N} \left[ \psi(n_x(i)) + \psi(n_y(i)) \right]
 $$
 
 where:
 - $ \psi $ is the digamma function.
 - $ N $ is the number of data points.
 - $ k $ is the number of nearest neighbors considered.
-- $ \nu_x(i) $ is the number of data points from $X$ within the $k$-th nearest neighbor distance of point $ x_i $ in $X$.
-- $ \nu_y(i) $ is the number of data points from $Y$ within the $k$-th nearest neighbor distance of point $ y_i $ in $Y$.
+- $ n_x(i) $ is the number of data points from $X$ within the $k$-th nearest neighbor distance of point $ x_i $ in $X$.
+- $ n_y(i) $ is the number of data points from $Y$ within the $k$-th nearest neighbor distance of point $ y_i $ in $Y$.
 
 
 The basic idea is to estimate the densities in the $X$ and $Y$ spaces using the distances to the $k-th$ nearest neighbors, and then relate these density estimates to mutual information using the **digamma function**.

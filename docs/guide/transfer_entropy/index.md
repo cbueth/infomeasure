@@ -7,7 +7,7 @@ Equivalently, TE is the amount of information that a source process provides abo
 Lets us assume two time series process $X(x)$ and $Y(y)$ as source and target variables then $T_{X \rightarrow Y}$ from source to target is written as:
 
 $$
-T_{x \rightarrow y}(k, l, u) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
+T_{x \rightarrow y}(k, l) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
 p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}) 
 \log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
 {p(y_{n+1} \mid \mathbf{y}_n^{(l)})} \right).
@@ -34,9 +34,8 @@ $$
 
 TE reduces to well-known Granger causality (upto a factor of 2) for the multivariate gaussian processes (cite). 
 
-``Local Transfer Entropy:``
-
-Similar to entropy and mutual information measures, we can extract the **local transfer entropy** as suggested by Lizier et al. {cite:p}`Lizier2014_localinfomeasure`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
+#### Local Transfer Entropy
+Similar to {ref}`Local Entropy`and {ref}`Local Mutual Information`, we can extract the **local or point-wise transfer entropy** as suggested by _Lizier et al._ {cite:p}`Lizier2014_localinfomeasure`{cite:p}`local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
 
 $$
 t_{X \rightarrow Y}(n+1, k, l) = \log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
@@ -55,7 +54,7 @@ The local TE values can be negative unlike its global counterpart, this means th
 > - The package allows user to obtain both the local and global (average) values to the TE computation.
 > - The package allows user to set the desired propagation time $u$ between the variables. The default value is set to $u=0$. 
 
-``Effective Transfer Entropy:``
+#### Effective Transfer Entropy (eTE)
 
 The time series data as available from the real word is usually biased due to the finite size effect. 
 Depending on the type of estimators implemented the bias can be small or big but it is usually present. 

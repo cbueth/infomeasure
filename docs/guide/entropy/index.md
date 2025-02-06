@@ -38,9 +38,9 @@ It is the measure of amount of information in message expressed in binary digits
 
 > Note: That the base of the algorithm in entropy formula only changes the value of the entropy by a multiplicative constant, hence using one form to another is only a matter of convenience.
 
-``Local Entropy:``  
-The local information measure also refer to as a point-wise information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
-Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook.
+#### Local Entropy 
+The **local information** measure also refer to as a **point-wise** information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
+Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook, as it characterize the information attributed at each local point in time.
 The  **local entropy** of an outcome $x$ of measurement of the variable $X$ is give by:
 
 $$

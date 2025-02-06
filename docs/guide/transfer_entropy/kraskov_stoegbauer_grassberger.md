@@ -36,13 +36,17 @@ The basic idea is to estimate the densities in the $X$ and $Y$ spaces using the 
 The methodology is based on the article "Estimating mutual information" {cite:p}`miKSG2004`. 
 
 $$
-TE (X \rightarrow Y;u) = \psi(k) + \frac{1}{N} \sum_t \left[ \psi\left( n_{y_{dy_{t-1}}} + 1 \right) - \psi\left( n_{y_t y_{dy_{t-1}}} + 1 \right) - \psi\left( n_{y_{dy_{t-1}} x_{dx_{t-u}}} + 1 \right) \right]
+TE(X \to Y, u) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}} + 1 \right)
+- \psi \left( n_{y_{n+1+u}, \mathbf{y}_n^{(l)}} + 1 \right)
+- \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} + 1 \right) \right\rangle_n.
 $$
 
-Where:
-- $\psi$ is the **digamma function**.
-- $k$ is the number of nearest neighbors.
-- $n(·)$ are counts of points in respective marginal spaces within the k-th nearest neighbor distance.
+where:
+- $\psi(\cdot)$ denotes the digamma function.
+- $n_{\mathbf{y}_n^{(l)}}$ is the number of nearest neighbors of $\mathbf{y}_n^{(l)}$.
+- $n_{y_{n+1+u}, \mathbf{y}_n^{(l)}}$ is the number of nearest neighbors....
+- $n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}}$ is the number of neighbors ....
+- $\langle \cdot \rangle_n$ represents the expectation over $n$.
 
 
 ## Implementation

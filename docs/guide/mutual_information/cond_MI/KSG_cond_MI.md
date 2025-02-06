@@ -9,17 +9,22 @@ kernelspec:
 Explain about the conditional MI estimation...
 
 $$
-I(X; Y \mid Z) = \psi(K) + \langle \psi(\nu_z(i) + 1) - \psi(\nu_{xz}(i) + 1) - \psi(\nu_{yz}(i) + 1) \rangle.
+I(X; Y \mid Z) = \psi(k) + \langle \psi(n_z(i) + 1) - \psi(n_{xz}(i) + 1) - \psi(n_{yz}(i) + 1) \rangle.
 $$
 
-- $K$ is the number of nearest neighbors.
-- $\nu_z(i)$ is the count of samples in the marginal space $\{z\}$.
-- $\nu_{xz}(i)$ is the count of samples in the joint space $\{x, z\}$.
-- $\nu_{yz}(i)$ is the count of samples in the joint space $\{y, z\}$.
-- $\psi(\cdot)$ denotes the digamma function.
+- $k$ is the number of nearest neighbors,
+- $n_z(i)$ is the count of samples in the marginal space $\{z\}$,
+- $n_{xz}(i)$ is the count of samples in the joint space $\{x, z\}$,
+- $n_{yz}(i)$ is the count of samples in the joint space $\{y, z\}$,
+- $\psi(\cdot)$ denotes the _digamma function_,
 - $\langle \cdot \rangle$ represents the expectation operator.
 
 
+local conditional MI estimator is:
+
+$$
+i(x; y \mid z) = \psi(k) +  \psi(n_z(i) + 1) - \psi(n_{xz}(i) + 1) - \psi(n_{yz}(i) + 1)
+$$
 
 
 {cite:p}`CMI_KSG_Frenzel_Pompe`
