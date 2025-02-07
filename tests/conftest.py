@@ -1,6 +1,9 @@
 """Module for test fixtures available for all test files"""
 
+from functools import cache
+
 import pytest
+from numpy import zeros
 from numpy.random import default_rng as rng
 
 from infomeasure import Config
@@ -66,6 +69,33 @@ MI_APPROACHES = {
     },
 }
 
+CMI_APPROACHES = {
+    "DiscreteCMIEstimator": {
+        "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "KernelCMIEstimator": {
+        "functional_str": ["kernel"],
+        "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
+    },
+    "KSGCMIEstimator": {
+        "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "RenyiCMIEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "SymbolicCMIEstimator": {
+        "functional_str": ["symbolic", "permutation"],
+        "needed_kwargs": {"order": 2},
+    },
+    "TsallisCMIEstimator": {
+        "functional_str": ["tsallis"],
+        "needed_kwargs": {"q": 2.0},
+    },
+}
+
 TE_APPROACHES = {
     "DiscreteTEEstimator": {
         "functional_str": ["discrete"],
@@ -94,6 +124,34 @@ TE_APPROACHES = {
 }
 
 
+CTE_APPROACHES = {
+    "DiscreteCTEEstimator": {
+        "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "KernelCTEEstimator": {
+        "functional_str": ["kernel"],
+        "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
+    },
+    "KSGCTEEstimator": {
+        "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "RenyiCTEEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "SymbolicCTEEstimator": {
+        "functional_str": ["symbolic", "permutation"],
+        "needed_kwargs": {"order": 2},
+    },
+    "TsallisCTEEstimator": {
+        "functional_str": ["tsallis"],
+        "needed_kwargs": {"q": 2.0},
+    },
+}
+
+
 @pytest.fixture(
     scope="function",
 )
@@ -110,7 +168,7 @@ def activate_debug_logging():
 
 @pytest.fixture(
     scope="session",
-    params=entropy.__all__,
+    params=ENTROPY_APPROACHES.keys(),
 )
 def entropy_estimator(request):
     """A fixture that yields entropy estimator classes, with specific kwargs for one."""
@@ -120,12 +178,9 @@ def entropy_estimator(request):
 
 
 entropy_approach_kwargs = [
-    (
-        ENTROPY_APPROACHES[est]["functional_str"][i],
-        ENTROPY_APPROACHES[est]["needed_kwargs"],
-    )
-    for est in entropy.__all__
-    for i in range(len(ENTROPY_APPROACHES[est]["functional_str"]))
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in ENTROPY_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
 ]
 
 
@@ -141,7 +196,7 @@ def entropy_approach(request):
 
 @pytest.fixture(
     scope="session",
-    params=mutual_information.__all__,
+    params=MI_APPROACHES.keys(),
 )
 def mi_estimator(request):
     """A fixture that yields mutual information estimator classes."""
@@ -151,12 +206,9 @@ def mi_estimator(request):
 
 
 mi_approach_kwargs = [
-    (
-        MI_APPROACHES[est]["functional_str"][i],
-        MI_APPROACHES[est]["needed_kwargs"],
-    )
-    for est in mutual_information.__all__
-    for i in range(len(MI_APPROACHES[est]["functional_str"]))
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in MI_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
 ]
 
 
@@ -172,7 +224,35 @@ def mi_approach(request):
 
 @pytest.fixture(
     scope="session",
-    params=transfer_entropy.__all__,
+    params=CMI_APPROACHES.keys(),
+)
+def cmi_estimator(request):
+    """A fixture that yields conditional mutual information estimator classes."""
+    return getattr(mutual_information, request.param), CMI_APPROACHES[request.param][
+        "needed_kwargs"
+    ]
+
+
+cmi_approach_kwargs = [
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in CMI_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
+]
+
+
+@pytest.fixture(
+    scope="session",
+    params=cmi_approach_kwargs,
+    ids=[mak[0] for mak in cmi_approach_kwargs],
+)
+def cmi_approach(request):
+    """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
+    return request.param
+
+
+@pytest.fixture(
+    scope="session",
+    params=TE_APPROACHES.keys(),
 )
 def te_estimator(request):
     """A fixture that yields transfer entropy estimator classes."""
@@ -182,12 +262,9 @@ def te_estimator(request):
 
 
 te_approach_kwargs = [
-    (
-        TE_APPROACHES[est]["functional_str"][i],
-        TE_APPROACHES[est]["needed_kwargs"],
-    )
-    for est in transfer_entropy.__all__
-    for i in range(len(TE_APPROACHES[est]["functional_str"]))
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in TE_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
 ]
 
 
@@ -199,3 +276,107 @@ te_approach_kwargs = [
 def te_approach(request):
     """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
     return request.param
+
+
+@pytest.fixture(
+    scope="session",
+    params=CTE_APPROACHES.keys(),
+)
+def cte_estimator(request):
+    """A fixture that yields conditional transfer entropy estimator classes."""
+    return getattr(transfer_entropy, request.param), CTE_APPROACHES[request.param][
+        "needed_kwargs"
+    ]
+
+
+cte_approach_kwargs = [
+    (elem["functional_str"][i], elem["needed_kwargs"])
+    for elem in CTE_APPROACHES.values()
+    for i in range(len(elem["functional_str"]))
+]
+
+
+@pytest.fixture(
+    scope="session",
+    params=cte_approach_kwargs,
+    ids=[tak[0] for tak in cte_approach_kwargs],
+)
+def cte_approach(request):
+    """A fixture that yields a tuple of (approach_str, needed_kwargs)."""
+    return request.param
+
+
+@cache
+def generate_autoregressive_series(rng_int, alpha, beta, gamma, length=1000, scale=10):
+    # Initialize the series with zeros
+    X = zeros(length)
+    Y = zeros(length)
+    generator = rng(rng_int)
+    # Generate the series
+    for i in range(length - 1):
+        eta_X = generator.normal(loc=0, scale=scale)
+        eta_Y = generator.normal(loc=0, scale=scale)
+        X[i + 1] = alpha * X[i] + eta_X
+        Y[i + 1] = beta * Y[i] + gamma * X[i] + eta_Y
+    return X, Y
+
+
+@cache
+def generate_autoregressive_series_condition(
+    rng_int, alpha: tuple, beta, gamma: tuple, length=1000, scale=10
+):
+    # Initialize the series with zeros
+    X = zeros(length)
+    Y = zeros(length)
+    Z = zeros(length)
+    generator = rng(rng_int)
+    # Generate the series
+    for i in range(length - 1):
+        eta_X = generator.normal(loc=0, scale=scale)
+        eta_Y = generator.normal(loc=0, scale=scale)
+        eta_Z = generator.normal(loc=0, scale=scale)
+        X[i + 1] = alpha[0] * X[i] + eta_X
+        Z[i + 1] = alpha[1] * Z[i] + eta_Z
+        Y[i + 1] = beta * Y[i] + gamma[0] * X[i] + gamma[1] * Z[i] + eta_Y
+
+    return X, Y, Z
+
+
+@cache
+def discrete_random_variables(rng_int, prop_time=0, low=0, high=4, length=1000):
+    """Generate two coupled discrete random variables.
+
+    The first variable is a uniform random variable with values in [low, high-1].
+    Variable 2 takes the highest bit of the previous value of Variable 1
+    (if we take a 2 bit representation of variable 1)
+    as its own lowest bit, then assigns its highest bit at random.
+
+    So, the two should have ~1 bit of mutual information.
+    """
+    generator = rng(rng_int)
+    X = generator.integers(low, high, length)
+    Y = [0] * length
+    for i in range(1, length):
+        Y[i] = (X[i - 1 - prop_time] & 1) + (generator.integers(0, 2) << 1)
+    return X, Y
+
+
+@cache
+def discrete_random_variables_conditional(rng_int, low=0, high=4, length=1000):
+    """Generate three coupled discrete random variables.
+
+    The first variable is a uniform random variable with values in [low, high-1].
+    Variable 2 takes the highest bit of the previous value of Variable 1
+    (if we take a 2 bit representation of variable 1)
+    as its own lowest bit, then assigns its highest bit at random.
+    Variable 3 takes the lowest bit of the previous value of Variable 1
+    and the highest bit of the previous value of Variable 2.
+    """
+    generator = rng(rng_int)
+    X = generator.integers(low, high, length)
+    Y = [0] * length
+    Z = [0] * length
+    for i in range(1, length):
+        Y[i] = (X[i - 1] & 1) + (generator.integers(0, 2) << 1)
+        Z[i] = (X[i - 1] & 1) + (Y[i - 1] & 2)
+    return X, Y, Z

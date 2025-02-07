@@ -1,6 +1,7 @@
 """Explicit Renyi entropy tests."""
 
 import pytest
+from numpy import inf
 
 from infomeasure.measures.entropy import RenyiEntropyEstimator, DiscreteEntropyEstimator
 
@@ -15,6 +16,21 @@ def test_renyi_entropy(k, alpha, default_rng):
         est_discrete = DiscreteEntropyEstimator(data.astype(int))
         assert pytest.approx(est.results(), rel=0.1) == est_discrete.results()
     est.results()
+
+
+@pytest.mark.parametrize(
+    "data,k,alpha,expected",
+    [
+        ([1, 0, 1, 1, 1, 4, 23, 6, 1, -4, -3], 4, 1.0, -inf),
+        ([1, 2, 1, 2, 1, 2, 1, 2], 4, 1.1, 2.015828887),
+        ([[0, 0], [1, 3], [2, 2], [3, 1], [4, 0]], 1, 1, 5.8842423067),
+        ([[0, 0], [1, 3], [2, 2], [3, 1], [4, 0]], 2, 0.9, 5.297410751),
+    ],
+)
+def test_renyi_entropy_explicit(data, k, alpha, expected):
+    """Test the Renyi entropy estimator with specific values."""
+    est = RenyiEntropyEstimator(data, k=k, alpha=alpha, base=2)
+    assert est.results() == pytest.approx(expected)
 
 
 @pytest.mark.parametrize("k", [0, -1, -10, None])

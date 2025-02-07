@@ -1,7 +1,6 @@
 """Module for the kernel entropy estimator."""
 
-from numpy import array, finfo, newaxis
-from numpy import mean as np_mean
+from numpy import finfo, newaxis, column_stack
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -30,6 +29,7 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         bandwidth: float | int,
         kernel: str,
         base: LogBaseType = Config.get("base"),
@@ -50,22 +50,17 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
         self.bandwidth = bandwidth
         self.kernel = kernel
 
-    def _calculate(self):
+    def _simple_entropy(self):
         """Calculate the entropy of the data.
 
         Returns
         -------
-        float
-            The calculated entropy.
+        array-like
+            The local form of the entropy.
         """
-
-        densities = array(
-            [
-                kde_probability_density_function(
-                    self.data, self.data[i], self.bandwidth, kernel=self.kernel
-                )
-                for i in range(self.data.shape[0])
-            ]
+        # Compute the KDE densities
+        densities = kde_probability_density_function(
+            self.data, self.bandwidth, kernel=self.kernel
         )
 
         # Replace densities of 0 with a small number to avoid log(0)
@@ -73,9 +68,18 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
         densities[densities == 0] = finfo(float).eps
 
         # Compute the log of the densities
-        log_densities = self._log_base(densities)
+        return -self._log_base(densities)
 
-        # Compute the entropy
-        entropy = -np_mean(log_densities)
+    def _joint_entropy(self):
+        """Calculate the joint entropy of the data.
 
-        return entropy
+        This is done by joining the variables into one space
+        and calculating the entropy.
+
+        Returns
+        -------
+        array-like
+            The local form of the joint entropy.
+        """
+        self.data = column_stack(self.data)
+        return self._simple_entropy()
