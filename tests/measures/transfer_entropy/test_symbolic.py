@@ -1,18 +1,25 @@
 """Explicit symbolic / permutation transfer entropy estimator."""
 
 import pytest
-from numpy import isnan, ndarray, std
+from numpy import isnan
 
-from tests.conftest import generate_autoregressive_series
-from infomeasure.measures.transfer_entropy import SymbolicTEEstimator
+from tests.conftest import (
+    generate_autoregressive_series,
+    generate_autoregressive_series_condition,
+    discrete_random_variables_conditional,
+)
+from infomeasure.measures.transfer_entropy import (
+    SymbolicTEEstimator,
+    SymbolicCTEEstimator,
+)
 
 
 @pytest.mark.parametrize("data_len", [1, 2, 3, 10, 100])
 @pytest.mark.parametrize("order", [2, 3, 5])
 @pytest.mark.parametrize("step_size", [1, 2, 3])
 @pytest.mark.parametrize("prop_time", [0, 1, 4])
-def test_symbolic_entropy(data_len, order, step_size, prop_time, default_rng):
-    """Test the discrete entropy estimator."""
+def test_symbolic_te(data_len, order, step_size, prop_time, default_rng):
+    """Test the discrete transfer entropy estimator."""
     source = default_rng.integers(0, 10, data_len)
     dest = default_rng.integers(0, 10, data_len)
     if data_len - abs(prop_time * step_size) <= (order - 1) * step_size + 1:
@@ -20,7 +27,7 @@ def test_symbolic_entropy(data_len, order, step_size, prop_time, default_rng):
             est = SymbolicTEEstimator(
                 source,
                 dest,
-                order,
+                order=order,
                 step_size=step_size,
                 prop_time=prop_time,
             )
@@ -54,11 +61,11 @@ def test_symbolic_entropy(data_len, order, step_size, prop_time, default_rng):
 
 
 @pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
-def test_symbolic_entropy_invalid_order(order, default_rng):
-    """Test the discrete entropy estimator with invalid order."""
+def test_symbolic_te_invalid_order(order, default_rng):
+    """Test the discrete transfer entropy estimator with invalid order."""
     data = list(range(10))
     with pytest.raises(ValueError):
-        SymbolicTEEstimator(data, data, order)
+        SymbolicTEEstimator(data, data, order=order)
 
 
 @pytest.mark.parametrize(
@@ -80,7 +87,7 @@ def test_symbolic_entropy_invalid_order(order, default_rng):
 def test_symbolic_te(rng_int, order, expected):
     """Test the symbolic transfer entropy estimator."""
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
-    est = SymbolicTEEstimator(data_source, data_dest, order, base=2)
+    est = SymbolicTEEstimator(data_source, data_dest, order=order, base=2)
     res = est.results()
     if order == 1:
         assert isinstance(res, float)
@@ -131,3 +138,110 @@ def test_symbolic_te_slicing(
     )
     res = est.results()
     assert res == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "rng_int,order,expected",
+    [
+        (5, 1, 0.0),
+        (6, 1, 0.0),
+        (5, 2, 0.001668221515),
+        (6, 2, 0.002548207973),
+        (7, 2, 0.001463248840),
+        (5, 3, 0.000431291903),
+        (6, 3, 0.000474948707),
+        (5, 4, 0.000258042951),
+        (6, 4, 0.000332053759),
+        (5, 5, 5.2984961e-05),
+        (6, 5, -3.0930624e-05),
+    ],
+)
+def test_symbolic_cte(rng_int, order, expected):
+    """Test the conditional symbolic transfer entropy estimator."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = SymbolicCTEEstimator(data_source, data_dest, data_cond, order=order, base=2)
+    res = est.results()
+    if order == 1:
+        assert isinstance(res, float)
+        assert res == 0.0
+        return
+    assert res == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "rng_int,step_size,src_hist_len,dest_hist_len,base,order,expected",
+    [
+        (5, 1, 1, 1, 2.0, 2, 0.001668221515),
+        (5, 2, 1, 1, 2.0, 2, 0.001499847155),
+        (5, 3, 1, 1, 2.0, 2, 0.002246209913),
+        (5, 1, 2, 1, 2.0, 3, 0.000854933772),
+        (5, 1, 1, 2, 2.0, 3, 0.000463333827),
+        (5, 1, 2, 2, 2.0, 3, 0.000741430819),
+        (5, 2, 1, 1, 10.0, 2, 0.00045149898),
+        (5, 1, 1, 1, 2.0, 3, 0.000431291903),
+        (5, 2, 1, 1, 2.0, 3, 0.001090703247),
+        (5, 2, 1, 1, 2.0, 4, 0.000759534290),
+        (5, 2, 1, 1, 2.0, 5, 3.4400513e-05),
+        (5, 1, 1, 3, 2.0, 2, 0.000199071124),
+        (5, 1, 3, 1, 2.0, 2, 0.000749478055),
+    ],
+)
+def test_symbolic_cte_slicing(
+    rng_int,
+    step_size,
+    src_hist_len,
+    dest_hist_len,
+    base,
+    order,
+    expected,
+):
+    """Test the conditional symbolic transfer entropy estimator with slicing."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = SymbolicCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        step_size=step_size,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        base=base,
+        order=order,
+    )
+    res = est.results()
+    assert res == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "rng_int,order,expected_xy,expected_yx",
+    [
+        (1, 1, 0.0, 0.0),
+        (1, 2, 0.00282503667, 0.000248359479),
+        (1, 3, -0.00304940021, 0.000223400525),
+        (1, 4, -0.00025301383, 0.000290719180),
+        (1, 5, 0.00041047943, 0.000134899399),
+        (2, 2, 0.00194385878, 9.45014940e-05),
+        (2, 3, -0.00226919442, 0.000341760325),
+        (3, 2, 0.00141154442, 0.000402597923),
+        (3, 4, -0.00049185938, 0.000321987168),
+    ],
+)
+def test_cte_symbolic_autoregressive(rng_int, order, expected_xy, expected_yx):
+    """Test the conditional symbolic transfer entropy estimator with
+    autoregressive data."""
+    data_source, data_dest, data_cond = discrete_random_variables_conditional(rng_int)
+    est_xy = SymbolicCTEEstimator(
+        data_source, data_dest, data_cond, order=order, base=2
+    )
+    res_xy = est_xy.results()
+    assert isinstance(res_xy, float)
+    assert res_xy == pytest.approx(expected_xy)
+    est_yx = SymbolicCTEEstimator(
+        data_dest, data_source, data_cond, order=order, base=2
+    )
+    res_yx = est_yx.results()
+    assert isinstance(res_yx, float)
+    assert res_yx == pytest.approx(expected_yx)

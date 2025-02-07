@@ -3,8 +3,11 @@
 import pytest
 from numpy import ndarray, std
 
-from tests.conftest import generate_autoregressive_series
-from infomeasure.measures.transfer_entropy import KernelTEEstimator
+from tests.conftest import (
+    generate_autoregressive_series,
+    generate_autoregressive_series_condition,
+)
+from infomeasure.measures.transfer_entropy import KernelTEEstimator, KernelCTEEstimator
 
 
 @pytest.mark.parametrize(
@@ -73,6 +76,92 @@ def test_kernel_te_slicing(
         step_size=step_size,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
+        base=base,
+    )
+    res = est.results()
+    assert isinstance(res, tuple)
+    assert len(res) == 3
+    assert isinstance(res[0], float)
+    assert isinstance(res[1], ndarray)
+    assert isinstance(res[2], float)
+    assert res[0] == pytest.approx(expected)
+    assert res[2] == pytest.approx(std(res[1]))
+
+
+@pytest.mark.parametrize(
+    "rng_int,bandwidth,kernel,expected",
+    [
+        (5, 0.01, "gaussian", 0.153130431),
+        (5, 0.01, "box", 3.2034265e-16),
+        (6, 0.1, "gaussian", 1.7457075600),
+        (6, 0.1, "box", 0.00200200200200),
+        (7, 1, "gaussian", 0.13330861957),
+        (7, 1, "box", 0.396311098),
+    ],
+)
+def test_kernel_cte(rng_int, bandwidth, kernel, expected):
+    """Test the conditional kernel transfer entropy estimator."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = KernelCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        bandwidth=bandwidth,
+        kernel=kernel,
+        base=2,
+    )
+    res = est.results()
+    assert isinstance(res, tuple)
+    assert len(res) == 3
+    assert isinstance(res[0], float)
+    assert isinstance(res[1], ndarray)
+    assert isinstance(res[2], float)
+    assert res[0] == pytest.approx(expected)
+    assert res[2] == pytest.approx(std(res[1]))
+
+
+@pytest.mark.parametrize(
+    "rng_int,step_size,src_hist_len,dest_hist_len,cond_hist_len,base,expected",
+    [
+        (5, 1, 1, 1, 1, 2.0, 3.2034e-16),
+        (5, 1, 1, 1, 1, 10.0, 9.6433e-17),
+        (6, 1, 1, 1, 1, 2.0, 3.2034e-16),
+        (7, 1, 1, 1, 1, 2.0, 3.2034e-16),
+        (5, 2, 1, 1, 1, 2.0, 6.4069e-16),
+        (5, 3, 1, 1, 1, 2.0, 3.2034e-16),
+        (5, 1, 2, 1, 1, 2.0, 0.0),
+        (5, 1, 1, 2, 1, 2.0, -4.8051e-16),
+        (5, 1, 1, 1, 2, 2.0, -4.8051e-16),
+        (5, 1, 2, 2, 1, 2.0, -3.2034e-16),
+        (5, 1, 2, 2, 2, 2.0, 6.4069e-16),
+        # TODO: Add test with larger expected value
+    ],
+)
+def test_kernel_cte_slicing(
+    rng_int,
+    step_size,
+    src_hist_len,
+    dest_hist_len,
+    cond_hist_len,
+    base,
+    expected,
+):
+    """Test the conditionalkernel transfer entropy estimator with slicing."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = KernelCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        bandwidth=0.01,
+        kernel="box",
+        step_size=step_size,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        cond_hist_len=cond_hist_len,
         base=base,
     )
     res = est.results()

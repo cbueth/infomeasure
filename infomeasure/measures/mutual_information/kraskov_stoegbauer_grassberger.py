@@ -6,8 +6,6 @@ from numpy import newaxis
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
-from ... import Config
-from ...utils.types import LogBaseType
 from ..base import (
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
@@ -39,10 +37,8 @@ class BaseKSGMIEstimator(ABC):
         Not compatible with the ``data_z`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+    base : "e"
+        Only the natural logarithm is supported for the KSG estimator.
     """
 
     def __init__(
@@ -56,7 +52,7 @@ class BaseKSGMIEstimator(ABC):
         minkowski_p=inf,
         offset: int = 0,
         normalize: bool = False,
-        base: LogBaseType = Config.get("base"),
+        base="e",
     ):
         r"""Initialize the estimator with specific parameters.
 
@@ -80,11 +76,13 @@ class BaseKSGMIEstimator(ABC):
             Number of positions to shift the data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
             Not compatible with the ``data_z`` parameter / conditional MI.
-        base : int | float | "e", optional
-            The logarithm base for the transfer entropy calculation.
-            The default can be set
-            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+        base : "e"
+            Only the natural logarithm is supported for the KSG estimator.
         """
+        if base != "e":
+            raise ValueError(
+                "Only the natural logarithm is supported for the KSG estimator."
+            )
         self.data_x = None
         self.data_y = None
         self.data_z = None

@@ -166,7 +166,9 @@ def _dynamic_estimator(estimators) -> callable:
                 kwargs["EstimatorClass"] = _get_estimator(
                     estimators, estimator_name
                 )  # Inject EstimatorClass into kwargs
-            elif kwargs.get("data_z") is not None or kwargs.get("cond") is not None:
+            elif (
+                kwargs.get("data_z") is not None or kwargs.get("cond") is not None
+            ) or (len(args) > 2 and args[2] is not None):
                 kwargs["EstimatorClass"] = _get_estimator(estimators[1], estimator_name)
             else:
                 kwargs["EstimatorClass"] = _get_estimator(estimators[0], estimator_name)
@@ -290,10 +292,10 @@ def transfer_entropy(
 
     Parameters
     ----------
-    source : array-like
-        The source data used to estimate the transfer entropy.
-    dest : array-like
-        The destination data used to estimate the transfer entropy.
+    source, dest : array-like
+        The source (X) and destination (Y) data used to estimate the transfer entropy.
+    cond : array-like, optional
+        The conditional data used to estimate the conditional transfer entropy.
     approach : str
         The name of the estimator to use.
     step_size : int

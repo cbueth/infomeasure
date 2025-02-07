@@ -5,8 +5,11 @@ Explicit tests for the Kraskov-Stoegbauer-Grassberger (KSG) transfer entropy est
 import pytest
 from numpy import ndarray, std, inf
 
-from tests.conftest import generate_autoregressive_series
-from infomeasure.measures.transfer_entropy import KSGTEEstimator
+from tests.conftest import (
+    generate_autoregressive_series,
+    generate_autoregressive_series_condition,
+)
+from infomeasure.measures.transfer_entropy import KSGTEEstimator, KSGCTEEstimator
 
 
 @pytest.mark.parametrize(
@@ -35,7 +38,6 @@ def test_ksg_te(rng_int, k, minkowski_p, expected):
         k=k,
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
-        base=2,
     )
     res = est.results()
     assert isinstance(res, tuple)
@@ -48,18 +50,17 @@ def test_ksg_te(rng_int, k, minkowski_p, expected):
 
 
 @pytest.mark.parametrize(
-    "rng_int,prop_time,step_size,src_hist_len,dest_hist_len,base,expected",
+    "rng_int,prop_time,step_size,src_hist_len,dest_hist_len,expected",
     [
-        (5, 1, 1, 1, 1, 2.0, 0.4979940181649),
-        (5, 1, 1, 1, 1, 10.0, 0.4979940181649),
-        (6, 1, 1, 1, 1, 2.0, 0.498845843022),
-        (7, 1, 1, 1, 1, 2.0, 0.513635125765),
-        (5, 0, 1, 1, 1, 2.0, 0.595966077050),
-        (5, 1, 2, 1, 1, 2.0, 0.51980907955),
-        (5, 1, 3, 1, 1, 2.0, 0.513413348695),
-        (5, 1, 1, 2, 1, 2.0, 0.914015718313),
-        (5, 1, 1, 1, 2, 2.0, 1.113892408337),
-        (5, 1, 1, 2, 2, 2.0, 1.580475709527),
+        (5, 1, 1, 1, 1, 0.4979940181649),
+        (6, 1, 1, 1, 1, 0.498845843022),
+        (7, 1, 1, 1, 1, 0.513635125765),
+        (5, 0, 1, 1, 1, 0.595966077050),
+        (5, 1, 2, 1, 1, 0.51980907955),
+        (5, 1, 3, 1, 1, 0.513413348695),
+        (5, 1, 1, 2, 1, 0.914015718313),
+        (5, 1, 1, 1, 2, 1.113892408337),
+        (5, 1, 1, 2, 2, 1.580475709527),
     ],
 )
 def test_ksg_te_slicing(
@@ -68,7 +69,6 @@ def test_ksg_te_slicing(
     step_size,
     src_hist_len,
     dest_hist_len,
-    base,
     expected,
 ):
     """Test the KSG transfer entropy estimator with slicing."""
@@ -80,7 +80,94 @@ def test_ksg_te_slicing(
         step_size=step_size,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
-        base=base,
+        noise_level=0,  # for reproducibility
+    )
+    res = est.results()
+    assert isinstance(res, tuple)
+    assert len(res) == 3
+    assert isinstance(res[0], float)
+    assert isinstance(res[1], ndarray)
+    assert isinstance(res[2], float)
+    assert res[0] == pytest.approx(expected)
+    assert res[2] == pytest.approx(std(res[1]))
+
+
+@pytest.mark.parametrize(
+    "rng_int,k,minkowski_p,expected",
+    [
+        (5, 4, 2, -0.14824377373),
+        (5, 4, 3, 0.492061479471),
+        (5, 4, inf, 1.1736338791),
+        (5, 16, 2, -0.0629498022),
+        (5, 16, 3, 0.5019661670),
+        (5, 16, inf, 1.1344990340),
+        (6, 4, 2, -0.1120271189),
+        (6, 4, 3, 0.5267832946),
+        (6, 4, inf, 1.2010598113),
+        (7, 4, 2, -0.17448870909),
+        (7, 4, 3, 0.4594946023),
+        (7, 4, inf, 1.1573234261),
+    ],
+)
+def test_ksg_cte(rng_int, k, minkowski_p, expected):
+    """Test the conditional KSG transfer entropy estimator."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = KSGCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        k=k,
+        minkowski_p=minkowski_p,
+        noise_level=0,  # for reproducibility
+    )
+    res = est.results()
+    assert isinstance(res, tuple)
+    assert len(res) == 3
+    assert isinstance(res[0], float)
+    assert isinstance(res[1], ndarray)
+    assert isinstance(res[2], float)
+    assert res[0] == pytest.approx(expected)
+    assert res[2] == pytest.approx(std(res[1]))
+
+
+@pytest.mark.parametrize(
+    "rng_int,step_size,src_hist_len,dest_hist_len,cond_hist_len,expected",
+    [
+        (5, 1, 1, 1, 1, 1.17363387),
+        (6, 1, 1, 1, 1, 1.20105981),
+        (7, 1, 1, 1, 1, 1.15732342),
+        (5, 1, 1, 1, 1, 1.17363387),
+        (5, 2, 1, 1, 1, 1.11722357),
+        (5, 3, 1, 1, 1, 1.11096789),
+        (5, 1, 2, 1, 1, 1.65521713),
+        (5, 1, 1, 2, 1, 1.75221232),
+        (5, 1, 1, 1, 2, 1.72224612),
+        (5, 1, 2, 2, 1, 2.17620552),
+        (5, 1, 2, 2, 2, 2.58013058),
+    ],
+)
+def test_ksg_cte_slicing(
+    rng_int,
+    step_size,
+    src_hist_len,
+    dest_hist_len,
+    cond_hist_len,
+    expected,
+):
+    """Test the conditional KSG transfer entropy estimator with slicing."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = KSGCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        step_size=step_size,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        cond_hist_len=cond_hist_len,
         noise_level=0,  # for reproducibility
     )
     res = est.results()

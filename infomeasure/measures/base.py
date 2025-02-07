@@ -14,7 +14,7 @@ from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
 from .utils.normalize import normalize_data_0_1
-from .utils.te_slicing import te_observations
+from .utils.te_slicing import te_observations, cte_observations
 
 
 class Estimator(ABC):
@@ -706,7 +706,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
 
         .. math::
 
-                I(Y_{t_{n+1}} : X_{t_n}^{(l)} | Y_{t_n}^{(k)}) = H(Y_{t_{n+1}}, Y_{t_n}^{(k)}) + H(X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_{n+1}}, X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_n}^{(k)})
+                I(Y_{t_{n+1}} ; X_{t_n}^{(l)} | Y_{t_n}^{(k)}) = H(Y_{t_{n+1}}, Y_{t_n}^{(k)}) + H(X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_{n+1}}, X_{t_n}^{(l)}, Y_{t_n}^{(k)}) - H(Y_{t_n}^{(k)})
 
         Parameters
         ----------
@@ -773,6 +773,148 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             + h_x_history_y_history
             - h_x_history_y_history_y_future
             - h_y_history
+        )
+
+
+class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
+    """Abstract base class for conditional transfer entropy estimators.
+
+    Conditional Transfer Entropy (CTE) from source :math:`X` to destination :math:`Y`
+    given a condition :math:`Z` quantifies the amount of information obtained about
+    the destination variable through the source, conditioned on the condition.
+
+    Attributes
+    ----------
+    source : array-like, shape (n_samples,)
+        The source data used to estimate the transfer entropy (X).
+    dest : array-like, shape (n_samples,)
+        The destination data used to estimate the transfer entropy (Y).
+    cond : array-like, shape (n_samples,)
+        The conditional data used to estimate the transfer entropy (Z).
+    step_size : int
+        Step size between elements for the state space reconstruction.
+    src_hist_len, dest_hist_len, cond_hist_len : int
+        Number of past observations to consider for the source, destination, and
+        conditional data.
+    prop_time : int, optional
+        Not compatible with the conditional transfer entropy.
+    base : int | float | "e", optional
+        The logarithm base for the entropy calculation.
+        The default can be set
+        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
+    """
+
+    def __init__(
+        self,
+        source,
+        dest,
+        cond,
+        src_hist_len: int = 1,
+        dest_hist_len: int = 1,
+        cond_hist_len: int = 1,
+        step_size: int = 1,
+        prop_time=None,
+        base: LogBaseType = Config.get("base"),
+    ):
+        """Initialize the estimator with the data."""
+        if len(source) != len(dest) or len(source) != len(cond):
+            raise ValueError(
+                "Data arrays must be of the same length, "
+                f"not {len(source)}, {len(dest)}, and {len(cond)}."
+            )
+        if not isinstance(prop_time, int):
+            raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
+        if prop_time not in (None, 0):
+            raise ValueError(
+                "`prop_time` is not compatible with the conditional transfer entropy."
+            )
+        self.source = asarray(source)
+        self.dest = asarray(dest)
+        self.cond = asarray(cond)
+        # Slicing parameters
+        self.src_hist_len = src_hist_len
+        self.dest_hist_len = dest_hist_len
+        self.cond_hist_len = cond_hist_len
+        self.step_size = step_size
+        # Initialize Estimator ABC with the base
+        super().__init__(base=base)
+
+    def _generic_cte_from_entropy(
+        self,
+        estimator: type(EntropyEstimator),
+        noise_level: float = 0,
+        kwargs: dict = None,
+    ):
+        r"""Calculate the conditional transfer entropy with the entropy estimator.
+
+        Parameters
+        ----------
+        estimator : EntropyEstimator
+            The entropy estimator to use.
+        noise_level : float, optional
+            The standard deviation of the Gaussian noise to add to the data to avoid
+            issues with zero distances.
+        kwargs : dict
+            Additional keyword arguments for the entropy estimator.
+
+        Returns
+        -------
+        float
+            The conditional transfer entropy from source to destination
+            given the condition.
+
+        Notes
+        -----
+        If possible, estimators should use a dedicated
+        conditional transfer entropy method.
+        This helper method is provided as a generic fallback.
+        """
+        # Ensure source, dest, and cond are numpy arrays
+        source = self.source.copy()
+        dest = self.dest.copy()
+        cond = self.cond.copy()
+
+        # Add Gaussian noise to the data if the flag is set
+        if isinstance(noise_level, (int, float)) and noise_level != 0:
+            source = source.astype(float)
+            dest = dest.astype(float)
+            cond = cond.astype(float)
+            source += self.rng.normal(0, noise_level, source.shape)
+            dest += self.rng.normal(0, noise_level, dest.shape)
+            cond += self.rng.normal(0, noise_level, cond.shape)
+
+        (
+            joint_space_data,
+            dest_past_embedded,
+            marginal_1_space_data,
+            marginal_2_space_data,
+        ) = cte_observations(
+            source,
+            dest,
+            cond,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            cond_hist_len=self.cond_hist_len,
+            step_size=self.step_size,
+        )
+
+        h_cond_y_history_y_future = estimator(
+            marginal_2_space_data, **kwargs
+        ).global_val()
+        h_x_history_cond_y_history = estimator(
+            marginal_1_space_data, **kwargs
+        ).global_val()
+        h_x_history_cond_y_history_y_future = estimator(
+            joint_space_data, **kwargs
+        ).global_val()
+        h_y_history_cond = estimator(dest_past_embedded, **kwargs).global_val()
+
+        # Compute Conditional Transfer Entropy
+        return (
+            h_cond_y_history_y_future
+            + h_x_history_cond_y_history
+            - h_x_history_cond_y_history_y_future
+            - h_y_history_cond
         )
 
 

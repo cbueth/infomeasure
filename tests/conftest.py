@@ -125,30 +125,30 @@ TE_APPROACHES = {
 
 
 CTE_APPROACHES = {
-    # "DiscreteCTEEstimator": {
-    #     "functional_str": ["discrete"],
-    #     "needed_kwargs": {},
-    # },
-    # "KernelCTEEstimator": {
-    #     "functional_str": ["kernel"],
-    #     "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
-    # },
-    # "KSGCTEEstimator": {
-    #     "functional_str": ["metric", "ksg"],
-    #     "needed_kwargs": {},
-    # },
-    # "RenyiCTEEstimator": {
-    #     "functional_str": ["renyi"],
-    #     "needed_kwargs": {"alpha": 1.5},
-    # },
-    # "SymbolicCTEEstimator": {
-    #     "functional_str": ["symbolic", "permutation"],
-    #     "needed_kwargs": {"order": 2},
-    # },
-    # "TsallisCTEEstimator": {
-    #     "functional_str": ["tsallis"],
-    #     "needed_kwargs": {"q": 2.0},
-    # },
+    "DiscreteCTEEstimator": {
+        "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "KernelCTEEstimator": {
+        "functional_str": ["kernel"],
+        "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},
+    },
+    "KSGCTEEstimator": {
+        "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "RenyiCTEEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "SymbolicCTEEstimator": {
+        "functional_str": ["symbolic", "permutation"],
+        "needed_kwargs": {"order": 2},
+    },
+    "TsallisCTEEstimator": {
+        "functional_str": ["tsallis"],
+        "needed_kwargs": {"q": 2.0},
+    },
 }
 
 
@@ -359,3 +359,24 @@ def discrete_random_variables(rng_int, prop_time=0, low=0, high=4, length=1000):
     for i in range(1, length):
         Y[i] = (X[i - 1 - prop_time] & 1) + (generator.integers(0, 2) << 1)
     return X, Y
+
+
+@cache
+def discrete_random_variables_conditional(rng_int, low=0, high=4, length=1000):
+    """Generate three coupled discrete random variables.
+
+    The first variable is a uniform random variable with values in [low, high-1].
+    Variable 2 takes the highest bit of the previous value of Variable 1
+    (if we take a 2 bit representation of variable 1)
+    as its own lowest bit, then assigns its highest bit at random.
+    Variable 3 takes the lowest bit of the previous value of Variable 1
+    and the highest bit of the previous value of Variable 2.
+    """
+    generator = rng(rng_int)
+    X = generator.integers(low, high, length)
+    Y = [0] * length
+    Z = [0] * length
+    for i in range(1, length):
+        Y[i] = (X[i - 1] & 1) + (generator.integers(0, 2) << 1)
+        Z[i] = (X[i - 1] & 1) + (Y[i - 1] & 2)
+    return X, Y, Z

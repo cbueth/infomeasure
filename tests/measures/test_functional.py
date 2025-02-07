@@ -11,6 +11,7 @@ from infomeasure.measures.base import (
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
     TransferEntropyEstimator,
+    ConditionalTransferEntropyEstimator,
 )
 
 
@@ -126,6 +127,19 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         assert isinstance(mi[0], float)
         assert isinstance(mi[1], np.ndarray)
         assert isinstance(mi[2], float)
+    # Query with data_z as positional argument
+    im.mutual_information(
+        data_x,
+        data_y,
+        data_z,
+        approach=approach_str,
+        **(
+            {"normalize": normalize}
+            if approach_str not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
+        **needed_kwargs,
+    )
 
 
 @pytest.mark.parametrize("normalize", [True, False])
@@ -181,6 +195,46 @@ def test_transfer_entropy_functional_addressing(
         assert isinstance(te[2], float)
 
 
+@pytest.mark.parametrize("src_hist_len", [1, 2, 3])
+@pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
+@pytest.mark.parametrize("cond_hist_len", [1, 2, 3])
+def test_cond_transfer_entropy_functional_addressing(
+    cte_approach, src_hist_len, dest_hist_len, cond_hist_len
+):
+    """Test addressing the conditional transfer entropy estimator classes."""
+    approach_str, needed_kwargs = cte_approach
+    source = np.arange(100)
+    dest = np.arange(100)
+    cond = np.arange(100)
+    te = im.transfer_entropy(
+        source,
+        dest,
+        cond,
+        approach=approach_str,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        cond_hist_len=cond_hist_len,
+        **needed_kwargs,
+    )
+    assert isinstance(te, (float, tuple))
+    if isinstance(te, tuple):
+        assert len(te) == 3
+        assert isinstance(te[0], float)
+        assert isinstance(te[1], np.ndarray)
+        assert isinstance(te[2], float)
+    # Query with cond as keyword argument
+    im.transfer_entropy(
+        source,
+        dest,
+        cond=cond,
+        approach=approach_str,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        cond_hist_len=cond_hist_len,
+        **needed_kwargs,
+    )
+
+
 def test_transfer_entropy_class_addressing(te_approach):
     """Test addressing the transfer entropy estimator classes."""
     approach_str, needed_kwargs = te_approach
@@ -208,6 +262,26 @@ def test_transfer_entropy_class_addressing(te_approach):
         assert isinstance(est.std_val(), float)
     assert 0 <= est.p_value(10) <= 1
     assert isinstance(est.effective_val(), float)
+
+
+def test_cond_transfer_entropy_class_addressing(cte_approach):
+    """Test addressing the conditional transfer entropy estimator classes."""
+    approach_str, needed_kwargs = cte_approach
+    source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    cond = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    est = im.estimator(
+        source=source,
+        dest=dest,
+        cond=cond,
+        measure="transfer_entropy",
+        approach=approach_str,
+        **needed_kwargs,
+    )
+    assert isinstance(est, ConditionalTransferEntropyEstimator)
+    assert isinstance(est.global_val(), float)
+    assert est.global_val() == est.res_global
+    assert isinstance(est.results(), (tuple, float))
 
 
 @pytest.mark.parametrize(
