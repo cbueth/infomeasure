@@ -1,4 +1,4 @@
-"""Functional wrappers for information measures.
+"""Functional wrappers for information estimators.
 
 This module provides functional interfaces to calculate entropy, mutual information, and
 transfer entropy.
@@ -11,71 +11,71 @@ from functools import wraps
 from .base import Estimator
 
 entropy_estimators = {
-    "discrete": "infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator",
-    "kernel": "infomeasure.measures.entropy.kernel.KernelEntropyEstimator",
-    "metric": "infomeasure.measures.entropy.kozachenko_leonenko."
+    "discrete": "infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator",
+    "kernel": "infomeasure.estimators.entropy.kernel.KernelEntropyEstimator",
+    "metric": "infomeasure.estimators.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
-    "kl": "infomeasure.measures.entropy.kozachenko_leonenko."
+    "kl": "infomeasure.estimators.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
-    "renyi": "infomeasure.measures.entropy.renyi.RenyiEntropyEstimator",
-    "symbolic": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
-    "permutation": "infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator",
-    "tsallis": "infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator",
+    "renyi": "infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator",
+    "symbolic": "infomeasure.estimators.entropy.symbolic.SymbolicEntropyEstimator",
+    "permutation": "infomeasure.estimators.entropy.symbolic.SymbolicEntropyEstimator",
+    "tsallis": "infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator",
 }
 
 mi_estimators = {
-    "discrete": "infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator",
-    "kernel": "infomeasure.measures.mutual_information.kernel.KernelMIEstimator",
-    "metric": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
+    "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator",
+    "kernel": "infomeasure.estimators.mutual_information.kernel.KernelMIEstimator",
+    "metric": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGMIEstimator",
-    "ksg": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
+    "ksg": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGMIEstimator",
-    "renyi": "infomeasure.measures.mutual_information.renyi.RenyiMIEstimator",
-    "tsallis": "infomeasure.measures.mutual_information.tsallis.TsallisMIEstimator",
-    "symbolic": "infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator",
-    "permutation": "infomeasure.measures.mutual_information.symbolic."
+    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator",
+    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator",
+    "symbolic": "infomeasure.estimators.mutual_information.symbolic.SymbolicMIEstimator",
+    "permutation": "infomeasure.estimators.mutual_information.symbolic."
     "SymbolicMIEstimator",
 }
 
 cmi_estimators = {
-    "discrete": "infomeasure.measures.mutual_information.discrete.DiscreteCMIEstimator",
-    "kernel": "infomeasure.measures.mutual_information.kernel.KernelCMIEstimator",
-    "metric": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
+    "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteCMIEstimator",
+    "kernel": "infomeasure.estimators.mutual_information.kernel.KernelCMIEstimator",
+    "metric": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGCMIEstimator",
-    "ksg": "infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger."
+    "ksg": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGCMIEstimator",
-    "renyi": "infomeasure.measures.mutual_information.renyi.RenyiCMIEstimator",
-    "tsallis": "infomeasure.measures.mutual_information.tsallis.TsallisCMIEstimator",
-    "symbolic": "infomeasure.measures.mutual_information.symbolic.SymbolicCMIEstimator",
-    "permutation": "infomeasure.measures.mutual_information.symbolic."
+    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiCMIEstimator",
+    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisCMIEstimator",
+    "symbolic": "infomeasure.estimators.mutual_information.symbolic.SymbolicCMIEstimator",
+    "permutation": "infomeasure.estimators.mutual_information.symbolic."
     "SymbolicCMIEstimator",
 }
 
 te_estimators = {
-    "discrete": "infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator",
-    "kernel": "infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator",
-    "metric": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
+    "discrete": "infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator",
+    "kernel": "infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator",
+    "metric": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
-    "ksg": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
+    "ksg": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
-    "renyi": "infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator",
-    "symbolic": "infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator",
-    "permutation": "infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator",
-    "tsallis": "infomeasure.measures.transfer_entropy.tsallis.TsallisTEEstimator",
+    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator",
+    "symbolic": "infomeasure.estimators.transfer_entropy.symbolic.SymbolicTEEstimator",
+    "permutation": "infomeasure.estimators.transfer_entropy.symbolic.SymbolicTEEstimator",
+    "tsallis": "infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator",
 }
 
 cte_estimators = {
-    "discrete": "infomeasure.measures.transfer_entropy.discrete.DiscreteCTEEstimator",
-    "kernel": "infomeasure.measures.transfer_entropy.kernel.KernelCTEEstimator",
-    "metric": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
+    "discrete": "infomeasure.estimators.transfer_entropy.discrete.DiscreteCTEEstimator",
+    "kernel": "infomeasure.estimators.transfer_entropy.kernel.KernelCTEEstimator",
+    "metric": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGCTEEstimator",
-    "ksg": "infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger."
+    "ksg": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGCTEEstimator",
-    "renyi": "infomeasure.measures.transfer_entropy.renyi.RenyiCTEEstimator",
-    "symbolic": "infomeasure.measures.transfer_entropy.symbolic.SymbolicCTEEstimator",
-    "permutation": "infomeasure.measures.transfer_entropy.symbolic."
+    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiCTEEstimator",
+    "symbolic": "infomeasure.estimators.transfer_entropy.symbolic.SymbolicCTEEstimator",
+    "permutation": "infomeasure.estimators.transfer_entropy.symbolic."
     "SymbolicCTEEstimator",
-    "tsallis": "infomeasure.measures.transfer_entropy.tsallis.TsallisCTEEstimator",
+    "tsallis": "infomeasure.estimators.transfer_entropy.tsallis.TsallisCTEEstimator",
 }
 
 
@@ -187,12 +187,12 @@ def entropy(data, approach: str, *args, **kwargs):
 
     Supports the following approaches:
 
-    1. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`
-    2. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`
-    3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
-    4. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
-    5. [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
-    6. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator>`
+    1. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
+    2. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
+    3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+    4. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
+    5. [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.estimators.entropy.symbolic.SymbolicEntropyEstimator>`
+    6. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
 
     Parameters
     ----------
@@ -231,12 +231,12 @@ def mutual_information(
 
     Supports the following approaches:
 
-    1. ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>`
-    2. ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>`
-    3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
-    4. ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>`
-    5. [``symbolic``, ``permutation``]: :func:`Symbolic mutual information estimator. <infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator>`
-    6. ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.measures.mutual_information.tsallis.TsallisMIEstimator>`
+    1. ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator>`
+    2. ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.estimators.mutual_information.kernel.KernelMIEstimator>`
+    3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
+    4. ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>`
+    5. [``symbolic``, ``permutation``]: :func:`Symbolic mutual information estimator. <infomeasure.estimators.mutual_information.symbolic.SymbolicMIEstimator>`
+    6. ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>`
 
     Parameters
     ----------
@@ -283,12 +283,12 @@ def transfer_entropy(
 
     Supports the following approaches:
 
-    1. ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>`
-    2. ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator>`
-    3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
-    4. ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator>`
-    5. [``symbolic``, ``permutation``]: :func:`Symbolic transfer entropy estimator. <infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator>`
-    6. ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.measures.transfer_entropy.tsallis.TsallisTEEstimator>`
+    1. ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator>`
+    2. ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator>`
+    3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
+    4. ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>`
+    5. [``symbolic``, ``permutation``]: :func:`Symbolic transfer entropy estimator. <infomeasure.estimators.transfer_entropy.symbolic.SymbolicTEEstimator>`
+    6. ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator>`
 
     Parameters
     ----------
@@ -353,28 +353,28 @@ def estimator(
     Estimators available:
 
     1. Entropy:
-        - ``discrete``: :func:`Discrete entropy estimator. <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>`
-        - ``kernel``: :func:`Kernel entropy estimator. <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>`
-        - [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
-        - ``renyi``: :func:`Renyi entropy estimator. <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>`
-        - [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
-        - ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator>`
+        - ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
+        - ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
+        - [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+        - ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
+        - [``symbolic``, ``permutation``]: :func:`Symbolic / Permutation entropy estimator. <infomeasure.estimators.entropy.symbolic.SymbolicEntropyEstimator>`
+        - ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
 
     2. Mutual Information:
-        - ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>`
-        - ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>`
-        - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
-        - ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>`
-        - [``symbolic``, ``permutation``]: :func:`Symbolic mutual information estimator. <infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator>`
-        - ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.measures.mutual_information.tsallis.TsallisMIEstimator>`
+        - ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator>`
+        - ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.estimators.mutual_information.kernel.KernelMIEstimator>`
+        - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
+        - ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>`
+        - [``symbolic``, ``permutation``]: :func:`Symbolic mutual information estimator. <infomeasure.estimators.mutual_information.symbolic.SymbolicMIEstimator>`
+        - ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>`
 
     3. Transfer Entropy:
-        - ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>`
-        - ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator>`
-        - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
-        - ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator>`
-        - [``symbolic``, ``permutation``]: :func:`Symbolic transfer entropy estimator. <infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator>`
-        - ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.measures.transfer_entropy.tsallis.TsallisTEEstimator>`
+        - ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator>`
+        - ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator>`
+        - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
+        - ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>`
+        - [``symbolic``, ``permutation``]: :func:`Symbolic transfer entropy estimator. <infomeasure.estimators.transfer_entropy.symbolic.SymbolicTEEstimator>`
+        - ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator>`
 
     Parameters
     ----------

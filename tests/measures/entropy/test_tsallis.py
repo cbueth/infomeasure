@@ -3,7 +3,7 @@
 import pytest
 from numpy import inf
 
-from infomeasure.measures.entropy import (
+from infomeasure.estimators.entropy import (
     TsallisEntropyEstimator,
     DiscreteEntropyEstimator,
 )

@@ -1,1 +1,1 @@
-"""Tests for the measures module."""
+"""Tests for the estimators module."""

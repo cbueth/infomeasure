@@ -98,7 +98,7 @@ class Estimator(ABC):
 
         Notes
         -----
-        The local and standard deviation values are not available for all measures.
+        The local and standard deviation values are not available for all estimators.
         """
         self.global_val()
         try:

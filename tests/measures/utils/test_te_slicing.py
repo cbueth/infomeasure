@@ -5,7 +5,7 @@ from numpy import arange, array, hstack, array_equal
 from numpy.random import default_rng
 from numpy.testing import assert_equal
 
-from infomeasure.measures.utils.te_slicing import (
+from infomeasure.estimators.utils.te_slicing import (
     te_observations,
 )
 

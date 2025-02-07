@@ -8,7 +8,7 @@ from tests.conftest import (
     generate_autoregressive_series_condition,
     discrete_random_variables_conditional,
 )
-from infomeasure.measures.transfer_entropy import (
+from infomeasure.estimators.transfer_entropy import (
     SymbolicTEEstimator,
     SymbolicCTEEstimator,
 )

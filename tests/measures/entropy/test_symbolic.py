@@ -7,7 +7,7 @@ from math import factorial
 import pytest
 from numpy.random import default_rng
 
-from infomeasure.measures.entropy import SymbolicEntropyEstimator
+from infomeasure.estimators.entropy import SymbolicEntropyEstimator
 
 
 @pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000, int(1e5)])

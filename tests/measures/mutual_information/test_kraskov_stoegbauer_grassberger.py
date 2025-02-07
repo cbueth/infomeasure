@@ -3,7 +3,7 @@
 import pytest
 from numpy import std, linspace, inf
 
-from infomeasure.measures.mutual_information import KSGMIEstimator, KSGCMIEstimator
+from infomeasure.estimators.mutual_information import KSGMIEstimator, KSGCMIEstimator
 
 
 @pytest.mark.parametrize(

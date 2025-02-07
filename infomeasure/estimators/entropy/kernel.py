@@ -19,7 +19,7 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     """
 
     def __init__(
@@ -38,7 +38,7 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
             The bandwidth for the kernel.
         kernel : str
             Type of kernel to use, compatible with the KDE
-            implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+            implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
         """
         super().__init__(data, base=base)
         if self.data.ndim == 1:

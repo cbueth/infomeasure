@@ -7,7 +7,7 @@ from tests.conftest import (
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
 )
-from infomeasure.measures.mutual_information import (
+from infomeasure.estimators.mutual_information import (
     KernelMIEstimator,
     KernelCMIEstimator,
 )

@@ -7,7 +7,10 @@ from tests.conftest import (
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
 )
-from infomeasure.measures.transfer_entropy import KernelTEEstimator, KernelCTEEstimator
+from infomeasure.estimators.transfer_entropy import (
+    KernelTEEstimator,
+    KernelCTEEstimator,
+)
 
 
 @pytest.mark.parametrize(

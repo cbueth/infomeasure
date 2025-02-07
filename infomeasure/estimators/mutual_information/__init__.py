@@ -1,4 +1,4 @@
-"""Mutual information measures."""
+"""Mutual information estimators."""
 
 from .discrete import DiscreteMIEstimator, DiscreteCMIEstimator
 from .kernel import KernelMIEstimator, KernelCMIEstimator

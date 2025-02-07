@@ -18,7 +18,7 @@ from numpy import (
 from numpy.testing import assert_array_equal
 from scipy.special import factorial
 
-from infomeasure.measures.utils.symbolic import (
+from infomeasure.estimators.utils.symbolic import (
     symbolize_series,
     permutation_to_integer,
     reduce_joint_space,

@@ -3,7 +3,10 @@
 import pytest
 from numpy import inf
 
-from infomeasure.measures.entropy import RenyiEntropyEstimator, DiscreteEntropyEstimator
+from infomeasure.estimators.entropy import (
+    RenyiEntropyEstimator,
+    DiscreteEntropyEstimator,
+)
 
 
 @pytest.mark.parametrize("k", [1, 2, 5, 10])

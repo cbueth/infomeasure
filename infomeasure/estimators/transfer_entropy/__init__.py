@@ -1,4 +1,4 @@
-"""Transfer entropy measures."""
+"""Transfer entropy estimators."""
 
 from .discrete import DiscreteTEEstimator, DiscreteCTEEstimator
 from .kernel import KernelTEEstimator, KernelCTEEstimator

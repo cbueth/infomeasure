@@ -2,7 +2,7 @@
 
 import pytest
 
-from infomeasure.measures.entropy import KernelEntropyEstimator
+from infomeasure.estimators.entropy import KernelEntropyEstimator
 
 
 @pytest.mark.parametrize("bandwidth", [0.1, 1, 10])

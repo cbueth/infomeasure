@@ -3,7 +3,7 @@
 import pytest
 from numpy import inf
 
-from infomeasure.measures.entropy import KozachenkoLeonenkoEntropyEstimator
+from infomeasure.estimators.entropy import KozachenkoLeonenkoEntropyEstimator
 
 
 @pytest.mark.parametrize("data_len", [100, 1000])

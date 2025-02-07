@@ -1,4 +1,4 @@
-"""Simple tests for the functional interface of the measures."""
+"""Simple tests for the functional interface of the estimators."""
 
 from io import UnsupportedOperation
 
@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 import infomeasure as im
-from infomeasure.measures.base import (
+from infomeasure.estimators.base import (
     EntropyEstimator,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,

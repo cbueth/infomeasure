@@ -9,7 +9,7 @@ from tests.conftest import (
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
 )
-from infomeasure.measures.transfer_entropy import KSGTEEstimator, KSGCTEEstimator
+from infomeasure.estimators.transfer_entropy import KSGTEEstimator, KSGCTEEstimator
 
 
 @pytest.mark.parametrize(

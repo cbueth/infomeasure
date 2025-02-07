@@ -7,7 +7,7 @@ from numpy import zeros
 from numpy.random import default_rng as rng
 
 from infomeasure import Config
-from infomeasure.measures import entropy, mutual_information, transfer_entropy
+from infomeasure.estimators import entropy, mutual_information, transfer_entropy
 
 # Dictionary for each measure with the needed kwargs for the test
 # ``functional_str`` should contain all the strings that can be used to address the

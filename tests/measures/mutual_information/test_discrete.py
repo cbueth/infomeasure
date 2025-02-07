@@ -3,7 +3,7 @@
 import pytest
 from numpy import e, log
 
-from infomeasure.measures.mutual_information import (
+from infomeasure.estimators.mutual_information import (
     DiscreteMIEstimator,
     DiscreteCMIEstimator,
 )

@@ -7,7 +7,7 @@ from tests.conftest import (
     discrete_random_variables,
     discrete_random_variables_conditional,
 )
-from infomeasure.measures.transfer_entropy import (
+from infomeasure.estimators.transfer_entropy import (
     DiscreteTEEstimator,
     DiscreteCTEEstimator,
 )

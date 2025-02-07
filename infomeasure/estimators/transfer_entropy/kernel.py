@@ -28,7 +28,7 @@ class BaseKernelTEEstimator(ABC):
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
@@ -120,7 +120,7 @@ class KernelTEEstimator(
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
@@ -210,7 +210,7 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     step_size : int
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len, cond_hist_len : int, optional

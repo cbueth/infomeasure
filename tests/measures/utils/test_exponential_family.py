@@ -3,7 +3,7 @@
 import pytest
 from numpy import array, pi, inf
 
-from infomeasure.measures.utils.exponential_family import (
+from infomeasure.estimators.utils.exponential_family import (
     calculate_common_entropy_components,
 )
 

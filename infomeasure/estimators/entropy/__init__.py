@@ -1,4 +1,4 @@
-"""Entropy measures."""
+"""Entropy estimators."""
 
 from .discrete import DiscreteEntropyEstimator
 from .kernel import KernelEntropyEstimator

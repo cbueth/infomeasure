@@ -3,7 +3,7 @@
 import pytest
 from numpy import pi
 
-from infomeasure.measures.utils.unit_ball_volume import unit_ball_volume
+from infomeasure.estimators.utils.unit_ball_volume import unit_ball_volume
 
 
 @pytest.mark.parametrize(

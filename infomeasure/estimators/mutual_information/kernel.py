@@ -27,7 +27,7 @@ class BaseKernelMIEstimator(ABC):
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -60,7 +60,7 @@ class BaseKernelMIEstimator(ABC):
             The bandwidth for the kernel.
         kernel : str
             Type of kernel to use, compatible with the KDE
-            implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+            implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
         offset : int, optional
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
@@ -108,7 +108,7 @@ class KernelMIEstimator(
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -174,7 +174,7 @@ class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEsti
         The bandwidth for the kernel.
     kernel : str
         Type of kernel to use, compatible with the KDE
-        implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
+        implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     normalize : bool, optional
         If True, normalize the data before analysis.
     """

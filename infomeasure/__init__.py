@@ -3,7 +3,7 @@
 # Expose most common functions
 from ._version import __version__
 from .utils import Config
-from .measures.functional import (
+from .estimators.functional import (
     entropy,
     mutual_information,
     transfer_entropy,

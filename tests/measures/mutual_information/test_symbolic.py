@@ -2,7 +2,7 @@
 
 import pytest
 
-from infomeasure.measures.mutual_information import (
+from infomeasure.estimators.mutual_information import (
     SymbolicMIEstimator,
     SymbolicCMIEstimator,
 )
