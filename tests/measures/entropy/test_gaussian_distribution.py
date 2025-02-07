@@ -37,6 +37,10 @@ def test_entropy_gaussian(entropy_approach, sigma, base, default_rng):
     if (approach_str in ["symbolic", "permutation"]) or (
         approach_str == "discrete" and sigma < 3
     ):
-        assert pytest.approx(est.results(), rel=0.1) != analytical_entropy(sigma, base)
+        assert pytest.approx(est.global_val(), rel=0.1) != analytical_entropy(
+            sigma, base
+        )
     else:
-        assert pytest.approx(est.results(), rel=0.1) == analytical_entropy(sigma, base)
+        assert pytest.approx(est.global_val(), rel=0.1) == analytical_entropy(
+            sigma, base
+        )

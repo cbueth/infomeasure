@@ -120,7 +120,7 @@ The {ref}`following table <estimator-functions>` shows the available information
     - {py:func}`local_val() <infomeasure.measures.base.Estimator.local_val>`
     - {py:func}`std_val() <infomeasure.measures.base.Estimator.std_val>`
     - {py:func}`p_value() <infomeasure.measures.base.PValueMixin.p_value>`
-    - {py:func}`effective_val() <infomeasure.measures.base.EffectiveTEMixin.effective_val>`
+    - {py:func}`effective_val() <infomeasure.measures.base.EffectiveValueMixin.effective_val>`
 *   - {ref}`Entropy <entropy_overview>`
     -
     -
@@ -140,6 +140,12 @@ The {ref}`following table <estimator-functions>` shows the available information
     - X
     -
 *   - {py:class}`KL <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+    - X
+    -
+    -
+    - X
+    -
+*   - {py:class}`Symbolic <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>`
     - X
     -
     -
@@ -168,25 +174,37 @@ The {ref}`following table <estimator-functions>` shows the available information
     -
     -
     - X
-    -
+    - X
 *   - {py:class}`Kernel <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>`
     - X
     - X
     - X
     - X
-    -
+    - X
 *   - {py:class}`KSG <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
     - X
     - X
     - X
     - X
-    -
+    - X
+*   - {py:class}`Symbolic <infomeasure.measures.mutual_information.symbolic.SymbolicMIEstimator>`
+    - X
+    - X
+    - X
+    - X
+    - X
 *   - {py:class}`Rényi <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>`
     - X
     - X
     - X
     - X
-    -
+    - X
+*   - {py:class}`Tsallis <infomeasure.measures.mutual_information.tsallis.TsallisMIEstimator>`
+    - X
+    - X
+    - X
+    - X
+    - X
 *   - {ref}`Transfer Entropy <transfer_entropy_overview>`
     -
     -
@@ -211,7 +229,19 @@ The {ref}`following table <estimator-functions>` shows the available information
     - X
     - X
     - X
+*   - {py:class}`Symbolic <infomeasure.measures.transfer_entropy.symbolic.SymbolicTEEstimator>`
+    - X
+    - X
+    - X
+    - X
+    - X
 *   - {py:class}`Rényi <infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator>`
+    - X
+    - X
+    - X
+    - X
+    - X
+*   - {py:class}`Tsallis <infomeasure.measures.transfer_entropy.tsallis.TsallisTEEstimator>`
     - X
     - X
     - X
@@ -227,7 +257,7 @@ The methods from the table do the following:
 - {py:func}`local_val() <infomeasure.measures.base.Estimator.local_val>`: Returns the local values of the information measure.
 - {py:func}`std_val() <infomeasure.measures.base.Estimator.std_val>`: Returns the standard deviation of the local values.
 - {py:func}`p_value() <infomeasure.measures.base.PValueMixin.p_value>`: Returns the p-value of the information measure.
-- {py:func}`effective_val() <infomeasure.measures.base.EffectiveTEMixin.effective_val>`: Returns the effective transfer entropy.
+- {py:func}`effective_val() <infomeasure.measures.base.EffectiveValueMixin.effective_val>`: Returns the effective transfer entropy.
 
 Each method can be directly called on the estimator object, it is not necessary to call the {py:func}`calculate() <infomeasure.measures.base.Estimator.calculate>` method before calling the other methods, as it is done internally.
 Calling {py:func}`results() <infomeasure.measures.base.Estimator.results>`, {py:func}`global_val() <infomeasure.measures.base.Estimator.global_val>`, {py:func}`local_val() <infomeasure.measures.base.Estimator.local_val>`, or {py:func}`std_val() <infomeasure.measures.base.Estimator.std_val>` twice will return the same values, as the estimator caches the results.

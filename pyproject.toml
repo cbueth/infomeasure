@@ -15,7 +15,7 @@ readme = "README.md"
 #description = ""
 keywords = ["Entropy", "Mutual Information", "Information Theory", "Information Measures"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",  # 4 - Beta, 5 - Production/Stable
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",

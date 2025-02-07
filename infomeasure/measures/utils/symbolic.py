@@ -11,6 +11,8 @@ from numpy import (
     array,
     uint64,
     iinfo,
+    unique,
+    column_stack,
 )
 from numpy.lib.stride_tricks import as_strided
 
@@ -138,3 +140,61 @@ def symbolize_series(
         )
 
     return patterns
+
+
+def reduce_joint_space(data: ndarray | tuple[ndarray]) -> ndarray:
+    """Reduce the data to the joint space.
+
+    Reduce features: Assigns each unique feature vector to a unique integer.
+    This is equivalent to the unique indices of the unique rows.
+    If `data` is 1D, returns the data as is.
+
+    Parameters
+    ----------
+    data : ndarray, shape (n_samples,) or (n_samples, n_features), or tuple of arrays
+        The data to reduce.
+
+    Returns
+    -------
+    ndarray, shape (n_samples,)
+        The data in the joint space.
+
+    Examples
+    --------
+    >>> from numpy import array
+    >>> data = array([[1, 2], [2, 3], [1, 2], [2, 3], [3, 4]])
+    >>> data.shape
+    (5, 2)
+    >>> reduce_joint_space(data)
+    array([0, 1, 0, 1, 2])
+    >>> reduce_joint_space(array([4, 5, 4, 5, 6]))
+    array([4, 5, 4, 5, 6])
+    >>> reduce_joint_space(array([[True, True, False], [False, True, False]]))
+    array([0, 1])
+    >>> reduce_joint_space(array([[3, 3], [2, 2], [1, 1]]))
+    array([2, 1, 0])
+    >>> reduce_joint_space((array([3, 2, 1]), array([3, 2, 1])))
+    array([2, 1, 0])
+
+    Raises
+    ------
+    ValueError
+        If the data array is not 1D or 2D.
+    ValueError
+        If the data is a list.
+
+    Notes
+    -----
+    The order of the unique values is not guaranteed, only the unique indices.
+    This is because numpy sorts the values internally.
+    """
+    if isinstance(data, list):
+        raise ValueError("Data array must be a numpy array or tuple of arrays.")
+    if isinstance(data, tuple):
+        data = column_stack(data)
+    if data.ndim == 2:
+        # Reduce the data to the joint space using the numpy unique function
+        return unique(data, axis=0, return_inverse=True)[1]  # use inverse indices
+    elif data.ndim == 1:
+        return data
+    raise ValueError("Data array must be 1D or 2D.")
