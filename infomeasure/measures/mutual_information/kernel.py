@@ -34,10 +34,6 @@ class BaseKernelMIEstimator(ABC):
         Not compatible with the ``data_z`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def __init__(
@@ -71,10 +67,6 @@ class BaseKernelMIEstimator(ABC):
             Not compatible with the ``data_z`` parameter / conditional MI.
         normalize
             If True, normalize the data before analysis.
-        base : int | float | "e", optional
-            The logarithm base for the transfer entropy calculation.
-            The default can be set
-            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
         """
         self.data_y = None
         self.data_x = None
@@ -122,10 +114,6 @@ class KernelMIEstimator(
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self) -> ndarray:
@@ -189,10 +177,6 @@ class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEsti
         implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self) -> ndarray:

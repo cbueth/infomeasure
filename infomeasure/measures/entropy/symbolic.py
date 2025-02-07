@@ -31,10 +31,6 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         The size of the permutation patterns.
     per_symbol : bool, optional
         If True, the entropy is divided by the order - 1.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Notes
     -----

@@ -30,10 +30,6 @@ class BaseDiscreteMIEstimator(ABC):
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Not compatible with the ``data_z`` parameter / conditional MI.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def __init__(
@@ -57,10 +53,6 @@ class BaseDiscreteMIEstimator(ABC):
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
             Not compatible with the ``data_z`` parameter / conditional MI.
-        base : int | float | "e", optional
-            The logarithm base for the transfer entropy calculation.
-            The default can be set
-            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
         """
         self.data_y: ndarray = None
@@ -99,10 +91,6 @@ class DiscreteMIEstimator(
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self):
@@ -167,10 +155,6 @@ class DiscreteCMIEstimator(
     ----------
     data_x, data_y, data_z : array-like
         The data used to estimate the conditional mutual information.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self):

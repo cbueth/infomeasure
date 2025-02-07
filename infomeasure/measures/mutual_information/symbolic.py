@@ -31,10 +31,6 @@ class BaseSymbolicMIEstimator(ABC):
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Not compatible with the ``data_z`` parameter / conditional MI.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Notes
     -----
@@ -101,10 +97,6 @@ class SymbolicMIEstimator(
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Notes
     -----
@@ -215,10 +207,6 @@ class SymbolicCMIEstimator(
         The data used to estimate the conditional mutual information.
     order : int
         The size of the permutation patterns.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Notes
     -----

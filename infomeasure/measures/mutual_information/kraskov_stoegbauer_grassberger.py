@@ -130,10 +130,6 @@ class KSGMIEstimator(
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self) -> ndarray:
@@ -212,10 +208,6 @@ class KSGCMIEstimator(BaseKSGMIEstimator, ConditionalMutualInformationEstimator)
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self) -> ndarray:

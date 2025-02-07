@@ -34,10 +34,6 @@ class BaseRenyiMIEstimator(ABC):
         Not compatible with the ``data_z`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def __init__(
@@ -75,10 +71,6 @@ class BaseRenyiMIEstimator(ABC):
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
             Not compatible with the ``data_z`` parameter / conditional MI.
-        base : int | float | "e", optional
-            The logarithm base for the transfer entropy calculation.
-            The default can be set
-            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
         Raises
         ------
@@ -128,10 +120,6 @@ class RenyiMIEstimator(
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self):
@@ -170,10 +158,6 @@ class RenyiCMIEstimator(BaseRenyiMIEstimator, ConditionalMutualInformationEstima
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : int | float | "e", optional
-        The logarithm base for the mutual information calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self):
