@@ -20,10 +20,6 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
     kernel : str
         Type of kernel to use, compatible with the KDE
         implementation :func:`kde_probability_density_function() <infomeasure.measures.utils.kde.kde_probability_density_function>`.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def __init__(

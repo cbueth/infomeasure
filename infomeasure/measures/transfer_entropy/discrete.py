@@ -35,10 +35,6 @@ class BaseDiscreteTEEstimator(ABC):
     cond_hist_len : int, optional
         Number of past observations to consider for the conditional data.
         Only used for conditional transfer entropy.
-    base : int | float | "e", optional
-        The logarithm base for the transfer entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def __init__(
@@ -75,10 +71,6 @@ class BaseDiscreteTEEstimator(ABC):
         cond_hist_len : int, optional
             Number of past observations to consider for the conditional data.
             Only used for conditional transfer entropy.
-        base : int | float | "e", optional
-            The logarithm base for the transfer entropy calculation.
-            The default can be set
-            with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
         """
         self.source = source
         self.dest = dest
@@ -142,10 +134,6 @@ class DiscreteTEEstimator(
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
-    base : int | float | "e", optional
-        The logarithm base for the transfer entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self):
@@ -173,10 +161,6 @@ class DiscreteCTEEstimator(
         and conditional data.
     prop_time : int, optional
         Not compatible with the ``cond`` parameter / conditional TE.
-    base : int | float | "e", optional
-        The logarithm base for the transfer entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
     """
 
     def _calculate(self):

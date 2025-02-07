@@ -27,10 +27,6 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
     minkowski_p : float, :math:`1 \leq p \leq \infty`
         The power parameter for the Minkowski metric.
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Raises
     ------
