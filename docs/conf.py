@@ -17,11 +17,12 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+from datetime import datetime
 
 project = "infomeasure"
-copyright = f"2024-{datetime.datetime.now().year}, infomeasure maintainers"
+copyright = f"2024–{datetime.now().year}, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.1.1dev1"
+version = "0.2.0dev0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
