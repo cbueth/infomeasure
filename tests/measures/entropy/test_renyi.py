@@ -29,7 +29,7 @@ def test_renyi_entropy(k, alpha, default_rng):
 )
 def test_renyi_entropy_explicit(data, k, alpha, expected):
     """Test the Renyi entropy estimator with specific values."""
-    est = RenyiEntropyEstimator(data, k=k, alpha=alpha)
+    est = RenyiEntropyEstimator(data, k=k, alpha=alpha, base=2)
     assert est.results() == pytest.approx(expected)
 
 

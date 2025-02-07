@@ -58,7 +58,7 @@ def test_mi_corellated(mi_approach, corr_coeff, base, default_rng):
         needed_kwargs["bandwidth"] = 3
     if "kernel" in needed_kwargs:
         needed_kwargs["kernel"] = "box"
-    needed_kwargs["base"] = base
+    needed_kwargs["base"] = base if approach_str not in ["metric", "ksg"] else "e"
     est = im.estimator(
         data_x=data[:, 0],
         data_y=data[:, 1],

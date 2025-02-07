@@ -65,7 +65,7 @@ def test_kernel_entropy(bandwidth, kernel, default_rng):
 )
 def test_kernel_entropy_explicit(data, bandwidth, kernel, expected):
     """Test the Kernel entropy estimator with specific values."""
-    est = KernelEntropyEstimator(data, bandwidth=bandwidth, kernel=kernel)
+    est = KernelEntropyEstimator(data, bandwidth=bandwidth, kernel=kernel, base=2)
     res = est.results()
     assert isinstance(res, tuple)
     assert len(res) == 3

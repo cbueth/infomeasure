@@ -198,7 +198,7 @@ def test_symbolic_entropy_maximum(order, min_length, default_rng):
     data = uniform_data(
         order, min_length=min_length, rng=default_rng, max_len_abort=max_len_abort
     )
-    est = SymbolicEntropyEstimator(data, order=order)
+    est = SymbolicEntropyEstimator(data, order=order, base=2)
     if len(data) < max_len_abort:
         # exact match
         assert est.global_val() == est._log_base(factorial(order))

@@ -32,7 +32,7 @@ def test_tsallis_entropy(k, q, default_rng):
 )
 def test_tsallis_entropy_explicit(data, k, q, expected):
     """Test the Tsallis entropy estimator with specific values."""
-    est = TsallisEntropyEstimator(data, k=k, q=q)
+    est = TsallisEntropyEstimator(data, k=k, q=q, base=2)
     assert est.results() == pytest.approx(expected)
 
 

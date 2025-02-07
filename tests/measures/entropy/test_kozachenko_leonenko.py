@@ -70,7 +70,7 @@ def test_kl_entropy(data_len, noise_level, minkowski_p, k, default_rng):
 def test_kl_entropy_explicit(data, minkowski_p, k, expected):
     """Test the Kozachenko-Leonenko entropy estimator with specific values."""
     est = KozachenkoLeonenkoEntropyEstimator(
-        data, k=k, minkowski_p=minkowski_p, noise_level=0
+        data, k=k, minkowski_p=minkowski_p, noise_level=0, base=2
     )
     assert est.global_val() == pytest.approx(expected)
 

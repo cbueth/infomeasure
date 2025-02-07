@@ -100,7 +100,7 @@ def test_symbolic_mi_invalid_order(order, default_rng):
 )
 def test_symbolic_mi_values(data_x, data_y, order, expected):
     """Test the symbolic mutual information estimator."""
-    est = SymbolicMIEstimator(data_x, data_y, order=order)
+    est = SymbolicMIEstimator(data_x, data_y, order=order, base=2)
     assert est.global_val() == pytest.approx(expected)
 
 
@@ -158,5 +158,5 @@ def test_symbolic_mi_values(data_x, data_y, order, expected):
 )
 def test_symbolic_cmi_values(data_x, data_y, data_z, order, expected):
     """Test the symbolic conditional mutual information estimator."""
-    est = SymbolicCMIEstimator(data_x, data_y, order=order, data_z=data_z)
+    est = SymbolicCMIEstimator(data_x, data_y, order=order, data_z=data_z, base=2)
     assert est.global_val() == pytest.approx(expected)

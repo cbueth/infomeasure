@@ -43,7 +43,7 @@ class Config:
 
     Default settings:
 
-    - 'base': 2 (bits/shannons)
+    - 'base': e (nats)
     - 'p_value_method': 'permutation_test'
 
     Attributes
@@ -55,7 +55,7 @@ class Config:
 
     __default_settings = {
         "base": {
-            "value": 2,  # 2: bits/shannon, e: nats, 10: hartleys/bans/dits
+            "value": "e",  # 2: bits/shannon, e: nats, 10: hartleys/bans/dits
             "types": int | float,
             "additionally_allowed": ["e"],
         },

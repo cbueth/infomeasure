@@ -26,6 +26,7 @@ def test_kernel_te(rng_int, bandwidth, kernel, expected):
         data_dest,
         bandwidth=bandwidth,
         kernel=kernel,
+        base=2,
     )
     res = est.results()
     assert isinstance(res, tuple)
