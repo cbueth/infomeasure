@@ -174,7 +174,7 @@ class Estimator(ABC):
         return self.res_std
 
     @abstractmethod
-    def _calculate(self) -> tuple | float:
+    def _calculate(self) -> float | ndarray[float]:
         """Calculate the measure.
 
         Returns
@@ -269,7 +269,7 @@ class EntropyEstimator(Estimator, ABC):
             self.data = asarray(data)
         super().__init__(base=base)
 
-    def _calculate(self) -> tuple | float:
+    def _calculate(self) -> float | ndarray[float]:
         """Calculate the entropy of the data.
 
         Depending on the `data` type, chooses simple or joint entropy calculation.
@@ -284,7 +284,7 @@ class EntropyEstimator(Estimator, ABC):
         return self._simple_entropy()
 
     @abstractmethod
-    def _simple_entropy(self) -> tuple | float:
+    def _simple_entropy(self) -> float | ndarray[float]:
         """Calculate the entropy of one random variable.
 
         Returns
@@ -295,7 +295,7 @@ class EntropyEstimator(Estimator, ABC):
         pass
 
     @abstractmethod
-    def _joint_entropy(self) -> tuple | float:
+    def _joint_entropy(self) -> float | ndarray[float]:
         """Calculate the joint entropy of two random variables.
 
         Returns
