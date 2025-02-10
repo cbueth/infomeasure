@@ -146,10 +146,6 @@ class KernelMIEstimator(
             ]
         )
 
-        # Avoid division by zero or log of zero by replacing zeros with a small positive value
-        # TODO: Make optional
-        densities[densities == 0] = finfo(float).eps
-
         # Compute local mutual information values
         local_mi_values = self._log_base(
             densities[:, 0] / (densities[:, 1] * densities[:, 2])
@@ -209,10 +205,6 @@ class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEsti
                 ),
             ]
         )
-
-        # Avoid division by zero or log of zero by replacing zeros with a small positive value
-        # TODO: Make optional
-        densities[densities == 0] = finfo(float).eps
 
         # Compute local mutual information values
         local_mi_values = self._log_base(

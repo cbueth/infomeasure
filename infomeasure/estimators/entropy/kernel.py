@@ -59,10 +59,6 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
             self.data, self.bandwidth, kernel=self.kernel
         )
 
-        # Replace densities of 0 with a small number to avoid log(0)
-        # TODO: Make optional
-        densities[densities == 0] = finfo(float).eps
-
         # Compute the log of the densities
         return -self._log_base(densities)
 

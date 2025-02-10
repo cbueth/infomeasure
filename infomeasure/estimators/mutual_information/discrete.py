@@ -140,8 +140,6 @@ class DiscreteMIEstimator(
             contingency_nm * (log_contingency_nm - self._log_base(contingency_sum))
             + contingency_nm * log_outer
         )
-        # Filter values below floating point precision
-        mi = where(np_abs(mi) < finfo(mi.dtype).eps, 0.0, mi)
         # Clip negative values to zero
         return clip(mi.sum(), 0.0, None)
 
