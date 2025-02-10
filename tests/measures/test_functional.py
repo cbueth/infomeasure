@@ -140,6 +140,41 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         ),
         **needed_kwargs,
     )
+    # Use conditional_mutual_information function
+    im.conditional_mutual_information(
+        data_x,
+        data_y,
+        data_z,
+        approach=approach_str,
+        **(
+            {"normalize": normalize}
+            if approach_str not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
+        **needed_kwargs,
+    )
+    im.conditional_mutual_information(
+        data_x,
+        data_y,
+        data_z=data_z,
+        approach=approach_str,
+        **(
+            {"normalize": normalize}
+            if approach_str not in ["discrete", "symbolic", "permutation"]
+            else {}
+        ),
+        **needed_kwargs,
+    )
+
+
+def test_cmi_functional_addressing_faulty():
+    """Test wrong usage of the conditional mutual information estimator."""
+    with pytest.raises(ValueError):
+        im.conditional_mutual_information(
+            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            approach="metric",
+        )
 
 
 @pytest.mark.parametrize("normalize", [True, False])
@@ -226,6 +261,17 @@ def test_cond_transfer_entropy_functional_addressing(
     im.transfer_entropy(
         source,
         dest,
+        cond,
+        approach=approach_str,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        cond_hist_len=cond_hist_len,
+        **needed_kwargs,
+    )
+    # Use conditional_transfer_entropy function
+    im.conditional_transfer_entropy(
+        source,
+        dest,
         cond=cond,
         approach=approach_str,
         src_hist_len=src_hist_len,
@@ -233,6 +279,16 @@ def test_cond_transfer_entropy_functional_addressing(
         cond_hist_len=cond_hist_len,
         **needed_kwargs,
     )
+
+
+def test_cte_functional_addressing_faulty():
+    """Test wrong usage of the conditional transfer entropy estimator."""
+    with pytest.raises(ValueError):
+        im.conditional_transfer_entropy(
+            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            approach="metric",
+        )
 
 
 def test_transfer_entropy_class_addressing(te_approach):

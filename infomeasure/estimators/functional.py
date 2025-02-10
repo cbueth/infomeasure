@@ -273,6 +273,21 @@ def mutual_information(
     return EstimatorClass(*data, **kwargs).results()
 
 
+def conditional_mutual_information(*data, **parameters):
+    """Conditional mutual information between two variables given a third variable.
+
+    See :func:`mutual_information <mutual_information>` for more information.
+    """
+    if not (
+        len(data) == 3 or (len(data) == 2 and parameters.get("data_z") is not None)
+    ):
+        raise ValueError(
+            "CMI requires a conditional variable. Either pass three positional "
+            "arguments or two and a 'data_z' keyword argument."
+        )
+    return mutual_information(*data, **parameters)
+
+
 @_dynamic_estimator([te_estimators, cte_estimators])
 def transfer_entropy(
     *data,
@@ -324,6 +339,19 @@ def transfer_entropy(
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     return EstimatorClass(*data, **kwargs).results()
+
+
+def conditional_transfer_entropy(*data, **parameters):
+    """Conditional transfer entropy between two variables given a third variable.
+
+    See :func:`transfer_entropy <transfer_entropy>` for more information.
+    """
+    if not (len(data) == 3 or (len(data) == 2 and parameters.get("cond") is not None)):
+        raise ValueError(
+            "CTE requires a conditional variable. Either pass three positional "
+            "arguments or two and a 'cond' keyword argument."
+        )
+    return transfer_entropy(*data, **parameters)
 
 
 def estimator(
@@ -423,7 +451,19 @@ def estimator(
             )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
         return EstimatorClass(data, **kwargs)
-    elif measure.lower() in ["mutual_information", "mi"]:
+    elif measure.lower() in [
+        "mutual_information",
+        "mi",
+        "conditional_mutual_information",
+        "cmi",
+    ]:
+        if (
+            measure.lower() in ["cmi", "conditional_mutual_information"]
+            and data_z is None
+        ):
+            raise ValueError(
+                "``data_z`` is required for conditional mutual information estimation."
+            )
         if data_x is None or data_y is None:
             raise ValueError(
                 "``data_x`` and ``data_y`` are required for "
@@ -440,7 +480,16 @@ def estimator(
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
             return EstimatorClass(data_x, data_y, offset=offset, **kwargs)
-    elif measure.lower() in ["transfer_entropy", "te"]:
+    elif measure.lower() in [
+        "transfer_entropy",
+        "te",
+        "conditional_transfer_entropy",
+        "cte",
+    ]:
+        if measure.lower() in ["cte", "conditional_transfer_entropy"] and cond is None:
+            raise ValueError(
+                "``cond`` is required for conditional transfer entropy estimation."
+            )
         if source is None or dest is None:
             raise ValueError(
                 "``source`` and ``dest`` are required for transfer entropy estimation."
