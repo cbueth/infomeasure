@@ -71,7 +71,7 @@ est = im.estimator(source=source, dest=dest, measure="transfer_entropy", approac
 est.results()
 ```
 
-In [Estimator Usage](guide/estimator_usage.md), you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
+In [Estimator Usage](guide/introduction), you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
 
 For more insight into the package, read the [Guide](guide/index.myst)
 or the [API Reference](api/index.rst).
