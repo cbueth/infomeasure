@@ -48,7 +48,7 @@ from infomeasure.estimators.mutual_information import (
 def test_tsallis_mi(data_x, data_y, k, q, expected):
     """Test the Tsallis mutual information estimator."""
     est = TsallisMIEstimator(data_x, data_y, k=k, q=q, base=2)
-    res = est.results()
+    res = est.result()
     assert res == pytest.approx(expected)
 
 
@@ -102,7 +102,7 @@ def test_tsallis_mi(data_x, data_y, k, q, expected):
 def test_tsallis_cmi(data_x, data_y, data_z, k, q, expected):
     """Test the conditional Tsallis mutual information estimator."""
     est = TsallisCMIEstimator(data_x, data_y, data_z, k=k, q=q, base=2)
-    res = est.results()
+    res = est.result()
     assert res == pytest.approx(expected)
 
 
@@ -125,4 +125,4 @@ def test_tsallis_cmi_autoregressive(rng_int, k, q, expected):
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
     est = TsallisCMIEstimator(data_x, data_y, data_z, k=k, q=q, base=2)
-    assert est.results() == pytest.approx(expected)
+    assert est.result() == pytest.approx(expected)

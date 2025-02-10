@@ -30,7 +30,7 @@ from infomeasure.estimators.mutual_information import (
 def test_discrete_mi(data_x, data_y, base, expected):
     """Test the discrete mutual information estimator."""
     est = DiscreteMIEstimator(data_x, data_y, base=base)
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -59,7 +59,7 @@ def test_discrete_mi(data_x, data_y, base, expected):
 def test_discrete_mi_offset(data_x, data_y, offset, expected):
     """Test the discrete mutual information estimator with offset."""
     est = DiscreteMIEstimator(data_x, data_y, offset=offset, base=2)
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -81,6 +81,6 @@ def test_discrete_mi_offset(data_x, data_y, offset, expected):
 def test_discrete_cmi(data_x, data_y, data_z, base, expected):
     """Test the discrete conditional mutual information estimator."""
     est = DiscreteCMIEstimator(data_x, data_y, data_z, base=base)
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)

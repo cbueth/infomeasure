@@ -1,7 +1,7 @@
 """Explicit Kraskov-Stoegbauer-Grassberger mutual information estimator tests."""
 
 import pytest
-from numpy import std, linspace, inf
+from numpy import linspace, inf, ndarray
 
 from infomeasure.estimators.mutual_information import KSGMIEstimator, KSGCMIEstimator
 
@@ -71,9 +71,9 @@ def test_ksg_mi(data_x, data_y, k, minkowski_p, expected):
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
     )
-    res = est.results()
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == std(res[1])
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -144,9 +144,9 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
         noise_level=0,  # for reproducibility
         normalize=True,
     )
-    res = est.results()
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == std(res[1])
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -341,6 +341,6 @@ def test_ksg_cmi(data_x, data_y, data_z, k, minkowski_p, expected):
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
     )
-    res = est.results()
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == std(res[1])
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)

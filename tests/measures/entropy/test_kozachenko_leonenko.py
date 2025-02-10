@@ -16,7 +16,7 @@ def test_kl_entropy(data_len, noise_level, minkowski_p, k, default_rng):
     est = KozachenkoLeonenkoEntropyEstimator(
         data, k=k, noise_level=noise_level, minkowski_p=minkowski_p
     )
-    est.results()
+    est.result()
 
 
 @pytest.mark.parametrize(
@@ -97,4 +97,4 @@ def test_invalid_values(noise_level, minkowski_p, k, match, default_rng):
     with pytest.raises(ValueError, match=match):
         KozachenkoLeonenkoEntropyEstimator(
             data, k=k, noise_level=noise_level, minkowski_p=minkowski_p
-        ).results()
+        ).result()

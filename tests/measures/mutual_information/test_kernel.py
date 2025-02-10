@@ -1,7 +1,7 @@
 """Explicit kernel mutual information estimator tests."""
 
 import pytest
-from numpy import ndarray, std
+from numpy import ndarray
 
 from tests.conftest import (
     generate_autoregressive_series,
@@ -22,12 +22,8 @@ def test_kernel_mi(bandwidth, kernel, default_rng):
     data_x = default_rng.normal(0, 1, 100)
     data_y = default_rng.normal(0, 1, 100)
     est = KernelMIEstimator(data_x, data_y, bandwidth=bandwidth, kernel=kernel)
-    res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
+    assert isinstance(est.result(), float)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -45,8 +41,9 @@ def test_kernel_mi_values(rng_int, bandwidth, kernel, expected):
     """Test the kernel mutual information estimator with specific values."""
     data_x, data_y = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
     est = KernelMIEstimator(data_x, data_y, bandwidth=bandwidth, kernel=kernel, base=2)
-    assert est.results()[0] == pytest.approx(expected)
-    assert est.results()[2] == std(est.results()[1])
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -68,5 +65,6 @@ def test_kernel_cmi_values(rng_int, bandwidth, kernel, expected):
     est = KernelCMIEstimator(
         data_x, data_y, data_z, bandwidth=bandwidth, kernel=kernel, base=2
     )
-    assert est.results()[0] == pytest.approx(expected)
-    assert est.results()[2] == std(est.results()[1])
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)

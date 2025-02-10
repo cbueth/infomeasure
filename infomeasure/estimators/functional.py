@@ -216,7 +216,7 @@ def entropy(data, approach: str, *args, **kwargs):
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(data, *args, **kwargs).results()
+    return EstimatorClass(data, *args, **kwargs).result()
 
 
 @_dynamic_estimator([mi_estimators, cmi_estimators])
@@ -270,7 +270,7 @@ def mutual_information(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(*data, **kwargs).results()
+    return EstimatorClass(*data, **kwargs).result()
 
 
 def conditional_mutual_information(*data, **parameters):
@@ -338,7 +338,7 @@ def transfer_entropy(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(*data, **kwargs).results()
+    return EstimatorClass(*data, **kwargs).result()
 
 
 def conditional_transfer_entropy(*data, **parameters):

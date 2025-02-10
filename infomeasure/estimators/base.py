@@ -31,9 +31,6 @@ class Estimator(ABC):
     res_local : array-like | None
         The local values of the measure.
         None if the measure is not calculated or if not defined.
-    res_std : float | None
-        The standard deviation of the local values.
-        None if the measure is not calculated or if not defined.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
@@ -53,7 +50,6 @@ class Estimator(ABC):
         """Initialize the estimator."""
         self.res_global = None
         self.res_local = None
-        self.res_std = None
         self.base = base
 
     @final
@@ -70,7 +66,6 @@ class Estimator(ABC):
                     f"Received {results.ndim}D array with shape {results.shape}."
                 )
             self.res_global, self.res_local = np_mean(results), results
-            # TODO: better nanmean?
             logger.debug(
                 f"Global: {self.res_global:.4e}, "
                 # show the first max 5 local values
@@ -85,8 +80,8 @@ class Estimator(ABC):
                 f"Invalid result type {type(results)} for {self.__class__.__name__}."
             )
 
-    def results(self):
-        """Return the (global, local, std) if available.
+    def result(self):
+        """Return the global value of the measure.
 
         Calculate the measure if not already calculated.
 
@@ -100,11 +95,7 @@ class Estimator(ABC):
         -----
         The local and standard deviation values are not available for all estimators.
         """
-        self.global_val()
-        try:
-            return self.res_global, self.local_val(), self.std_val()
-        except UnsupportedOperation:
-            return self.res_global
+        return self.global_val()
 
     @final
     def global_val(self):
@@ -145,33 +136,6 @@ class Estimator(ABC):
                 f"Local values are not available for {self.__class__.__name__}."
             )
         return self.res_local
-
-    def std_val(self):
-        """Return the standard deviation of the local values, if available.
-
-        Returns
-        -------
-        std : float
-            The standard deviation of the local values.
-
-        Raises
-        ------
-        io.UnsupportedOperation
-            If the standard deviation is not available.
-
-        Notes
-        -----
-        Not available for :class:`EntropyEstimator` classes.
-        """
-        if self.res_std is None:
-            try:
-                self.res_std = np_std(self.local_val())
-            except UnsupportedOperation:
-                raise UnsupportedOperation(
-                    "Standard deviation is not available for the measure "
-                    f"{self.__class__.__name__}, as local values are not available."
-                )
-        return self.res_std
 
     @abstractmethod
     def _calculate(self) -> float | ndarray[float]:

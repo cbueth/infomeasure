@@ -31,7 +31,7 @@ def test_symbolic_te(data_len, order, step_size, prop_time, default_rng):
                 step_size=step_size,
                 prop_time=prop_time,
             )
-            est.results()
+            est.result()
         return
     if order == 1:
         est = SymbolicTEEstimator(
@@ -88,7 +88,7 @@ def test_symbolic_te(rng_int, order, expected):
     """Test the symbolic transfer entropy estimator."""
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
     est = SymbolicTEEstimator(data_source, data_dest, order=order, base=2)
-    res = est.results()
+    res = est.result()
     if order == 1:
         assert isinstance(res, float)
         assert res == 0.0
@@ -136,7 +136,7 @@ def test_symbolic_te_slicing(
         base=base,
         order=order,
     )
-    res = est.results()
+    res = est.result()
     assert res == pytest.approx(expected)
 
 
@@ -162,7 +162,7 @@ def test_symbolic_cte(rng_int, order, expected):
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
     est = SymbolicCTEEstimator(data_source, data_dest, data_cond, order=order, base=2)
-    res = est.results()
+    res = est.result()
     if order == 1:
         assert isinstance(res, float)
         assert res == 0.0
@@ -211,7 +211,7 @@ def test_symbolic_cte_slicing(
         base=base,
         order=order,
     )
-    res = est.results()
+    res = est.result()
     assert res == pytest.approx(expected)
 
 
@@ -236,12 +236,12 @@ def test_cte_symbolic_autoregressive(rng_int, order, expected_xy, expected_yx):
     est_xy = SymbolicCTEEstimator(
         data_source, data_dest, data_cond, order=order, base=2
     )
-    res_xy = est_xy.results()
+    res_xy = est_xy.result()
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
     est_yx = SymbolicCTEEstimator(
         data_dest, data_source, data_cond, order=order, base=2
     )
-    res_yx = est_yx.results()
+    res_yx = est_yx.result()
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)

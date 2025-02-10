@@ -31,7 +31,7 @@ def test_entropy_class_addressing(entropy_approach):
         data=data, measure="entropy", approach=approach_str, **needed_kwargs
     )
     assert isinstance(est, EntropyEstimator)
-    assert isinstance(est.results(), (float, tuple))
+    assert isinstance(est.result(), (float, tuple))
     assert isinstance(est.global_val(), float)
     assert 0 <= est.p_value(10) <= 1
     with pytest.raises(AttributeError):
@@ -88,16 +88,12 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
+    assert isinstance(est.result(), float)
     if approach_str in ["discrete", "renyi", "tsallis", "symbolic", "permutation"]:
-        assert isinstance(est.results(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
-        with pytest.raises(UnsupportedOperation):
-            est.std_val()
     else:
-        assert isinstance(est.results(), tuple)
         assert isinstance(est.local_val(), np.ndarray)
-        assert isinstance(est.std_val(), float)
     assert 0 <= est.p_value(10) <= 1
     assert -1 <= est.effective_val()
 
@@ -200,7 +196,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est, ConditionalMutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.results(), (float, tuple))
+    assert isinstance(est.result(), (float, tuple))
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])
@@ -307,15 +303,11 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     if approach_str in ["discrete", "renyi", "tsallis", "symbolic", "permutation"]:
-        assert isinstance(est.results(), float)
+        assert isinstance(est.result(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()
-        with pytest.raises(UnsupportedOperation):
-            est.std_val()
     else:
-        assert isinstance(est.results(), tuple)
         assert isinstance(est.local_val(), np.ndarray)
-        assert isinstance(est.std_val(), float)
     assert 0 <= est.p_value(10) <= 1
     assert isinstance(est.effective_val(), float)
 
@@ -337,7 +329,7 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert isinstance(est, ConditionalTransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.results(), (tuple, float))
+    assert isinstance(est.result(), (tuple, float))
 
 
 @pytest.mark.parametrize(

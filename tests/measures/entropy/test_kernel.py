@@ -1,6 +1,7 @@
 """Explicit Kernel entropy estimator tests."""
 
 import pytest
+from numpy import ndarray
 
 from infomeasure.estimators.entropy import KernelEntropyEstimator
 
@@ -66,12 +67,9 @@ def test_kernel_entropy(bandwidth, kernel, default_rng):
 def test_kernel_entropy_explicit(data, bandwidth, kernel, expected):
     """Test the Kernel entropy estimator with specific values."""
     est = KernelEntropyEstimator(data, bandwidth=bandwidth, kernel=kernel, base=2)
-    res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == pytest.approx(res[1].std())
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize("bandwidth", [0, -1, -10, None])
@@ -81,7 +79,7 @@ def test_kernel_entropy_invalid_bandwidth(bandwidth, kernel):
     data = list(range(1000))
     with pytest.raises(ValueError, match="The bandwidth must be a positive number."):
         est = KernelEntropyEstimator(data, bandwidth=bandwidth, kernel=kernel)
-        est.results()
+        est.result()
 
 
 @pytest.mark.parametrize("kernel", ["invalid_kernel", None, 1])
@@ -92,4 +90,4 @@ def test_kernel_entropy_invalid_kernel(kernel):
         ValueError, match=f"Unsupported kernel type: {kernel}. Use 'gaussian' or 'box'."
     ):
         est = KernelEntropyEstimator(data, kernel=kernel, bandwidth=1)
-        est.results()
+        est.result()

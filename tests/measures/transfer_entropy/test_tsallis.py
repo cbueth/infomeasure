@@ -34,7 +34,7 @@ def test_tsallis_te(k, q, expected):
         noise_level=0,  # for reproducibility
         base=2,
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -78,7 +78,7 @@ def test_tsallis_te_slicing(
         q=q,
         noise_level=0,  # for reproducibility
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -108,7 +108,7 @@ def test_tsallis_cte(k, q, expected):
         noise_level=0,  # for reproducibility
         base=2,
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -150,6 +150,6 @@ def test_tsallis_cte_slicing(
         q=q,
         noise_level=0,  # for reproducibility
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)

@@ -17,8 +17,8 @@ def test_tsallis_entropy(k, q, default_rng):
     est = TsallisEntropyEstimator(data, k=k, q=q)
     if q == 1:
         est_discrete = DiscreteEntropyEstimator(data.astype(int))
-        assert pytest.approx(est.results(), rel=0.1) == est_discrete.results()
-    est.results()
+        assert pytest.approx(est.result(), rel=0.1) == est_discrete.result()
+    est.result()
 
 
 @pytest.mark.parametrize(
@@ -33,7 +33,7 @@ def test_tsallis_entropy(k, q, default_rng):
 def test_tsallis_entropy_explicit(data, k, q, expected):
     """Test the Tsallis entropy estimator with specific values."""
     est = TsallisEntropyEstimator(data, k=k, q=q, base=2)
-    assert est.results() == pytest.approx(expected)
+    assert est.result() == pytest.approx(expected)
 
 
 @pytest.mark.parametrize("k", [0, -1, -10, None])

@@ -48,7 +48,7 @@ from infomeasure.estimators.mutual_information import (
 def test_renyi_mi(data_x, data_y, k, alpha, expected):
     """Test the Renyi mutual information estimator."""
     est = RenyiMIEstimator(data_x, data_y, k=k, alpha=alpha, base=2)
-    res = est.results()
+    res = est.result()
     assert res == pytest.approx(expected)
 
 
@@ -102,7 +102,7 @@ def test_renyi_mi(data_x, data_y, k, alpha, expected):
 def test_renyi_cmi(data_x, data_y, data_z, k, alpha, expected):
     """Test the conditional Renyi mutual information estimator."""
     est = RenyiCMIEstimator(data_x, data_y, data_z, k=k, alpha=alpha, base=2)
-    res = est.results()
+    res = est.result()
     assert res == pytest.approx(expected)
 
 
@@ -125,4 +125,4 @@ def test_renyi_cmi_autoregressive(rng_int, k, alpha, expected):
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
     est = RenyiCMIEstimator(data_x, data_y, data_z, k=k, alpha=alpha, base=2)
-    assert est.results() == pytest.approx(expected)
+    assert est.result() == pytest.approx(expected)

@@ -1,6 +1,5 @@
 """Explicit symbolic / permutation entropy estimator tests."""
 
-from array import array
 from itertools import permutations
 from math import factorial
 
@@ -18,12 +17,12 @@ def test_symbolic_entropy(data_len, order, per_symbol, default_rng):
     data = default_rng.integers(0, 10, data_len)
     if order == 1:
         est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
-        assert est.results() == 0
+        assert est.result() == 0
         return
     if order > data_len:
         with pytest.raises(ValueError):
             est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
-            est.results()
+            est.result()
         return
     est = SymbolicEntropyEstimator(data, order=order, per_symbol=per_symbol)
     assert 0 <= est.global_val() <= est._log_base(data_len)
@@ -81,18 +80,18 @@ def test_symbolic_entropy_minimum(order, default_rng):
     # only increasing values
     data = list(range(10))
     est = SymbolicEntropyEstimator(data, order=order)
-    assert est.results() == 0
+    assert est.result() == 0
     # only decreasing values
     est = SymbolicEntropyEstimator(data[::-1], order=order)
-    assert est.results() == 0
+    assert est.result() == 0
     # only the same value
     data = [0] * 10
     est = SymbolicEntropyEstimator(data, order=order)
-    assert est.results() == 0
+    assert est.result() == 0
     # only one pattern
     data = default_rng.normal(size=order)
     est = SymbolicEntropyEstimator(data, order=order)
-    assert est.results() == 0
+    assert est.result() == 0
 
 
 def uniform_data(order, min_length=10, rng=default_rng(), max_len_abort=int(1e5)):

@@ -31,7 +31,7 @@ def test_renyi_te(k, alpha, expected):
         noise_level=0,  # for reproducibility
         base=2,
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -75,7 +75,7 @@ def test_renyi_te_slicing(
         alpha=alpha,
         noise_level=0,  # for reproducibility
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -105,7 +105,7 @@ def test_renyi_cte(k, alpha, expected):
         noise_level=0,  # for reproducibility
         base=2,
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
 
@@ -148,6 +148,6 @@ def test_renyi_cte_slicing(
         alpha=alpha,
         noise_level=0,  # for reproducibility
     )
-    res = est.results()
+    res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)

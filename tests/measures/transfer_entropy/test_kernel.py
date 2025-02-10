@@ -1,7 +1,7 @@
 """Explicit tests for transfer entropy kernel functions."""
 
 import pytest
-from numpy import ndarray, std
+from numpy import ndarray
 
 from tests.conftest import (
     generate_autoregressive_series,
@@ -34,14 +34,9 @@ def test_kernel_te(rng_int, bandwidth, kernel, expected):
         kernel=kernel,
         base=2,
     )
-    res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == pytest.approx(std(res[1]))
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -81,14 +76,9 @@ def test_kernel_te_slicing(
         dest_hist_len=dest_hist_len,
         base=base,
     )
-    res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == pytest.approx(std(res[1]))
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -115,14 +105,9 @@ def test_kernel_cte(rng_int, bandwidth, kernel, expected):
         kernel=kernel,
         base=2,
     )
-    res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == pytest.approx(std(res[1]))
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -167,11 +152,6 @@ def test_kernel_cte_slicing(
         cond_hist_len=cond_hist_len,
         base=base,
     )
-    res = est.results()
-    assert isinstance(res, tuple)
-    assert len(res) == 3
-    assert isinstance(res[0], float)
-    assert isinstance(res[1], ndarray)
-    assert isinstance(res[2], float)
-    assert res[0] == pytest.approx(expected)
-    assert res[2] == pytest.approx(std(res[1]))
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)

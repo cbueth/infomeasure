@@ -36,14 +36,14 @@ def test_discrete_autoregressive(rng_int_prop, prop_time, expected_xy, expected_
         rng_int_prop[0], prop_time=rng_int_prop[1]
     )
     est_xy = DiscreteTEEstimator(data_source, data_dest, base=2, prop_time=prop_time)
-    res_xy = est_xy.results()
+    res_xy = est_xy.result()
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
     assert im.transfer_entropy(
         data_source, data_dest, approach="discrete", base=2, prop_time=prop_time
     ) == pytest.approx(expected_xy)
     est_yx = DiscreteTEEstimator(data_dest, data_source, base=2, prop_time=prop_time)
-    res_yx = est_yx.results()
+    res_yx = est_yx.result()
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)
     assert im.transfer_entropy(
@@ -67,7 +67,7 @@ def test_cte_discrete_autoregressive(rng_int, expected_xy, expected_yx):
     autoregressive data."""
     data_source, data_dest, data_cond = discrete_random_variables_conditional(rng_int)
     est_xy = DiscreteCTEEstimator(data_source, data_dest, data_cond, base=2)
-    res_xy = est_xy.results()
+    res_xy = est_xy.result()
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
     assert im.transfer_entropy(
@@ -78,7 +78,7 @@ def test_cte_discrete_autoregressive(rng_int, expected_xy, expected_yx):
         base=2,
     ) == pytest.approx(expected_xy)
     est_yx = DiscreteCTEEstimator(data_dest, data_source, data_cond, base=2)
-    res_yx = est_yx.results()
+    res_yx = est_yx.result()
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)
     assert im.transfer_entropy(
