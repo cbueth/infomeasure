@@ -13,11 +13,16 @@ from numpy import (
     uint64,
     apply_along_axis,
     iinfo,
+    array_equal,
 )
 from numpy.testing import assert_array_equal
 from scipy.special import factorial
 
-from infomeasure.measures.utils.symbolic import symbolize_series, permutation_to_integer
+from infomeasure.measures.utils.symbolic import (
+    symbolize_series,
+    permutation_to_integer,
+    reduce_joint_space,
+)
 
 
 @pytest.mark.parametrize(
@@ -188,3 +193,46 @@ def test_permutation_to_integer_uniqueness(order, dtype):
         # The results cannot be unique,
         # as the number of permutations is larger than the dtype can handle
         assert len(set(results)) != len(results)
+
+
+@pytest.mark.parametrize(
+    "data,expected",
+    [
+        # 1D: in=out
+        ([4, 5, 4, 5, 6], [4, 5, 4, 5, 6]),
+        ([1.0], [1.0]),
+        (["a", "b", "a", "b", "c"], ["a", "b", "a", "b", "c"]),
+        # 2D: reduce
+        ([[2]], [0]),
+        ([[-5], ["M"]], [0, 1]),
+        ([[4], [5], [4], [5], [6]], [0, 1, 0, 1, 2]),
+        ([[1, 2], [2, 3], [1, 2], [2, 3], [3, 4]], [0, 1, 0, 1, 2]),
+        ([[9, 1, 6], [1, 2, 3], [4, 1, 7]], [2, 0, 1]),
+        ([[1, 1], [2, 2], [3, 3]], [0, 1, 2]),
+        ([[3, 3], [2, 2], [1, 1]], [2, 1, 0]),
+    ],
+)
+def test_reduce_joint_space(data, expected):
+    """Test the reduction of the joint space."""
+    assert array_equal(reduce_joint_space(array(data)), array(expected))
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ([[[1, 2], [2, 3]], [[1, 2], [2, 3]], [[3, 4], [4, 5]]]),
+        0,
+        1.0,
+        "a",
+        (
+            [
+                [[[1, 2], [2, 3]], [[1, 2], [2, 3]], [[3, 4], [4, 5]]],
+                [[[1, 2], [2, 3]], [[1, 2], [2, 3]], [[3, 4], [4, 5]]],
+            ]
+        ),
+    ],
+)
+def test_reduce_joint_space_error(data):
+    """Test the reduction of the joint space with wrong input dimensions."""
+    with pytest.raises(ValueError):
+        reduce_joint_space(array(data))

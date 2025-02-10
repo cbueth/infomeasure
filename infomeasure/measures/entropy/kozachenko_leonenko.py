@@ -2,6 +2,7 @@
 
 from numpy import inf, log
 from numpy import sum as np_sum
+from numpy import column_stack
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
@@ -26,10 +27,6 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
     minkowski_p : float, :math:`1 \leq p \leq \infty`
         The power parameter for the Minkowski metric.
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Raises
     ------
@@ -44,6 +41,7 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         k: int = 4,
         noise_level=1e-10,
         minkowski_p=inf,
@@ -83,7 +81,7 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
-    def _calculate(self):
+    def _simple_entropy(self):
         """Calculate the entropy of the data.
 
         Returns
@@ -98,13 +96,12 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
             data_noisy += self.rng.normal(0, self.noise_level, self.data.shape)
 
         # Build a KDTree for efficient nearest neighbor search with maximum norm
-        tree = KDTree(data_noisy)  # KDTree uses 'Euclidean' metric by default
+        tree = KDTree(data_noisy)
 
         # Find the k-th nearest neighbors for each point
         distances, _ = tree.query(data_noisy, self.k + 1, p=self.minkowski_p)
-
-        # Exclude the zero distance to itself, which is the first distance
-        distances = distances[:, self.k]
+        # Only keep the k-th nearest neighbor distance
+        distances = distances[:, -1]
 
         # Constants for the entropy formula
         N = self.data.shape[0]
@@ -122,3 +119,17 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
         )
         # return in desired base
         return entropy / log(self.base) if self.base != "e" else entropy
+
+    def _joint_entropy(self):
+        """Calculate the joint entropy of the data.
+
+        This is done by joining the variables into one space
+        and calculating the entropy.
+
+        Returns
+        -------
+        float
+            The calculated joint entropy.
+        """
+        self.data = column_stack(self.data)
+        return self._simple_entropy()

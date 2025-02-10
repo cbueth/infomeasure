@@ -2,8 +2,10 @@
 
 from collections import Counter
 
-from numpy import array, sum as np_sum
+from numpy import array, sum as np_sum, ndarray
 
+from ..utils.symbolic import reduce_joint_space, symbolize_series
+from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
@@ -19,7 +21,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     For a given ``order`` (length of considered subsequences),
     all :math:`n!` possible permutations are considered
     and their relative frequencies are calculated
-    :cite:p:`bandtPermutationEntropyNatural2002`.
+    :cite:p:`PermutationEntropy2002`.
 
     Attributes
     ----------
@@ -29,10 +31,6 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         The size of the permutation patterns.
     per_symbol : bool, optional
         If True, the entropy is divided by the order - 1.
-    base : int | float | "e", optional
-        The logarithm base for the entropy calculation.
-        The default can be set
-        with :func:`set_logarithmic_unit() <infomeasure.utils.config.Config.set_logarithmic_unit>`.
 
     Notes
     -----
@@ -53,6 +51,7 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
     def __init__(
         self,
         data,
+        *,  # all following parameters are keyword-only
         order: int,
         per_symbol: bool = False,
         base: LogBaseType = Config.get("base"),
@@ -136,25 +135,31 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # Return array of non-zero probabilities
         return array([v / total_patterns for v in count.values()])
 
-    def _calculate(self):
-        """Calculate the entropy of the data.
-
-        Returns
-        -------
-        float
-            The calculated entropy.
-        """
+    def _simple_entropy(self) -> float:
+        """Calculate the entropy of the data."""
 
         if self.order == 1:
             return 0.0
-        elif self.order == len(self.data):
+        elif self.order == self.data.shape[0]:
             return 0.0
 
         probabilities = self._estimate_probabilities(self.data, self.order)
         # sum over probabilities, multiplied by the logarithm of the probabilities
-        entropy = np_sum(-probabilities * self._log_base(probabilities))
+        # we do not return these 'local' values, as these are not local to the input
+        # data, but local in relation to the permutation patterns, so the identity
+        # used in the Estimator parent class does not work here
+        return -np_sum(probabilities * self._log_base(probabilities))
 
-        if self.per_symbol:
-            entropy /= self.order - 1
-
-        return entropy
+    def _joint_entropy(self) -> float:
+        """Calculate the joint entropy of the data."""
+        # Symbolize separately (permutation patterns -> Lehmer codes)
+        symbols = (
+            symbolize_series(marginal, self.order, to_int=True)
+            for marginal in self.data  # data is tuple of time series
+        )  # shape (n - (order - 1), num_joints)
+        # Reduce the joint space
+        self.data = reduce_joint_space(symbols)  # reduction columns stacks the symbols
+        # Calculate frequencies of co-ocurrent patterns
+        probabilities = histogram_unique_values(self.data)
+        # Calculate the entropy
+        return -np_sum(probabilities * self._log_base(probabilities))

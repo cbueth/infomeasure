@@ -11,6 +11,28 @@ logging.basicConfig(
 # set standard logger to 'infomeasure' logger
 logger = logging.getLogger("infomeasure")
 
+# Define a dictionary to map base values to their corresponding unit names
+BASE_UNIT_MAP = {
+    2: {
+        "identifiers": ["bits", "bit", "shannons", "shannon"],
+        "name": "bit/shannon",
+        "description": "This base is best suited for binary information, "
+        "which is fundamental in digital systems.",
+    },
+    "e": {
+        "identifiers": ["nats", "nat"],
+        "name": "nat",
+        "description": "This base is best suited for "
+        "continuous probability distributions.",
+    },
+    10: {
+        "identifiers": ["hartleys", "hartley", "bans", "ban", "dits", "dit"],
+        "name": "hartley/ban/dit",
+        "description": "This base is best suited for decimal information, "
+        "which is commonly used in human-centric measurements.",
+    },
+}
+
 
 class Config:
     """Configuration settings for the package.
@@ -21,7 +43,7 @@ class Config:
 
     Default settings:
 
-    - 'base': 2 (bits/shannons)
+    - 'base': e (nats)
     - 'p_value_method': 'permutation_test'
 
     Attributes
@@ -33,7 +55,7 @@ class Config:
 
     __default_settings = {
         "base": {
-            "value": 2,  # 2: bits/shannon, e: nats, 10: hartleys/bans/dits
+            "value": "e",  # 2: bits/shannon, e: nats, 10: hartleys/bans/dits
             "types": int | float,
             "additionally_allowed": ["e"],
         },
@@ -130,16 +152,46 @@ class Config:
         ------
         ValueError
             If the unit is not recognized.
-
         """
-        if unit.lower() in ["bits", "bit", "shannons", "shannon"]:
-            cls.set("base", 2)
-        elif unit.lower() in ["nats", "nat"]:
-            cls.set("base", "e")
-        elif unit.lower() in ["hartleys", "hartley", "bans", "ban", "dits", "dit"]:
-            cls.set("base", 10)
-        else:
-            raise ValueError(f"Unknown logarithmic unit: {unit}")
+        unit = unit.lower()
+        for base, units in BASE_UNIT_MAP.items():
+            if unit in units["identifiers"]:
+                cls.set("base", base)
+                return
+        raise ValueError(f"Unknown logarithmic unit: {unit}")
+
+    @classmethod
+    def get_logarithmic_unit(cls) -> str:
+        """Get the logarithmic unit for entropy calculations.
+
+        Returns
+        -------
+        str
+            The logarithmic unit.
+        """
+        for base, units in BASE_UNIT_MAP.items():
+            if cls.get("base") == base:
+                return units["name"]
+        return f"unknown (base {cls.get('base')})"
+
+    @classmethod
+    def get_logarithmic_unit_description(cls) -> str:
+        """Get the description of the logarithmic unit for entropy calculations.
+
+        Returns
+        -------
+        str
+            The description of the logarithmic unit.
+
+        Raises
+        ------
+        ValueError
+            If there is no description for the logarithmic unit.
+        """
+        for base, units in BASE_UNIT_MAP.items():
+            if cls.get("base") == base:
+                return units["description"]
+        raise ValueError(f"No description for logarithmic unit: {cls.get('base')}")
 
     @staticmethod
     def set_log_level(level: int | str) -> None:
@@ -158,3 +210,13 @@ class Config:
         # get logging representation of level
         level = level if isinstance(level, int) else getattr(logging, level.upper())
         logger.setLevel(level)
+
+
+logger.debug(
+    "Using %s (base %s) for entropy calculations.\n%s\n"
+    r"Use 'infomeasure.Config.set_logarithmic_unit(unit)' to change the unit or "
+    r"'infomeasure.Config.set(base)' to set the base directly.",
+    Config.get_logarithmic_unit(),
+    Config.get("base"),
+    Config.get_logarithmic_unit_description(),
+)

@@ -10,7 +10,7 @@ class TestConfig:
 
     def test_get(self):
         """Test the get method of the Config class."""
-        assert Config.get("base") == 2
+        assert Config.get("base") == "e"
 
     def test_set(self):
         """Test the set method of the Config class."""
@@ -67,4 +67,4 @@ class TestConfig:
         """Test the reset method of the Config class."""
         Config.set("base", 10)
         Config.reset()
-        assert Config.get("base") == 2
+        assert Config.get("base") == "e"
