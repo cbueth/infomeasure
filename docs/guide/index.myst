@@ -10,7 +10,7 @@ For the detailed API documentation, see the {ref}`API Reference`.
 .. toctree::
    :maxdepth: 2
 
-   estimator_usage
+   introduction
    entropy/index
    entropy/cond_entropy/index
    mutual_information/index
@@ -18,5 +18,4 @@ For the detailed API documentation, see the {ref}`API Reference`.
    transfer_entropy/index
    transfer_entropy/cond_TE/index
    JSD
-   demo_tests/index
 ```

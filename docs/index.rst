@@ -16,6 +16,7 @@ Furthermore, you can also find the `API documentation <api/index.html>`__.
 
    getting_started
    guide/index
+   demos/index
    api/index
    changelog
    bibliography
