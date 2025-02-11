@@ -1,6 +1,9 @@
 """Module for the Tsallis mutual information estimator."""
 
 from abc import ABC
+
+from numpy import issubdtype, integer
+
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
@@ -90,7 +93,7 @@ class BaseTsallisMIEstimator(ABC):
 
         if not isinstance(q, (int, float)) or q <= 0:
             raise ValueError("The Tsallis parameter ``q`` must be a positive number.")
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )

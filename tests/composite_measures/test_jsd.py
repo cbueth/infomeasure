@@ -123,3 +123,10 @@ def test_jsd_explicit_continuous_three(rng_int, approach, kwargs, expected):
     assert im.jsd(data_x, data_y, data_z, approach=approach, **kwargs) == pytest.approx(
         expected
     )
+
+
+@pytest.mark.parametrize("approach", ["renyi", "tsallis", "kl", None, "unknown"])
+def test_jsd_unsupported_approach(approach):
+    """Test the Jensen-Shannon Divergence (JSD) estimator with unsupported approach."""
+    with pytest.raises(ValueError):
+        im.jsd([1, 2, 3], [4, 5, 6], approach=approach)

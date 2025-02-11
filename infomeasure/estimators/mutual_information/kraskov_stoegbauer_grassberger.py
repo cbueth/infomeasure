@@ -11,6 +11,7 @@ from ..base import (
     ConditionalMutualInformationEstimator,
     EffectiveValueMixin,
 )
+from ..utils.array import assure_2d_data
 
 
 class BaseKSGMIEstimator(ABC):
@@ -95,13 +96,10 @@ class BaseKSGMIEstimator(ABC):
                 data_x, data_y, data_z, offset=offset, normalize=normalize, base=base
             )
             # Ensure self.data_z is a 2D array
-            if self.data_z.ndim == 1:
-                self.data_z = self.data_z[:, newaxis]
+            self.data_z = assure_2d_data(self.data_z)
         # Ensure self.data_x and self.data_y are 2D arrays
-        if self.data_x.ndim == 1:
-            self.data_x = self.data_x[:, newaxis]
-        if self.data_y.ndim == 1:
-            self.data_y = self.data_y[:, newaxis]
+        self.data_x = assure_2d_data(self.data_x)
+        self.data_y = assure_2d_data(self.data_y)
         self.k = k
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p

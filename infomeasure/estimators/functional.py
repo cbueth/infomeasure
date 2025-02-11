@@ -129,7 +129,56 @@ def _get_estimator(estimators, estimator_name):
     return _dynamic_import(estimators[estimator_name.lower()])
 
 
-def _dynamic_estimator(estimators) -> callable:
+def get_estimator_class(measure=None, approach=None) -> object:
+    """Get estimator class based on the estimator name and approach.
+
+    This function returns the estimator class based on the measure and approach
+    provided.
+    If you want an instance of an estimator, initialized with data and parameters,
+    use the functional interface :func:`estimator`.
+
+    Parameters
+    ----------
+    measure : str
+        The measure to estimate.
+        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``,
+        ``conditional_mutual_information``, ``conditional_transfer_entropy``.
+        Aliases: ``h``, ``mi``, ``te``, ``cmi``, ``cte``.
+    approach : str
+        The name of the estimator to use.
+
+    Returns
+    -------
+    class
+        The estimator class.
+
+    Raises
+    ------
+    ValueError
+        If the measure is not recognized.
+    ValueError
+        If the approach is not recognized.
+    """
+    if measure is None:
+        raise ValueError("The measure must be specified.")
+    if measure.lower() in ["entropy", "h"]:
+        return _get_estimator(entropy_estimators, approach)
+    elif measure.lower() in ["mutual_information", "mi"]:
+        return _get_estimator(mi_estimators, approach)
+    elif measure.lower() in ["conditional_mutual_information", "cmi"]:
+        return _get_estimator(cmi_estimators, approach)
+    elif measure.lower() in ["transfer_entropy", "te"]:
+        return _get_estimator(te_estimators, approach)
+    elif measure.lower() in ["conditional_transfer_entropy", "cte"]:
+        return _get_estimator(cte_estimators, approach)
+    else:
+        raise ValueError(
+            f"Unknown measure: {measure}. Available measures: entropy, mutual_information, "
+            "conditional_mutual_information, transfer_entropy, conditional_transfer_entropy."
+        )
+
+
+def _dynamic_estimator(measure) -> callable:
     """Decorator to dynamically inject the estimator class into the function.
 
     This decorator is used to inject the estimator class into the function
@@ -138,7 +187,7 @@ def _dynamic_estimator(estimators) -> callable:
 
     Parameters
     ----------
-    estimators : dict | [dict, dict]
+    measure : dict | [dict, dict]
         The dictionary of available estimators.
         Structure: {estimator_name: class_path}
         Or two of these, one normal and one for conditional estimators.
@@ -156,22 +205,25 @@ def _dynamic_estimator(estimators) -> callable:
             if estimator_name is None:
                 raise ValueError(
                     "Estimator name is required, choose one of: " ", ".join(
-                        estimators.keys()
-                        if isinstance(estimators, dict)
-                        else estimators[0].keys()
+                        measure.keys()
+                        if isinstance(measure, dict)
+                        else measure[0].keys()
                     )
                 )
             # if `data_z` or `cond` is passed, it is a conditional estimator
-            if isinstance(estimators, dict):
-                kwargs["EstimatorClass"] = _get_estimator(
-                    estimators, estimator_name
-                )  # Inject EstimatorClass into kwargs
+            if isinstance(measure, str):
+                # Inject EstimatorClass into kwargs
+                kwargs["EstimatorClass"] = get_estimator_class(measure, estimator_name)
             elif (
                 kwargs.get("data_z") is not None or kwargs.get("cond") is not None
             ) or (len(args) > 2 and args[2] is not None):
-                kwargs["EstimatorClass"] = _get_estimator(estimators[1], estimator_name)
+                kwargs["EstimatorClass"] = get_estimator_class(
+                    measure[1], estimator_name
+                )
             else:
-                kwargs["EstimatorClass"] = _get_estimator(estimators[0], estimator_name)
+                kwargs["EstimatorClass"] = get_estimator_class(
+                    measure[0], estimator_name
+                )
             return func(
                 *args, **kwargs
             )  # Pass all arguments as they are, including modified kwargs
@@ -181,7 +233,7 @@ def _dynamic_estimator(estimators) -> callable:
     return decorator
 
 
-@_dynamic_estimator(entropy_estimators)
+@_dynamic_estimator("entropy")
 def entropy(data, approach: str, *args, **kwargs):
     """Calculate the entropy using a functional interface of different estimators.
 
@@ -219,7 +271,7 @@ def entropy(data, approach: str, *args, **kwargs):
     return EstimatorClass(data, *args, **kwargs).result()
 
 
-@_dynamic_estimator([mi_estimators, cmi_estimators])
+@_dynamic_estimator(["mi", "cmi"])
 def mutual_information(
     *data,
     approach: str,
@@ -288,7 +340,7 @@ def conditional_mutual_information(*data, **parameters):
     return mutual_information(*data, **parameters)
 
 
-@_dynamic_estimator([te_estimators, cte_estimators])
+@_dynamic_estimator(["te", "cte"])
 def transfer_entropy(
     *data,
     approach: str,
@@ -377,6 +429,14 @@ def estimator(
 
     This function provides a simple interface to get
     an :class:`Estimator <.base.Estimator>` for a specific measure.
+
+    If you are only interested in the result, use the functional interfaces:
+
+    - :func:`entropy <entropy>`
+    - :func:`mutual_information <mutual_information>`
+    - :func:`conditional_mutual_information <conditional_mutual_information>`
+    - :func:`transfer_entropy <transfer_entropy>`
+    - :func:`conditional_transfer_entropy <conditional_transfer_entropy>`
 
     Estimators available:
 

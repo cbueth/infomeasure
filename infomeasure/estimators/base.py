@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from typing import final
 
-from numpy import std as np_std, asarray
+from numpy import asarray, issubdtype, integer
 from numpy import array, log, log2, log10, ndarray
 from numpy import sum as np_sum
 from numpy import mean as np_mean
@@ -332,7 +332,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     ):
         """Initialize the estimator with the data."""
         offset = offset or 0  # Ensure offset is an integer (`None` -> 0)
-        if not isinstance(offset, int):
+        if not issubdtype(type(offset), integer):
             raise ValueError(f"Offset must be an integer, not {offset}.")
         self.data_x = asarray(data_x)
         self.data_y = asarray(data_y)
@@ -627,7 +627,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
                 "Data arrays must be of the same length, "
                 f"not {len(source)} and {len(dest)}."
             )
-        if not isinstance(prop_time, int):
+        if not issubdtype(type(prop_time), integer):
             raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
         self.source = asarray(source)
         self.dest = asarray(dest)
@@ -786,7 +786,7 @@ class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
                 "Data arrays must be of the same length, "
                 f"not {len(source)}, {len(dest)}, and {len(cond)}."
             )
-        if not isinstance(prop_time, int):
+        if not issubdtype(type(prop_time), integer):
             raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
         if prop_time not in (None, 0):
             raise ValueError(
@@ -1076,7 +1076,7 @@ class PValueMixin(RandomGeneratorMixin):
         ValueError
             If the number of permutations is not a positive integer.
         """
-        if not isinstance(n_permutations, int) or n_permutations < 1:
+        if not issubdtype(type(n_permutations), integer) or n_permutations < 1:
             raise ValueError(
                 "Number of permutations must be a positive integer, "
                 f"not {n_permutations} ({type(n_permutations)})."
@@ -1110,7 +1110,7 @@ class PValueMixin(RandomGeneratorMixin):
         ValueError
             If the number of permutations is not a positive integer.
         """
-        if not isinstance(n_permutations, int) or n_permutations < 1:
+        if not issubdtype(type(n_permutations), integer) or n_permutations < 1:
             raise ValueError(
                 "Number of permutations must be a positive integer, "
                 f"not {n_permutations} ({type(n_permutations)})."

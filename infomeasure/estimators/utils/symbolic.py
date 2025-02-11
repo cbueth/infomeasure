@@ -1,6 +1,7 @@
 """Symbolic / Permutation utility functions."""
 
 from math import factorial
+from typing import Generator
 
 from numpy import (
     ndarray,
@@ -145,7 +146,7 @@ def symbolize_series(
     return patterns
 
 
-def reduce_joint_space(data: ndarray | tuple[ndarray]) -> ndarray:
+def reduce_joint_space(data: ndarray | tuple[ndarray] | Generator) -> ndarray:
     """Reduce the data to the joint space.
 
     Reduce features: Assigns each unique feature vector to a unique integer.
@@ -193,6 +194,8 @@ def reduce_joint_space(data: ndarray | tuple[ndarray]) -> ndarray:
     """
     if isinstance(data, list):
         raise ValueError("Data array must be a numpy array or tuple of arrays.")
+    if isinstance(data, Generator):
+        data = tuple(data)
     if isinstance(data, tuple):
         data = column_stack(data)
     if data.ndim == 2:

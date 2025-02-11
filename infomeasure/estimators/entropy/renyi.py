@@ -1,6 +1,6 @@
 """Module for the Rényi entropy estimator."""
 
-from numpy import column_stack, ndarray, newaxis
+from numpy import column_stack, issubdtype, integer
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -10,6 +10,7 @@ from ..utils.exponential_family import (
     exponential_family_iq,
     exponential_family_i1,
 )
+from ..utils.array import assure_2d_data
 
 
 class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
@@ -54,21 +55,13 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
         super().__init__(data, base)
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )
         self.k = k
         self.alpha = alpha
-        if isinstance(self.data, ndarray) and self.data.ndim == 1:
-            self.data = self.data[:, newaxis]
-        elif isinstance(self.data, tuple):
-            self.data = tuple(
-                marginal[:, newaxis]
-                if isinstance(marginal, ndarray) and marginal.ndim == 1
-                else marginal
-                for marginal in self.data
-            )
+        self.data = assure_2d_data(data)
 
     def _simple_entropy(self):
         """Calculate the Renyi entropy of the data.

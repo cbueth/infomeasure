@@ -23,7 +23,7 @@ The TE is calculated as:
 
 """
 
-from numpy import arange, ndarray, concatenate, expand_dims
+from numpy import arange, ndarray, concatenate, expand_dims, issubdtype, integer
 from numpy.random import Generator, default_rng
 
 from ...utils.config import logger
@@ -104,7 +104,7 @@ def te_observations(
         )
     # error if vars are not positive integers
     if not all(
-        isinstance(var, int) and var > 0
+        issubdtype(type(var), integer) and var > 0
         for var in (src_hist_len, dest_hist_len, step_size)
     ):
         raise ValueError(
@@ -249,7 +249,7 @@ def cte_observations(
         )
     # error if vars are not positive integers
     if not all(
-        isinstance(var, int) and var > 0
+        issubdtype(type(var), integer) and var > 0
         for var in (src_hist_len, dest_hist_len, cond_hist_len, step_size)
     ):
         raise ValueError(

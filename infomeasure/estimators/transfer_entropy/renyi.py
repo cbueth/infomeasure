@@ -2,6 +2,8 @@
 
 from abc import ABC
 
+from numpy import issubdtype, integer
+
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
@@ -120,11 +122,11 @@ class BaseRenyiTEEstimator(ABC):
             )
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )
-        if not isinstance(step_size, int) or step_size < 0:
+        if not issubdtype(type(step_size), integer) or step_size < 0:
             raise ValueError("The step_size must be a non-negative integer.")
         self.k = k
         self.alpha = alpha
