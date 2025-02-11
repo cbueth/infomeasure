@@ -882,6 +882,54 @@ class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         )
 
 
+class DistributionMixin:
+    """Mixin for Estimators that offer introspection of the distribution.
+
+    Attributes
+    ----------
+    dist_dict : dict
+        The distribution of the data.
+        Format: {symbol: probability}
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the distribution attribute."""
+        self.dist_dict: dict | None = None
+        super().__init__(*args, **kwargs)
+
+    def distribution(self) -> dict:
+        """Get the distribution of the data.
+
+        Returns
+        -------
+        dict
+            The distribution of the data.
+        """
+        if self.dist_dict is None:
+            self.dist_dict = self._distribution()
+        return self.dist_dict
+
+    def _distribution(self) -> dict:
+        """Get the distribution of the data.
+
+        Child classes can implement this method to add a dedicated distribution method.
+        If not implemented, it's expected that the `calculate` method sets the
+        distribution.
+
+        Returns
+        -------
+        dict
+            The distribution of the data.
+        """
+        if self.dist_dict is None:
+            self.calculate()
+        if self.dist_dict is None:
+            raise UnsupportedOperation(
+                "Distribution is not available for this estimator."
+            )
+        return self.dist_dict
+
+
 class PValueMixin(RandomGeneratorMixin):
     """Mixin for p-value calculation.
 

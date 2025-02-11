@@ -11,9 +11,11 @@ from .estimators.functional import (
     conditional_transfer_entropy,
     estimator,
 )
+from .composite_measures import jensen_shannon_divergence
 
 h, mi, te = entropy, mutual_information, transfer_entropy
 cmi, cte = conditional_mutual_information, conditional_transfer_entropy
+jsd = jensen_shannon_divergence
 
 # Set package attributes
 __author__ = "Carlson Büth"

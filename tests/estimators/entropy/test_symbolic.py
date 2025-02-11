@@ -62,7 +62,7 @@ def test_symbolic_entropy(data_len, order, per_symbol, default_rng):
             [0, 7, 2, 3, 45, 7, 1, 8, 4, 5, 2, 7, 8, 5, 8, 0, 7, 1, 3, 51, 6, 7],
             4,
             2,
-            3.40582225028569,
+            3.40582225028569,  # On Mac M4 returns 3.5110854081804264 (might be due to (8, 5, 8, 0) returning different perms
         ),
         ([4, 7, 9, 10, 6, 11, 35, 0, 59, 4, 45, 46], 4, 3, 1.7195867761904635),
     ],

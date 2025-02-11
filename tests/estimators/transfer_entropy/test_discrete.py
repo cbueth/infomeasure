@@ -5,7 +5,7 @@ import pytest
 import infomeasure as im
 from tests.conftest import (
     discrete_random_variables,
-    discrete_random_variables_conditional,
+    discrete_random_variables_condition,
 )
 from infomeasure.estimators.transfer_entropy import (
     DiscreteTEEstimator,
@@ -65,7 +65,7 @@ def test_discrete_autoregressive(rng_int_prop, prop_time, expected_xy, expected_
 def test_cte_discrete_autoregressive(rng_int, expected_xy, expected_yx):
     """Test the conditional discrete transfer entropy estimator with
     autoregressive data."""
-    data_source, data_dest, data_cond = discrete_random_variables_conditional(rng_int)
+    data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
     est_xy = DiscreteCTEEstimator(data_source, data_dest, data_cond, base=2)
     res_xy = est_xy.result()
     assert isinstance(res_xy, float)
@@ -161,7 +161,7 @@ def test_discrete_te_base(rng_int, base, expected_xy, expected_yx):
 )
 def test_discrete_cte_base(rng_int, base, expected_xy, expected_yx):
     """Test the conditional discrete transfer entropy estimator with different bases."""
-    data_source, data_dest, data_cond = discrete_random_variables_conditional(rng_int)
+    data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
     assert im.transfer_entropy(
         data_source, data_dest, data_cond, approach="discrete", base=base
     ) == pytest.approx(expected_xy)

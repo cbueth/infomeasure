@@ -2,17 +2,17 @@
 
 from collections import Counter
 
-from numpy import array, sum as np_sum, ndarray
+from numpy import array, sum as np_sum, True_, False_
 
 from ..utils.symbolic import reduce_joint_space, symbolize_series
 from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
+from ..base import EntropyEstimator, PValueMixin, DistributionMixin
 
 
-class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
+class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator):
     r"""Estimator for the Symbolic / Permutation entropy.
 
     The Symbolic entropy is a measure of the complexity of a time series.
@@ -78,9 +78,11 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         """Simplified case for order 2."""
         gt = time_series[:-1] < time_series[1:]  # compare all neighboring elements
         gt = np_sum(gt) / (len(time_series) - 1)  # sum up the True values
-        if gt == 0 or gt == 1:
-            return array([1])  # output cannot include zeros
-        return array([gt, 1 - gt])  # return the probabilities in the needed format
+        if gt == 0:
+            return array([1]), {(1, 0): 1}
+        if gt == 1:
+            return array([1]), {(0, 1): 1}
+        return array([gt, 1 - gt]), {(0, 1): gt, (1, 0): 1 - gt}
 
     @staticmethod
     def _estimate_probabilities_order_3(time_series):
@@ -90,7 +92,19 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         gt3 = time_series[:-2] < time_series[2:]  # 0 < 2
         count = Counter(zip(gt1, gt2, gt3))
         probs = array([v / (len(time_series) - 2) for v in count.values()])
-        return probs[probs != 0]  # output cannot include zeros
+        # Translate bool keys to numbers (rename keys)
+        bool_to_num_map = {
+            (True_, True_, True_): (0, 1, 2),
+            (True_, False_, True_): (0, 2, 1),
+            (False_, True_, True_): (1, 0, 2),
+            (True_, False_, False_): (1, 2, 0),
+            (False_, True_, False_): (2, 0, 1),
+            (False_, False_, False_): (2, 1, 0),
+        }
+        dist_dict = {
+            bool_to_num_map[key]: prob for key, prob in zip(count.keys(), probs)
+        }
+        return probs[probs != 0], dist_dict  # output cannot include zeros
 
     @staticmethod
     def _get_subarray_patterns(a, n):
@@ -133,17 +147,23 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # Create a Counter object to count the occurrences of each permutation
         count = Counter(map(tuple, self._get_subarray_patterns(time_series, order)))
         # Return array of non-zero probabilities
-        return array([v / total_patterns for v in count.values()])
+        probs = array([v / total_patterns for v in count.values()])
+        dist_dict = dict(zip(count.keys(), probs))
+        return probs, dist_dict
 
     def _simple_entropy(self) -> float:
         """Calculate the entropy of the data."""
 
         if self.order == 1:
+            self.dist_dict = {0: 1.0}
             return 0.0
         elif self.order == self.data.shape[0]:
+            self.dist_dict = {tuple(self.data.argsort()): 1.0}
             return 0.0
 
-        probabilities = self._estimate_probabilities(self.data, self.order)
+        probabilities, self.dist_dict = self._estimate_probabilities(
+            self.data, self.order
+        )
         # sum over probabilities, multiplied by the logarithm of the probabilities
         # we do not return these 'local' values, as these are not local to the input
         # data, but local in relation to the permutation patterns, so the identity
@@ -160,6 +180,6 @@ class SymbolicEntropyEstimator(PValueMixin, EntropyEstimator):
         # Reduce the joint space
         self.data = reduce_joint_space(symbols)  # reduction columns stacks the symbols
         # Calculate frequencies of co-ocurrent patterns
-        probabilities = histogram_unique_values(self.data)
+        probabilities, self.dist_dict = histogram_unique_values(self.data)
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))

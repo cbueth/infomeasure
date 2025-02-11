@@ -7,10 +7,10 @@ from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
+from ..base import EntropyEstimator, PValueMixin, DistributionMixin
 
 
-class DiscreteEntropyEstimator(PValueMixin, EntropyEstimator):
+class DiscreteEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator):
     """Estimator for discrete entropy (Shannon entropy).
 
     Attributes
@@ -56,7 +56,7 @@ class DiscreteEntropyEstimator(PValueMixin, EntropyEstimator):
         float
             The calculated entropy.
         """
-        histogram = histogram_unique_values(self.data)
+        histogram, self.dist_dict = histogram_unique_values(self.data)
         # Calculate the entropy
         return -np_sum(histogram * self._log_base(histogram))
 

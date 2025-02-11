@@ -362,7 +362,7 @@ def discrete_random_variables(rng_int, prop_time=0, low=0, high=4, length=1000):
 
 
 @cache
-def discrete_random_variables_conditional(rng_int, low=0, high=4, length=1000):
+def discrete_random_variables_condition(rng_int, low=0, high=4, length=1000):
     """Generate three coupled discrete random variables.
 
     The first variable is a uniform random variable with values in [low, high-1].

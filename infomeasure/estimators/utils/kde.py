@@ -27,8 +27,8 @@ def kde_probability_density_function(data, bandwidth, x=None, kernel="box"):
 
     Returns
     -------
-    float
-        Estimated probability density at point x.
+    ndarray[float]
+        KDE at the given point(s).
 
     Raises
     ------
