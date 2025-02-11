@@ -31,6 +31,9 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         The size of the permutation patterns.
     per_symbol : bool, optional
         If True, the entropy is divided by the order - 1.
+    stable : bool, optional
+        If True, when sorting the data, the order of equal elements is preserved.
+        This can be useful for reproducibility and testing, but might be slower.
 
     Notes
     -----
@@ -54,6 +57,7 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         *,  # all following parameters are keyword-only
         order: int,
         per_symbol: bool = False,
+        stable: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the SymbolicEntropyEstimator.
@@ -62,6 +66,11 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         ----------
         order : int
             The order of the Symbolic entropy.
+        per_symbol : bool, optional
+            If True, the entropy is divided by the order - 1.
+        stable : bool, optional
+            If True, when sorting the data, the order of equal elements is preserved.
+            This can be useful for reproducibility and testing, but might be slower.
         """
         super().__init__(data, base=base)
         if not isinstance(order, int) or order < 0:
@@ -72,6 +81,7 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
             logger.warning("The Symbolic entropy is always 0 for order=1.")
         self.order = order
         self.per_symbol = per_symbol
+        self.stable = stable
 
     @staticmethod
     def _estimate_probabilities_order_2(time_series):
@@ -107,7 +117,7 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         return probs[probs != 0], dist_dict  # output cannot include zeros
 
     @staticmethod
-    def _get_subarray_patterns(a, n):
+    def _get_subarray_patterns(a, n, stable_argsort=False):
         r"""Get the subarray patterns for a given array and order.
 
         Only sorts the array once and then uses the sorted indices to create the
@@ -128,7 +138,7 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         We do not give the naive approach as alternative, as orders >4 are not to be
         often expected in practice, neither such long time series.
         """
-        sorted_indices_a = a.argsort()
+        sorted_indices_a = a.argsort(stable=stable_argsort)
         subarray_patterns = [[] for _ in range(len(a))]
         for i in range(len(a)):
             idx = sorted_indices_a[i]
@@ -145,7 +155,14 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         # Get the length of the time series
         total_patterns = len(time_series) - order + 1
         # Create a Counter object to count the occurrences of each permutation
-        count = Counter(map(tuple, self._get_subarray_patterns(time_series, order)))
+        count = Counter(
+            map(
+                tuple,
+                self._get_subarray_patterns(
+                    time_series, order, stable_argsort=self.stable
+                ),
+            )
+        )
         # Return array of non-zero probabilities
         probs = array([v / total_patterns for v in count.values()])
         dist_dict = dict(zip(count.keys(), probs))

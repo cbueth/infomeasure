@@ -26,6 +26,9 @@ class BaseSymbolicTEEstimator(ABC):
         The conditional data used to estimate the conditional transfer entropy.
     order : int
         The size of the permutation patterns.
+    stable : bool, optional
+        If True, when sorting the data, the order of equal elements is preserved.
+        This can be useful for reproducibility and testing, but might be slower.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
@@ -60,6 +63,7 @@ class BaseSymbolicTEEstimator(ABC):
         cond=None,
         *,  # Enforce keyword-only arguments
         order: int,
+        stable: bool = False,
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -77,6 +81,9 @@ class BaseSymbolicTEEstimator(ABC):
             The conditional data used to estimate the conditional transfer entropy.
         order : int
             The order of the Symbolic entropy.
+        stable : bool, optional
+            If True, when sorting the data, the order of equal elements is preserved.
+            This can be useful for reproducibility and testing, but might be slower.
         prop_time : int, optional
             Number of positions to shift the data arrays relative to each other (multiple of
             ``step_size``).
@@ -127,6 +134,7 @@ class BaseSymbolicTEEstimator(ABC):
         if len(self.source) < (order - 1) * step_size + 1:
             raise ValueError("The data is too small for the given step_size and order.")
         self.order = order
+        self.stable = stable
 
     @staticmethod
     def _estimate_probabilities(slicing_method, *data, **hist_lens):
@@ -212,7 +220,8 @@ class BaseSymbolicTEEstimator(ABC):
 
         Returns
         -------
-
+        float
+            The Transfer Entropy value.
         """
 
         if self.order == 1:
@@ -229,7 +238,9 @@ class BaseSymbolicTEEstimator(ABC):
 
         # Symbolize the time series dest and source, use Lehmer code
         symbols = (
-            symbolize_series(var, self.order, self.step_size, to_int=True)
+            symbolize_series(
+                var, self.order, self.step_size, to_int=True, stable=self.stable
+            )
             for var in data
         )
         # Estimate joint and conditional probabilities

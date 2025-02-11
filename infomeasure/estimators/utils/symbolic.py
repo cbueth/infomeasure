@@ -75,7 +75,7 @@ def permutation_to_integer(perm: ndarray, dtype: type = uint64) -> int:
 
 
 def symbolize_series(
-    series: ndarray, order: int, step_size: int = 1, to_int=False
+    series: ndarray, order: int, step_size: int = 1, to_int=False, stable=False
 ) -> ndarray:
     """
     Convert a time series into a sequence of symbols (permutation patterns).
@@ -91,6 +91,9 @@ def symbolize_series(
     to_int : bool, optional
         Whether to convert the permutation patterns to integers. Default is False.
         This
+    stable : bool, optional
+        If True, when sorting the data, the order of equal elements is preserved.
+        This can be useful for reproducibility and testing, but might be slower.
 
     Returns
     -------
@@ -123,7 +126,7 @@ def symbolize_series(
     # Extract subsequences
     subsequences = as_strided(series, shape=shape, strides=strides)
     # Get the permutation patterns
-    patterns = apply_along_axis(argsort, 1, subsequences)
+    patterns = apply_along_axis(argsort, 1, subsequences, stable=stable)
 
     # If Lehmer code is requested, convert the permutation to an integer
     if to_int:

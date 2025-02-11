@@ -87,7 +87,7 @@ def test_symbolic_te_invalid_order(order, default_rng):
 def test_symbolic_te(rng_int, order, expected):
     """Test the symbolic transfer entropy estimator."""
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
-    est = SymbolicTEEstimator(data_source, data_dest, order=order, base=2)
+    est = SymbolicTEEstimator(data_source, data_dest, order=order, base=2, stable=True)
     res = est.result()
     if order == 1:
         assert isinstance(res, float)
@@ -161,7 +161,9 @@ def test_symbolic_cte(rng_int, order, expected):
     data_source, data_dest, data_cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
-    est = SymbolicCTEEstimator(data_source, data_dest, data_cond, order=order, base=2)
+    est = SymbolicCTEEstimator(
+        data_source, data_dest, data_cond, order=order, base=2, stable=True
+    )
     res = est.result()
     if order == 1:
         assert isinstance(res, float)
@@ -210,6 +212,7 @@ def test_symbolic_cte_slicing(
         dest_hist_len=dest_hist_len,
         base=base,
         order=order,
+        stable=True,
     )
     res = est.result()
     assert res == pytest.approx(expected)
@@ -221,26 +224,26 @@ def test_symbolic_cte_slicing(
         (1, 1, 0.0, 0.0),
         (1, 2, 0.00282503667, 0.000248359479),
         (1, 3, -0.00304940021, 0.000223400525),
-        (1, 4, -0.00025301383, 0.000290719180),  # -0.00025159207 on Mac M4
-        (1, 5, 0.00041047943, 0.000134899399),  # 0.00034294439 on Mac M4
+        (1, 4, -0.00025159207, 0.00017453445),
+        (1, 5, 0.00034294439, 0.000157359844),
         (2, 2, 0.00194385878, 9.45014940e-05),
         (2, 3, -0.00226919442, 0.000341760325),
         (3, 2, 0.00141154442, 0.000402597923),
-        (3, 4, -0.00049185938, 0.000321987168),  # -0.00058057170 on Mac M4
-    ],  # does the Mac M4 have a different random number generator?
+        (3, 4, -0.00058057170, 0.000239034145),
+    ],
 )
 def test_cte_symbolic_autoregressive(rng_int, order, expected_xy, expected_yx):
     """Test the conditional symbolic transfer entropy estimator with
     autoregressive data."""
     data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
     est_xy = SymbolicCTEEstimator(
-        data_source, data_dest, data_cond, order=order, base=2
+        data_source, data_dest, data_cond, order=order, base=2, stable=True
     )
     res_xy = est_xy.result()
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
     est_yx = SymbolicCTEEstimator(
-        data_dest, data_source, data_cond, order=order, base=2
+        data_dest, data_source, data_cond, order=order, base=2, stable=True
     )
     res_yx = est_yx.result()
     assert isinstance(res_yx, float)

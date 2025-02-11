@@ -27,6 +27,9 @@ class BaseSymbolicMIEstimator(ABC):
         The conditional data used to estimate the conditional mutual information.
     order : int
         The size of the permutation patterns.
+    stable : bool, optional
+        If True, when sorting the data, the order of equal elements is preserved.
+        This can be useful for reproducibility and testing, but might be slower.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -56,6 +59,7 @@ class BaseSymbolicMIEstimator(ABC):
         data_z=None,
         *,  # all following parameters are keyword-only
         order: int = None,
+        stable: bool = False,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
     ):
@@ -69,6 +73,9 @@ class BaseSymbolicMIEstimator(ABC):
             The conditional data used to estimate the conditional mutual information.
         order : int
             The order of the Symbolic entropy.
+        stable : bool, optional
+            If True, when sorting the data, the order of equal elements is preserved.
+            This can be useful for reproducibility and testing, but might be slower.
         """
         if data_z is None:
             super().__init__(data_x, data_y, offset=offset, base=base)
@@ -81,6 +88,7 @@ class BaseSymbolicMIEstimator(ABC):
         self.order = order
         if len(self.data_x) < (order - 1) + 1:
             raise ValueError("The data is too small for the given order.")
+        self.stable = stable
 
 
 class SymbolicMIEstimator(
@@ -162,8 +170,8 @@ class SymbolicMIEstimator(
             return joint_prob, x_prob, y_prob
 
         # Symbolize the time series x and y
-        symbols_x = symbolize_series(self.data_x, self.order)
-        symbols_y = symbolize_series(self.data_y, self.order)
+        symbols_x = symbolize_series(self.data_x, self.order, stable=self.stable)
+        symbols_y = symbolize_series(self.data_y, self.order, stable=self.stable)
 
         # Estimate joint and marginal probabilities
         joint_prob, x_prob, y_prob = _estimate_probabilities(symbols_x, symbols_y)
@@ -259,9 +267,9 @@ class SymbolicCMIEstimator(
             return xyz_prob, xz_prob, yz_prob, z_prob
 
         # Symbolize the time series
-        symbols_x = symbolize_series(self.data_x, self.order)
-        symbols_y = symbolize_series(self.data_y, self.order)
-        symbols_z = symbolize_series(self.data_z, self.order)
+        symbols_x = symbolize_series(self.data_x, self.order, stable=self.stable)
+        symbols_y = symbolize_series(self.data_y, self.order, stable=self.stable)
+        symbols_z = symbolize_series(self.data_z, self.order, stable=self.stable)
 
         # Estimate joint and marginal probabilities
         # joint_prob, x_prob, y_prob = _estimate_probabilities(symbols_x, symbols_y)
