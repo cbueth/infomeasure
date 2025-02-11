@@ -7,7 +7,7 @@ from numpy import zeros
 from numpy.random import default_rng as rng
 
 from infomeasure import Config
-from infomeasure.measures import entropy, mutual_information, transfer_entropy
+from infomeasure.estimators import entropy, mutual_information, transfer_entropy
 
 # Dictionary for each measure with the needed kwargs for the test
 # ``functional_str`` should contain all the strings that can be used to address the
@@ -362,7 +362,7 @@ def discrete_random_variables(rng_int, prop_time=0, low=0, high=4, length=1000):
 
 
 @cache
-def discrete_random_variables_conditional(rng_int, low=0, high=4, length=1000):
+def discrete_random_variables_condition(rng_int, low=0, high=4, length=1000):
     """Generate three coupled discrete random variables.
 
     The first variable is a uniform random variable with values in [low, high-1].
