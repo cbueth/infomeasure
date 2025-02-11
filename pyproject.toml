@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "infomeasure"
 authors = [
-    { name = "Carlson Büth" },
+    { name = "Carlson Büth", email = "carlson@ifisc.uib-csic.es" },
     { name = "Kishor Achary" },
     { name = "Massimilliano Zanin" },
 ]
 maintainers = [{ name = "Carlson Büth", email = "carlson@cbueth.de" }]
 license = { text = "APGL-3.0-or-later" }
 readme = "README.md"
-#description = ""
+description = "Comprehensive collection of information measures."
 keywords = ["Entropy", "Mutual Information", "Information Theory", "Information Measures"]
 classifiers = [
     "Development Status :: 3 - Alpha",  # 4 - Beta, 5 - Production/Stable
