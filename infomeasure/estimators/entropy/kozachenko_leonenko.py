@@ -10,6 +10,7 @@ from ... import Config
 from ...utils.types import LogBaseType
 from ..base import EntropyEstimator, PValueMixin
 from ..utils.unit_ball_volume import unit_ball_volume
+from ..utils.array import assure_2d_data
 
 
 class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
@@ -75,8 +76,7 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
                 f"but got {minkowski_p}."
             )
         super().__init__(data, base=base)
-        if self.data.ndim == 1:
-            self.data = self.data.reshape(-1, 1)
+        self.data = assure_2d_data(data)
         self.k = k
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p

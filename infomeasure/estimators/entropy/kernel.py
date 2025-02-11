@@ -1,11 +1,12 @@
 """Module for the kernel entropy estimator."""
 
-from numpy import finfo, newaxis, column_stack
+from numpy import column_stack
 
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import EntropyEstimator, PValueMixin
 from ..utils.kde import kde_probability_density_function
+from ..utils.array import assure_2d_data
 
 
 class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
@@ -41,8 +42,7 @@ class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
             implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
         """
         super().__init__(data, base=base)
-        if self.data.ndim == 1:
-            self.data = self.data[:, newaxis]
+        self.data = assure_2d_data(data)
         self.bandwidth = bandwidth
         self.kernel = kernel
 

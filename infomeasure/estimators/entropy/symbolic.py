@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from numpy import array, sum as np_sum, True_, False_, integer, issubdtype
+from numpy import array, sum as np_sum, True_, False_, integer, issubdtype, ndarray
 
 from ..utils.symbolic import reduce_joint_space, symbolize_series
 from ..utils.unique import histogram_unique_values
@@ -75,7 +75,9 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         super().__init__(data, base=base)
         if not issubdtype(type(order), integer) or order < 0:
             raise ValueError("The order must be a non-negative integer.")
-        if order > len(self.data):
+        if (isinstance(self.data, ndarray) and order > self.data.shape[0]) or (
+            isinstance(self.data, tuple) and order > self.data[0].shape[0]
+        ):
             raise ValueError("The order is too large for the given data.")
         if order == 1:
             logger.warning("The Symbolic entropy is always 0 for order=1.")

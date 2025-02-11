@@ -1,6 +1,6 @@
 """Module for Tsallis entropy estimator."""
 
-from numpy import column_stack, newaxis, ndarray, issubdtype, integer
+from numpy import column_stack, issubdtype, integer
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -10,6 +10,7 @@ from ..utils.exponential_family import (
     exponential_family_iq,
     exponential_family_i1,
 )
+from ..utils.array import assure_2d_data
 
 
 class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
@@ -60,15 +61,7 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
             )
         self.k = k
         self.q = q
-        if isinstance(self.data, ndarray) and self.data.ndim == 1:
-            self.data = self.data[:, newaxis]
-        elif isinstance(self.data, tuple):
-            self.data = tuple(
-                marginal[:, newaxis]
-                if isinstance(marginal, ndarray) and marginal.ndim == 1
-                else marginal
-                for marginal in self.data
-            )
+        self.data = assure_2d_data(data)
 
     def _simple_entropy(self):
         """Calculate the entropy of the data.

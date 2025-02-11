@@ -10,12 +10,13 @@ from .estimators.functional import (
     transfer_entropy,
     conditional_transfer_entropy,
     estimator,
+    get_estimator_class,
 )
-from .composite_measures import jensen_shannon_divergence
+from .composite_measures import jensen_shannon_divergence, kullback_leiber_divergence
 
 h, mi, te = entropy, mutual_information, transfer_entropy
 cmi, cte = conditional_mutual_information, conditional_transfer_entropy
-jsd = jensen_shannon_divergence
+jsd, kld = jensen_shannon_divergence, kullback_leiber_divergence
 
 # Set package attributes
 __author__ = "Carlson Büth"
@@ -26,9 +27,19 @@ __all__ = [
     "Config",
     "entropy",
     "mutual_information",
+    "conditional_mutual_information",
     "transfer_entropy",
+    "conditional_transfer_entropy",
+    "estimator",
+    "get_estimator_class",
+    "jensen_shannon_divergence",
+    "kullback_leiber_divergence",
+    # aliases
     "h",
     "mi",
+    "cmi",
     "te",
-    "estimator",
+    "cte",
+    "jsd",
+    "kld",
 ]

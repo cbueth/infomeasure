@@ -1,7 +1,7 @@
 """Module for the kernel-based mutual information estimator."""
 
 from abc import ABC
-from numpy import finfo, column_stack, ndarray
+from numpy import column_stack, ndarray
 from numpy import newaxis
 
 from ... import Config
@@ -12,6 +12,7 @@ from ..base import (
     ConditionalMutualInformationEstimator,
 )
 from ..utils.kde import kde_probability_density_function
+from ..utils.array import assure_2d_data
 
 
 class BaseKernelMIEstimator(ABC):
@@ -68,8 +69,9 @@ class BaseKernelMIEstimator(ABC):
         normalize
             If True, normalize the data before analysis.
         """
-        self.data_y = None
         self.data_x = None
+        self.data_y = None
+        self.data_z = None
         if data_z is None:
             super().__init__(
                 data_x, data_y, offset=offset, normalize=normalize, base=base
@@ -79,15 +81,12 @@ class BaseKernelMIEstimator(ABC):
                 data_x, data_y, data_z, offset=offset, normalize=normalize, base=base
             )
             # Ensure self.data_z is a 2D array
-            if self.data_z.ndim == 1:
-                self.data_z = self.data_z[:, newaxis]
+            self.data_z = assure_2d_data(self.data_z)
         self.bandwidth = bandwidth
         self.kernel = kernel
         # Ensure self.data_x and self.data_y are 2D arrays
-        if self.data_x.ndim == 1:
-            self.data_x = self.data_x[:, newaxis]
-        if self.data_y.ndim == 1:
-            self.data_y = self.data_y[:, newaxis]
+        self.data_x = assure_2d_data(self.data_x)
+        self.data_y = assure_2d_data(self.data_y)
 
 
 class KernelMIEstimator(
