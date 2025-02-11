@@ -1,7 +1,7 @@
 """Module for the Symbolic / Permutation transfer entropy estimator."""
 
 from abc import ABC
-from numpy import mean as np_mean, unique
+from numpy import mean as np_mean, unique, issubdtype, integer
 
 from ... import Config
 from ...utils.config import logger
@@ -125,11 +125,11 @@ class BaseSymbolicTEEstimator(ABC):
                 prop_time=prop_time,
                 base=base,
             )
-        if not isinstance(order, int) or order < 0:
+        if not issubdtype(type(order), integer) or order < 0:
             raise ValueError("The order must be a non-negative integer.")
         if order == 1:
             logger.warning("The Symbolic mutual information is always 0 for order=1.")
-        if not isinstance(step_size, int) or step_size < 0:
+        if not issubdtype(type(step_size), integer) or step_size < 0:
             raise ValueError("The step_size must be a non-negative integer.")
         if len(self.source) < (order - 1) * step_size + 1:
             raise ValueError("The data is too small for the given step_size and order.")

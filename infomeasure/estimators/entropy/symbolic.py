@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from numpy import array, sum as np_sum, True_, False_
+from numpy import array, sum as np_sum, True_, False_, integer, issubdtype
 
 from ..utils.symbolic import reduce_joint_space, symbolize_series
 from ..utils.unique import histogram_unique_values
@@ -73,7 +73,7 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
             This can be useful for reproducibility and testing, but might be slower.
         """
         super().__init__(data, base=base)
-        if not isinstance(order, int) or order < 0:
+        if not issubdtype(type(order), integer) or order < 0:
             raise ValueError("The order must be a non-negative integer.")
         if order > len(self.data):
             raise ValueError("The order is too large for the given data.")

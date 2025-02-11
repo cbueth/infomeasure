@@ -3,7 +3,7 @@
 from abc import ABC
 from collections import Counter
 
-from numpy import ndarray, sum as np_sum
+from numpy import sum as np_sum, issubdtype, integer
 
 from ... import Config
 from ...utils.config import logger
@@ -81,7 +81,7 @@ class BaseSymbolicMIEstimator(ABC):
             super().__init__(data_x, data_y, offset=offset, base=base)
         else:
             super().__init__(data_x, data_y, data_z, offset=offset, base=base)
-        if not isinstance(order, int) or order < 0:
+        if not issubdtype(type(order), integer) or order < 0:
             raise ValueError("The order must be a non-negative integer.")
         if order == 1:
             logger.warning("The Symbolic mutual information is always 0 for order=1.")

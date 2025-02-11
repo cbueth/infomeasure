@@ -1,6 +1,6 @@
 """Kernel Density Estimation (KDE) utilities."""
 
-from numpy import abs as np_abs, newaxis, inf
+from numpy import abs as np_abs, newaxis, inf, number, issubdtype
 from numpy import all as np_all
 from numpy import asarray
 from numpy import sum as np_sum
@@ -37,7 +37,7 @@ def kde_probability_density_function(data, bandwidth, x=None, kernel="box"):
     ValueError
         If the bandwidth is not a positive number.
     """
-    if not isinstance(bandwidth, (float, int)) or bandwidth <= 0:
+    if not issubdtype(type(bandwidth), number) or bandwidth <= 0:
         raise ValueError("The bandwidth must be a positive number.")
 
     # If x is not provided, evaluate at all data points

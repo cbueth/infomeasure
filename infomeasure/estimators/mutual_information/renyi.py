@@ -1,6 +1,9 @@
 """Module for the Renyi mutual information estimator."""
 
 from abc import ABC
+
+from numpy import issubdtype, integer
+
 from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
@@ -89,7 +92,7 @@ class BaseRenyiMIEstimator(ABC):
             )
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )

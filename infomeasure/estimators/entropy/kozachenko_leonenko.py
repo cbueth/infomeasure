@@ -1,6 +1,6 @@
 """Module for the Kozacenko-Leonenko entropy estimator."""
 
-from numpy import inf, log
+from numpy import inf, log, issubdtype, integer
 from numpy import sum as np_sum
 from numpy import column_stack
 from scipy.spatial import KDTree
@@ -60,7 +60,7 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
             The power parameter for the Minkowski metric.
             Default is np.inf for maximum norm. Use 2 for Euclidean distance.
         """
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors (k) must be a positive "
                 f"integer, but got {k}."

@@ -1,6 +1,6 @@
 """Module for Tsallis entropy estimator."""
 
-from numpy import column_stack, newaxis, ndarray
+from numpy import column_stack, newaxis, ndarray, issubdtype, integer
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -54,7 +54,7 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
         super().__init__(data, base)
         if not isinstance(q, (int, float)) or q <= 0:
             raise ValueError("The Tsallis parameter ``q`` must be a positive number.")
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )

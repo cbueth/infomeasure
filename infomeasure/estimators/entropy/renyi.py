@@ -1,6 +1,6 @@
 """Module for the Rényi entropy estimator."""
 
-from numpy import column_stack, ndarray, newaxis
+from numpy import column_stack, ndarray, newaxis, issubdtype, integer
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -54,7 +54,7 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
         super().__init__(data, base)
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
-        if not isinstance(k, int) or k <= 0:
+        if not issubdtype(type(k), integer) or k <= 0:
             raise ValueError(
                 "The number of nearest neighbors must be a positive integer."
             )
