@@ -234,7 +234,7 @@ def _dynamic_estimator(measure) -> callable:
 
 
 @_dynamic_estimator("entropy")
-def entropy(data, approach: str, *args, **kwargs):
+def entropy(data, approach: str, *args, **kwargs: any):
     """Calculate the entropy using a functional interface of different estimators.
 
     Supports the following approaches:
@@ -276,7 +276,7 @@ def mutual_information(
     *data,
     approach: str,
     offset: int = 0,
-    **kwargs,
+    **kwargs: any,
 ):
     """Calculate the mutual information using a functional interface of different
     estimators.
@@ -325,7 +325,7 @@ def mutual_information(
     return EstimatorClass(*data, **kwargs).result()
 
 
-def conditional_mutual_information(*data, **parameters):
+def conditional_mutual_information(*data, **parameters: any):
     """Conditional mutual information between two variables given a third variable.
 
     See :func:`mutual_information <mutual_information>` for more information.
@@ -344,7 +344,7 @@ def conditional_mutual_information(*data, **parameters):
 def transfer_entropy(
     *data,
     approach: str,
-    **kwargs,
+    **kwargs: any,
 ):
     """Calculate the transfer entropy using a functional interface of different estimators.
 
@@ -393,7 +393,7 @@ def transfer_entropy(
     return EstimatorClass(*data, **kwargs).result()
 
 
-def conditional_transfer_entropy(*data, **parameters):
+def conditional_transfer_entropy(*data, **parameters: any):
     """Conditional transfer entropy between two variables given a third variable.
 
     See :func:`transfer_entropy <transfer_entropy>` for more information.
@@ -423,7 +423,7 @@ def estimator(
     dest_hist_len: int = 1,
     cond_hist_len: int = 1,
     offset: int = None,
-    **kwargs,
+    **kwargs: any,
 ) -> Estimator:
     """Get an estimator for a specific measure.
 
