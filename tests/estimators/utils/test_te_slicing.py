@@ -1,7 +1,7 @@
 """Test the TE slicing utility functions."""
 
 import pytest
-from numpy import arange, array, hstack, array_equal
+from numpy import arange, array, hstack, array_equal, column_stack
 from numpy.random import default_rng
 from numpy.testing import assert_equal
 
@@ -57,52 +57,125 @@ def test_te_observations_old_implementation(
     )
 
 
-def test_te_observations():
+@pytest.mark.parametrize(
+    "source,dest,src_hist_len,dest_hist_len,step_size,expected",
+    [
+        (
+            arange(10),
+            arange(10, 20),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 2, 4, 12, 14, 16],
+                    [2, 4, 6, 14, 16, 18],
+                ],
+                [
+                    [12, 14],
+                    [14, 16],
+                ],
+                [
+                    [0, 2, 4, 12, 14],
+                    [2, 4, 6, 14, 16],
+                ],
+                [
+                    [12, 14, 16],
+                    [14, 16, 18],
+                ],
+            ),
+        ),
+        (
+            arange(10).reshape(-1, 1),
+            arange(10, 20).reshape(-1, 1),
+            3,
+            2,
+            2,
+            (
+                [
+                    [[0], [2], [4], [12], [14], [16]],
+                    [[2], [4], [6], [14], [16], [18]],
+                ],
+                [
+                    [[12], [14]],
+                    [[14], [16]],
+                ],
+                [
+                    [[0], [2], [4], [12], [14]],
+                    [[2], [4], [6], [14], [16]],
+                ],
+                [
+                    [[12], [14], [16]],
+                    [[14], [16], [18]],
+                ],
+            ),
+        ),
+        (
+            column_stack([arange(10), arange(10)]),
+            column_stack([arange(10, 20), arange(10, 20)]),
+            3,
+            2,
+            2,
+            (
+                [
+                    [[0, 0], [2, 2], [4, 4], [12, 12], [14, 14], [16, 16]],
+                    [[2, 2], [4, 4], [6, 6], [14, 14], [16, 16], [18, 18]],
+                ],
+                [
+                    [[12, 12], [14, 14]],
+                    [[14, 14], [16, 16]],
+                ],
+                [
+                    [[0, 0], [2, 2], [4, 4], [12, 12], [14, 14]],
+                    [[2, 2], [4, 4], [6, 6], [14, 14], [16, 16]],
+                ],
+                [
+                    [[12, 12], [14, 14], [16, 16]],
+                    [[14, 14], [16, 16], [18, 18]],
+                ],
+            ),
+        ),
+        (
+            column_stack([arange(10), arange(10, 20)]),
+            column_stack([arange(20, 30), arange(30, 40)]),
+            3,
+            2,
+            2,
+            (
+                [
+                    [[0, 10], [2, 12], [4, 14], [22, 32], [24, 34], [26, 36]],
+                    [[2, 12], [4, 14], [6, 16], [24, 34], [26, 36], [28, 38]],
+                ],
+                [
+                    [[22, 32], [24, 34]],
+                    [[24, 34], [26, 36]],
+                ],
+                [
+                    [[0, 10], [2, 12], [4, 14], [22, 32], [24, 34]],
+                    [[2, 12], [4, 14], [6, 16], [24, 34], [26, 36]],
+                ],
+                [
+                    [[22, 32], [24, 34], [26, 36]],
+                    [[24, 34], [26, 36], [28, 38]],
+                ],
+            ),
+        ),
+    ],
+)
+def test_te_observations_explicit(
+    source, dest, src_hist_len, dest_hist_len, step_size, expected
+):
     """Test the TE observations data arrays explicitly."""
     (
         joint_space_data,
         data_dest_past_embedded,
         marginal_1_space_data,
         marginal_2_space_data,
-    ) = te_observations(
-        arange(10), arange(10, 20), src_hist_len=3, dest_hist_len=2, step_size=2
-    )
-    assert (
-        array(
-            [
-                [0, 2, 4, 12, 14, 16],
-                [2, 4, 6, 14, 16, 18],
-            ]
-        )
-        == joint_space_data
-    ).all()
-    assert (
-        array(
-            [
-                [12, 14],
-                [14, 16],
-            ]
-        )
-        == data_dest_past_embedded
-    ).all()
-    assert (
-        array(
-            [
-                [0, 2, 4, 12, 14],
-                [2, 4, 6, 14, 16],
-            ]
-        )
-        == marginal_1_space_data
-    ).all()
-    assert (
-        array(
-            [
-                [12, 14, 16],
-                [14, 16, 18],
-            ]
-        )
-        == marginal_2_space_data
-    ).all()
+    ) = te_observations(source, dest, src_hist_len, dest_hist_len, step_size)
+    assert array_equal(joint_space_data, expected[0])
+    assert array_equal(data_dest_past_embedded, expected[1])
+    assert array_equal(marginal_1_space_data, expected[2])
+    assert array_equal(marginal_2_space_data, expected[3])
 
 
 def test_te_observations_chars():
