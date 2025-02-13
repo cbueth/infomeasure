@@ -407,10 +407,14 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
             data_x += self.rng.normal(0, noise_level, data_x.shape)
             data_y += self.rng.normal(0, noise_level, data_y.shape)
 
-        h_x = estimator(self.data_x, **kwargs).global_val()
-        h_y = estimator(self.data_y, **kwargs).global_val()
-        h_xy = estimator((self.data_x, self.data_y), **kwargs).global_val()
-        return h_x + h_y - h_xy
+        est_x = estimator(self.data_x, **kwargs)
+        est_y = estimator(self.data_y, **kwargs)
+        est_xy = estimator((self.data_x, self.data_y), **kwargs)
+        # try local values first
+        try:
+            return est_x.local_val() + est_y.local_val() - est_xy.local_val()
+        except UnsupportedOperation:
+            return est_x.global_val() + est_y.global_val() - est_xy.global_val()
 
 
 class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
@@ -559,13 +563,25 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
         # Entropy-based CMI calculation
         if issubclass(estimator, EntropyEstimator):
-            h_x_z = estimator((self.data_x, self.data_z), **kwargs).global_val()
-            h_y_z = estimator((self.data_y, self.data_z), **kwargs).global_val()
-            h_x_y_z = estimator(
-                (self.data_x, self.data_y, self.data_z), **kwargs
-            ).global_val()
-            h_z = estimator(self.data_z, **kwargs).global_val()
-            return h_x_z + h_y_z - h_x_y_z - h_z
+            est_x_z = estimator((self.data_x, self.data_z), **kwargs)
+            est_y_z = estimator((self.data_y, self.data_z), **kwargs)
+            est_x_y_z = estimator((self.data_x, self.data_y, self.data_z), **kwargs)
+            est_z = estimator(self.data_z, **kwargs)
+            # return h_x_z + h_y_z - h_x_y_z - h_z
+            try:
+                (
+                    est_x_z.local_val()
+                    + est_y_z.local_val()
+                    - est_x_y_z.local_val()
+                    - est_z.local_val()
+                )
+            except UnsupportedOperation:
+                return (
+                    est_x_z.global_val()
+                    + est_y_z.global_val()
+                    - est_x_y_z.global_val()
+                    - est_z.global_val()
+                )
         else:
             raise ValueError(f"Estimator must be an EntropyEstimator, not {estimator}.")
 
@@ -724,20 +740,26 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             permute_src=self.permute_src,
         )
 
-        h_y_history_y_future = estimator(marginal_2_space_data, **kwargs).global_val()
-        h_x_history_y_history = estimator(marginal_1_space_data, **kwargs).global_val()
-        h_x_history_y_history_y_future = estimator(
-            joint_space_data, **kwargs
-        ).global_val()
-        h_y_history = estimator(dest_past_embedded, **kwargs).global_val()
+        est_y_history_y_future = estimator(marginal_2_space_data, **kwargs)
+        est_x_history_y_history = estimator(marginal_1_space_data, **kwargs)
+        est_x_history_y_history_y_future = estimator(joint_space_data, **kwargs)
+        est_y_history = estimator(dest_past_embedded, **kwargs)
 
         # Compute Transfer Entropy
-        return (
-            h_y_history_y_future
-            + h_x_history_y_history
-            - h_x_history_y_history_y_future
-            - h_y_history
-        )
+        try:
+            return (
+                est_y_history_y_future.local_val()
+                + est_x_history_y_history.local_val()
+                - est_x_history_y_history_y_future.local_val()
+                - est_y_history.local_val()
+            )
+        except UnsupportedOperation:
+            return (
+                est_y_history_y_future.global_val()
+                + est_x_history_y_history.global_val()
+                - est_x_history_y_history_y_future.global_val()
+                - est_y_history.global_val()
+            )
 
 
 class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
@@ -862,24 +884,26 @@ class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             step_size=self.step_size,
         )
 
-        h_cond_y_history_y_future = estimator(
-            marginal_2_space_data, **kwargs
-        ).global_val()
-        h_x_history_cond_y_history = estimator(
-            marginal_1_space_data, **kwargs
-        ).global_val()
-        h_x_history_cond_y_history_y_future = estimator(
-            joint_space_data, **kwargs
-        ).global_val()
-        h_y_history_cond = estimator(dest_past_embedded, **kwargs).global_val()
+        est_cond_y_history_y_future = estimator(marginal_2_space_data, **kwargs)
+        est_x_history_cond_y_history = estimator(marginal_1_space_data, **kwargs)
+        est_x_history_cond_y_history_y_future = estimator(joint_space_data, **kwargs)
+        est_y_history_cond = estimator(dest_past_embedded, **kwargs)
 
         # Compute Conditional Transfer Entropy
-        return (
-            h_cond_y_history_y_future
-            + h_x_history_cond_y_history
-            - h_x_history_cond_y_history_y_future
-            - h_y_history_cond
-        )
+        try:
+            return (
+                est_cond_y_history_y_future.local_val()
+                + est_x_history_cond_y_history.local_val()
+                - est_x_history_cond_y_history_y_future.local_val()
+                - est_y_history_cond.local_val()
+            )
+        except UnsupportedOperation:
+            return (
+                est_cond_y_history_y_future.global_val()
+                + est_x_history_cond_y_history.global_val()
+                - est_x_history_cond_y_history_y_future.global_val()
+                - est_y_history_cond.global_val()
+            )
 
 
 class DistributionMixin:
