@@ -1,11 +1,12 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) mutual information estimator."""
 
 from abc import ABC
-from numpy import column_stack, inf, array, ndarray
-from numpy import newaxis
+from numpy import column_stack, inf, array, ndarray, log
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
+from ... import Config
+from ...utils.types import LogBaseType
 from ..base import (
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
@@ -38,8 +39,6 @@ class BaseKSGMIEstimator(ABC):
         Not compatible with the ``data_z`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
-    base : "e"
-        Only the natural logarithm is supported for the KSG estimator.
     """
 
     def __init__(
@@ -53,7 +52,7 @@ class BaseKSGMIEstimator(ABC):
         minkowski_p=inf,
         offset: int = 0,
         normalize: bool = False,
-        base="e",
+        base: LogBaseType = Config.get("base"),
     ):
         r"""Initialize the estimator with specific parameters.
 
@@ -77,13 +76,7 @@ class BaseKSGMIEstimator(ABC):
             Number of positions to shift the data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
             Not compatible with the ``data_z`` parameter / conditional MI.
-        base : "e"
-            Only the natural logarithm is supported for the KSG estimator.
         """
-        if base != "e":
-            raise ValueError(
-                "Only the natural logarithm is supported for the KSG estimator."
-            )
         self.data_x = None
         self.data_y = None
         self.data_z = None
@@ -177,15 +170,19 @@ class KSGMIEstimator(
 
         # Compute mutual information using the KSG estimator formula
         N = len(self.data_x)
+        m = 2  # number of variables
         # Compute local mutual information for each point
         local_mi = array(
             [
-                digamma(self.k) - digamma(nx + 1) - digamma(ny + 1) + digamma(N)
+                digamma(self.k)
+                - digamma(nx + 1)
+                - digamma(ny + 1)
+                + (m - 1) * digamma(N)
                 for nx, ny in zip(count_x, count_y)
             ]
         )
 
-        return local_mi
+        return local_mi / log(self.base) if self.base != "e" else local_mi
 
 
 class KSGCMIEstimator(BaseKSGMIEstimator, ConditionalMutualInformationEstimator):
@@ -258,9 +255,11 @@ class KSGCMIEstimator(BaseKSGMIEstimator, ConditionalMutualInformationEstimator)
         ]
 
         # Compute local CMI for each data point
-        return digamma(self.k) + array(
+        local_cmi = digamma(self.k) + array(
             [
                 digamma(cz + 1) - digamma(cxz + 1) - digamma(cyz + 1)
                 for cz, cxz, cyz in zip(count_z, count_xz, count_yz)
             ]
         )
+
+        return local_cmi / log(self.base) if self.base != "e" else local_cmi

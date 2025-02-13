@@ -1,10 +1,12 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) transfer entropy estimator."""
 
 from abc import ABC
-from numpy import array, inf, ndarray
+from numpy import array, inf, ndarray, log
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
+from ... import Config
+from ...utils.types import LogBaseType
 from ..utils.te_slicing import te_observations, cte_observations
 from ..base import (
     EffectiveValueMixin,
@@ -44,8 +46,6 @@ class BaseKSGTEEstimator(ABC):
     cond_hist_len : int, optional
         Number of past observations to consider for the conditional data.
         Only used for conditional transfer entropy.
-    base : "e"
-        Only the natural logarithm is supported for the KSG estimator.
     """
 
     def __init__(
@@ -62,7 +62,7 @@ class BaseKSGTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
-        base="e",
+        base: LogBaseType = Config.get("base"),
     ):
         r"""Initialize the BaseKSGTEEstimator.
 
@@ -93,13 +93,7 @@ class BaseKSGTEEstimator(ABC):
         cond_hist_len : int, optional
             Number of past observations to consider for the conditional data.
             Only used for conditional transfer entropy.
-        base : "e"
-            Only the natural logarithm is supported for the KSG estimator.
         """
-        if base != "e":
-            raise ValueError(
-                "Only the natural logarithm is supported for the KSG estimator."
-            )
         if cond is None:
             super().__init__(
                 source,
@@ -222,7 +216,7 @@ class KSGTEEstimator(BaseKSGTEEstimator, EffectiveValueMixin, TransferEntropyEst
             + digamma(array(count_dest_past) + 1)
         )
 
-        return local_te
+        return local_te / log(self.base) if self.base != "e" else local_te
 
 
 class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
@@ -323,4 +317,4 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
             + digamma(array(count_dest_past_cond) + 1)
         )
 
-        return local_cte
+        return local_cte / log(self.base) if self.base != "e" else local_cte
