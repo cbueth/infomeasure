@@ -141,6 +141,23 @@ def te_observations(
     # src_future: (data_len,) -> (data_len, 1); or (data_len, m) -> (data_len, 1, m)
     dest_future = expand_dims(dest_future, axis=1)
 
+    # flatten into two dimensions if the array has more than two dimensions
+    src_history = (
+        src_history
+        if src_history.ndim < 3
+        else src_history.reshape(src_history.shape[0], -1)
+    )
+    dest_history = (
+        dest_history
+        if dest_history.ndim < 3
+        else dest_history.reshape(dest_history.shape[0], -1)
+    )
+    dest_future = (
+        dest_future
+        if dest_future.ndim < 3
+        else dest_future.reshape(dest_future.shape[0], -1)
+    )
+
     # g(x_i^{(l)}, y_i^{(k)}, \hat{y}_{i+1})
     joint_space_data = concatenate(
         (
@@ -229,6 +246,8 @@ def cte_observations(
 
     Raises
     ------
+    TypeError
+        If the arguments are wrong types.
     ValueError
         If the history (``src_hist_len`` or ``dest_hist_len`` or ``cond_hist_len`` times
         ``step_size``) is greater than the length of the data.
@@ -236,6 +255,16 @@ def cte_observations(
         If ``src_hist_len``, ``dest_hist_len``, ``cond_hist_len``, or ``step_size`` are
         not positive integers.
     """
+    if not all(
+        issubdtype(type(var), integer) and var > 0
+        for var in (src_hist_len, dest_hist_len, cond_hist_len, step_size)
+    ):
+        raise ValueError(
+            "src_hist_len, dest_hist_len, cond_hist_len, and step_size "
+            "must be positive integers."
+        )
+    if not all(isinstance(var, ndarray) for var in (source, destination, condition)):
+        raise TypeError("source, destination, and condition must be numpy arrays.")
     # log warning if step_size is >1 while src_hist_len or dest_hist_len are both 1
     if (
         step_size > 1
@@ -286,6 +315,28 @@ def cte_observations(
     dest_future = destination[base_indices]
     # src_future: (data_len,) -> (data_len, 1); or (data_len, m) -> (data_len, 1, m)
     dest_future = expand_dims(dest_future, axis=1)
+
+    # flatten into two dimensions if the array has more than two dimensions
+    src_history = (
+        src_history
+        if src_history.ndim < 3
+        else src_history.reshape(src_history.shape[0], -1)
+    )
+    cond_history = (
+        cond_history
+        if cond_history.ndim < 3
+        else cond_history.reshape(cond_history.shape[0], -1)
+    )
+    dest_history = (
+        dest_history
+        if dest_history.ndim < 3
+        else dest_history.reshape(dest_history.shape[0], -1)
+    )
+    dest_future = (
+        dest_future
+        if dest_future.ndim < 3
+        else dest_future.reshape(dest_future.shape[0], -1)
+    )
 
     # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})
     joint_space_data = concatenate(
