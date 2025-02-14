@@ -21,11 +21,11 @@ The package includes implementations of the following information (shannon) -the
 - Conditional Mutual Information $(CMI)$
 - Transfer Entropy $(TE)$
 - Conditional Transfer Entropy $(CTE)$
-- Jensen Shannon Distance $JSD$
+- Jensen Shannon Divergence and Distance $JSD$
 
 Few more measures such as:
-- Renyi H, MI and TE
-- Tsallis H, MI and TE
+- Renyi $H$, $MI$ and $TE$
+- Tsallis $H$, $MI$ and $TE$
 
 # Estimation 
 Experimental or observational data come in various formats but generally fall into discrete or continuous categories. Discrete datasets consist of integer values (e.g., 0,1) and represented as the realization of discrete random variables (RVs). Continuous datasets contain real numbers and can be represented as realization of continuous RVs.  The  **_probability mass function (pmf)_** defines discrete RVs while the **_probability density function (pdf)_** applies to continuous RVs.
@@ -39,7 +39,7 @@ When estimating information theoretic measures—especially the underlying proba
 Estimating information measures (for that matter any measures) from real-life data inherently involves **bias** (the expected difference between the true and estimated values) and **variance** (the variability in estimates).  To ensure accuracy, estimation techniques must minimize both. This package offers a variety of estimation methods, allowing users to choose the most suitable one.  Additionally, it provides an option to compute **_p-values_** for measures like Mutual Information (MI) and Transfer Entropy (TE) by assuming no relationship as the null hypothesis.  For TE, we implement effective Transfer Entropy $( eTE )$, a method designed to reduce bias from finite sample effects. More details are available in the TE section {ref}`transfer_entropy_overview`.
 > Note: This Package 
 > - allows users to compute **p-values** for MI and TE to assess significance.  
-> - includes an implementation of **Effective Transfer Entropy $(eTE)$**, reducing bias from finite sample sizes.
+> - includes an implementation of **effective Transfer Entropy $(eTE)$**, reducing bias from finite sample sizes.
 
 This package will also allow one to compute the **local information measure** together with their well-known average counterparts. Such local values within their global values are known to provide insights into the dynamic of the system being studied .
 
@@ -102,7 +102,7 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - JSD
     - ✓$^++$
     - ✓$^++$
-    - ✓$^++$
+    - 
     - ✓$^++$
 :::
 
@@ -111,7 +111,7 @@ In the table,
 - $^+$: Conditional measures are estimated by using the entropy and joint entropy estimators, which are further estimated by the techniques where the tick mark is located. 
 - $^++$: JSD is estimated by using the entropy estimator which are further estimated by the techniques where the tick mark is located. 
 
-
+<!-- Carlson to revisit the description below -->
 # Estimator Usage
 This notebook provides a brief overview of how to use the entropy estimation functions provided in the `infomeasure` package.
 There are multiple functional ways to use this package, for entropy, mutual information, (effective) transfer entropy and hypothesis testing (p-value estimation).

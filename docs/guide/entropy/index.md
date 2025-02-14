@@ -31,7 +31,7 @@ The differential entropy is closely related to the Shannon entropy {cite:p}`cove
 ````
 
 The shannon formulation is generic and of which the Hartly would be a special case where all elements are eqi-probable.
-Thus, the Shannon entropy quantifies the average amount of information we expect to gain when observing specific outcomes or equivalentely the average decrease in uncertainty about the possible values of a RV.
+Thus, the Shannon entropy quantifies the average amount of information we expect to gain when observing specific outcomes or equivalently the average decrease in uncertainty about the possible values of a RV.
 Shannon’s motivation to use his mathematical formalism (entropy) was to determine whether or not the data stream can be encoded in such a way that even after it has been sent through the channel noisy enough to corrupt the data during the transmission,
 the original data stream can be reconstructed in an error-free way at the receiver end. The interested reader can read his paper {cite:p}`shannonMathematicalTheoryCommunication1948` for his findings but here we would like to state another way to understand the Shannon entropy formulation in terms of messages associated with the RV (source).
 It is the measure of amount of information in message expressed in binary digits needed to express the message using the most appropiate way to code to get the shortest sequence.
@@ -103,7 +103,7 @@ In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to ordinary summa
 This class of entropy measure is in particularly useful in the study in connection with long–range correlated systems and with non–equilibrium phenomena.
 
 ## Entropy Estimation
-When estimating entropy, several factors must be considered. First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, and the non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
+   When estimating entropy, several factors must be considered (ref: {ref}`Estimation`). First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, and the non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
 > Note:
 > - This package consists of non-parametric estimation techniques for both the discrete and continuous RV.
 > - All the estimators are based on Shannon information except explicitly mentioned: Rényi entropy estimator & Tsallis entropy estimator
@@ -111,11 +111,6 @@ When estimating entropy, several factors must be considered. First, identify whe
 ### List of Entropy Estimators
 
 ```{eval-rst}
-.. toctree::
-   :maxdepth: 2
-
-   entropy/conditional_entropy/index
-   
 .. toctree::
    :maxdepth: 2
    :caption: Discrete RV

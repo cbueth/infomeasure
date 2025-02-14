@@ -4,7 +4,7 @@ Transfer entropy (TE) from the source process $X$ to the target process $Y$ is t
 It is simply the reduction in the uncertainty in the target variable due to another source variable that is not already explained by the target variables´past. 
 Equivalently, TE is the amount of information that a source process provides about the target process´s next state that was not contained in the target´s past states {cite:p}`Schreiber.paper` .
 
-Lets us assume two time series process $X(x)$ and $Y(y)$ as source and target variables then $T_{X \rightarrow Y}$ from source to target is written as:
+Lets us assume two time series process $X(x_n)$ and $Y(y_n)$ as source and target variables then $T_{X \rightarrow Y}$ from source to target is written as:
 
 $$
 T_{x \rightarrow y}(k, l) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
@@ -14,12 +14,12 @@ p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})
 $$
 
 Where:
-- $y_{n+1}$ is the next state of $y$ at time $n+1$, accounting for a propagation time $u$.
-- $ \mathbf{y}_n^{(l)} = \{y_n, \dots, y_{n-l+1}\} $ is a past states of  $ Y $, such that it depends on the $ l $ previous values (history).
-- $ \mathbf{x}_n^{(k)} = \{x_n, \dots, x_{n-k+1}\} $ is a past states of  $ X $, such that it depends on the $ k $ previous values (history).
-- $p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability distribution of the next state of $y$, its history, and the history of $x$.
-- $p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of $y_{n+1+u}$ given the histories of $x$ and $y$.
-- $p(y_{n+1} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of $y_{n+1+u}$ given only the history of $y$.
+- $y_{n+1}$ is the next state of $Y$ at time $n$, 
+- $ \mathbf{y}_n^{(l)} = \{y_n, \dots, y_{n-l+1}\} $ is the embedding vector of $Y$ considering the  $ l $ previous states (history length),
+- $ \mathbf{x}_n^{(k)} = \{x_n, \dots, x_{n-k+1}\} $ embedding vector of $X$ considering the $ k $ previous states (history length),
+- $p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability of the next state of $Y$, its history, and the history of $X$,
+- $p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of next state of $Y$ given the histories of $X$ and $Y$,
+- $p(y_{n+1} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of next state of $Y$ given only the history of $Y$.
 
 TE is the model-free and directional measure between two processes, making it popular in investigating the dynamical and directional transfer of information in many systems. However, one has to be careful in interpreting the results, as well as in constructing the state space along with the appropriate choice of the length of history (i.e $k$, $l$) to be considered.
 

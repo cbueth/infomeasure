@@ -5,16 +5,14 @@ kernelspec:
 ---
 
 # Rényi & Tsallis MI Estimation
-Mutual Information (MI) quantifies the information shared between two random variables $X$ and $Y$, for more details refer to section {ref}`Mutual Information`.
-Let $X_t$ and $Y_t$ represent two continuous time series dataset then the MI in between the two RVs is written as: 
+{ref}`mutual_information_overview` (MI) quantifies the information shared between two random variables $X$ and $Y$. For our purpose, let us write the expression of MI in between the two times series  $X_t$ and $Y_t$ as: 
 
 $$
-I(X_{t-u}; Y_t) = \sum_{x_{t-u}, y_t} p(x_{t-u}, y_t) \log \frac{p(x_{t-u}, y_t)}{p(x_{t-u}) p(y_t)}
+I(X_{t}; Y_t) = \sum_{x_{t}, y_t} p(x_{t}, y_t) \log \frac{p(x_{t}, y_t)}{p(x_{t}) p(y_t)}
 $$
 where,
-- $p(x_t,y_t)$: The joint probability distribution at time $t$,
-- $p(x_t)$ and  $p(y_t)$ are the marginal probabilities of $X_t$ and $Y_t$ respectively,
-- $u$: the time lag between two time series.
+- $p(x_t,y_t)$ is the joint probability distribution (probability density function, _pdf_),
+- $p(x_t)$ and  $p(y_t)$ are the marginal probabilities (_pdf_) of $X_t$ and $Y_t$.
 
 MI can be further expressed in terms of entropy and joint entropy as follows {cite:p}`khinchin1957mathematical` {cite:p}`cover2012elements`:
 
@@ -26,11 +24,14 @@ where,
 - $H(Y)$ is the entropy of $Y$,
 - $H(X, Y)$ is the **joint entropy** of $X$ and $Y$.
 
-**Rényi MI estimate** is computed by plugging-in the entropy and the join entropy estimates by using the estimation method explained in the {ref}`Rényi Entropy Estimation <renyi_entropy>`.
-**Tsallis TE estimate** is computed by plugging-in the entropy and the join entropy estimates by using the estimation method explained in the {ref}`Tsallis Entropy Estimation <tsallis_entropy>`.
+``Rényi MI estimate`` is computed by plugging-in the entropies and the join entropy estimates by using the estimation method explained in the {ref}`Rényi Entropy Estimation <renyi_entropy>`.
+
+``Tsallis MI estimate``  is computed by plugging-in the entropies and the join entropy estimates by using the estimation method explained in the {ref}`Tsallis Entropy Estimation <tsallis_entropy>`.
 
 
 ## Implementation
+Example usage of Renyi and Tsallis entropy...
+
 The estimator is implemented in the {py:class}`RenyiMIEstimator <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
 

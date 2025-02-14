@@ -1,19 +1,15 @@
 (mutual_information_overview)=
 # Mutual Information **(MI)**
-Mutual Information (MI) quantifies the information shared between two random variables $X$ and $Y$. 
-In another word, MI measures the average reduction in uncertainity about $X$ that results from learning the value of $Y$, or vice versa.{cite:p}`cover2012elements`
-Mathematically it is expressed as:
+Mutual Information (MI) quantifies the information shared between two random variables $X$ and $Y$. In another word, MI measures the average reduction in uncertainty about $X$ that results from learning the value of $Y$, or vice versa {cite:p}`cover2012elements`. Mathematically MI is expressed as:
 
 $$
-I(X;Y) = \sum_{x, y} p(x, y) \log_2 \frac{p(x,y)}{p(x) p(y)}
+I(X;Y) = \sum_{x, y} p(x, y) \log \frac{p(x,y)}{p(x) p(y)}
 $$
 where,
-- $X$: The set of possible values of the random variable $X$,
-- $Y$: The set of possible values of the random variable $Y$,
-- $p(x,y)$: The joint probability distribution $p(x,y)$,
-- $b$: The base of the logarithm.
+- $p(x,y)$ is the joint probability distribution for the occurrence of joint state $(x,y)$,
+- $p(x)$ and $p(y)$ is the marginal probability distribution of $X$ and $Y$ respectively.
 
-MI allows to detect the both liner and non-liner relationships between the variables hence making it very popular in the investigating of systems showing complex behaviours. MI can also be thought as the measure of mutual dependence between the random varaibles, with $I(X; Y) = 0$ signifying the independencies between the $X$ and $Y$.
+MI allows to detect the both liner and non-liner relationships between the variables hence making it very popular in the investigating of systems showing complex behaviours. MI can also be thought as the measure of mutual dependence between the random variables, with $I(X; Y) = 0$ signifying the in-dependencies between the $X$ and $Y$.
 
 #### Local Mutual Information
 Similar to {ref}`Local Entropy`, one can build the **local or point-wise mutual information**  directly from its average counterparts by aligning with the average definition of MI {cite:p}`Lizier2014` {cite:p}`manning1999foundations` {cite:p}`fano1961transmission` .
@@ -48,10 +44,10 @@ where,
 > Note:
 > The package allows user to set the desired time-lag between the series. The default value is set to $u=0$, no lag. 
 
-## List of MI Estimation Techniques Implemented:
+## MI estimation
+When estimating MI, several factors must be considered (ref: {ref}`Estimation`). First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, and the non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
 
-
-
+### List of MI Estimation Techniques Implemented:
 
 ```{eval-rst}
 .. toctree::
