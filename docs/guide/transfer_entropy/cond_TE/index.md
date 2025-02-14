@@ -4,19 +4,18 @@
 Importantly, the TE can be conditioned on other possible information sources $Z$ , to eliminate their influence from being mistaken as that of the source $Y$.
 
 $$
-TE(X \to Y \mid Z; u) = \sum_{y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}} 
-p(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}) 
-\log \left( \frac{p(y_{n+1+u} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})}
-{p(y_{n+1+u} \mid \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})} \right).
+TE(X \to Y \mid Z) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}} 
+p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}) 
+\log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})}
+{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})} \right).
 $$
 
 where:
-- $p(\cdot)$ represents the probability distribution.
-- $\mathbf{y}_n^{(l)}$ represents the past history of $Y$ with embedding length $l$.
-- $\mathbf{x}_n^{(k)}$ represents the past history of $X$ with embedding length $k$.
-- $\mathbf{z}_n^{(m)}$ represents the past history of $Z$ with embedding length $m$.
-- $y_{n+1+u}$ is the future value of $Y$ at prediction horizon $u$.
-- The logarithm measures the **information gain** when incorporating $X$ into the prediction of $Y$, **conditioned on** $Z$.
+- $p(\cdot)$ represents the probability distribution,
+- $\mathbf{y}_n^{(l)}$ represents the past history of $Y$ with embedding length $l$,
+- $\mathbf{x}_n^{(k)}$ represents the past history of $X$ with embedding length $k$,
+- $\mathbf{z}_n^{(m)}$ represents the past history of $Z$ with embedding length $m$,
+- $y_{n+1}$ is the future state of $Y$.
 
 #### Local Conditional TE
 Similar to {ref}`Local Conditional H` and {ref}`Local Conditional MI` measures, we can extract the **local or point-wise conditional transfer entropy** as suggested by _Lizier et al._ {cite:p}`Lizier2014_localinfomeasure`{cite:p}`local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
@@ -32,26 +31,22 @@ $$
 T_{X \rightarrow Y \mid Z}(k, l) = \langle t_{X \rightarrow Y}(n + 1, k, l) \rangle,
 $$
 
-## Estimation techniques
-CTE as entropy combination:
+## CTE Estimation 
+The CTE expression above can be written as the combination of entropies and joint entropies as follows:
 
 $$
-TE(X \to Y \mid Z; u) = H(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}) 
+TE(X \to Y \mid Z) = H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}) 
 - H(\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}) 
-- H(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}) 
+- H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}) 
 + H(\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}).
 $$
 
-where:
-- $H(\cdot)$ represents the entropy function.
-- $\mathbf{y}_n^{(l)}$ represents the past history of $Y$ with embedding length $l$.
-- $\mathbf{x}_n^{(k)}$ represents the past history of $X$ with embedding length $k$.
-- $\mathbf{z}_n^{(m)}$ represents the past history of $Z$ with embedding length $m$.
-- $y_{n+1+u}$ is the future value of $Y$ at prediction horizon $u$.
+While `estimating conditional TE`, the above formulation has been used to compute the respective entropies and joint entropies from available estimation techniques (detail: {ref}`Types of Estimation techniques available`. Hence, user can choose the desired techniques to estimate the conditional TE, which are:
+- Discrete estimation [{ref}`discrete_entropy`]  
+- Symbolic estimation [{ref}`symbolic_entropy`]  
+- Kernel estimation [{ref}`kernel_entropy`]  
 
-- However, one has to be careful about the biases arising form the differing dimensionality of the states paces across the terms in above equation.
-## Implementation
-
+However, one has to be careful about the biases arising form the differing dimensionality of the states spaces across the terms in above equation. The KSG method is known to have reduce such biases, we here have implemented the dedicated formulation to compute the conditional TE via KSG as explained in subsequent section.
 
 ```{eval-rst}
 .. toctree::

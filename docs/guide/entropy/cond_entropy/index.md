@@ -1,6 +1,7 @@
 (cond_entropy_overview)=
 # Conditional H
 Conditional entropy is defined as the remaining uncertainty of a variable after considering the information from another variable. In another word, it is the remaining unique information in the first variable after having the knowledge of the conditional variable.
+
 Let $X$ and $Y$ be two RVs on some probability space with the marginal probability as $p(x)$ and $p(y)$ and conditional probability distribution of $X$ conditioned on $Y$, i.e. $p(x|y)$ (or $p(y|x)$ for vice-versa situation), then the conditional entropy is calculated by as:
 
 $$
@@ -36,3 +37,4 @@ h(x \mid y) = h(x,y) - h(x)
 $$
 
 ## Implementation
+Usage example of Joint entropy...

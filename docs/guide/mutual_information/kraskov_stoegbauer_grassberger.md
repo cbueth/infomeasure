@@ -5,38 +5,30 @@ kernelspec:
 ---
 (KSG_MI)=
 # Kraskov-Stoegbauer-Grassberger (KSG) MI  Estimation
-Mutual Information (MI) quantifies the information shared between two random variables $X$ and $Y$, for more details refer to section {ref}`Mutual Information`.
-Let $X_t$ and $Y_t$ represent two continuous time series dataset then the MI in between the two RVs is written as: 
+{ref}`mutual_information_overview` (MI) quantifies the information shared between two random variables $X$ and $Y$. For our purpose, let us write the expression of MI in between the two times series  $X_t$ and $Y_t$ as: 
 
 $$
-I(X_{t-u}; Y_t) = \sum_{x_{t-u}, y_t} p(x_{t-u}, y_t) \log \frac{p(x_{t-u}, y_t)}{p(x_{t-u}) p(y_t)}
+I(X_{t}; Y_t) = \sum_{x_{t}, y_t} p(x_{t}, y_t) \log \frac{p(x_{t}, y_t)}{p(x_{t}) p(y_t)}
 $$
 where,
-- $p(x_t,y_t)$: The joint probability distribution at time $t$.
-- $p(x_t)$ and  $p(y_t)$ are the marginal probabilities of $X_t$ and $Y_t$, respectively
-- $u$: the time lag between two time series.
+- $p(x_t,y_t)$ is the joint probability distribution (probability density function, _pdf_),
+- $p(x_t)$ and  $p(y_t)$ are the marginal probabilities (_pdf_) of $X_t$ and $Y_t$.
 
-The KSG method sidesteps the need to explicitly calculate these densities as shown in above formula. Instead, it leverages properties of **k-nearest neighbor distances** in the joint space of the variables.
-Consider a set of $(N)$ paired observations $\left(x_i, y_i\right)$. For each observation $(i)$, let $r_i$ be the distance to its k-th nearest neighbor in the joint $(X, Y)$ space. 
-The key insight of the KSG method is that $r_i$ can be used to estimate local densities.
-In the KSG method, mutual information is estimated as:
+The KSG method sidesteps the need to explicitly calculate these densities instead, it leverages properties of **_k-nearest neighbor distances_** ( {ref}`Kozachenko-Leonenko (KL) / Metric / kNN Entropy Estimation` does the same). However, simply implementing the K-L entropy estimation for estimating the marginal and joint entropies to further estimate the MI would lead to small error, as the errors made from individual estimates would not cancel out due to difference in the dimensionality. Kraskov et. al in the article "Estimating mutual information" {cite:p}`miKSG2004` uses the idea that the K-L entropy estimation is valid for any value of $k$ and that its value does´t need to be fixed while estimating the marginal entropies. 
+
+Given two variables $X_i$, $Y_i$ spanning over their marginal spaces, let us consider the  joint space  $(Z_i=(X_i,Y_i)$. For each observation $(i)$, one can compute the $d_i$ as the distance to its k-th nearest neighbor in the joint $(Z_i=(X_i,Y_i)$ space by using the maximum norm method and hence resulting into the new distances $d_x$ and $d_y$. Moving forward author purposes two algorithms, as they have stated "in general they perform very similarly, as far as CPU times, statistical errors, and systematic errors are concerned", hence we have implemented only the first algorithm  in this package. For first algorithm, new distances $d_x$ and $d_y$ are set to maximum, and then the number of points $n_x$ and $n_y$ in marginal spaces are counted. Finally, it is averaged over all the samples and is used to compute the mutual information as shown below:
 
 $$
 I(X; Y) = \psi(k) + \psi(N)- \frac{1}{N} \sum_{i=1}^{N} \left[ \psi(n_x(i)) + \psi(n_y(i)) \right]
 $$
 
 where:
-- $ \psi $ is the digamma function.
-- $ N $ is the number of data points.
-- $ k $ is the number of nearest neighbors considered.
-- $ n_x(i) $ is the number of data points from $X$ within the $k$-th nearest neighbor distance of point $ x_i $ in $X$.
-- $ n_y(i) $ is the number of data points from $Y$ within the $k$-th nearest neighbor distance of point $ y_i $ in $Y$.
+- $ \psi $ is the **_digamma function_**,
+- $ N $ is the number of data points,
+- $ k $ is the number of nearest neighbors considered,
+- $ n_x(i) $ is the number of data points in marginal space $X$,
+- $ n_y(i) $ is the number of data points in marginal space $Y$.
 
-
-The basic idea is to estimate the densities in the $X$ and $Y$ spaces using the distances to the $k-th$ nearest neighbors, and then relate these density estimates to mutual information using the **digamma function**.
-The methodology is based on the article "Estimating mutual information" {cite:p}`miKSG2004`. 
-Authors have purposed two algorithms to estimate the MI in the article, as they have stated "In general they perform very similarly, as far as CPU
- times, statistical errors, and systematic errors are concerned", hence we have implemented only the first algorithm  in this package.   
 
 ## Implementation
 The estimator is implemented in the {py:class}`KSGMIEstimator <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>` class,

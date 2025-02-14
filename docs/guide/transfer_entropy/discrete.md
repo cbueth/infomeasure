@@ -5,34 +5,28 @@ kernelspec:
 ---
 (discrete_TE)=
 # Discrete TE Estimation
-[Transfer Entropy](index.md#transfer_entropy_overview) (TE) from the source process $X$ to the target process $Y$ is the amount of uncertainty reduced in the future values of target $Y$ by knowing the past values of source $X$ after considering the past values of target.
-
-$$T_{X \rightarrow Y}(k, l) = I \left[ \mathbf{X}_n^{(k)}; Y_{n+1} \mid \mathbf{Y}_n^{(l)} \right].$$
-where,
-- $\mathbf{X}_n^{(k)}$ is a vector/history of the past $k$ states of the source process $X$.
-- $\mathbf{Y}_n^{(l)}$ is a vector/history of the past $l$ states of the target process $Y$.
-
-The expression of TE in terms of probabilities is as follows:
+The [Transfer Entropy](index.md#transfer_entropy_overview) (TE) from the source process $X(x_n)$ to the target process $Y(y_n)$ in terms of probabilities is written as:
 
 $$
-T_{x \rightarrow y}(k, l, u) = \sum_{y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
-p(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}) 
-\log \left( \frac{p(y_{n+1+u} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
-{p(y_{n+1+u} \mid \mathbf{y}_n^{(l)})} \right).
+T_{x \rightarrow y}(k, l) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
+p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}) 
+\log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
+{p(y_{n+1} \mid \mathbf{y}_n^{(l)})} \right).
 $$
 
 Where:
-- $y_{n+1+u}$ is the next state of $y$ at time $n+1+u$, accounting for a propagation time $u$.
-- $\mathbf{y}_n^{(l)}$ is a vector/history of the past $l$ states of the target process $y$.
-- $\mathbf{x}_n^{(k)}$ is a vector/history of the past $k$ states of the source process $x$.
-- $p(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability distribution of the next state of $y$, its history, and the history of $x$.
-- $p(y_{n+1+u} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of $y_{n+1+u}$ given the histories of $x$ and $y$.
-- $p(y_{n+1+u} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of $y_{n+1+u}$ given only the history of $y$.
+- $y_{n+1}$ is the next state of $Y$ at time $n$, 
+- $ \mathbf{y}_n^{(l)} = \{y_n, \dots, y_{n-l+1}\} $ is the embedding vector of $Y$ considering the  $ l $ previous states (history length),
+- $ \mathbf{x}_n^{(k)} = \{x_n, \dots, x_{n-k+1}\} $ embedding vector of $X$ considering the $ k $ previous states (history length),
+- $p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability of the next state of $Y$, its history, and the history of $X$,
+- $p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of next state of $Y$ given the histories of $X$ and $Y$,
+- $p(y_{n+1} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of next state of $Y$ given only the history of $Y$.
 
-TE is computed by plugging-in the all the probabilities terms in the above equation. 
-The probabilities are estimated by simply counting the matching configurations available in the datasets.
+``Discrete TE estimation`` estimates the required probability mass function (_pmf_) by counting the occurrences of matching configuration in the dataset by keeping the record of the frequencies. These _pmf_ estimates are then plugged back into the above expression to estimate the TE. This estimator is simple and computationally efficient.
 
 ## Implementation
+Example usage of Discrete TE estimator...
+
 The estimator is implemented in the {py:class}`DiscreteTEEstimator <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>` class,
 which is part of the {py:mod}`im.measures.transfer_entropy <infomeasure.measures.transfer_entropy>` module.
 

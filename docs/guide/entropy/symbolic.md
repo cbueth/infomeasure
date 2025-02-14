@@ -6,17 +6,19 @@ kernelspec:
 
 (symbolic_entropy)=
 # Symbolic / Permutation Entropy Estimation
-The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` differential entropy formula is given as:
+The Shannon differential {ref}`entropy_overview` formula for a continuous random variable $ X $ with density $ p(x)$ is given as {cite:p}`shannonMathematicalTheoryCommunication1948`:
 
 $$
-H(X) = -\int_{X} p(x) \log_b p(x) \, dx,
+H(X) = -\int_{X} p(x) \log p(x) \, dx,
 $$
 
-where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. Further details can be read in the section {ref}`Entropy / Uncertainty`.  
+where, $p(x)$ is the probability density function(_pdf_). 
+
+``Symbolic entropy estimator``
 
 For a given time series dataset $\{x_t\}_{t=1, \ldots, T}$, where $T$ is the number of time points, each value can be replaced by a symbolic sequence $s(t)$ of length $s$, defined by the order parameter $s$. Using a sliding window of size $s$, subsets of the data are generated sequentially, and each subset is symbolized using a specific symbolization technique.  
 
-The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **ordinal pattern approach** is used for symbolization. For details, refer to article {cite:p}`PermutationEntropy2002` by Bandt and Pompe. 
+The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **_ordinal pattern approach_** is used for symbolization {cite:p}`PermutationEntropy2002`. 
 
 ```{Note}
 **Example of Ordinal Pattern symbolization:**
@@ -27,7 +29,7 @@ For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time serie
 - Conversely, if $( x(t) > x(t+1) )$, the pattern type is $(1, 0)$.
 ```
 
-Once the time series is mapped into the symbolic space, the probability distribution is estimated by computing the relative frequencies of symbols. Specifically, all $n!$ permutations $\pi$ of order $n$ are considered as possible order types of $n$ consecutive data points. For each permutation $\pi$, the relative frequency is:
+Once the time series is mapped into the symbolic space, the probability distribution (_pdf_) is estimated by computing the relative frequencies of symbols. Specifically, all $n!$ permutations $\pi$ of order $n$ are considered as possible order types of $n$ consecutive data points. For each permutation $\pi$, the relative frequency is:
 
 $$
 p(\pi) = \frac{\#\{t \mid t \leq T - n, \{x_t, \ldots, x_{t+n}\} \text{ has type } \pi\}}{T - n + 1}.
@@ -50,22 +52,18 @@ where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures 
   $\approx -\left(0.6667 \times -0.5849 + 0.3333 \times -1.5849\right) \approx 0.918 \text{ bits} $
  ```
 
-Finally, the **permutation entropy per symbol** can be computed as an optional step by normalizing $H(n)$ with $(n - 1)$, since comparisons begin with the second value:
-
-$$
-h_n = \frac{H(n)}{n - 1}.
-$$
-
-This step provides a more granular understanding of the entropy distribution within the time series data.  
 > Note:
 > The package allows user to obtain both the local and global (average) values to the Entropy computation.
-> Further one can also compute the entropy per symbol as optional choice.
 
+
+## Implementation
+his is a test of the entropy symbolic estimator (as developed above) on synthetically generated Gaussian distributed datasets. 
+Since there is an analytical function for computing the entropy (H) for a Gaussian distribution, this allows us to check if our estimator's estimates are close to the analytical values.
+
+....code showing the usage of kernel estimator...
 
 The estimator is implemented in the {py:class}`SymbolicEntropyEstimator <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>` class,
 which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
-
-## Implementation
 
 ```{eval-rst} 
 .. autoclass:: infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator

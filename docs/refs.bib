@@ -1,3 +1,15 @@
+@ARTICLE{shannonMathematicalTheoryCommunication1948,
+  author={Shannon, C. E.},
+  journal={The Bell System Technical Journal},
+  title={A mathematical theory of communication},
+  year={1948},
+  volume={27},
+  number={3},
+  pages={379-423},
+  keywords={},
+  doi={10.1002/j.1538-7305.1948.tb01338.x}}
+
+# usage of Entropy
 @article{acharya2024representative,
   title = {How Representative Are Air Transport Functional Complex Networks? {{A}} Quantitative Validation},
   author = {Acharya, Kishor and Olivares, Felipe and Zanin, Massimiliano},
@@ -8,34 +20,6 @@
   publisher = {AIP Publishing}
 }
 
-@book{bellmanCombinatorialAnalysis1960a,
-  title = {Combinatorial {{Analysis}}},
-  editor = {Bellman, Richard and Hall, Marshall},
-  year = {1960},
-  series = {Proceedings of {{Symposia}} in {{Applied Mathematics}}},
-  volume = {10},
-  publisher = {American Mathematical Society},
-  address = {Providence, Rhode Island},
-  doi = {10.1090/psapm/010},
-  urldate = {2024-12-04},
-  isbn = {978-0-8218-1310-2 978-0-8218-9225-1},
-  langid = {english}
-}
-
-@book{elzeDecoherenceEntropyComplex2004,
-  title = {Decoherence and Entropy in Complex Systems: Selected Lectures from {{DICE}} 2002},
-  shorttitle = {Decoherence and Entropy in Complex Systems},
-  editor = {Elze, Hans-Thomas},
-  year = {2004},
-  series = {Lecture Notes in Physics},
-  number = {633},
-  publisher = {Springer},
-  address = {Berlin ; New York},
-  isbn = {978-3-540-20639-2},
-  lccn = {QC6.4.C56 D43 2004},
-  keywords = {Coherent states,Entropy,Quantum theory}
-}
-
 @article{Hartley1928TransmissionOI,
   title = {Transmission of Information},
   author = {Hartley, R. V. L.},
@@ -43,13 +27,6 @@
   journal = {Bell System Technical Journal},
   volume = {7},
   pages = {535--563}
-}
-
-@misc{iso/tc12IEC800001320082008,
-  title = {{{IEC}} 80000-13:2008},
-  author = {{ISO/TC 12}},
-  year = {2008},
-  month = mar
 }
 
 @incollection{jizbaInformationTheoryGeneralized2004,
@@ -120,6 +97,24 @@
   year={1999},
   publisher={MIT Press}
 }
+
+#Symbolic Entropy
+@article{PermutationEntropy2002,
+  title = {Permutation Entropy: A Natural Complexity Measure for Time Series},
+  author = {Bandt, Christoph and Pompe, Bernd},
+  journal = {Phys. Rev. Lett.},
+  volume = {88},
+  issue = {17},
+  pages = {174102},
+  numpages = {4},
+  year = {2002},
+  month = {Apr},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRevLett.88.174102},
+  url = {https://link.aps.org/doi/10.1103/PhysRevLett.88.174102}
+}
+
+
 
 # local Entropy
 @Inbook{Lizier2014,
@@ -249,6 +244,7 @@ journal = {Physics Reports}
   doi = {10.1090/psapm/010}
 }
 
+# Renyi Entropy
 @article{leonenkoClassRenyiInformation2008,
   title = {A Class of {{R{\'e}nyi}} Information Estimators for Multidimensional Densities},
   author = {Leonenko, Nikolai and Pronzato, Luc and Savani, Vippal},
@@ -407,21 +403,6 @@ url="https://doi.org/10.1007/978-3-642-54474-3_7"
   keywords={Entropy;Probability distribution;Upper bound;Pattern analysis;Signal analysis;Signal processing;Pattern recognition;Taxonomy;Genetics;Computer science},
   doi={10.1109/18.61115}}
 
-  @article{Permutation_Jensen_Shannon_distance,
-  title = {Permutation Jensen-Shannon distance: A versatile and fast symbolic tool for complex time-series analysis},
-  author = {Zunino, Luciano and Olivares, Felipe and Ribeiro, Haroldo V. and Rosso, Osvaldo A.},
-  journal = {Phys. Rev. E},
-  volume = {105},
-  issue = {4},
-  pages = {045310},
-  numpages = {21},
-  year = {2022},
-  month = {Apr},
-  publisher = {American Physical Society},
-  doi = {10.1103/PhysRevE.105.045310},
-  url = {https://link.aps.org/doi/10.1103/PhysRevE.105.045310}
-}
-
 # Conditional MI (KSG)
 @article{CMI_KSG_Frenzel_Pompe,
   title = {Partial Mutual Information for Coupling Analysis of Multivariate Time Series},
@@ -469,3 +450,14 @@ ISSN = {1099-4300},
 ABSTRACT = {We propose a new estimator to measure directed dependencies in time series. The dimensionality of data is first reduced using a new non-uniform embedding technique, where the variables are ranked according to a weighted sum of the amount of new information and improvement of the prediction accuracy provided by the variables. Then, using a greedy approach, the most informative subsets are selected in an iterative way. The algorithm terminates, when the highest ranked variable is not able to significantly improve the accuracy of the prediction as compared to that obtained using the existing selected subsets. In a simulation study, we compare our estimator to existing state-of-the-art methods at different data lengths and directed dependencies strengths. It is demonstrated that the proposed estimator has a significantly higher accuracy than that of existing methods, especially for the difficult case, where the data are highly correlated and coupled. Moreover, we show its false detection of directed dependencies due to instantaneous couplings effect is lower than that of existing measures. We also show applicability of the proposed estimator on real intracranial electroencephalography data.},
 DOI = {10.3390/e22101124}
 }
+
+@ARTICLE{JSD_distance_Endres,
+  author={Endres, D.M. and Schindelin, J.E.},
+  journal={IEEE Transactions on Information Theory},
+  title={A new metric for probability distributions},
+  year={2003},
+  volume={49},
+  number={7},
+  pages={1858-1860},
+  keywords={Gaussian noise;Probability distribution;Iterative algorithms;Writing;Algorithm design and analysis;Wavelet analysis;Adaptive estimation;White noise;Bayesian methods;Convergence},
+  doi={10.1109/TIT.2003.813506}}
