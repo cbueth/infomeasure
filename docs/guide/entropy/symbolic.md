@@ -54,6 +54,7 @@ where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures 
 
 > Note:
 > The package allows user to obtain both the local and global (average) values to the Entropy computation.
+> The symbolic entropy is bounded between the 0 to $log(n)$.
 
 
 ## Implementation
