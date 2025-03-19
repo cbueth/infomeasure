@@ -2,19 +2,20 @@
 
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
-from typing import final
+from operator import gt
+from typing import final, Callable
 
 from numpy import asarray, issubdtype, integer
-from numpy import array, log, log2, log10, ndarray
-from numpy import sum as np_sum
+from numpy import log, log2, log10, ndarray, std, nan
 from numpy import mean as np_mean
+from numpy import sum as np_sum
 from numpy.random import default_rng
 
+from .utils.normalize import normalize_data_0_1
+from .utils.te_slicing import te_observations, cte_observations
 from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
-from .utils.normalize import normalize_data_0_1
-from .utils.te_slicing import te_observations, cte_observations
 
 
 class Estimator(ABC):
@@ -42,8 +43,15 @@ class Estimator(ABC):
 
     Notes
     -----
-    The :meth:`_calculate` method needs to be implemented in the derived classes.
-    If the measure has a p-value, the :meth:`p_value` method should be implemented.
+    The :meth:`_calculate` method needs to be implemented in the derived classes,
+    for the local values or the global value.
+    From local values, the global value is taken as the mean.
+    If is to more efficient to directly calculate the global value,
+    it is suggested to have :meth:`_calculate` just return the global value,
+    and have the separate :meth:`_extract_local_values` method for the local values,
+    which is lazily called by :meth:`local_val`, if needed.
+    If the measure has a p-value, the :meth:`p_value` method should be implemented
+    (use :class:`PValueMixin` for standard implementations).
     """
 
     def __init__(self, base: LogBaseType = Config.get("base")):
@@ -132,9 +140,23 @@ class Estimator(ABC):
         Not available for :class:`EntropyEstimator` classes.
         """
         if self.global_val() is not None and self.res_local is None:
-            raise UnsupportedOperation(
-                f"Local values are not available for {self.__class__.__name__}."
-            )
+            try:
+                self.res_local = self._extract_local_values()
+            except NotImplementedError:
+                raise UnsupportedOperation(
+                    f"Local values are not available for {self.__class__.__name__}."
+                )
+            # check absolute and relative difference
+            if (
+                abs(np_mean(self.res_local) - self.res_global) > 1e-10
+                or abs((np_mean(self.res_local) - self.res_global) / self.res_global)
+                > 0.01
+            ):
+                raise RuntimeError(
+                    f"Mean of local values {np_mean(self.res_local)} "
+                    f"does not match the global value {self.res_global}. "
+                    f"Diff: {np_mean(self.res_local) - self.res_global:.2e}."
+                )
         return self.res_local
 
     @abstractmethod
@@ -147,6 +169,23 @@ class Estimator(ABC):
             The entropy as float, or an array of local values.
         """
         pass
+
+    def _extract_local_values(self) -> ndarray[float]:
+        """Extract the local values of the measure.
+
+        For estimators that only calculate the global value, this method can be
+        implemented to extract the local values from the data, e.g. histogram,
+        implementation-specific values, etc.
+
+        Returns
+        -------
+        array-like
+            The local values of the measure.
+        """
+        raise NotImplementedError(
+            "Local values are not available for this estimator. "
+            "Implement the _extract_local_values method to extract them."
+        )
 
     @final
     def _log_base(self, x):
@@ -290,9 +329,11 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 
     Attributes
     ----------
-    data_x, data_y : array-like, shape (n_samples,)
+    *data : array-like, shape (n_samples,)
         The data used to estimate the mutual information.
+        You can pass an arbitrary number of data arrays as positional arguments.
     offset : int, optional
+        If two data arrays are provided:
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Assumed time taken by info to transfer from X to Y.
@@ -310,7 +351,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     ValueError
         If the offset is not an integer.
     ValueError
-        If the data arrays are not of the same length.
+        If offset is used with more than two data arrays.
 
     See Also
     --------
@@ -324,38 +365,40 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 
     def __init__(
         self,
-        data_x,
-        data_y,
+        *data,
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data."""
-        offset = offset or 0  # Ensure offset is an integer (`None` -> 0)
-        if not issubdtype(type(offset), integer):
-            raise ValueError(f"Offset must be an integer, not {offset}.")
-        self.data_x = asarray(data_x)
-        self.data_y = asarray(data_y)
-        if self.data_x.shape[0] != self.data_y.shape[0]:
+        if len(data) < 2:
+            raise ValueError("At least two data arrays are required for MI estimation.")
+        if len(data) > 2 and offset not in (0, None):
+            raise ValueError("Offset is only supported for two data arrays.")
+        self.data: tuple[ndarray] = tuple(asarray(d) for d in data)
+        if not all(var.shape[0] == self.data[0].shape[0] for var in self.data):
             raise ValueError(
                 "Data arrays must have the same first dimension, "
-                f"not {self.data_x.shape[0]} and {self.data_y.shape[0]}."
+                f"not {[var.shape[0] for var in self.data]}."
             )
         # Apply the offset
         self.offset = offset
         if self.offset > 0:
-            self.data_x = self.data_x[: -self.offset or None]
-            self.data_y = self.data_y[self.offset :]
+            self.data = (
+                self.data[0][: -self.offset or None],
+                self.data[1][self.offset :],
+            )
         elif self.offset < 0:
-            self.data_x = self.data_x[-self.offset :]
-            self.data_y = self.data_y[: self.offset or None]
+            self.data = (
+                self.data[0][-self.offset :],
+                self.data[1][: self.offset or None],
+            )
         # Normalize the data
         self.normalize = normalize
-        if self.normalize and (self.data_x.ndim != 1 or self.data_y.ndim != 1):
+        if self.normalize and any(var.ndim != 1 for var in self.data):
             raise ValueError("Data arrays must be 1D for normalization.")
         if self.normalize:
-            self.data_x = normalize_data_0_1(self.data_x)
-            self.data_y = normalize_data_0_1(self.data_y)
+            self.data = tuple(normalize_data_0_1(var) for var in self.data)
         super().__init__(base=base)
 
     def _generic_mi_from_entropy(
@@ -364,7 +407,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
         noise_level: float = 0,
         kwargs: dict = None,
     ) -> float:
-        """Calculate the mutual information with the entropy estimator.
+        r"""Calculate the mutual information with the entropy estimator.
 
         Mutual Information (MI) between two random variables :math:`X` and :math:`Y`
         quantifies the amount of information obtained about one variable through the
@@ -376,6 +419,11 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
 
         where :math:`H(X)` is the entropy of :math:`X`, :math:`H(Y)` is the entropy of
         :math:`Y`, and :math:`H(X, Y)` is the joint entropy of :math:`X` and :math:`Y`.
+        For an arbitrary number of variables, the formula is:
+
+        .. math::
+
+                I(X_1, X_2, \ldots, X_n) = \sum_{i=1}^n H(X_i) - H(X_1, X_2, \ldots, X_n)
 
         Parameters
         ----------
@@ -398,30 +446,36 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
         This helper method is provided as a generic fallback.
         """
 
-        # Ensure source and dest are numpy arrays
-        data_x = self.data_x.astype(float).copy()
-        data_y = self.data_y.astype(float).copy()
+        # Ensure data are numpy arrays
+        data = list(var.astype(float).copy() for var in self.data)
 
         # Add Gaussian noise to the data if the flag is set
         if noise_level:
-            data_x += self.rng.normal(0, noise_level, data_x.shape)
-            data_y += self.rng.normal(0, noise_level, data_y.shape)
+            for i_data in range(len(data)):
+                data[i_data] += self.rng.normal(0, noise_level, data[i_data].shape)
 
-        est_x = estimator(self.data_x, **kwargs)
-        est_y = estimator(self.data_y, **kwargs)
-        est_xy = estimator((self.data_x, self.data_y), **kwargs)
-        # try local values first
+        # Estimators
+        estimators = [estimator(var, **kwargs) for var in data]
+        estimator_joint = estimator((*data,), **kwargs)
+        # return sum(h(x_i)) - h((x_1, x_2, ..., x_n))
         try:
-            return est_x.local_val() + est_y.local_val() - est_xy.local_val()
+            return (
+                np_sum([est.local_val() for est in estimators])
+                - estimator_joint.local_val()
+            )
         except UnsupportedOperation:
-            return est_x.global_val() + est_y.global_val() - est_xy.global_val()
+            return (
+                sum([est.global_val() for est in estimators])
+                - estimator_joint.global_val()
+            )
 
 
 class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     """Abstract base class for conditional mutual information estimators.
 
-    Conditional Mutual Information (CMI) between two random variables :math:`X` and
-    :math:`Y` given a third variable :math:`Z` quantifies the amount of information
+    Conditional Mutual Information (CMI) between two (or more)
+    random variables :math:`X` and :math:`Y` given
+    a third variable :math:`Z` quantifies the amount of information
     obtained about one variable through the other, conditioned on the third.
     In terms of entropy (H), CMI is expressed as:
 
@@ -436,12 +490,13 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
     Attributes
     ----------
-    data_x, data_y, data_z : array-like, shape (n_samples,)
+    *data : array-like, shape (n_samples,)
         The data used to estimate the conditional mutual information.
+        You can pass an arbitrary number of data arrays as positional arguments.
+    cond : array-like
+        The conditional data used to estimate the conditional mutual information.
     normalize : bool, optional
         If True, normalize the data before analysis. Default is False.
-    offset : None
-        Not compatible with the conditional mutual information.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
@@ -451,8 +506,6 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
     ------
     ValueError
         If the data arrays have different lengths.
-    ValueError
-        If an offset is provided.
     ValueError
         If the data arrays are not of the same length.
     ValueError
@@ -468,44 +521,42 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
     def __init__(
         self,
-        data_x,
-        data_y,
-        data_z,
+        *data,
+        cond=None,
         normalize: bool = False,
         offset=None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data."""
-        if len(data_x) != len(data_y) or len(data_x) != len(data_z):
+        if cond is None:
+            raise ValueError("Conditional data must be provided for CMI estimation.")
+        if offset not in (None, 0):
+            raise ValueError("Offset is not supported for CMI estimation.")
+        if len(data[0]) != len(data[1]) or len(data[0]) != len(cond):
             raise ValueError(
                 "Data arrays must be of the same length, "
-                f"not {len(data_x)}, {len(data_y)}, and {len(data_z)}."
+                f"not {len(data[0])}, {len(data[1])}, and {len(cond)}."
             )
-        if offset not in (None, 0):
-            raise ValueError(
-                "`offset` is not compatible with the conditional mutual information."
-            )
-        self.data_x = asarray(data_x)
-        self.data_y = asarray(data_y)
-        self.data_z = asarray(data_z)
+        self.data = tuple(asarray(d) for d in data)
+        self.cond = asarray(cond)
         if (
-            self.data_x.shape[0] != self.data_y.shape[0]
-            or self.data_x.shape[0] != self.data_z.shape[0]
+            self.data[0].shape[0] != self.data[1].shape[0]
+            or self.data[0].shape[0] != self.cond.shape[0]
         ):
             raise ValueError(
                 "Data arrays must have the same first dimension, "
-                f"not {self.data_x.shape[0]}, {self.data_y.shape[0]}, and {self.data_z.shape[0]}."
+                f"not {self.data[0].shape[0]}, {self.data[1].shape[0]}, "
+                f"and {self.cond.shape[0]}."
             )
         # Normalize the data
         self.normalize = normalize
         if self.normalize and (
-            self.data_x.ndim != 1 or self.data_y.ndim != 1 or self.data_z.ndim != 1
+            self.data[0].ndim != 1 or self.data[1].ndim != 1 or self.cond.ndim != 1
         ):
             raise ValueError("Data arrays must be 1D for normalization.")
         if self.normalize:
-            self.data_x = normalize_data_0_1(self.data_x)
-            self.data_y = normalize_data_0_1(self.data_y)
-            self.data_z = normalize_data_0_1(self.data_z)
+            self.data = tuple(normalize_data_0_1(var) for var in self.data)
+            self.cond = normalize_data_0_1(self.cond)
         super().__init__(base=base)
 
     def _generic_cmi_from_entropy(
@@ -529,27 +580,31 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
         Returns
         -------
         float
-            The conditional mutual information between the two variables given the third.
+            The conditional mutual information between the variables,
+            given the conditional data.
 
         Notes
         -----
-        If possible, estimators should use a dedicated conditional mutual information method.
+        If possible, estimators should use a dedicated conditional mutual information
+        method.
         This helper method is provided as a generic fallback.
         """
 
         # Ensure source and dest are numpy arrays
-        data_x = self.data_x.copy()
-        data_y = self.data_y.copy()
-        data_z = self.data_z.copy()
+        data = list(var.copy() for var in self.data)
+        cond = self.cond.copy()
 
         # Add Gaussian noise to the data if the flag is set
         if noise_level:
-            data_x = data_x if data_x.dtype == float else data_x.astype(float)
-            data_y = data_y if data_y.dtype == float else data_y.astype(float)
-            data_z = data_z if data_z.dtype == float else data_z.astype(float)
-            data_x += self.rng.normal(0, noise_level, data_x.shape)
-            data_y += self.rng.normal(0, noise_level, data_y.shape)
-            data_z += self.rng.normal(0, noise_level, data_z.shape)
+            for i_data in range(len(data)):
+                data[i_data] = (
+                    data[i_data]
+                    if data[i_data].dtype == float
+                    else data[i_data].astype(float)
+                )
+                data[i_data] += self.rng.normal(0, noise_level, data[i_data].shape)
+            cond = cond if cond.dtype == float else cond.astype(float)
+            cond += self.rng.normal(0, noise_level, cond.shape)
 
         # Make sure that no second noise is in `kwargs`
         if kwargs is not None and "noise_level" in kwargs:
@@ -563,24 +618,21 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
 
         # Entropy-based CMI calculation
         if issubclass(estimator, EntropyEstimator):
-            est_x_z = estimator((self.data_x, self.data_z), **kwargs)
-            est_y_z = estimator((self.data_y, self.data_z), **kwargs)
-            est_x_y_z = estimator((self.data_x, self.data_y, self.data_z), **kwargs)
-            est_z = estimator(self.data_z, **kwargs)
+            est_marginal_cond = [estimator((var, cond), **kwargs) for var in data]
+            estimator_joint = estimator((*data, cond), **kwargs)
+            est_cond = estimator(cond, **kwargs)
             # return h_x_z + h_y_z - h_x_y_z - h_z
             try:
                 (
-                    est_x_z.local_val()
-                    + est_y_z.local_val()
-                    - est_x_y_z.local_val()
-                    - est_z.local_val()
+                    np_sum([est.local_val() for est in est_marginal_cond])
+                    - estimator_joint.local_val()
+                    - est_cond.local_val()
                 )
             except UnsupportedOperation:
                 return (
-                    est_x_z.global_val()
-                    + est_y_z.global_val()
-                    - est_x_y_z.global_val()
-                    - est_z.global_val()
+                    sum([est.global_val() for est in est_marginal_cond])
+                    - estimator_joint.global_val()
+                    - est_cond.global_val()
                 )
         else:
             raise ValueError(f"Estimator must be an EntropyEstimator, not {estimator}.")
@@ -635,9 +687,22 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         step_size: int = 1,
+        offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data."""
+        if offset not in (None, 0):
+            if prop_time in (None, 0):
+                logger.warning(
+                    "Using the `offset` parameter as `prop_time`. "
+                    "Please use `prop_time` for the propagation time."
+                )
+                prop_time = offset
+            else:
+                raise ValueError(
+                    "Both `offset` and `prop_time` are set. "
+                    "Use only `prop_time` for the propagation time."
+                )
         if len(source) != len(dest):
             raise ValueError(
                 "Data arrays must be of the same length, "
@@ -658,8 +723,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         # Slicing parameters
         self.src_hist_len, self.dest_hist_len = src_hist_len, dest_hist_len
         self.step_size = step_size
-        # Permutation flag - used by the p-value method and te_observations slicing
+        # Permutation/Resample flags - used by the p-value method and te_obs. slicing
         self.permute_src = False
+        self.resample_src = False
         # Initialize Estimator ABC with the base
         super().__init__(base=base)
 
@@ -738,6 +804,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
             permute_src=self.permute_src,
+            resample_src=self.resample_src,
         )
 
         est_y_history_y_future = estimator(marginal_2_space_data, **kwargs)
@@ -794,15 +861,18 @@ class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
         self,
         source,
         dest,
-        cond,
+        cond=None,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
         step_size: int = 1,
         prop_time=None,
+        offset=None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the estimator with the data."""
+        if cond is None:
+            raise ValueError("Conditional data must be provided for CTE estimation.")
         if len(source) != len(dest) or len(source) != len(cond):
             raise ValueError(
                 "Data arrays must be of the same length, "
@@ -810,9 +880,10 @@ class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             )
         if not issubdtype(type(prop_time), integer):
             raise ValueError(f"Propagation time must be an integer, not {prop_time}.")
-        if prop_time not in (None, 0):
+        if prop_time not in (None, 0) or offset not in (None, 0):
             raise ValueError(
-                "`prop_time` is not compatible with the conditional transfer entropy."
+                "`prop_time`/`offset` are not compatible with the "
+                "conditional transfer entropy."
             )
         self.source = asarray(source)
         self.dest = asarray(dest)
@@ -960,24 +1031,13 @@ class PValueMixin(RandomGeneratorMixin):
     There are two methods to calculate the p-value:
 
     - Permutation test: shuffle the data and calculate the measure.
-    - Bootstrap: resample the data and calculate the measure.  # TODO: Implement
+    - Bootstrap: resample the data and calculate the measure.
 
-    The :func:`permutation_test` can be used to determine a p-value for a measure,
-    the :func:`calculate_permuted` additionally for effective TE.
+    The :func:`p_value` can be used to determine a p-value for a measure,
+    and :func:`t_score` to get the corresponding t-score.
 
     To be used as a mixin class with other :class:`Estimator` Estimator classes.
     Inherit before the main class.
-
-    Data attribute to be shuffled depends on the derived class.
-
-    - For entropy estimators, it is `data`.
-    - For mutual information estimators, it is `data_x`.
-    - For transfer entropy estimators, it is `source`.
-
-    Attributes
-    ----------
-    permutation_data_attribute : str
-        The attribute to shuffle.
 
     Notes
     -----
@@ -994,34 +1054,34 @@ class PValueMixin(RandomGeneratorMixin):
 
     def __init__(self, *args, **kwargs):
         """Initialize the permutation test."""
-        self.p_val = None
-        self.p_val_method = None
+        self.original_data = None
+        self.data = None
+        self.p_val: float = None
+        self.t_scr: float = None
+        self.p_val_method: str = None
+        self.n_tests: int = None
         super().__init__(*args, **kwargs)
-        # Determine the attribute to shuffle
-        if isinstance(self, EntropyEstimator):
-            self.permutation_data_attribute = "data"
-        elif isinstance(self, MutualInformationEstimator):
-            self.permutation_data_attribute = "data_y"
-        elif isinstance(self, TransferEntropyEstimator):
-            self.permutation_data_attribute = "dest"
-        else:
+        if not isinstance(self, (MutualInformationEstimator, TransferEntropyEstimator)):
             raise NotImplementedError(
                 "P-value method is not implemented for the estimator."
             )
 
-    def p_value(self, *args, method=Config.get("p_value_method"), **kwargs) -> float:
+    def p_value(self, n_tests: int, method=Config.get("p_value_method")) -> float:
         """Calculate the p-value of the measure.
 
         Method can be "permutation_test" or "bootstrap".
 
+        - Permutation test: shuffle the data and calculate the measure.
+        - Bootstrap: resample the data and calculate the measure.
+
         Parameters
         ----------
-        method : str
+        n_tests : int
+            Number of permutations or bootstrap samples.
+            Needs to be a positive integer.
+        method : str, optional
             The method to calculate the p-value.
             Default is the value set in the configuration.
-        n_permutations : int
-            For permutation test, the number of permutations to perform.
-            Needs to be a positive integer.
 
         Returns
         -------
@@ -1033,48 +1093,139 @@ class PValueMixin(RandomGeneratorMixin):
         ValueError
             If the chosen method is unknown.
         """
-        if self.p_val is not None and method == self.p_val_method:
+        if (
+            self.p_val is not None
+            and method == self.p_val_method
+            and n_tests == self.n_tests
+        ):
             return self.p_val
         logger.debug(
-            f"Calculating the p-value of the measure {self.__class__.__name__} "
-            f"using the {method} method."
+            "Calculating the p-value and t-score "
+            f"of the measure {self.__class__.__name__} "
+            f"using the {method} method with {n_tests} tests."
         )
         self.p_val_method = method
-        if method == "permutation_test":  # Permutation test
-            if self.permutation_data_attribute == "source":
-                self.p_val = self.permutation_test_te(*args, **kwargs)
-            else:  # entropy or mutual information
-                self.p_val = self.permutation_test(*args, **kwargs)
-        elif method == "bootstrap":
-            raise NotImplementedError("Bootstrap method is not implemented.")  # TODO
+        self.n_tests = n_tests
+        if isinstance(self, MutualInformationEstimator):
+            if len(self.data) != 2:
+                raise ValueError(
+                    "Permutation test on mutual information is only supported "
+                    "for two variables."
+                )
+            method = self.test_mi
+        elif isinstance(self, TransferEntropyEstimator):
+            method = self.test_te
         else:
-            raise ValueError(f"Invalid p-value method: {method}.")
-
+            raise NotImplementedError(
+                "Permutation test is not implemented for this estimator."
+            )
+        self.p_val, self.t_scr = method(n_tests)
         return self.p_val
 
-    def calculate_permuted(self):
-        """Calculate the measure for the permuted data.
+    def t_score(self, n_tests: int, method=Config.get("p_value_method")) -> float:
+        """Get the t-score of the measure.
+
+        Parameters
+        ----------
+        n_tests : int
+            Number of permutations or bootstrap samples.
+            Needs to be a positive integer.
+        method : str, optional
+            The method to calculate the p-value.
+            Default is the value set in the configuration.
 
         Returns
         -------
-        float
-            The measure for the permuted data.
-        """
-        # Backup the original data
-        original_data = getattr(self, self.permutation_data_attribute).copy()
-        # Calculate the measure for the permuted data
-        result = self._calculate_permuted()
-        # Restore the original data
-        setattr(self, self.permutation_data_attribute, original_data)
-        return result
+        t_score : float
+            The t-score of the measure.
 
-    def _calculate_permuted(self):
-        """Calculate the measure for the permuted data."""
+        Notes
+        -----
+        The t-score is the difference between the observed value and the mean of the
+        permuted values, divided by the standard deviation of the permuted values
+        (if it is greater than 0).
+        One can get the z-score by converting the t-score using the cumulative
+        distribution function (CDF) of the t-distribution and the inverse CDF
+        (percent-point function) of the standard normal distribution.
+
+        Raises
+        ------
+        ValueError
+            If the chosen method is unknown.
+        """
+        if (
+            self.t_scr is not None
+            and method == self.p_val_method
+            and n_tests == self.n_tests
+        ):
+            return self.t_scr
+        self.p_value(method, n_tests)
+        return self.t_scr
+
+    @staticmethod
+    def _p_value_t_score(
+        observed_value, test_values, comparison: Callable = gt
+    ) -> tuple[float, float]:
+        """
+        Calculate the p-value and t-score of the observed value.
+        Given a list of test values, the number of permutations, and the observed value,
+        calculate the p-value and t-score.
+
+        Parameters
+        ----------
+        observed_value : float
+            The observed value.
+        test_values : array-like
+            The test values.
+        comparison : operator, optional
+            The comparison operator to use.
+            Pass `operator.lt` for less than, `operator.gt` for greater than.
+            Default is greater.
+
+        Returns
+        -------
+        float, float
+            The p-value and t-score of the measure.
+
+        Raises
+        ------
+        ValueError
+            If the observed value is not a float.
+        ValueError
+            If the test values are not an array-like.
+        ValueError
+            If the comparison operator is not a function.
+        """
+        if not isinstance(observed_value, float):
+            raise ValueError("Observed value must be a float.")
+        if not isinstance(test_values, (ndarray, list, tuple)):
+            raise ValueError("Test values must be an array-like.")
+        if not callable(comparison):
+            raise ValueError("Comparison operator must be a function.")
+        test_values = asarray(test_values)
+
+        null_mean = np_mean(test_values)
+        null_std = std(test_values, ddof=1)  # Unbiased estimator (dividing by N-1)
+
+        # Compute p-value: proportion of test values greater than the observed value
+        #                  (or different operator if specified)
+        p_value = np_sum(comparison(test_values, observed_value)) / len(test_values)
+
+        # Compute t-score:
+        t_score = (observed_value - null_mean) / null_std if null_std > 0 else nan
+
+        return p_value, t_score
+
+    def _calculate_mi_with_data_selection(self, method_resample_src: Callable):
+        """Calculate the measure for the resampled data using specific method."""
+        if len(self.original_data) != 2:
+            raise ValueError(
+                "MI with data selection is only supported for two variables."
+            )
         # Shuffle the data
-        setattr(
-            self,
-            self.permutation_data_attribute,
-            self.rng.permutation(getattr(self, self.permutation_data_attribute)),
+        self.data = (
+            method_resample_src(self.original_data[0]),
+            self.original_data[1],
         )
         # Calculate the measure
         res_permuted = self._calculate()
@@ -1082,41 +1233,53 @@ class PValueMixin(RandomGeneratorMixin):
             res_permuted if isinstance(res_permuted, float) else np_mean(res_permuted)
         )
 
-    def permutation_test(self, n_permutations: int) -> float:
-        """Calculate the permutation test.
+    def test_mi(self, n_tests: int) -> float:
+        """Test the mutual information with a permutation test or bootstrap.
 
         Parameters
         ----------
-        n_permutations : int
-            The number of permutations to perform.
+        n_tests : int
+            The number of permutations or bootstrap samples.
 
         Returns
         -------
-        float
-            The p-value of the measure.
+        float, float
+            The p-value and t-score of the measure.
 
         Raises
         ------
         ValueError
             If the number of permutations is not a positive integer.
         """
-        if not issubdtype(type(n_permutations), integer) or n_permutations < 1:
+        if not issubdtype(type(n_tests), integer) or n_tests < 1:
             raise ValueError(
                 "Number of permutations must be a positive integer, "
-                f"not {n_permutations} ({type(n_permutations)})."
+                f"not {n_tests} ({type(n_tests)})."
             )
         # Store unshuffled data
-        original_data = getattr(self, self.permutation_data_attribute).copy()
+        self.original_data = self.data
         # Perform permutations
-        permuted_values = [self._calculate_permuted() for _ in range(n_permutations)]
-        if isinstance(permuted_values[0], tuple):
-            permuted_values = [x[0] for x in permuted_values]
+        if self.p_val_method == "permutation_test":
+            method_resample_src = lambda data_src: self.rng.permutation(
+                data_src, axis=0
+            )
+        elif self.p_val_method == "bootstrap":
+            method_resample_src = lambda data_src: self.rng.choice(
+                data_src, size=data_src.shape, replace=True, axis=0
+            )
+        else:
+            raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
+        permuted_values = [
+            self._calculate_mi_with_data_selection(method_resample_src)
+            for _ in range(n_tests)
+        ]
         # Restore the original data
-        setattr(self, self.permutation_data_attribute, original_data)
-        # Calculate the p-value
-        return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
+        self.data = self.original_data
+        return self._p_value_t_score(
+            observed_value=self.global_val(), test_values=permuted_values
+        )
 
-    def permutation_test_te(self, n_permutations: int) -> float:
+    def test_te(self, n_permutations: int) -> float:
         """Calculate the permutation test for transfer entropy.
 
         Parameters
@@ -1140,32 +1303,37 @@ class PValueMixin(RandomGeneratorMixin):
                 f"not {n_permutations} ({type(n_permutations)})."
             )
         # Activate the permutation flag to permute the source data when slicing
-        self.permute_src = self.rng
+        if self.p_val_method == "permutation_test":
+            self.permute_src = self.rng
+        elif self.p_val_method == "bootstrap":
+            self.resample_src = self.rng
+        else:
+            raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
         permuted_values = [self._calculate() for _ in range(n_permutations)]
-        if isinstance(permuted_values[0], tuple):
-            permuted_values = [x[0] for x in permuted_values]
-        # Deactivate the permutation flag
-        self.permute_src = False
-        return np_sum(array(permuted_values) >= self.global_val()) / n_permutations
+        if isinstance(permuted_values[0], ndarray):
+            permuted_values = [np_mean(x) for x in permuted_values]
+        # Deactivate the permutation/resample flag
+        self.permute_src, self.resample_src = False, False
+        return self._p_value_t_score(
+            observed_value=self.global_val(), test_values=permuted_values
+        )
 
 
-class EffectiveValueMixin(PValueMixin):
+class EffectiveValueMixin:
     """Mixin for effective value calculation.
 
-    To be used as a mixin class with :class:`TransferEntropyEstimator`
-    and :class:`MutualInformationEstimator` derived classes.
+    To be used as a mixin class with :class:`TransferEntropyEstimator` derived classes.
     Inherit before the main class.
 
     Attributes
     ----------
     res_effective : float | None
-        The effective transfer entropy/mutual information.
+        The effective transfer entropy.
 
     Notes
     -----
     The effective value is the difference between the original
     value and the value calculated for the permuted data.
-    This adds the :class:`PValueMixin` for the permutation test.
     """
 
     def __init__(self, *args, **kwargs):
@@ -1174,7 +1342,7 @@ class EffectiveValueMixin(PValueMixin):
         super().__init__(*args, **kwargs)
 
     def effective_val(self):
-        """Return the effective value (MI/TE).
+        """Return the effective value.
 
         Calculates the effective value if not already done,
         otherwise returns the stored value.
@@ -1196,7 +1364,12 @@ class EffectiveValueMixin(PValueMixin):
         effective : float
             The effective value.
         """
-        global_permuted = self.calculate_permuted()
-        if isinstance(global_permuted, tuple):
-            return self.global_val() - global_permuted[0]
-        return self.global_val() - global_permuted
+        # Activate the permutation flag to permute the source data when slicing
+        self.permute_src = self.rng
+        res_permuted = self._calculate()
+        if isinstance(res_permuted, ndarray):
+            res_permuted = np_mean(res_permuted)
+        # Deactivate the permutation flag
+        self.permute_src = False
+        # Return difference
+        return self.global_val() - res_permuted

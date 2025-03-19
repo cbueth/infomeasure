@@ -35,8 +35,18 @@ def test_kld_permutation(default_rng, order):
         (1, "permutation", {"order": 1}, 0.0),
         (1, "permutation", {"order": 2}, 0.6349968),
         (1, "permutation", {"order": 3}, 1.5890538),
-        (1, "permutation", {"order": 4, "stable": True}, 2.58961692),
-        (1, "permutation", {"order": 5, "stable": True}, 2.38246712),
+        (
+            1,
+            "permutation",
+            {"order": 4, "stable": True},
+            2.58961692,
+        ),  # Apple Silicon: 2.573041100637142
+        (
+            1,
+            "permutation",
+            {"order": 5, "stable": True},
+            2.38246712,
+        ),  # Apple Silicon: 2.3788863915882716
         (1, "permutation", {"order": 20}, 0.0),
     ],
 )

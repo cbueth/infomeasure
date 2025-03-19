@@ -76,7 +76,7 @@ def jensen_shannon_divergence(*data, approach: str | None = None, **kwargs):
         return mixture - marginal
     if approach in ["kernel"]:
         # The mixture distribution is the union of the data, as the kernel density
-        # estimation is applied afterwards.
+        # estimation is applied afterward.
         mix_est = estimator_class(concatenate(data, axis=0), **kwargs)
         return mix_est.global_val() - sum(
             estimator_class(var, **kwargs).global_val() for var in data

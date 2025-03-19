@@ -2,15 +2,16 @@
 
 from abc import ABC
 
-from ... import Config
-from ...utils.config import logger
-from ...utils.types import LogBaseType
 from ..base import (
+    PValueMixin,
     EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
 from ..entropy.discrete import DiscreteEntropyEstimator
+from ... import Config
+from ...utils.config import logger
+from ...utils.types import LogBaseType
 
 
 class BaseDiscreteTEEstimator(ABC):
@@ -28,6 +29,7 @@ class BaseDiscreteTEEstimator(ABC):
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
         Not compatible with the ``cond`` parameter / conditional TE.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int, optional
@@ -48,6 +50,7 @@ class BaseDiscreteTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
+        offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the BaseDiscreteTEEstimator.
@@ -64,6 +67,7 @@ class BaseDiscreteTEEstimator(ABC):
             Delay/lag/shift between the variables, representing propagation time.
             Assumed time taken by info to transfer from source to destination
             Not compatible with the ``cond`` parameter / conditional TE.
+            Alternatively called `offset`.
         step_size : int, optional
             Step size between elements for the state space reconstruction.
         src_hist_len, dest_hist_len : int, optional
@@ -82,6 +86,7 @@ class BaseDiscreteTEEstimator(ABC):
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
                 step_size=step_size,
+                offset=offset,
                 base=base,
             )
         else:
@@ -94,6 +99,7 @@ class BaseDiscreteTEEstimator(ABC):
                 dest_hist_len=dest_hist_len,
                 cond_hist_len=cond_hist_len,
                 prop_time=prop_time,
+                offset=offset,
                 base=base,
             )
             if (
@@ -117,7 +123,7 @@ class BaseDiscreteTEEstimator(ABC):
 
 
 class DiscreteTEEstimator(
-    BaseDiscreteTEEstimator, EffectiveValueMixin, TransferEntropyEstimator
+    BaseDiscreteTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
 ):
     """Estimator for discrete transfer entropy.
 
@@ -130,6 +136,7 @@ class DiscreteTEEstimator(
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
+        Alternatively called `offset`.
     step_size : int
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int

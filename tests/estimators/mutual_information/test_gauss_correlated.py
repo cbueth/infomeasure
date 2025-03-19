@@ -39,7 +39,7 @@ def generate_data(N, r, rng):
 
 @pytest.mark.parametrize("corr_coeff", [1, 3, 6])
 @pytest.mark.parametrize("base", [2, "e", 10])
-def test_mi_corellated(mi_approach, corr_coeff, base, default_rng):
+def test_mi_correlated(mi_approach, corr_coeff, base, default_rng):
     """Test all mutual information estimators with correlated Gaussian data.
     Compare this with the analytical mutual information of two correlated Gaussian
     random variables.
@@ -60,15 +60,12 @@ def test_mi_corellated(mi_approach, corr_coeff, base, default_rng):
         needed_kwargs["kernel"] = "box"
     needed_kwargs["base"] = base if approach_str not in ["metric", "ksg"] else "e"
     est = im.estimator(
-        data_x=data[:, 0],
-        data_y=data[:, 1],
+        data[:, 0],
+        data[:, 1],
         measure="mutual_information",
         approach=approach_str,
         **needed_kwargs,
     )
     assert pytest.approx(
         est.global_val(), rel=0.15, abs=0.2
-    ) == mutual_information_gauss(data[:, 0], data[:, 1], base=base)
-    assert pytest.approx(
-        est.effective_val(), rel=0.15, abs=0.2
     ) == mutual_information_gauss(data[:, 0], data[:, 1], base=base)

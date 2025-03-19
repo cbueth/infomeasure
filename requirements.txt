@@ -1,5 +1,6 @@
 numpy
 scipy
+sparse
 # Code Quality
 pre-commit
 ruff

@@ -189,7 +189,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,data_z,k,minkowski_p,base,expected",
+    "data_x,data_y,cond,k,minkowski_p,base,expected",
     [
         (
             [1.0, 1.2, 0.9, 1.1, 1.3],
@@ -409,13 +409,13 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
         ),
     ],
 )
-def test_ksg_cmi(data_x, data_y, data_z, k, minkowski_p, base, expected):
+def test_ksg_cmi(data_x, data_y, cond, k, minkowski_p, base, expected):
     """Test the conditional
     Kraskov-Stoegbauer-Grassberger mutual information estimator."""
     est = KSGCMIEstimator(
         data_x,
         data_y,
-        data_z=data_z,
+        cond=cond,
         k=k,
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility

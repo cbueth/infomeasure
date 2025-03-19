@@ -36,6 +36,7 @@ def te_observations(
     dest_hist_len=1,
     step_size=1,
     permute_src=False,
+    resample_src=False,
 ) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     r"""
     Slice the data arrays to prepare for TE calculation.
@@ -71,6 +72,12 @@ def te_observations(
         history intact.
         If a random number generator is provided, it will be used for shuffling.
         If True, a new random number generator will be created.
+    resample_src : bool | Generator, optional
+        Whether to resample the sliced source history data. Default is False.
+        This is used for the permutation TE using bootstrapping.
+        Rows are resampled with replacement, keeping the history intact.
+        If a random number generator is provided, it will be used for resampling.
+        If True, a new random number generator will be created.
 
     Returns
     -------
@@ -87,6 +94,10 @@ def te_observations(
 
     With ``max_len = data_len - (max(src_hist_len, dest_hist_len) - 1) * step_size``.
 
+    Notes
+    -----
+    For permutation TE, ``permute_src`` xor ``resample_src`` can be used.
+
     Raises
     ------
     ValueError
@@ -95,6 +106,8 @@ def te_observations(
     ValueError
         If ``src_hist_len``, ``dest_hist_len``, or ``step_size`` are
         not positive integers.
+    ValueError
+        If both ``permute_src`` and ``resample_src`` are provided.
     """
     # log warning if step_size is >1 while src_hist_len or dest_hist_len are both 1
     if step_size > 1 and src_hist_len == 1 and dest_hist_len == 1:
@@ -119,16 +132,29 @@ def te_observations(
             "is greater than the length of the data and results in empty arrays."
         )
 
+    if permute_src and resample_src:
+        raise ValueError("Only one of permute_src or resample_src can be provided.")
+
     base_indices = arange(max_delay, len(destination), step_size)
 
     # Construct src_history
     offset_indices = arange(step_size, (src_hist_len + 1) * step_size, step_size)
     src_history_indices = base_indices[:, None] - offset_indices[::-1]
     if isinstance(permute_src, Generator):
-        permute_src.shuffle(src_history_indices, axis=0)
+        permute_src.shuffle(src_history_indices, axis=0)  # in-place
     elif permute_src:
         rng = default_rng()
-        rng.shuffle(src_history_indices, axis=0)
+        rng.shuffle(src_history_indices, axis=0)  # in-place
+    if isinstance(resample_src, Generator):
+        src_history_indices = resample_src.choice(  # re-assign
+            src_history_indices, size=src_history_indices.shape[0], axis=0, replace=True
+        )
+    elif resample_src:
+        rng = default_rng()
+        src_history_indices = rng.choice(  # re-assign
+            src_history_indices, size=src_history_indices.shape[0], axis=0, replace=True
+        )
+    # get the data using the indices
     src_history = source[src_history_indices]
 
     # Construct dest_history

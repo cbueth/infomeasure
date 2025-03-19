@@ -66,23 +66,23 @@ def test_cte_discrete_autoregressive(rng_int, expected_xy, expected_yx):
     """Test the conditional discrete transfer entropy estimator with
     autoregressive data."""
     data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
-    est_xy = DiscreteCTEEstimator(data_source, data_dest, data_cond, base=2)
+    est_xy = DiscreteCTEEstimator(data_source, data_dest, cond=data_cond, base=2)
     res_xy = est_xy.result()
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
     assert im.transfer_entropy(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         approach="discrete",
         base=2,
     ) == pytest.approx(expected_xy)
-    est_yx = DiscreteCTEEstimator(data_dest, data_source, data_cond, base=2)
+    est_yx = DiscreteCTEEstimator(data_dest, data_source, cond=data_cond, base=2)
     res_yx = est_yx.result()
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)
     assert im.transfer_entropy(
-        data_dest, data_source, data_cond, approach="discrete", base=2
+        data_dest, data_source, cond=data_cond, approach="discrete", base=2
     ) == pytest.approx(expected_yx)
 
 
@@ -163,10 +163,10 @@ def test_discrete_cte_base(rng_int, base, expected_xy, expected_yx):
     """Test the conditional discrete transfer entropy estimator with different bases."""
     data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
     assert im.transfer_entropy(
-        data_source, data_dest, data_cond, approach="discrete", base=base
+        data_source, data_dest, cond=data_cond, approach="discrete", base=base
     ) == pytest.approx(expected_xy)
     assert im.transfer_entropy(
-        data_dest, data_source, data_cond, approach="discrete", base=base
+        data_dest, data_source, cond=data_cond, approach="discrete", base=base
     ) == pytest.approx(expected_yx)
 
 

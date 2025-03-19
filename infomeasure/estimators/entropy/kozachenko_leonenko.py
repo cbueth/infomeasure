@@ -1,19 +1,19 @@
 """Module for the Kozacenko-Leonenko entropy estimator."""
 
+from numpy import column_stack
 from numpy import inf, log, issubdtype, integer
 from numpy import sum as np_sum
-from numpy import column_stack
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
+from ..base import EntropyEstimator, RandomGeneratorMixin
+from ..utils.array import assure_2d_data
+from ..utils.unit_ball_volume import unit_ball_volume
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
-from ..utils.unit_ball_volume import unit_ball_volume
-from ..utils.array import assure_2d_data
 
 
-class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
+class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator):
     r"""Kozachenko-Leonenko estimator for Shannon entropies.
 
     Attributes

@@ -9,6 +9,7 @@ saving time and memory by only importing the necessary classes.
 from functools import wraps
 
 from .base import Estimator
+from ..utils.config import logger
 
 entropy_estimators = {
     "discrete": "infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator",
@@ -204,19 +205,17 @@ def _dynamic_estimator(measure) -> callable:
             estimator_name = kwargs.get("approach")
             if estimator_name is None:
                 raise ValueError(
-                    "Estimator name is required, choose one of: " ", ".join(
+                    "Estimator name is required, choose one of: , ".join(
                         measure.keys()
                         if isinstance(measure, dict)
                         else measure[0].keys()
                     )
                 )
-            # if `data_z` or `cond` is passed, it is a conditional estimator
+            # if  `cond` is passed, it is a conditional estimator
             if isinstance(measure, str):
                 # Inject EstimatorClass into kwargs
                 kwargs["EstimatorClass"] = get_estimator_class(measure, estimator_name)
-            elif (
-                kwargs.get("data_z") is not None or kwargs.get("cond") is not None
-            ) or (len(args) > 2 and args[2] is not None):
+            elif kwargs.get("cond") is not None:
                 kwargs["EstimatorClass"] = get_estimator_class(
                     measure[1], estimator_name
                 )
@@ -275,7 +274,6 @@ def entropy(data, approach: str, *args, **kwargs: any):
 def mutual_information(
     *data,
     approach: str,
-    offset: int = 0,
     **kwargs: any,
 ):
     """Calculate the mutual information using a functional interface of different
@@ -292,22 +290,15 @@ def mutual_information(
 
     Parameters
     ----------
-    data_x, data_y : array-like
+    *data : array-like
         The data used to estimate the (conditional) mutual information.
-    data_z : array-like, optional
+    cond : array-like, optional
         The conditional data used to estimate the conditional mutual information.
     approach : str
         The name of the estimator to use.
-    offset : int, optional
-        Number of positions to shift the data arrays relative to each other.
-        Delay/lag/shift between the variables. Default is no shift.
-        Assumed time taken by info to transfer from X to Y.
-        Not compatible with the ``data_z`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis. Default is False.
         Not available for the discrete estimator.
-    *args: tuple
-        Additional arguments to pass to the estimator.
     **kwargs: dict
         Additional keyword arguments to pass to the estimator.
 
@@ -330,12 +321,9 @@ def conditional_mutual_information(*data, **parameters: any):
 
     See :func:`mutual_information <mutual_information>` for more information.
     """
-    if not (
-        len(data) == 3 or (len(data) == 2 and parameters.get("data_z") is not None)
-    ):
+    if parameters.get("cond") is None:
         raise ValueError(
-            "CMI requires a conditional variable. Either pass three positional "
-            "arguments or two and a 'data_z' keyword argument."
+            "CMI requires a conditional variable. Pass a 'cond' keyword argument."
         )
     return mutual_information(*data, **parameters)
 
@@ -369,11 +357,12 @@ def transfer_entropy(
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
-    offset : int, optional
+    prop_time : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
         Assumed time taken by info to transfer from source to destination.
         Not compatible with the ``cond`` parameter / conditional TE.
+        Alternatively called ``offset``.
     *args: tuple
         Additional arguments to pass to the estimator.
     **kwargs: dict
@@ -398,22 +387,16 @@ def conditional_transfer_entropy(*data, **parameters: any):
 
     See :func:`transfer_entropy <transfer_entropy>` for more information.
     """
-    if not (len(data) == 3 or (len(data) == 2 and parameters.get("cond") is not None)):
+    if parameters.get("cond") is None:
         raise ValueError(
-            "CTE requires a conditional variable. Either pass three positional "
-            "arguments or two and a 'cond' keyword argument."
+            "CTE requires a conditional variable. Pass a 'cond' keyword argument."
         )
     return transfer_entropy(*data, **parameters)
 
 
 def estimator(
-    data=None,  # only positional in case of entropy
-    *,  # all arguments after this are keyword-only
-    data_x=None,
-    data_y=None,
-    data_z=None,
-    source=None,
-    dest=None,
+    *data,  # *(data) for entropy, *data for mi, *(source, dest) for te
+    # all arguments after this are keyword-only
     cond=None,
     measure: str = None,
     approach: str = None,
@@ -422,7 +405,6 @@ def estimator(
     src_hist_len: int = 1,
     dest_hist_len: int = 1,
     cond_hist_len: int = 1,
-    offset: int = None,
     **kwargs: any,
 ) -> Estimator:
     """Get an estimator for a specific measure.
@@ -466,14 +448,11 @@ def estimator(
 
     Parameters
     ----------
-    data : array-like, optional
-        Only if the measure is entropy.
-    data_x, data_y : array-like, optional
-        Only if the measure is mutual information.
-    source, dest : array-like, optional
-        Only if the measure is transfer entropy.
-    data_z : array-like, optional
-        Only if the measure is conditional mutual information.
+    *data :
+        The data used to estimate the measure.
+        For entropy: a single array-like data. A tuple of data for joint entropy.
+        For mutual information: arbitrary number of array-like data.
+        For transfer entropy: two array-like data. Source and destination.
     cond : array-like, optional
         Only if the measure is conditional transfer entropy.
     measure : str
@@ -503,12 +482,8 @@ def estimator(
     elif measure.lower() in ["entropy", "h"]:
         if data is None:
             raise ValueError("``data`` is required for entropy estimation.")
-        if any([data_x, data_y, source, dest, data_z, cond]):
-            raise ValueError(
-                "Only ``data`` is required for entropy estimation, "
-                "not ``data_x``, ``data_y``, ``source``, ``dest``, "
-                "``data_z``, or ``cond``."
-            )
+        if cond is not None:
+            raise ValueError("``cond`` is not required for entropy estimation.")
         EstimatorClass = _get_estimator(entropy_estimators, approach)
         return EstimatorClass(data, **kwargs)
     elif measure.lower() in [
@@ -519,27 +494,26 @@ def estimator(
     ]:
         if (
             measure.lower() in ["cmi", "conditional_mutual_information"]
-            and data_z is None
+            and cond is None
         ):
             raise ValueError(
-                "``data_z`` is required for conditional mutual information estimation."
+                "``cond`` is required for conditional mutual information estimation."
             )
-        if data_x is None or data_y is None:
-            raise ValueError(
-                "``data_x`` and ``data_y`` are required for "
-                "mutual information estimation."
+        if len(data) == 0:
+            raise ValueError("``data`` is required for mutual information estimation.")
+        if len(data) == 1:
+            logger.warning(
+                "Only one data array provided for mutual information estimation. "
+                "Using normal entropy estimator."
             )
-        if any([data, source, dest, cond]):
-            raise ValueError(
-                "Only ``data_x`` and ``data_y`` are required for mutual information "
-                "estimation, not ``data``, ``source``, ``dest``, or ``cond``."
-            )
-        if data_z is not None:
+            EstimatorClass = _get_estimator(entropy_estimators, approach)
+            return EstimatorClass(data[0], **kwargs)
+        if cond is not None:
             EstimatorClass = _get_estimator(cmi_estimators, approach)
-            return EstimatorClass(data_x, data_y, data_z, offset=offset, **kwargs)
+            return EstimatorClass(*data, cond=cond, **kwargs)
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
-            return EstimatorClass(data_x, data_y, offset=offset, **kwargs)
+            return EstimatorClass(*data, **kwargs)
     elif measure.lower() in [
         "transfer_entropy",
         "te",
@@ -550,21 +524,15 @@ def estimator(
             raise ValueError(
                 "``cond`` is required for conditional transfer entropy estimation."
             )
-        if source is None or dest is None:
+        if len(data) != 2:
             raise ValueError(
-                "``source`` and ``dest`` are required for transfer entropy estimation."
-            )
-        if any([data, data_x, data_y, data_z]):
-            raise ValueError(
-                "Only ``source`` and ``dest`` are required for transfer entropy "
-                "estimation, not ``data``, ``data_x``, ``data_y``, or ``data_z``."
+                "Exactly two data arrays are required for transfer entropy estimation."
             )
         if cond is not None:
             EstimatorClass = _get_estimator(cte_estimators, approach)
             return EstimatorClass(
-                source,
-                dest,
-                cond,
+                *data,
+                cond=cond,
                 prop_time=prop_time,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
@@ -575,8 +543,7 @@ def estimator(
         else:
             EstimatorClass = _get_estimator(te_estimators, approach)
             return EstimatorClass(
-                source,
-                dest,
+                *data,
                 prop_time=prop_time,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,

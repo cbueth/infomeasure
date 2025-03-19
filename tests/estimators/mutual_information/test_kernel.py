@@ -59,11 +59,11 @@ def test_kernel_mi_values(rng_int, bandwidth, kernel, expected):
 )
 def test_kernel_cmi_values(rng_int, bandwidth, kernel, expected):
     """Test the kernel conditional mutual information estimator with specific values."""
-    data_x, data_y, data_z = generate_autoregressive_series_condition(
+    data_x, data_y, cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
     est = KernelCMIEstimator(
-        data_x, data_y, data_z, bandwidth=bandwidth, kernel=kernel, base=2
+        data_x, data_y, cond=cond, bandwidth=bandwidth, kernel=kernel, base=2
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
