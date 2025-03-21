@@ -39,22 +39,24 @@ def test_kld_permutation(default_rng, order):
             1,
             "permutation",
             {"order": 4, "stable": True},
-            2.58961692,
-        ),  # Apple Silicon: 2.573041100637142
+            (2.58961692, 2.5730411),
+        ),  # Apple Silicon: 2.5730411
         (
             1,
             "permutation",
             {"order": 5, "stable": True},
-            2.38246712,
-        ),  # Apple Silicon: 2.3788863915882716
+            (2.38246712, 2.37888639),
+        ),  # Apple Silicon: 2.37888639
         (1, "permutation", {"order": 20}, 0.0),
     ],
 )
 def test_kld_explicit_discrete(rng_int, approach, kwargs, expected):
     """Test the Kulback-Leibler Divergence (KLD) estimator with explicit values."""
     data_x, data_y = discrete_random_variables(rng_int)
-    assert im.kld(data_x, data_y, approach=approach, **kwargs) == pytest.approx(
-        expected
+    expected = expected if isinstance(expected, tuple) else (expected,)
+    assert any(
+        im.kld(data_x, data_y, approach=approach, **kwargs) == pytest.approx(e)
+        for e in expected
     )
 
 
