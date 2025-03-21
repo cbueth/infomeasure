@@ -8,9 +8,9 @@ stages:
 .pythonVersions:
   parallel:
     matrix:
-      - PYTHON_VERSION: [ "3.12", "3.11", "3.10" ]
+      - PYTHON_VERSION: [ "3.13", "3.12", "3.11" ]
   maxVersion:
-    PYTHON_VERSION: "3.12"
+    PYTHON_VERSION: "3.13"
 
 before_script:
   - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt twine python-build
