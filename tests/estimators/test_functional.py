@@ -308,13 +308,13 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
 def test_te_offset_prop_time(te_approach, caplog, prop_time):
     """Test offset parameter for the transfer entropy estimator.
 
-    The prop time cna also be passed as `offset` parameter, for user-friendliness.
+    The prop time can also be passed as `offset` parameter, for user-friendliness.
     Test that results are the same for both parameters.
     """
     approach_str, needed_kwargs = te_approach
     source = np.random.rand(100)
     dest = np.random.rand(100)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "ksg", "metric"]:
         needed_kwargs["noise_level"] = 0
     res_pt = im.te(
         source,

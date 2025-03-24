@@ -17,7 +17,8 @@ from numpy import (
 )
 from scipy.sparse import find as sp_find
 from scipy.stats.contingency import crosstab
-from sparse import COO, asnumpy
+
+from infomeasure.estimators.utils.sparse_COO_compatability import COOreduced, asnumpy
 
 
 def mutual_information_global(*data: tuple, log_func: callable = log) -> float:
@@ -49,7 +50,9 @@ def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) ->
     """Estimate the global mutual information between an arbitrary number of
     random variables."""
     _, indices = zip(*[unique(var, return_inverse=True) for var in data])
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    contingency_coo = COOreduced(
+        coords=indices, data=ones(len(indices[0]), dtype=int64)
+    )
 
     # Non-zero indices and values
     idxs = contingency_coo.nonzero()
@@ -204,7 +207,9 @@ def mutual_information_local(*data: tuple, log_func: callable = log) -> ndarray:
     """
     # Contingency table - COOrdinate sparse matrix
     _, indices = zip(*[unique(var, return_inverse=True) for var in data])
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    contingency_coo = COOreduced(
+        coords=indices, data=ones(len(indices[0]), dtype=int64)
+    )
 
     # Normalized contingency table (joint probability)
     contingency_sum = contingency_coo.sum()
@@ -273,7 +278,9 @@ def _conditional_mutual_information_global_nd_int(
     """Estimate the global conditional mutual information between an arbitrary number of
     random variables and a conditioning variable."""
     _, indices = zip(*[unique(var, return_inverse=True) for var in (data + (cond,))])
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    contingency_coo = COOreduced(
+        coords=indices, data=ones(len(indices[0]), dtype=int64)
+    )
 
     # Non-zero indices and values
     idxs = contingency_coo.nonzero()
@@ -353,7 +360,9 @@ def conditional_mutual_information_local(
     """
     # Contingency table - COOrdinate sparse matrix
     _, indices = zip(*[unique(var, return_inverse=True) for var in (data + (cond,))])
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    contingency_coo = COOreduced(
+        coords=indices, data=ones(len(indices[0]), dtype=int64)
+    )
 
     # Normalized contingency table (joint probability)
     contingency_sum = contingency_coo.sum()
