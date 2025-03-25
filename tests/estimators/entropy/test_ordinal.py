@@ -11,26 +11,19 @@ from infomeasure.estimators.entropy import OrdinalEntropyEstimator
 
 @pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000, int(1e5)])
 @pytest.mark.parametrize("embedding_dim", [1, 2, 3, 4, 5])
-@pytest.mark.parametrize("per_symbol", [True, False])
-def test_ordinal_entropy(data_len, embedding_dim, per_symbol, default_rng):
+def test_ordinal_entropy(data_len, embedding_dim, default_rng):
     """Test the discrete entropy estimator."""
     data = default_rng.integers(0, 10, data_len)
     if embedding_dim == 1:
-        est = OrdinalEntropyEstimator(
-            data, embedding_dim=embedding_dim, per_symbol=per_symbol
-        )
+        est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
         assert est.result() == 0
         return
     if embedding_dim > data_len:
         with pytest.raises(ValueError):
-            est = OrdinalEntropyEstimator(
-                data, embedding_dim=embedding_dim, per_symbol=per_symbol
-            )
+            est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
             est.result()
         return
-    est = OrdinalEntropyEstimator(
-        data, embedding_dim=embedding_dim, per_symbol=per_symbol
-    )
+    est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
     assert 0 <= est.global_val() <= est._log_base(data_len)
 
 

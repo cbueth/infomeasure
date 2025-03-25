@@ -31,8 +31,6 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         The data used to estimate the entropy.
     embedding_dim : int
         The size of the permutation patterns.
-    per_symbol : bool, optional
-        If True, the entropy is divided by the embedding_dim - 1.
     stable : bool, optional
         If True, when sorting the data, the embedding_dim of equal elements is preserved.
         This can be useful for reproducibility and testing, but might be slower.
@@ -58,7 +56,6 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         data,
         *,  # all following parameters are keyword-only
         embedding_dim: int,
-        per_symbol: bool = False,
         stable: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
@@ -68,8 +65,6 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         ----------
         embedding_dim : int
             The embedding dimension of the Ordinal entropy.
-        per_symbol : bool, optional
-            If True, the entropy is divided by the ``embedding_dim`` - 1.
         stable : bool, optional
             If True, when sorting the data, the order of equal elements is preserved.
             This can be useful for reproducibility and testing, but might be slower.
@@ -84,7 +79,6 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         if embedding_dim == 1:
             logger.warning("The Ordinal entropy is always 0 for embedding_dim=1.")
         self.embedding_dim = embedding_dim
-        self.per_symbol = per_symbol
         self.stable = stable
 
     @staticmethod
