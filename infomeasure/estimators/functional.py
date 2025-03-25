@@ -489,8 +489,15 @@ def estimator(
             raise ValueError("``data`` is required for entropy estimation.")
         if cond is not None:
             raise ValueError("``cond`` is not required for entropy estimation.")
+        if len(data) != 1:
+            raise ValueError(
+                "Exactly one data array is required for entropy estimation. "
+                f"Got {len(data)}. "
+                "To signal that you want to compute joint entropy, "
+                "pass your data in a tuple, e.g., (data1, data2)."
+            )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
-        return EstimatorClass(data, **kwargs)
+        return EstimatorClass(data[0], **kwargs)
     elif measure.lower() in [
         "mutual_information",
         "mi",

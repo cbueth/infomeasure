@@ -2,11 +2,19 @@
 
 from collections import Counter
 
-from numpy import array, sum as np_sum, True_, False_, integer, issubdtype, ndarray
+from numpy import (
+    array,
+    sum as np_sum,
+    True_,
+    False_,
+    integer,
+    issubdtype,
+    ndarray,
+    unique,
+)
 
 from ..base import EntropyEstimator, DistributionMixin
 from ..utils.ordinal import reduce_joint_space, symbolize_series
-from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
@@ -80,17 +88,20 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
             logger.warning("The Ordinal entropy is always 0 for embedding_dim=1.")
         self.embedding_dim = embedding_dim
         self.stable = stable
+        self.patterns = None
 
     @staticmethod
     def _estimate_probabilities_embedding_dim_2(time_series):
         """Simplified case for embedding_dim 2."""
         gt = time_series[:-1] < time_series[1:]  # compare all neighboring elements
+        # save gt as self.patterns, where 0 -> (1, 0) and 1 -> (0, 1)
+        patterns = [(int(not p), int(p)) for p in gt]
         gt = np_sum(gt) / (len(time_series) - 1)  # sum up the True values
         if gt == 0:
-            return array([1]), {(1, 0): 1}
+            return array([1]), {(1, 0): 1}, patterns
         if gt == 1:
-            return array([1]), {(0, 1): 1}
-        return array([gt, 1 - gt]), {(0, 1): gt, (1, 0): 1 - gt}
+            return array([1]), {(0, 1): 1}, patterns
+        return array([gt, 1 - gt]), {(0, 1): gt, (1, 0): 1 - gt}, patterns
 
     @staticmethod
     def _estimate_probabilities_embedding_dim_3(time_series):
@@ -112,7 +123,11 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         dist_dict = {
             bool_to_num_map[key]: prob for key, prob in zip(count.keys(), probs)
         }
-        return probs[probs != 0], dist_dict  # output cannot include zeros
+        patterns = [
+            (bool_to_num_map[(p1, p2, p3)]) for p1, p2, p3 in zip(gt1, gt2, gt3)
+        ]
+        # output cannot include zeros
+        return probs[probs != 0], dist_dict, patterns
 
     @staticmethod
     def _get_subarray_patterns(a, n, stable_argsort=False):
@@ -153,31 +168,28 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
 
         # Get the length of the time series
         total_patterns = len(time_series) - embedding_dim + 1
-        # Create a Counter object to count the occurrences of each permutation
-        count = Counter(
-            map(
-                tuple,
-                self._get_subarray_patterns(
-                    time_series, embedding_dim, stable_argsort=self.stable
-                ),
-            )
+        # Save the symbolized data
+        patterns = self._get_subarray_patterns(
+            time_series, embedding_dim, stable_argsort=self.stable
         )
+        # Create a Counter object to count the occurrences of each permutation
+        count = Counter(map(tuple, patterns))
         # Return array of non-zero probabilities
         probs = array([v / total_patterns for v in count.values()])
         dist_dict = dict(zip(count.keys(), probs))
-        return probs, dist_dict
+        return probs, dist_dict, patterns
 
     def _simple_entropy(self) -> float:
         """Calculate the entropy of the data."""
-
         if self.embedding_dim == 1:
             self.dist_dict = {0: 1.0}
+            self.patterns = [0] * len(self.data)
             return 0.0
         elif self.embedding_dim == self.data.shape[0]:
             self.dist_dict = {tuple(self.data.argsort()): 1.0}
+            self.patterns = [list(self.dist_dict.keys())[0]]
             return 0.0
-
-        probabilities, self.dist_dict = self._estimate_probabilities(
+        probabilities, self.dist_dict, self.patterns = self._estimate_probabilities(
             self.data, self.embedding_dim
         )
         # sum over probabilities, multiplied by the logarithm of the probabilities
@@ -194,8 +206,24 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
             for marginal in self.data  # data is tuple of time series
         )  # shape (n - (embedding_dim - 1), num_joints)
         # Reduce the joint space
-        self.data = reduce_joint_space(symbols)  # reduction columns stacks the symbols
+        self.patterns = reduce_joint_space(
+            symbols
+        )  # reduction columns stacks the symbols
         # Calculate frequencies of co-ocurrent patterns
-        probabilities, self.dist_dict = histogram_unique_values(self.data)
+        uniq, counts = unique(self.patterns, return_counts=True)
+        probabilities = counts / counts.sum()
+        self.dist_dict = dict(zip(uniq, probabilities))
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
+
+    def _extract_local_values(self):
+        """Separately calculate the local values.
+
+        Returns
+        -------
+        ndarray[float]
+            The calculated local values of entropy.
+        """
+        # Use the saved patterns to calculate the local values
+        p_local = [self.dist_dict[tuple(pattern)] for pattern in self.patterns]
+        return -self._log_base(p_local)

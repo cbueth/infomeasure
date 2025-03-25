@@ -1108,7 +1108,7 @@ class PValueMixin(RandomGeneratorMixin):
         self.n_tests = n_tests
         if isinstance(self, MutualInformationEstimator):
             if len(self.data) != 2:
-                raise ValueError(
+                raise UnsupportedOperation(
                     "Permutation test on mutual information is only supported "
                     "for two variables."
                 )
