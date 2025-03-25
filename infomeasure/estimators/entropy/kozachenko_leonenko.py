@@ -2,7 +2,6 @@
 
 from numpy import column_stack
 from numpy import inf, log, issubdtype, integer
-from numpy import sum as np_sum
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
@@ -109,16 +108,10 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         # Volume of the d-dimensional unit ball for maximum norm
         c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
 
-        # Compute the entropy estimator considering that the distances are
-        # already doubled
-        entropy = (
-            -digamma(self.k)
-            + digamma(N)
-            + log(c_d)
-            + (d / N) * np_sum(log(2 * distances))
-        )
+        # Compute the local entropies
+        local_h = -digamma(self.k) + digamma(N) + log(c_d) + d * log(2 * distances)
         # return in desired base
-        return entropy / log(self.base) if self.base != "e" else entropy
+        return local_h / log(self.base) if self.base != "e" else local_h
 
     def _joint_entropy(self):
         """Calculate the joint entropy of the data.
