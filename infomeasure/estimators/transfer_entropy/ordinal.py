@@ -1,4 +1,4 @@
-"""Module for the Symbolic / Permutation transfer entropy estimator."""
+"""Module for the Ordinal / Permutation transfer entropy estimator."""
 
 from abc import ABC
 
@@ -10,15 +10,15 @@ from ..base import (
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
-from ..utils.symbolic import symbolize_series
+from ..utils.ordinal import symbolize_series
 from ..utils.te_slicing import te_observations, cte_observations
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
 
 
-class BaseSymbolicTEEstimator(ABC):
-    r"""Base class for the Symbolic / Permutation transfer entropy.
+class BaseOrdinalTEEstimator(ABC):
+    r"""Base class for the Ordinal / Permutation transfer entropy.
 
     Attributes
     ----------
@@ -26,7 +26,7 @@ class BaseSymbolicTEEstimator(ABC):
         The source (X) and dest (Y) data used to estimate the transfer entropy.
     cond : array-like, optional
         The conditional data used to estimate the conditional transfer entropy.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     stable : bool, optional
         If True, when sorting the data, the order of equal elements is preserved.
@@ -48,15 +48,16 @@ class BaseSymbolicTEEstimator(ABC):
     Raises
     ------
     ValueError
-        If the ``order`` is negative or not an integer.
+        If the ``embedding_dim`` is negative or not an integer.
     ValueError
-        If the ``order`` is too large for the given data.
+        If the ``embedding_dim`` is too large for the given data.
     ValueError
-        If ``step_size``, ``prop_time``, and ``order`` are such that the data is too small.
+        If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that
+        the data is too small.
 
     Warning
     -------
-    If ``order`` is set to 1, the transfer entropy is always 0.
+    If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
     def __init__(
@@ -65,7 +66,7 @@ class BaseSymbolicTEEstimator(ABC):
         dest,
         cond=None,
         *,  # Enforce keyword-only arguments
-        order: int,
+        embedding_dim: int,
         stable: bool = False,
         prop_time: int = 0,
         step_size: int = 1,
@@ -75,7 +76,7 @@ class BaseSymbolicTEEstimator(ABC):
         offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the BaseSymbolicTEEstimator.
+        """Initialize the BaseOrdinalTEEstimator.
 
         Parameters
         ----------
@@ -83,8 +84,8 @@ class BaseSymbolicTEEstimator(ABC):
             The source (X) and destination (Y) data used to estimate the transfer entropy.
         cond : array-like, optional
             The conditional data used to estimate the conditional transfer entropy.
-        order : int
-            The order of the Symbolic entropy.
+        embedding_dim : int
+            The embedding dimension of the Ordinal entropy.
         stable : bool, optional
             If True, when sorting the data, the order of equal elements is preserved.
             This can be useful for reproducibility and testing, but might be slower.
@@ -132,15 +133,19 @@ class BaseSymbolicTEEstimator(ABC):
                 offset=offset,
                 base=base,
             )
-        if not issubdtype(type(order), integer) or order < 0:
-            raise ValueError("The order must be a non-negative integer.")
-        if order == 1:
-            logger.warning("The Symbolic mutual information is always 0 for order=1.")
+        if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
+            raise ValueError("The embedding_dim must be a non-negative integer.")
+        if embedding_dim == 1:
+            logger.warning(
+                "The Ordinal mutual information is always 0 for embedding_dim=1."
+            )
         if not issubdtype(type(step_size), integer) or step_size < 0:
             raise ValueError("The step_size must be a non-negative integer.")
-        if len(self.source) < (order - 1) * step_size + 1:
-            raise ValueError("The data is too small for the given step_size and order.")
-        self.order = order
+        if len(self.source) < (embedding_dim - 1) * step_size + 1:
+            raise ValueError(
+                "The data is too small for the given step_size and embedding_dim."
+            )
+        self.embedding_dim = embedding_dim
         self.stable = stable
 
     @staticmethod
@@ -152,11 +157,11 @@ class BaseSymbolicTEEstimator(ABC):
         ----------
         slicing_method : function
             The slicing method to use for the symbolized data.
-        symbols_source : ndarray, (n - (order - 1) * step_size, order)
+        symbols_source : ndarray, (n - (embedding_dim - 1) * step_size, embedding_dim)
             The symbolized source data.
-        symbols_dest : ndarray, (n - (order - 1) * step_size, order)
+        symbols_dest : ndarray, (n - (embedding_dim - 1) * step_size, embedding_dim)
             The symbolized destination data.
-        symbols_cond : ndarray, (n - (order - 1) * step_size, order), optional
+        symbols_cond : ndarray, (n - (embedding_dim - 1) * step_size, embedding_dim), optional
             The symbolized conditional data.
         src_hist_len : int
             Number of past observations to consider for the source data.
@@ -231,7 +236,7 @@ class BaseSymbolicTEEstimator(ABC):
             The Transfer Entropy value.
         """
 
-        if self.order == 1:
+        if self.embedding_dim == 1:
             return 0.0
         data = (self.source, self.dest)
         slice_kwargs = dict(
@@ -249,7 +254,7 @@ class BaseSymbolicTEEstimator(ABC):
         # Symbolize the time series dest and source, use Lehmer code
         symbols = (
             symbolize_series(
-                var, self.order, self.step_size, to_int=True, stable=self.stable
+                var, self.embedding_dim, self.step_size, to_int=True, stable=self.stable
             )
             for var in data
         )
@@ -303,16 +308,16 @@ class BaseSymbolicTEEstimator(ABC):
         return float(np_mean(te_perm))
 
 
-class SymbolicTEEstimator(
-    BaseSymbolicTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
+class OrdinalTEEstimator(
+    BaseOrdinalTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
 ):
-    r"""Estimator for the Symbolic / Permutation transfer entropy.
+    r"""Estimator for the Ordinal / Permutation transfer entropy.
 
     Attributes
     ----------
     source, dest : array-like
         The source (X) and dest (Y) data used to estimate the transfer entropy.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
@@ -328,36 +333,35 @@ class SymbolicTEEstimator(
     Raises
     ------
     ValueError
-        If the ``order`` is negative or not an integer.
+        If the ``embedding_dim`` is negative or not an integer.
     ValueError
-        If the ``order`` is too large for the given data.
+        If the ``embedding_dim`` is too large for the given data.
     ValueError
-        If ``step_size``, ``prop_time``, and ``order`` are such that the data is too small.
+        If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that
+        the data is too small.
 
     Warning
     -------
-    If ``order`` is set to 1, the transfer entropy is always 0.
+    If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
     def _calculate(self) -> float:
-        """Calculate the Symbolic / Permutation transfer entropy."""
+        """Calculate the Ordinal / Permutation transfer entropy."""
 
         return self._combined_te_form(
             te_observations,
         )
 
 
-class SymbolicCTEEstimator(
-    BaseSymbolicTEEstimator, ConditionalTransferEntropyEstimator
-):
-    r"""Estimator for the Symbolic / Permutation conditional transfer entropy.
+class OrdinalCTEEstimator(BaseOrdinalTEEstimator, ConditionalTransferEntropyEstimator):
+    r"""Estimator for the Ordinal / Permutation conditional transfer entropy.
 
     Attributes
     ----------
     source, dest, cond : array-like
         The source (X), destination (Y), and conditional (Z) data used to estimate the
         conditional transfer entropy.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
@@ -372,19 +376,20 @@ class SymbolicCTEEstimator(
     Raises
     ------
     ValueError
-        If the ``order`` is negative or not an integer.
+        If the ``embedding_dim`` is negative or not an integer.
     ValueError
-        If the ``order`` is too large for the given data.
+        If the ``embedding_dim`` is too large for the given data.
     ValueError
-        If ``step_size``, ``prop_time``, and ``order`` are such that the data is too small.
+        If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that the
+        data is too small.
 
     Warning
     -------
-    If ``order`` is set to 1, the transfer entropy is always 0.
+    If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
     def _calculate(self) -> float:
-        """Calculate the Symbolic / Permutation conditional transfer entropy."""
+        """Calculate the Ordinal / Permutation conditional transfer entropy."""
         return self._combined_te_form(
             cte_observations,
         )

@@ -1,4 +1,4 @@
-"""Explicit symbolic / permutation transfer entropy estimator."""
+"""Explicit ordinal / permutation transfer entropy estimator."""
 
 import pytest
 from numpy import isnan
@@ -9,35 +9,35 @@ from tests.conftest import (
     discrete_random_variables_condition,
 )
 from infomeasure.estimators.transfer_entropy import (
-    SymbolicTEEstimator,
-    SymbolicCTEEstimator,
+    OrdinalTEEstimator,
+    OrdinalCTEEstimator,
 )
 
 
 @pytest.mark.parametrize("data_len", [1, 2, 3, 10, 100])
-@pytest.mark.parametrize("order", [2, 3, 5])
+@pytest.mark.parametrize("embedding_dim", [2, 3, 5])
 @pytest.mark.parametrize("step_size", [1, 2, 3])
 @pytest.mark.parametrize("prop_time", [0, 1, 4])
-def test_symbolic_te(data_len, order, step_size, prop_time, default_rng):
+def test_ordinal_te(data_len, embedding_dim, step_size, prop_time, default_rng):
     """Test the discrete transfer entropy estimator."""
     source = default_rng.integers(0, 10, data_len)
     dest = default_rng.integers(0, 10, data_len)
-    if data_len - abs(prop_time * step_size) <= (order - 1) * step_size + 1:
+    if data_len - abs(prop_time * step_size) <= (embedding_dim - 1) * step_size + 1:
         with pytest.raises(ValueError):
-            est = SymbolicTEEstimator(
+            est = OrdinalTEEstimator(
                 source,
                 dest,
-                order=order,
+                embedding_dim=embedding_dim,
                 step_size=step_size,
                 prop_time=prop_time,
             )
             est.result()
         return
-    if order == 1:
-        est = SymbolicTEEstimator(
+    if embedding_dim == 1:
+        est = OrdinalTEEstimator(
             source,
             dest,
-            order,
+            embedding_dim,
             step_size=step_size,
             prop_time=prop_time,
         )
@@ -49,10 +49,10 @@ def test_symbolic_te(data_len, order, step_size, prop_time, default_rng):
         else:
             assert isnan(est.std_val())
         return
-    est = SymbolicTEEstimator(
+    est = OrdinalTEEstimator(
         source,
         dest,
-        order,
+        embedding_dim,
         step_size=step_size,
         prop_time=prop_time,
     )
@@ -60,16 +60,16 @@ def test_symbolic_te(data_len, order, step_size, prop_time, default_rng):
     assert 0 <= est.global_val() <= max_val
 
 
-@pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
-def test_symbolic_te_invalid_order(order, default_rng):
-    """Test the discrete transfer entropy estimator with invalid order."""
+@pytest.mark.parametrize("embedding_dim", [-1, 1.0, "a", 1.5, 2.0])
+def test_ordinal_te_invalid_embedding_dim(embedding_dim, default_rng):
+    """Test the discrete transfer entropy estimator with invalid embedding_dim."""
     data = list(range(10))
     with pytest.raises(ValueError):
-        SymbolicTEEstimator(data, data, order=order)
+        OrdinalTEEstimator(data, data, embedding_dim=embedding_dim)
 
 
 @pytest.mark.parametrize(
-    "rng_int,order,expected",
+    "rng_int,embedding_dim,expected",
     [
         (5, 1, 0.0),
         (6, 1, 0.0),
@@ -84,12 +84,14 @@ def test_symbolic_te_invalid_order(order, default_rng):
         (6, 5, 0.001694007216101),
     ],
 )
-def test_symbolic_te(rng_int, order, expected):
-    """Test the symbolic transfer entropy estimator."""
+def test_ordinal_te(rng_int, embedding_dim, expected):
+    """Test the ordinal transfer entropy estimator."""
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
-    est = SymbolicTEEstimator(data_source, data_dest, order=order, base=2, stable=True)
+    est = OrdinalTEEstimator(
+        data_source, data_dest, embedding_dim=embedding_dim, base=2, stable=True
+    )
     res = est.result()
-    if order == 1:
+    if embedding_dim == 1:
         assert isinstance(res, float)
         assert res == 0.0
         return
@@ -97,7 +99,7 @@ def test_symbolic_te(rng_int, order, expected):
 
 
 @pytest.mark.parametrize(
-    "rng_int,prop_time,step_size,src_hist_len,dest_hist_len,base,order,expected",
+    "rng_int,prop_time,step_size,src_hist_len,dest_hist_len,base,embedding_dim,expected",
     [
         (5, 0, 1, 1, 1, 2.0, 2, 0.003214612864590),
         (5, 1, 2, 1, 1, 2.0, 2, 0.000577684847751),
@@ -114,19 +116,19 @@ def test_symbolic_te(rng_int, order, expected):
         (5, 1, 1, 3, 1, 2.0, 2, 0.000499981827461),
     ],
 )
-def test_symbolic_te_slicing(
+def test_ordinal_te_slicing(
     rng_int,
     prop_time,
     step_size,
     src_hist_len,
     dest_hist_len,
     base,
-    order,
+    embedding_dim,
     expected,
 ):
-    """Test the symbolic transfer entropy estimator with slicing."""
+    """Test the ordinal transfer entropy estimator with slicing."""
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
-    est = SymbolicTEEstimator(
+    est = OrdinalTEEstimator(
         data_source,
         data_dest,
         prop_time=prop_time,
@@ -134,14 +136,14 @@ def test_symbolic_te_slicing(
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         base=base,
-        order=order,
+        embedding_dim=embedding_dim,
     )
     res = est.result()
     assert res == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
-    "rng_int,order,expected",
+    "rng_int,embedding_dim,expected",
     [
         (5, 1, 0.0),
         (6, 1, 0.0),
@@ -156,16 +158,21 @@ def test_symbolic_te_slicing(
         (6, 5, -3.0930624e-05),
     ],
 )
-def test_symbolic_cte(rng_int, order, expected):
-    """Test the conditional symbolic transfer entropy estimator."""
+def test_ordinal_cte(rng_int, embedding_dim, expected):
+    """Test the conditional ordinal transfer entropy estimator."""
     data_source, data_dest, data_cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
-    est = SymbolicCTEEstimator(
-        data_source, data_dest, data_cond, order=order, base=2, stable=True
+    est = OrdinalCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        embedding_dim=embedding_dim,
+        base=2,
+        stable=True,
     )
     res = est.result()
-    if order == 1:
+    if embedding_dim == 1:
         assert isinstance(res, float)
         assert res == 0.0
         return
@@ -173,7 +180,7 @@ def test_symbolic_cte(rng_int, order, expected):
 
 
 @pytest.mark.parametrize(
-    "rng_int,step_size,src_hist_len,dest_hist_len,base,order,expected",
+    "rng_int,step_size,src_hist_len,dest_hist_len,base,embedding_dim,expected",
     [
         (5, 1, 1, 1, 2.0, 2, 0.001668221515),
         (5, 2, 1, 1, 2.0, 2, 0.001499847155),
@@ -190,20 +197,20 @@ def test_symbolic_cte(rng_int, order, expected):
         (5, 1, 3, 1, 2.0, 2, 0.000749478055),
     ],
 )
-def test_symbolic_cte_slicing(
+def test_ordinal_cte_slicing(
     rng_int,
     step_size,
     src_hist_len,
     dest_hist_len,
     base,
-    order,
+    embedding_dim,
     expected,
 ):
-    """Test the conditional symbolic transfer entropy estimator with slicing."""
+    """Test the conditional ordinal transfer entropy estimator with slicing."""
     data_source, data_dest, data_cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
-    est = SymbolicCTEEstimator(
+    est = OrdinalCTEEstimator(
         data_source,
         data_dest,
         data_cond,
@@ -211,7 +218,7 @@ def test_symbolic_cte_slicing(
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         base=base,
-        order=order,
+        embedding_dim=embedding_dim,
         stable=True,
     )
     res = est.result()
@@ -219,7 +226,7 @@ def test_symbolic_cte_slicing(
 
 
 @pytest.mark.parametrize(
-    "rng_int,order,expected_xy,expected_yx",
+    "rng_int,embedding_dim,expected_xy,expected_yx",
     [
         (1, 1, 0.0, 0.0),
         (1, 2, 0.00282503667, 0.000248359479),
@@ -232,18 +239,28 @@ def test_symbolic_cte_slicing(
         (3, 4, -0.00058057170, 0.000239034145),
     ],
 )
-def test_cte_symbolic_autoregressive(rng_int, order, expected_xy, expected_yx):
-    """Test the conditional symbolic transfer entropy estimator with
+def test_cte_ordinal_autoregressive(rng_int, embedding_dim, expected_xy, expected_yx):
+    """Test the conditional ordinal transfer entropy estimator with
     autoregressive data."""
     data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
-    est_xy = SymbolicCTEEstimator(
-        data_source, data_dest, data_cond, order=order, base=2, stable=True
+    est_xy = OrdinalCTEEstimator(
+        data_source,
+        data_dest,
+        data_cond,
+        embedding_dim=embedding_dim,
+        base=2,
+        stable=True,
     )
     res_xy = est_xy.result()
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
-    est_yx = SymbolicCTEEstimator(
-        data_dest, data_source, data_cond, order=order, base=2, stable=True
+    est_yx = OrdinalCTEEstimator(
+        data_dest,
+        data_source,
+        data_cond,
+        embedding_dim=embedding_dim,
+        base=2,
+        stable=True,
     )
     res_yx = est_yx.result()
     assert isinstance(res_yx, float)

@@ -4,7 +4,7 @@ from .discrete import DiscreteMIEstimator, DiscreteCMIEstimator
 from .kernel import KernelMIEstimator, KernelCMIEstimator
 from .kraskov_stoegbauer_grassberger import KSGMIEstimator, KSGCMIEstimator
 from .renyi import RenyiMIEstimator, RenyiCMIEstimator
-from .symbolic import SymbolicMIEstimator, SymbolicCMIEstimator
+from .ordinal import OrdinalMIEstimator, OrdinalCMIEstimator
 from .tsallis import TsallisMIEstimator, TsallisCMIEstimator
 
 __all__ = [
@@ -16,8 +16,8 @@ __all__ = [
     "KSGCMIEstimator",
     "RenyiMIEstimator",
     "RenyiCMIEstimator",
-    "SymbolicMIEstimator",
-    "SymbolicCMIEstimator",
+    "OrdinalMIEstimator",
+    "OrdinalCMIEstimator",
     "TsallisMIEstimator",
     "TsallisCMIEstimator",
 ]

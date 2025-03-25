@@ -253,3 +253,13 @@ def test_discrete_cmi_2d_cond_error():
         ValueError, match="The conditioning variable must be one-dimensional."
     ):
         est.result()
+
+
+@pytest.mark.parametrize("rng_int", [1, 2, 3, 4, 5, 6])
+def test_entropy_equality(rng_int):
+    """Test the equality of MI(x, x) = H(x)."""
+    data = discrete_random_variables(rng_int, prop_time=0)
+    x = data[0]
+    est_mi = DiscreteMIEstimator(x, x, base=2)
+    est_ent = im.entropy(data[0], approach="discrete", base=2)
+    assert est_mi.result() == pytest.approx(est_ent)

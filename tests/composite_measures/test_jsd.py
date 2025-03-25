@@ -19,12 +19,12 @@ def test_jsd_discrete(default_rng):
     im.jsd(data_x, data_y, approach="discrete")
 
 
-@pytest.mark.parametrize("order", [1, 2, 3, 4, 6])
-def test_jsd_permutation(default_rng, order):
+@pytest.mark.parametrize("embedding_dim", [1, 2, 3, 4, 6])
+def test_jsd_permutation(default_rng, embedding_dim):
     """Test the Jensen-Shannon Divergence (JSD) estimator with permutation approach."""
     data_x = default_rng.normal(size=(1000))
     data_y = default_rng.normal(size=(1000))
-    im.jsd(data_x, data_y, approach="permutation", order=order)
+    im.jsd(data_x, data_y, approach="permutation", embedding_dim=embedding_dim)
 
 
 @pytest.mark.parametrize("bandwidth", [0.1, 1, 10])
@@ -44,13 +44,13 @@ def test_jsd_kernel(default_rng, bandwidth, kernel, dim):
         (2, "discrete", {}, 5.99816917e-05),
         (3, "discrete", {}, 0.001288913),
         (4, "discrete", {}, 0.0014298638),
-        (1, "permutation", {"order": 1}, 0.0),
-        (1, "permutation", {"order": 2}, 9.0524491e-05),
-        (1, "permutation", {"order": 3}, 0.00063122072),
-        (1, "permutation", {"order": 4, "stable": True}, 0.0078668057),
-        (1, "permutation", {"order": 5, "stable": True}, 0.038191393),
-        (1, "permutation", {"order": 20}, 0.693147180),
-        (1, "permutation", {"order": 20, "base": 2}, 1.0),
+        (1, "permutation", {"embedding_dim": 1}, 0.0),
+        (1, "permutation", {"embedding_dim": 2}, 9.0524491e-05),
+        (1, "permutation", {"embedding_dim": 3}, 0.00063122072),
+        (1, "permutation", {"embedding_dim": 4, "stable": True}, 0.0078668057),
+        (1, "permutation", {"embedding_dim": 5, "stable": True}, 0.038191393),
+        (1, "permutation", {"embedding_dim": 20}, 0.693147180),
+        (1, "permutation", {"embedding_dim": 20, "base": 2}, 1.0),
     ],
 )
 def test_jsd_explicit_discrete(rng_int, approach, kwargs, expected):
@@ -68,13 +68,13 @@ def test_jsd_explicit_discrete(rng_int, approach, kwargs, expected):
         (2, "discrete", {}, 0.000123401840),
         (3, "discrete", {}, 0.000906815853),
         (4, "discrete", {}, 0.0013302194),
-        (1, "permutation", {"order": 1}, 0.0),
-        (1, "permutation", {"order": 2}, 0.000224832739),
-        (1, "permutation", {"order": 3}, 0.0011090142),
-        (1, "permutation", {"order": 4, "stable": True}, 0.0072879551),
-        (1, "permutation", {"order": 5, "stable": True}, 0.0415068421),
-        (1, "permutation", {"order": 20}, 1.09861228),
-        (1, "permutation", {"order": 20, "base": 3}, 1.0),
+        (1, "permutation", {"embedding_dim": 1}, 0.0),
+        (1, "permutation", {"embedding_dim": 2}, 0.000224832739),
+        (1, "permutation", {"embedding_dim": 3}, 0.0011090142),
+        (1, "permutation", {"embedding_dim": 4, "stable": True}, 0.0072879551),
+        (1, "permutation", {"embedding_dim": 5, "stable": True}, 0.0415068421),
+        (1, "permutation", {"embedding_dim": 20}, 1.09861228),
+        (1, "permutation", {"embedding_dim": 20, "base": 3}, 1.0),
     ],
 )
 def test_jsd_explicit_discrete_three(rng_int, approach, kwargs, expected):

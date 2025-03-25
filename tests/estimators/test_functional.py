@@ -49,7 +49,7 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -77,7 +77,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -108,7 +108,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -127,7 +127,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -139,7 +139,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -171,7 +171,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -274,7 +274,14 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach_str in ["discrete", "renyi", "tsallis", "symbolic", "permutation"]:
+    if approach_str in [
+        "discrete",
+        "renyi",
+        "tsallis",
+        "ordinal",
+        "symbolic",
+        "permutation",
+    ]:
         assert isinstance(est.result(), float)
         with pytest.raises(UnsupportedOperation):
             est.local_val()

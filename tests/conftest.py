@@ -28,9 +28,9 @@ ENTROPY_APPROACHES = {
         "functional_str": ["metric", "kl"],
         "needed_kwargs": {},
     },
-    "SymbolicEntropyEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalEntropyEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "RenyiEntropyEstimator": {
         "functional_str": ["renyi"],
@@ -59,9 +59,9 @@ MI_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicMIEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalMIEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisMIEstimator": {
         "functional_str": ["tsallis"],
@@ -86,9 +86,9 @@ CMI_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicCMIEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalCMIEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisCMIEstimator": {
         "functional_str": ["tsallis"],
@@ -113,9 +113,9 @@ TE_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicTEEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalTEEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisTEEstimator": {
         "functional_str": ["tsallis"],
@@ -141,9 +141,9 @@ CTE_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicCTEEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalCTEEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisCTEEstimator": {
         "functional_str": ["tsallis"],

@@ -254,7 +254,7 @@ class EntropyEstimator(Estimator, ABC):
     .entropy.kernel.KernelEntropyEstimator
     .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
     .entropy.renyi.RenyiEntropyEstimator
-    .entropy.symbolic.SymbolicEntropyEstimator
+    .entropy.ordinal.OrdinalEntropyEstimator
     .entropy.tsallis.TsallisEntropyEstimator
     """
 
@@ -359,7 +359,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     .mutual_information.kernel.KernelMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     .mutual_information.renyi.RenyiMIEstimator
-    .mutual_information.symbolic.SymbolicMIEstimator
+    .mutual_information.ordinal.OrdinalMIEstimator
     .mutual_information.tsallis.TsallisMIEstimator
     """
 
@@ -516,7 +516,7 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
     .mutual_information.discrete.DiscreteCMIEstimator
     .mutual_information.kernel.KernelCMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGCMIEstimator
-    .mutual_information.symbolic.SymbolicCMIEstimator
+    .mutual_information.ordinal.OrdinalCMIEstimator
     """
 
     def __init__(
@@ -675,7 +675,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     .transfer_entropy.kernel.KernelTEEstimator
     .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
     .transfer_entropy.renyi.RenyiTEEstimator
-    .transfer_entropy.symbolic.SymbolicTEEstimator
+    .transfer_entropy.ordinal.OrdinalTEEstimator
     .transfer_entropy.tsallis.TsallisTEEstimator
     """
 

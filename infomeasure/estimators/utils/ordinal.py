@@ -1,4 +1,4 @@
-"""Symbolic / Permutation utility functions."""
+"""Ordinal / Permutation utility functions."""
 
 from math import factorial
 from typing import Generator
@@ -27,7 +27,7 @@ def permutation_to_integer(perm: ndarray, dtype: type = uint64) -> int:
     ----------
     perm : ndarray
         A permutation pattern.
-    order : int, optional
+    embedding_dim : int, optional
         The size of the permutation pattern. Default is
         None, which uses the length of the permutation.
         Using this, the maximal number will be set and the smnalles possible
@@ -58,12 +58,13 @@ def permutation_to_integer(perm: ndarray, dtype: type = uint64) -> int:
     Raises
     ------
     ValueError
-        If the order is too large to convert to an uint64 (maximal 20).
+        If the embedding_dim is too large to convert to an uint64 (maximal 20).
     """
     n = len(perm)
     if n > 20:
         raise ValueError(
-            "For orders larger than 20, the integer will be too large for uint64."
+            "For embedding dimensions larger than 20, "
+            "the integer will be too large for uint64."
         )
     factoradic = zeros(n, dtype=dtype)
     for i in range(n):
@@ -76,7 +77,7 @@ def permutation_to_integer(perm: ndarray, dtype: type = uint64) -> int:
 
 
 def symbolize_series(
-    series: ndarray, order: int, step_size: int = 1, to_int=False, stable=False
+    series: ndarray, embedding_dim: int, step_size: int = 1, to_int=False, stable=False
 ) -> ndarray:
     """
     Convert a time series into a sequence of symbols (permutation patterns).
@@ -85,7 +86,7 @@ def symbolize_series(
     ----------
     series : ndarray, shape (n,)
         A numpy array of data points.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     step_size : int
         The step size for the sliding windows. Takes every `step_size`-th element.
@@ -93,12 +94,12 @@ def symbolize_series(
         Whether to convert the permutation patterns to integers. Default is False.
         This
     stable : bool, optional
-        If True, when sorting the data, the order of equal elements is preserved.
+        If True, when sorting the data, the embedding_dim of equal elements is preserved.
         This can be useful for reproducibility and testing, but might be slower.
 
     Returns
     -------
-    patterns : ndarray, shape (n - (order - 1) * step_size, order)
+    patterns : ndarray, shape (n - (embedding_dim - 1) * step_size, embedding_dim)
         A list of tuples representing the symbolized series.
 
     Examples
@@ -113,16 +114,16 @@ def symbolize_series(
     Raises
     ------
     ValueError
-        If the order is less than 1.
+        If the embedding_dim is less than 1.
     ValueError
         If the step_size is less than 1.
     """
-    if order < 1:
-        raise ValueError("The order must be a positive integer.")
+    if embedding_dim < 1:
+        raise ValueError("The embedding_dim must be a positive integer.")
     if step_size < 1:
         raise ValueError("The step_size must be a positive integer.")
-    # Create a view of the series with the given order and step size
-    shape = (series.size - (order - 1) * step_size, order)
+    # Create a view of the series with the given embedding_dim and step size
+    shape = (series.size - (embedding_dim - 1) * step_size, embedding_dim)
     strides = (series.strides[0], series.strides[0] * step_size)
     # Extract subsequences
     subsequences = as_strided(series, shape=shape, strides=strides)
@@ -135,7 +136,7 @@ def symbolize_series(
         dtypes = ["uint8", "uint16", "uint32"]
         dtype = uint64
         for d in dtypes:  # try small to large
-            if factorial(order) < iinfo(d).max:
+            if factorial(embedding_dim) < iinfo(d).max:
                 dtype = d
                 break
         # Convert the permutation patterns to integers

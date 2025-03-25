@@ -1,4 +1,4 @@
-"""Module for the Symbolic / Permutation mutual information estimator."""
+"""Module for the Ordinal / Permutation mutual information estimator."""
 
 from abc import ABC
 
@@ -15,14 +15,14 @@ from ..utils.discrete_interaction_information import (
     conditional_mutual_information_global,
     conditional_mutual_information_local,
 )
-from ..utils.symbolic import symbolize_series, reduce_joint_space
+from ..utils.ordinal import symbolize_series, reduce_joint_space
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
 
 
-class BaseSymbolicMIEstimator(ABC):
-    r"""Base class for the Symbolic mutual information.
+class BaseOrdinalMIEstimator(ABC):
+    r"""Base class for the Ordinal mutual information.
 
     Attributes
     ----------
@@ -32,7 +32,7 @@ class BaseSymbolicMIEstimator(ABC):
         For conditional mutual information, only two data arrays are allowed.
     cond : array-like, optional
         The conditional data used to estimate the conditional mutual information.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     stable : bool, optional
         If True, when sorting the data, the order of equal elements is preserved.
@@ -52,25 +52,25 @@ class BaseSymbolicMIEstimator(ABC):
     Raises
     ------
     ValueError
-        If the ``order`` is negative or not an integer.
+        If the ``embedding_dim`` is negative or not an integer.
     ValueError
-        If ``offset`` and ``order`` are such that the data is too small.
+        If ``offset`` and ``embedding_dim`` are such that the data is too small.
 
     Warning
     -------
-    If ``order`` is set to 1, the mutual information is always 0.
+    If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
     def __init__(
         self,
         *data,
         cond=None,
-        order: int = None,
+        embedding_dim: int = None,
         stable: bool = False,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the SymbolicMIEstimator.
+        """Initialize the OrdinalMIEstimator.
 
         Parameters
         ----------
@@ -80,8 +80,8 @@ class BaseSymbolicMIEstimator(ABC):
             For conditional mutual information, only two data arrays are allowed.
         cond : array-like, optional
             The conditional data used to estimate the conditional mutual information.
-        order : int
-            The order of the Symbolic entropy.
+        embedding_dim : int
+            The embedding dimension of the Ordinal entropy.
         stable : bool, optional
             If True, when sorting the data, the order of equal elements is preserved.
             This can be useful for reproducibility and testing, but might be slower.
@@ -96,38 +96,40 @@ class BaseSymbolicMIEstimator(ABC):
             super().__init__(
                 *data, cond=cond, offset=offset, normalize=False, base=base
             )
-        if not issubdtype(type(order), integer) or order < 0:
-            raise ValueError("The order must be a non-negative integer.")
-        if order == 1:
+        if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
+            raise ValueError("The embedding_dim must be a non-negative integer.")
+        if embedding_dim == 1:
             logger.warning(
-                "The Symbolic mutual information is always 0 for order=1. "
-                "Consider using a higher order for more meaningful results."
+                "The Ordinal mutual information is always 0 for embedding_dim=1. "
+                "Consider using a higher embedding_dim for more meaningful results."
             )
-        self.order = order
-        if len(self.data[0]) < (order - 1) + 1:
-            raise ValueError("The data is too small for the given order.")
+        self.embedding_dim = embedding_dim
+        if len(self.data[0]) < (embedding_dim - 1) + 1:
+            raise ValueError("The data is too small for the given embedding_dim.")
         self.stable = stable
 
         self.symbols = [
             reduce_joint_space(
-                symbolize_series(var, self.order, stable=self.stable, to_int=False)
+                symbolize_series(
+                    var, self.embedding_dim, stable=self.stable, to_int=False
+                )
             )
             for var in self.data
         ]  # Convert permutation tuples to integers for efficiency (reduce_joint_space),
         # so mutual_information_global can use crosstab method internally
 
 
-class SymbolicMIEstimator(
-    BaseSymbolicMIEstimator, PValueMixin, MutualInformationEstimator
+class OrdinalMIEstimator(
+    BaseOrdinalMIEstimator, PValueMixin, MutualInformationEstimator
 ):
-    r"""Estimator for the Symbolic mutual information.
+    r"""Estimator for the Ordinal mutual information.
 
     Attributes
     ----------
     *data : array-like, shape (n_samples,)
         The data used to estimate the mutual information.
         You can pass an arbitrary number of data arrays as positional arguments.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
@@ -143,19 +145,19 @@ class SymbolicMIEstimator(
     Raises
     ------
     ValueError
-        If the ``order`` is negative or not an integer.
+        If the ``embedding_dim`` is negative or not an integer.
     ValueError
-        If ``offset`` and ``order`` are such that the data is too small.
+        If ``offset`` and ``embedding_dim`` are such that the data is too small.
 
     Warning
     -------
-    If ``order`` is set to 1, the mutual information is always 0.
+    If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
     def _calculate(self) -> float:
         """Calculate the mutual information of the data."""
 
-        if self.order == 1:
+        if self.embedding_dim == 1:
             return 0.0
 
         return mutual_information_global(*self.symbols, log_func=self._log_base)
@@ -171,10 +173,10 @@ class SymbolicMIEstimator(
         return mutual_information_local(*self.symbols, log_func=self._log_base)
 
 
-class SymbolicCMIEstimator(
-    BaseSymbolicMIEstimator, ConditionalMutualInformationEstimator
+class OrdinalCMIEstimator(
+    BaseOrdinalMIEstimator, ConditionalMutualInformationEstimator
 ):
-    """Estimator for the Symbolic conditional mutual information.
+    """Estimator for the Ordinal conditional mutual information.
 
     Attributes
     ----------
@@ -183,7 +185,7 @@ class SymbolicCMIEstimator(
         You can pass an arbitrary number of data arrays as positional arguments.
     cond : array-like
         The conditional data used to estimate the conditional mutual information.
-    order : int
+    embedding_dim : int
         The size of the permutation patterns.
     *symbols : array-like, shape (n_samples,)
         The symbolized data used to estimate the mutual information.
@@ -199,25 +201,27 @@ class SymbolicCMIEstimator(
     Raises
     ------
     ValueError
-        If the ``order`` is negative or not an integer.
+        If the ``embedding_dim`` is negative or not an integer.
     ValueError
-        If ``offset`` and ``order`` are such that the data is too small.
+        If ``offset`` and ``embedding_dim`` are such that the data is too small.
 
     Warning
     -------
-    If ``order`` is set to 1, the mutual information is always 0.
+    If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.symbols_cond = reduce_joint_space(
-            symbolize_series(self.cond, self.order, stable=self.stable, to_int=False)
+            symbolize_series(
+                self.cond, self.embedding_dim, stable=self.stable, to_int=False
+            )
         )
 
     def _calculate(self) -> float:
         """Calculate the conditional mutual information of the data."""
 
-        if self.order == 1:
+        if self.embedding_dim == 1:
             return 0.0
 
         return conditional_mutual_information_global(

@@ -3,7 +3,7 @@
 from numpy import sum as np_sum, ndarray
 
 from ..base import EntropyEstimator, DistributionMixin
-from ..utils.symbolic import reduce_joint_space
+from ..utils.ordinal import reduce_joint_space
 from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
