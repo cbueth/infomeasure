@@ -31,9 +31,7 @@ def test_entropy_gaussian(entropy_approach, sigma, base, default_rng):
         if key in needed_kwargs:
             needed_kwargs[key] = 1
     needed_kwargs["base"] = base
-    est = im.estimator(
-        data=data, measure="entropy", approach=approach_str, **needed_kwargs
-    )
+    est = im.estimator(data, measure="entropy", approach=approach_str, **needed_kwargs)
     if (approach_str in ["symbolic", "permutation"]) or (
         approach_str == "discrete" and sigma < 3
     ):

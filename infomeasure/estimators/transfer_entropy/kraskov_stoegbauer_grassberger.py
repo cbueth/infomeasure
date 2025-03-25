@@ -1,16 +1,20 @@
 """Module for the Kraskov-Stoegbauer-Grassberger (KSG) transfer entropy estimator."""
 
 from abc import ABC
-from numpy import array, inf, ndarray
+
+from numpy import array, inf, ndarray, log
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
-from ..utils.te_slicing import te_observations, cte_observations
 from ..base import (
+    PValueMixin,
     EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
+from ..utils.te_slicing import te_observations, cte_observations
+from ... import Config
+from ...utils.types import LogBaseType
 
 
 class BaseKSGTEEstimator(ABC):
@@ -37,6 +41,7 @@ class BaseKSGTEEstimator(ABC):
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
         Not compatible with the ``cond`` parameter / conditional TE.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int, optional
@@ -44,8 +49,6 @@ class BaseKSGTEEstimator(ABC):
     cond_hist_len : int, optional
         Number of past observations to consider for the conditional data.
         Only used for conditional transfer entropy.
-    base : "e"
-        Only the natural logarithm is supported for the KSG estimator.
     """
 
     def __init__(
@@ -62,7 +65,8 @@ class BaseKSGTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
-        base="e",
+        offset: int = None,
+        base: LogBaseType = Config.get("base"),
     ):
         r"""Initialize the BaseKSGTEEstimator.
 
@@ -86,6 +90,7 @@ class BaseKSGTEEstimator(ABC):
             Delay/lag/shift between the variables, representing propagation time.
             Assumed time taken by info to transfer from source to destination.
             Not compatible with the ``cond`` parameter / conditional TE.
+            Alternatively called `offset`.
         step_size : int, optional
             Step size between elements for the state space reconstruction.
         src_hist_len, dest_hist_len : int, optional
@@ -93,13 +98,7 @@ class BaseKSGTEEstimator(ABC):
         cond_hist_len : int, optional
             Number of past observations to consider for the conditional data.
             Only used for conditional transfer entropy.
-        base : "e"
-            Only the natural logarithm is supported for the KSG estimator.
         """
-        if base != "e":
-            raise ValueError(
-                "Only the natural logarithm is supported for the KSG estimator."
-            )
         if cond is None:
             super().__init__(
                 source,
@@ -108,6 +107,7 @@ class BaseKSGTEEstimator(ABC):
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
                 step_size=step_size,
+                offset=offset,
                 base=base,
             )
         else:
@@ -120,6 +120,7 @@ class BaseKSGTEEstimator(ABC):
                 dest_hist_len=dest_hist_len,
                 cond_hist_len=cond_hist_len,
                 prop_time=prop_time,
+                offset=offset,
                 base=base,
             )
         self.k = k
@@ -127,7 +128,9 @@ class BaseKSGTEEstimator(ABC):
         self.minkowski_p = minkowski_p
 
 
-class KSGTEEstimator(BaseKSGTEEstimator, EffectiveValueMixin, TransferEntropyEstimator):
+class KSGTEEstimator(
+    BaseKSGTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
+):
     r"""Estimator for transfer entropy using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 
@@ -148,6 +151,7 @@ class KSGTEEstimator(BaseKSGTEEstimator, EffectiveValueMixin, TransferEntropyEst
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
@@ -184,6 +188,7 @@ class KSGTEEstimator(BaseKSGTEEstimator, EffectiveValueMixin, TransferEntropyEst
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
             permute_src=self.permute_src,
+            resample_src=self.resample_src,
         )
 
         # Create KDTree for efficient nearest neighbor search in joint space
@@ -222,7 +227,7 @@ class KSGTEEstimator(BaseKSGTEEstimator, EffectiveValueMixin, TransferEntropyEst
             + digamma(array(count_dest_past) + 1)
         )
 
-        return local_te
+        return local_te / log(self.base) if self.base != "e" else local_te
 
 
 class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
@@ -323,4 +328,4 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
             + digamma(array(count_dest_past_cond) + 1)
         )
 
-        return local_cte
+        return local_cte / log(self.base) if self.base != "e" else local_cte

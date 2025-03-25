@@ -501,14 +501,6 @@ def test_cte_observations_explicit(
     ) = cte_observations(
         source, dest, cond, src_hist_len, dest_hist_len, cond_hist_len, step_size
     )
-    print(
-        (
-            joint_space_data.tolist(),
-            data_dest_past_embedded.tolist(),
-            marginal_1_space_data.tolist(),
-            marginal_2_space_data.tolist(),
-        )
-    )
     assert array_equal(joint_space_data, expected[0])
     assert array_equal(data_dest_past_embedded, expected[1])
     assert array_equal(marginal_1_space_data, expected[2])
@@ -617,11 +609,12 @@ def test_te_observations_invalid_inputs(
     "src_hist_len, dest_hist_len, step_size",
     [(1, 1, 1), (2, 2, 2), (1, 4, 1), (4, 2, 1)],
 )
-@pytest.mark.parametrize("permute_src", [True, default_rng(5378)])
-def test_te_observations_permute_src(
-    src_hist_len, dest_hist_len, step_size, permute_src
+@pytest.mark.parametrize("value", [True, default_rng(5378)])
+@pytest.mark.parametrize("argument", ["permute_src", "resample_src"])
+def test_te_observations_permute_resample_src(
+    src_hist_len, dest_hist_len, step_size, value, argument
 ):
-    """Test the TE observations data arrays with permutation."""
+    """Test the TE observations data arrays with permutation and resampling."""
     source = arange(100)
     destination = arange(100, 200)
     (
@@ -648,7 +641,7 @@ def test_te_observations_permute_src(
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         step_size=step_size,
-        permute_src=permute_src,
+        **{argument: value},  # permute_src or resample_src with True or Generator
     )
     assert array_equal(  # y_i^{(k)}, \hat{y}_{i+1} fixed
         joint_space_data[:, src_hist_len + 1 :],
@@ -672,6 +665,21 @@ def test_te_observations_permute_src(
     assert array_equal(  # x_i^{(k)}, \hat{y}_{i+1} fixed
         marginal_2_space_data, marginal_2_space_data_permuted
     )
+
+
+def test_te_observations_permute_resample_exclusivity():
+    """Test TE observations error when setting both
+    ``permute_src`` and ``resample_src``."""
+    with pytest.raises(ValueError):
+        te_observations(
+            arange(10),
+            arange(10, 20),
+            src_hist_len=1,
+            dest_hist_len=1,
+            step_size=1,
+            permute_src=True,
+            resample_src=True,
+        )
 
 
 @pytest.mark.parametrize(

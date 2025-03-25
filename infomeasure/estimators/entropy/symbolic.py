@@ -4,15 +4,15 @@ from collections import Counter
 
 from numpy import array, sum as np_sum, True_, False_, integer, issubdtype, ndarray
 
+from ..base import EntropyEstimator, DistributionMixin
 from ..utils.symbolic import reduce_joint_space, symbolize_series
 from ..utils.unique import histogram_unique_values
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin, DistributionMixin
 
 
-class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator):
+class SymbolicEntropyEstimator(DistributionMixin, EntropyEstimator):
     r"""Estimator for the Symbolic / Permutation entropy.
 
     The Symbolic entropy is a measure of the complexity of a time series.
@@ -22,6 +22,8 @@ class SymbolicEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
     all :math:`n!` possible permutations are considered
     and their relative frequencies are calculated
     :cite:p:`PermutationEntropy2002`.
+
+    Embedding delay is not supported natively.
 
     Attributes
     ----------

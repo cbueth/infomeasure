@@ -2,18 +2,18 @@
 
 from numpy import column_stack, issubdtype, integer
 
-from ... import Config
-from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
+from ..base import EntropyEstimator
+from ..utils.array import assure_2d_data
 from ..utils.exponential_family import (
     calculate_common_entropy_components,
     exponential_family_iq,
     exponential_family_i1,
 )
-from ..utils.array import assure_2d_data
+from ... import Config
+from ...utils.types import LogBaseType
 
 
-class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
+class TsallisEntropyEstimator(EntropyEstimator):
     r"""Estimator for the Tsallis entropy.
 
     Attributes

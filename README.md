@@ -28,7 +28,7 @@ This will automatically install all the necessary dependencies as specified in t
 `infomeasure` can be installed from the `conda-forge` channel (not yet).
 
 ```bash
-conda create -n im_env -c conda-forge python=3.12
+conda create -n im_env -c conda-forge python=3.13
 conda activate im_env
 conda install -c conda-forge infomeasure  # when feedstock is available
 ```
@@ -42,7 +42,7 @@ After cloning the repository, navigate to the root folder and
 create the environment with the desired python version and the dependencies.
 
 ```bash
-micromamba create -n im_env -c conda-forge python=3.12
+micromamba create -n im_env -c conda-forge python=3.13
 micromamba activate im_env
 ```
 

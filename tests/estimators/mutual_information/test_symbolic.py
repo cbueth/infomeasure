@@ -1,7 +1,14 @@
 """Explicit symbolic / permutation mutual information estimator tests."""
 
-import pytest
+from datetime import datetime
 
+import pytest
+from numpy import ndarray
+
+from tests.conftest import (
+    generate_autoregressive_series,
+    generate_autoregressive_series_condition,
+)
 from infomeasure.estimators.mutual_information import (
     SymbolicMIEstimator,
     SymbolicCMIEstimator,
@@ -25,23 +32,19 @@ def test_symbolic_mi(data_len, order, offset, default_rng):
             )
             est.global_val()
         return
-    if order == 1:
-        est = SymbolicMIEstimator(
-            data_x,
-            data_y,
-            order=order,
-            offset=offset,
-        )
-        assert est.global_val() == 0.0  # no local values returned
-        return
     est = SymbolicMIEstimator(
         data_x,
         data_y,
         order=order,
         offset=offset,
     )
-    max_val = est._log_base(data_len)
-    assert 0 <= est.global_val() <= max_val
+
+    if order == 1:
+        assert est.global_val() == 0.0  # no local values returned
+    else:
+        max_val = est._log_base(data_len)
+        assert 0 <= est.global_val() <= max_val
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
@@ -102,10 +105,64 @@ def test_symbolic_mi_values(data_x, data_y, order, expected):
     """Test the symbolic mutual information estimator."""
     est = SymbolicMIEstimator(data_x, data_y, order=order, base=2, stable=True)
     assert est.global_val() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,data_z,order,expected",
+    "rng_int,order,expected",
+    [
+        (5, 1, 0.0),
+        (5, 2, 0.004881048),
+        (5, 3, 0.047311377),
+        (5, 4, 0.535645231),
+        (5, 5, 3.42514917),
+        (6, 2, 0.001331982),
+        (6, 3, 0.037669081),
+        (6, 4, 0.470012588),
+        (7, 3, 0.080807403),
+        (7, 4, 0.604484529),
+    ],
+)
+def test_symbolic_mi_values_autoregressive(rng_int, order, expected):
+    """Test the symbolic mutual information estimator with autoregressive data."""
+    data_x, data_y = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
+    est = SymbolicMIEstimator(data_x, data_y, order=order, base=2, stable=True)
+    res = est.result()
+    assert isinstance(est.result(), float)
+    assert res == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
+
+
+@pytest.mark.parametrize(
+    "rng_int,order,expected",
+    [
+        (5, 1, 0.0),
+        (5, 2, 0.003364152),
+        (5, 3, 0.160698565),
+        (5, 4, 2.717637411),
+        (5, 5, 2.93783424),
+        (6, 2, 0.006491342),
+        (6, 3, 0.145752994),
+        (6, 4, 2.675821510),
+        (7, 3, 0.153249279),
+        (7, 4, 2.702059925),
+    ],
+)
+def test_symbolic_mi_values_autoregressive_condition(rng_int, order, expected):
+    """Test the symbolic mutual information estimator with autoregressive data."""
+    data_x, data_y, cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = SymbolicCMIEstimator(
+        data_x, data_y, cond=cond, order=order, base=2, stable=True
+    )
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
+
+
+@pytest.mark.parametrize(
+    "data_x,data_y,cond,order,expected",
     [
         ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 1, 0.0),
         ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 2, 1 / 2),
@@ -156,9 +213,10 @@ def test_symbolic_mi_values(data_x, data_y, order, expected):
         ),
     ],
 )
-def test_symbolic_cmi_values(data_x, data_y, data_z, order, expected):
+def test_symbolic_cmi_values(data_x, data_y, cond, order, expected):
     """Test the symbolic conditional mutual information estimator."""
     est = SymbolicCMIEstimator(
-        data_x, data_y, order=order, data_z=data_z, base=2, stable=True
+        data_x, data_y, order=order, cond=cond, base=2, stable=True
     )
     assert est.global_val() == pytest.approx(expected)
+    est.local_val()  # Checks internally for `global = mean(local)`

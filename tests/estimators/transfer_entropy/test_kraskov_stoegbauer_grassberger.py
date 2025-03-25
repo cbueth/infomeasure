@@ -13,23 +13,26 @@ from infomeasure.estimators.transfer_entropy import KSGTEEstimator, KSGCTEEstima
 
 
 @pytest.mark.parametrize(
-    "rng_int,k,minkowski_p,expected",
+    "rng_int,k,minkowski_p,base,expected",
     [
-        (5, 4, 2, -0.1464972645512768),
-        (5, 4, 3, 0.20521970071775472),
-        (5, 4, inf, 0.5959660770508142),
-        (5, 16, 2, -0.09411416419535731),
-        (5, 16, 3, 0.23892165815373245),
-        (5, 16, inf, 0.6034525014935584),
-        (6, 4, 2, -0.14070180426292878),
-        (6, 4, 3, 0.20704153706669481),
-        (6, 4, inf, 0.5660288107639446),
-        (7, 4, 2, -0.1333354231111923),
-        (7, 4, 3, 0.21280380426208417),
-        (7, 4, inf, 0.598763591023636),
+        (5, 4, 2, "e", -0.1464972645512768),
+        (5, 4, 3, "e", 0.20521970071775472),
+        (5, 4, inf, "e", 0.5959660770508142),
+        (5, 16, 2, "e", -0.09411416419535731),
+        (5, 16, 3, "e", 0.23892165815373245),
+        (5, 16, inf, "e", 0.6034525014935584),
+        (6, 4, 2, "e", -0.14070180426292878),
+        (6, 4, 3, "e", 0.20704153706669481),
+        (6, 4, inf, "e", 0.5660288107639446),
+        (7, 4, 2, "e", -0.1333354231111923),
+        (7, 4, 3, "e", 0.21280380426208417),
+        (7, 4, inf, "e", 0.598763591023636),
+        (7, 4, 2, 2.0, -0.19236235),
+        (7, 4, 3, 10, 0.092419517),
+        (7, 4, inf, 5, 0.372032736),
     ],
 )
-def test_ksg_te(rng_int, k, minkowski_p, expected):
+def test_ksg_te(rng_int, k, minkowski_p, base, expected):
     """Test the KSG transfer entropy estimator."""
     data_source, data_dest = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
     est = KSGTEEstimator(
@@ -38,6 +41,7 @@ def test_ksg_te(rng_int, k, minkowski_p, expected):
         k=k,
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
+        base=base,
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
@@ -83,23 +87,26 @@ def test_ksg_te_slicing(
 
 
 @pytest.mark.parametrize(
-    "rng_int,k,minkowski_p,expected",
+    "rng_int,k,minkowski_p,base,expected",
     [
-        (5, 4, 2, -0.14824377373),
-        (5, 4, 3, 0.492061479471),
-        (5, 4, inf, 1.1736338791),
-        (5, 16, 2, -0.0629498022),
-        (5, 16, 3, 0.5019661670),
-        (5, 16, inf, 1.1344990340),
-        (6, 4, 2, -0.1120271189),
-        (6, 4, 3, 0.5267832946),
-        (6, 4, inf, 1.2010598113),
-        (7, 4, 2, -0.17448870909),
-        (7, 4, 3, 0.4594946023),
-        (7, 4, inf, 1.1573234261),
+        (5, 4, 2, "e", -0.14824377373),
+        (5, 4, 3, "e", 0.492061479471),
+        (5, 4, inf, "e", 1.1736338791),
+        (5, 16, 2, "e", -0.0629498022),
+        (5, 16, 3, "e", 0.5019661670),
+        (5, 16, inf, "e", 1.1344990340),
+        (6, 4, 2, "e", -0.1120271189),
+        (6, 4, 3, "e", 0.5267832946),
+        (6, 4, inf, "e", 1.2010598113),
+        (7, 4, 2, "e", -0.17448870909),
+        (7, 4, 3, "e", 0.4594946023),
+        (7, 4, inf, "e", 1.1573234261),
+        (7, 4, 2, 2.0, -0.25173399),
+        (7, 4, 3, 10, 0.199555970),
+        (7, 4, inf, 5.0, 0.7190854),
     ],
 )
-def test_ksg_cte(rng_int, k, minkowski_p, expected):
+def test_ksg_cte(rng_int, k, minkowski_p, base, expected):
     """Test the conditional KSG transfer entropy estimator."""
     data_source, data_dest, data_cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
@@ -111,6 +118,7 @@ def test_ksg_cte(rng_int, k, minkowski_p, expected):
         k=k,
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
+        base=base,
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)

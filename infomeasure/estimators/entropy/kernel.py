@@ -2,14 +2,14 @@
 
 from numpy import column_stack
 
+from ..base import EntropyEstimator
+from ..utils.array import assure_2d_data
+from ..utils.kde import kde_probability_density_function
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
-from ..utils.kde import kde_probability_density_function
-from ..utils.array import assure_2d_data
 
 
-class KernelEntropyEstimator(PValueMixin, EntropyEstimator):
+class KernelEntropyEstimator(EntropyEstimator):
     """Estimator for entropy (Shannon) using Kernel Density Estimation (KDE).
 
     Attributes

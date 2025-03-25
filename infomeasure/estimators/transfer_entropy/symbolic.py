@@ -1,18 +1,20 @@
 """Module for the Symbolic / Permutation transfer entropy estimator."""
 
 from abc import ABC
+
 from numpy import mean as np_mean, unique, issubdtype, integer
 
-from ... import Config
-from ...utils.config import logger
-from ...utils.types import LogBaseType
-from ..utils.symbolic import symbolize_series
-from ..utils.te_slicing import te_observations, cte_observations
 from ..base import (
+    PValueMixin,
     EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
+from ..utils.symbolic import symbolize_series
+from ..utils.te_slicing import te_observations, cte_observations
+from ... import Config
+from ...utils.config import logger
+from ...utils.types import LogBaseType
 
 
 class BaseSymbolicTEEstimator(ABC):
@@ -34,6 +36,7 @@ class BaseSymbolicTEEstimator(ABC):
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
         Not compatible with the ``cond`` parameter / conditional TE.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int, optional
@@ -69,6 +72,7 @@ class BaseSymbolicTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
+        offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the BaseSymbolicTEEstimator.
@@ -90,6 +94,7 @@ class BaseSymbolicTEEstimator(ABC):
             Delay/lag/shift between the variables, representing propagation time.
             Assumed time taken by info to transfer from source to destination
             Not compatible with the ``cond`` parameter / conditional TE.
+            Alternatively called `offset`.
         step_size : int, optional
             Step size between elements for the state space reconstruction.
         src_hist_len, dest_hist_len : int, optional
@@ -111,6 +116,7 @@ class BaseSymbolicTEEstimator(ABC):
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
                 step_size=step_size,
+                offset=offset,
                 base=base,
             )
         else:
@@ -123,6 +129,7 @@ class BaseSymbolicTEEstimator(ABC):
                 dest_hist_len=dest_hist_len,
                 cond_hist_len=cond_hist_len,
                 prop_time=prop_time,
+                offset=offset,
                 base=base,
             )
         if not issubdtype(type(order), integer) or order < 0:
@@ -214,7 +221,7 @@ class BaseSymbolicTEEstimator(ABC):
             The slicing method to use for the symbolized data.
         *data : array-like
             The source, destination, and if applicable, conditional data.
-        **hist_lens : dict
+        **slice_kwargs : dict
             The history lengths for the source, destination, and if applicable,
             conditional data.
 
@@ -227,14 +234,17 @@ class BaseSymbolicTEEstimator(ABC):
         if self.order == 1:
             return 0.0
         data = (self.source, self.dest)
-        hist_lens = dict(
-            src_hist_len=self.src_hist_len, dest_hist_len=self.dest_hist_len
+        slice_kwargs = dict(
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
         )
         if getattr(self, "cond", None) is not None:
             data += (self.cond,)
-            hist_lens["cond_hist_len"] = self.cond_hist_len
+            slice_kwargs["cond_hist_len"] = self.cond_hist_len
         else:
             self.cond_hist_len = 0
+            slice_kwargs["permute_src"] = self.permute_src
+            slice_kwargs["resample_src"] = self.resample_src
 
         # Symbolize the time series dest and source, use Lehmer code
         symbols = (
@@ -245,7 +255,7 @@ class BaseSymbolicTEEstimator(ABC):
         )
         # Estimate joint and conditional probabilities
         joint_prob, dest_past_prob, marginal_1_prob, marginal_2_prob = (
-            self._estimate_probabilities(slice_method, *symbols, **hist_lens)
+            self._estimate_probabilities(slice_method, *symbols, **slice_kwargs)
         )
         # Calculate Transfer Entropy for each permutation pattern
         te_perm = []
@@ -294,7 +304,7 @@ class BaseSymbolicTEEstimator(ABC):
 
 
 class SymbolicTEEstimator(
-    BaseSymbolicTEEstimator, EffectiveValueMixin, TransferEntropyEstimator
+    BaseSymbolicTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
 ):
     r"""Estimator for the Symbolic / Permutation transfer entropy.
 
@@ -309,6 +319,7 @@ class SymbolicTEEstimator(
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
+        Alternatively called `offset`.
     step_size : int
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int

@@ -5,7 +5,7 @@ from typing import Generator
 from numpy import ndarray, newaxis, asarray
 
 
-def assure_2d_data(data):
+def assure_2d_data(data) -> ndarray | tuple[ndarray, ...]:
     """Assure the data is 2D.
 
     This function checks adds a new axis to the data if it is 1D.

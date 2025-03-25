@@ -4,14 +4,14 @@ from abc import ABC
 
 from numpy import issubdtype, integer
 
-from ... import Config
-from ...utils.types import LogBaseType
 from ..base import (
-    EffectiveValueMixin,
+    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
 from ..entropy.renyi import RenyiEntropyEstimator
+from ... import Config
+from ...utils.types import LogBaseType
 
 
 class BaseRenyiMIEstimator(ABC):
@@ -19,9 +19,11 @@ class BaseRenyiMIEstimator(ABC):
 
     Attributes
     ----------
-    data_x, data_y : array-like
+    *data : array-like, shape (n_samples,)
         The data used to estimate the (conditional) mutual information.
-    data_z : array-like, optional
+        You can pass an arbitrary number of data arrays as positional arguments.
+        For conditional mutual information, only two data arrays are allowed.
+    cond : array-like, optional
         The conditional data used to estimate the conditional mutual information.
     k : int
         The number of nearest neighbors used in the estimation.
@@ -34,17 +36,15 @@ class BaseRenyiMIEstimator(ABC):
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
-        Not compatible with the ``data_z`` parameter / conditional MI.
+        Not compatible with the ``cond`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
     """
 
     def __init__(
         self,
-        data_x,
-        data_y,
-        data_z=None,
-        *,  # all following parameters are keyword-only
+        *data,
+        cond=None,
         k: int = 4,
         alpha: float | int = None,
         noise_level=1e-8,
@@ -56,9 +56,11 @@ class BaseRenyiMIEstimator(ABC):
 
         Parameters
         ----------
-        data_x, data_y : array-like
+        *data : array-like, shape (n_samples,)
             The data used to estimate the (conditional) mutual information.
-        data_z : array-like, optional
+            You can pass an arbitrary number of data arrays as positional arguments.
+            For conditional mutual information, only two data arrays are allowed.
+        cond : array-like, optional
             The conditional data used to estimate the conditional mutual information.
         k : int
             The number of nearest neighbors to consider.
@@ -73,7 +75,7 @@ class BaseRenyiMIEstimator(ABC):
         offset : int, optional
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
-            Not compatible with the ``data_z`` parameter / conditional MI.
+            Not compatible with the ``cond`` parameter / conditional MI.
 
         Raises
         ------
@@ -82,13 +84,11 @@ class BaseRenyiMIEstimator(ABC):
         ValueError
             If the number of nearest neighbors is not a positive integer.
         """
-        if data_z is None:
-            super().__init__(
-                data_x, data_y, offset=offset, normalize=normalize, base=base
-            )
+        if cond is None:
+            super().__init__(*data, offset=offset, normalize=normalize, base=base)
         else:
             super().__init__(
-                data_x, data_y, data_z, offset=offset, normalize=normalize, base=base
+                *data, cond=cond, offset=offset, normalize=normalize, base=base
             )
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
@@ -101,15 +101,14 @@ class BaseRenyiMIEstimator(ABC):
         self.noise_level = noise_level
 
 
-class RenyiMIEstimator(
-    BaseRenyiMIEstimator, EffectiveValueMixin, MutualInformationEstimator
-):
+class RenyiMIEstimator(BaseRenyiMIEstimator, PValueMixin, MutualInformationEstimator):
     """Estimator for the Renyi mutual information.
 
     Attributes
     ----------
-    data_x, data_y : array-like
+    *data : array-like, shape (n_samples,)
         The data used to estimate the mutual information.
+        You can pass an arbitrary number of data arrays as positional arguments.
     k : int
         The number of nearest neighbors used in the estimation.
     alpha : float | int
@@ -146,8 +145,11 @@ class RenyiCMIEstimator(BaseRenyiMIEstimator, ConditionalMutualInformationEstima
 
     Attributes
     ----------
-    data_x, data_y, data_z : array-like
+    *data : array-like, shape (n_samples,)
         The data used to estimate the conditional mutual information.
+        You can pass an arbitrary number of data arrays as positional arguments.
+    cond : array-like
+        The conditional data used to estimate the conditional mutual information.
     k : int
         The number of nearest neighbors used in the estimation.
     alpha : float | int

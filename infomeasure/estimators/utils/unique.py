@@ -2,8 +2,8 @@
 
 from typing import Tuple, Dict
 
-from numpy import ndarray, unique, zeros
 from numpy import add as np_add
+from numpy import ndarray, unique, zeros
 
 
 def histogram_unique_values(data: ndarray) -> Tuple[ndarray[float], Dict[int, float]]:
