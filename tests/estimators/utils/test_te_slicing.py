@@ -33,7 +33,13 @@ def test_te_observations_old_implementation(
         data_dest_past_embedded,
         marginal_1_space_data,
         marginal_2_space_data,
-    ) = te_observations(src, dest, src_hist_len, dest_hist_len, step_size)
+    ) = te_observations(
+        src,
+        dest,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        step_size=step_size,
+    )
 
     # Old implementation
     n = len(src)
@@ -311,6 +317,92 @@ def test_te_observations_explicit(
 
 
 @pytest.mark.parametrize(
+    "source,dest,src_hist_len,dest_hist_len,step_size,expected",
+    [
+        (
+            arange(5),
+            arange(10, 15),
+            1,
+            1,
+            1,
+            (
+                [[0], [1], [2], [3]],  # x
+                [[10], [11], [12], [13]],  # y
+                [[11], [12], [13], [14]],  # y'
+            ),
+        ),
+        (
+            arange(5),
+            arange(10, 15),
+            1,
+            1,
+            1,
+            ([[0], [1], [2], [3]], [[10], [11], [12], [13]], [[11], [12], [13], [14]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            1,
+            1,
+            2,
+            (
+                [[0], [2]],
+                [[10, 15], [12, 17]],
+                [[12, 17], [14, 19]],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            1,
+            2,
+            2,
+            ([[2]], [[10, 15, 12, 17]], [[14, 19]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            1,
+            1,
+            2,
+            ([[0], [2]], [[10, 15], [12, 17]], [[12, 17], [14, 19]]),
+        ),
+        (
+            arange(20).reshape(-1, 1),
+            arange(20, 40),
+            3,
+            2,
+            3,
+            (
+                [[0, 3, 6], [3, 6, 9], [6, 9, 12], [9, 12, 15]],
+                [[23, 26], [26, 29], [29, 32], [32, 35]],
+                [[29], [32], [35], [38]],
+            ),
+        ),
+    ],
+)
+def test_te_observations_explicit_separate(
+    source, dest, src_hist_len, dest_hist_len, step_size, expected
+):
+    """Test the TE observations data arrays with spaces not constructed"""
+    (
+        src_history,
+        dest_history,
+        dest_future,
+    ) = te_observations(
+        source,
+        dest,
+        src_hist_len,
+        dest_hist_len,
+        step_size,
+        construct_joint_spaces=False,
+    )
+    assert array_equal(src_history, expected[0])
+    assert array_equal(dest_history, expected[1])
+    assert array_equal(dest_future, expected[2])
+
+
+@pytest.mark.parametrize(
     "source,dest,cond,src_hist_len,dest_hist_len,cond_hist_len,step_size,expected",
     [
         (
@@ -322,11 +414,11 @@ def test_te_observations_explicit(
             1,
             1,
             (
-                [  # x,  z,  y,  y'
-                    [0, 20, 10, 11],
-                    [1, 21, 11, 12],
-                    [2, 22, 12, 13],
-                    [3, 23, 13, 14],
+                [  # x,  y, y',  z
+                    [0, 10, 11, 20],
+                    [1, 11, 12, 21],
+                    [2, 12, 13, 22],
+                    [3, 13, 14, 23],
                 ],
                 [  #  y,  z
                     [10, 20],
@@ -334,17 +426,17 @@ def test_te_observations_explicit(
                     [12, 22],
                     [13, 23],
                 ],
-                [  # x,  z,  y
-                    [0, 20, 10],
-                    [1, 21, 11],
-                    [2, 22, 12],
-                    [3, 23, 13],
+                [  # x,  y,  z
+                    [0, 10, 20],
+                    [1, 11, 21],
+                    [2, 12, 22],
+                    [3, 13, 23],
                 ],
-                [  #  z,  y,  y'
-                    [20, 10, 11],
-                    [21, 11, 12],
-                    [22, 12, 13],
-                    [23, 13, 14],
+                [  #  y, y',  z
+                    [10, 11, 20],
+                    [11, 12, 21],
+                    [12, 13, 22],
+                    [13, 14, 23],
                 ],
             ),
         ),
@@ -357,25 +449,25 @@ def test_te_observations_explicit(
             2,
             1,
             (
-                [  # x, z1, z2,  y,  y'
-                    [1, 20, 21, 11, 12],
-                    [2, 21, 22, 12, 13],
-                    [3, 22, 23, 13, 14],
+                [  # x,  y, y', z1, z2
+                    [1, 11, 12, 20, 21],
+                    [2, 12, 13, 21, 22],
+                    [3, 13, 14, 22, 23],
                 ],
                 [  #  y, z1, z2
                     [11, 20, 21],
                     [12, 21, 22],
                     [13, 22, 23],
                 ],
-                [  # x, z1, z2,  y
-                    [1, 20, 21, 11],
-                    [2, 21, 22, 12],
-                    [3, 22, 23, 13],
+                [  # x,  y, z1, z2
+                    [1, 11, 20, 21],
+                    [2, 12, 21, 22],
+                    [3, 13, 22, 23],
                 ],
-                [  # z1, z2,  y,  y'
-                    [20, 21, 11, 12],
-                    [21, 22, 12, 13],
-                    [22, 23, 13, 14],
+                [  #  y, y', z1, z2
+                    [11, 12, 20, 21],
+                    [12, 13, 21, 22],
+                    [13, 14, 22, 23],
                 ],
             ),
         ),
@@ -388,21 +480,21 @@ def test_te_observations_explicit(
             1,
             2,
             (
-                [  # x,  z, ( y ) , ( y')
-                    [0, 20, 10, 15, 12, 17],
-                    [2, 22, 12, 17, 14, 19],
+                [  # x, ( y ) , ( y') ,  z
+                    [0, 10, 15, 12, 17, 20],
+                    [2, 12, 17, 14, 19, 22],
                 ],
                 [  # ( y ) ,  z
                     [10, 15, 20],
                     [12, 17, 22],
                 ],
-                [  # x,  z, ( y )
-                    [0, 20, 10, 15],
-                    [2, 22, 12, 17],
+                [  # x, ( y ) ,  z
+                    [0, 10, 15, 20],
+                    [2, 12, 17, 22],
                 ],
-                [  #  z, ( y ) , ( y')
-                    [20, 10, 15, 12, 17],
-                    [22, 12, 17, 14, 19],
+                [  # ( y ) , ( y') ,  z
+                    [10, 15, 12, 17, 20],
+                    [12, 17, 14, 19, 22],
                 ],
             ),
         ),
@@ -415,17 +507,17 @@ def test_te_observations_explicit(
             1,
             2,
             (
-                [  # x,  z, ( y1 ), ( y2 ), ( y')
-                    [2, 22, 10, 15, 12, 17, 14, 19],
+                [  # x, ( y1 ), ( y2 ), ( y') ,  z
+                    [2, 10, 15, 12, 17, 14, 19, 22],
                 ],
                 [  # ( y1 ), ( y2 ),  z
                     [10, 15, 12, 17, 22],
                 ],
-                [  # x,  z, ( y1 ), ( y2 )
-                    [2, 22, 10, 15, 12, 17],
+                [  # x, ( y1 ), ( y2 ),  z
+                    [2, 10, 15, 12, 17, 22],
                 ],
-                [  #  z, ( y1 ), ( y2 ), ( y')
-                    [22, 10, 15, 12, 17, 14, 19],
+                [  # ( y1 ), ( y2 ), ( y') ,  z
+                    [10, 15, 12, 17, 14, 19, 22],
                 ],
             ),
         ),
@@ -438,17 +530,17 @@ def test_te_observations_explicit(
             2,
             2,
             (
-                [  # x, z1, z2, ( y ) , ( y')
-                    [2, 20, 22, 12, 17, 14, 19],
+                [  # x, ( y ) , ( y') , z1, z2
+                    [2, 12, 17, 14, 19, 20, 22],
                 ],
                 [  # ( y ) , z1, z2
                     [12, 17, 20, 22],
                 ],
-                [  # x, z1, z2, ( y )
-                    [2, 20, 22, 12, 17],
+                [  # x, ( y ) , z1, z2
+                    [2, 12, 17, 20, 22],
                 ],
-                [  # z1, z2, ( y ) , ( y')
-                    [20, 22, 12, 17, 14, 19],
+                [  # ( y ) , ( y') , z1, z2
+                    [12, 17, 14, 19, 20, 22],
                 ],
             ),
         ),
@@ -462,10 +554,10 @@ def test_te_observations_explicit(
             3,
             (
                 [
-                    [0, 3, 6, 46, 66, 86, 23, 26, 29],
-                    [3, 6, 9, 49, 69, 89, 26, 29, 32],
-                    [6, 9, 12, 52, 72, 92, 29, 32, 35],
-                    [9, 12, 15, 55, 75, 95, 32, 35, 38],
+                    [0, 3, 6, 23, 26, 29, 46, 66, 86],
+                    [3, 6, 9, 26, 29, 32, 49, 69, 89],
+                    [6, 9, 12, 29, 32, 35, 52, 72, 92],
+                    [9, 12, 15, 32, 35, 38, 55, 75, 95],
                 ],
                 [
                     [23, 26, 46, 66, 86],
@@ -474,16 +566,16 @@ def test_te_observations_explicit(
                     [32, 35, 55, 75, 95],
                 ],
                 [
-                    [0, 3, 6, 46, 66, 86, 23, 26],
-                    [3, 6, 9, 49, 69, 89, 26, 29],
-                    [6, 9, 12, 52, 72, 92, 29, 32],
-                    [9, 12, 15, 55, 75, 95, 32, 35],
+                    [0, 3, 6, 23, 26, 46, 66, 86],
+                    [3, 6, 9, 26, 29, 49, 69, 89],
+                    [6, 9, 12, 29, 32, 52, 72, 92],
+                    [9, 12, 15, 32, 35, 55, 75, 95],
                 ],
                 [
-                    [46, 66, 86, 23, 26, 29],
-                    [49, 69, 89, 26, 29, 32],
-                    [52, 72, 92, 29, 32, 35],
-                    [55, 75, 95, 32, 35, 38],
+                    [23, 26, 29, 46, 66, 86],
+                    [26, 29, 32, 49, 69, 89],
+                    [29, 32, 35, 52, 72, 92],
+                    [32, 35, 38, 55, 75, 95],
                 ],
             ),
         ),
@@ -505,6 +597,111 @@ def test_cte_observations_explicit(
     assert array_equal(data_dest_past_embedded, expected[1])
     assert array_equal(marginal_1_space_data, expected[2])
     assert array_equal(marginal_2_space_data, expected[3])
+
+
+@pytest.mark.parametrize(
+    "source,dest,cond,src_hist_len,dest_hist_len,cond_hist_len,step_size,expected",
+    [
+        (
+            arange(5),
+            arange(10, 15),
+            arange(20, 25),
+            1,
+            1,
+            1,
+            1,
+            (
+                [[0], [1], [2], [3]],  # x
+                [[10], [11], [12], [13]],  # y
+                [[11], [12], [13], [14]],  # y'
+                [[20], [21], [22], [23]],  # z
+            ),
+        ),
+        (
+            arange(5),
+            arange(10, 15),
+            arange(20, 25),
+            1,
+            1,
+            2,
+            1,
+            (
+                [[1], [2], [3]],
+                [[11], [12], [13]],
+                [[12], [13], [14]],
+                [[20, 21], [21, 22], [22, 23]],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            1,
+            1,
+            2,
+            ([[0], [2]], [[10, 15], [12, 17]], [[12, 17], [14, 19]], [[20], [22]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            2,
+            1,
+            2,
+            ([[2]], [[10, 15, 12, 17]], [[14, 19]], [[22]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            1,
+            2,
+            2,
+            ([[2]], [[12, 17]], [[14, 19]], [[20, 22]]),
+        ),
+        (
+            arange(20).reshape(-1, 1),
+            arange(20, 40),
+            column_stack([arange(40, 60), arange(60, 80), arange(80, 100)]),
+            3,
+            2,
+            1,
+            3,
+            (
+                [[0, 3, 6], [3, 6, 9], [6, 9, 12], [9, 12, 15]],
+                [[23, 26], [26, 29], [29, 32], [32, 35]],
+                [[29], [32], [35], [38]],
+                [[46, 66, 86], [49, 69, 89], [52, 72, 92], [55, 75, 95]],
+            ),
+        ),
+    ],
+)
+def test_cte_observations_explicit_separate(
+    source, dest, cond, src_hist_len, dest_hist_len, cond_hist_len, step_size, expected
+):
+    """Test the CTE observations data arrays with spaces not constructed"""
+    (
+        src_history,
+        dest_history,
+        dest_future,
+        cond_history,
+    ) = cte_observations(
+        source,
+        dest,
+        cond,
+        src_hist_len,
+        dest_hist_len,
+        cond_hist_len,
+        step_size,
+        construct_joint_spaces=False,
+    )
+    assert array_equal(src_history, expected[0])
+    assert array_equal(dest_history, expected[1])
+    assert array_equal(dest_future, expected[2])
+    assert array_equal(cond_history, expected[3])
 
 
 @pytest.mark.parametrize(

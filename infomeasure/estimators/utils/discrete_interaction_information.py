@@ -88,8 +88,6 @@ def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) ->
     log_p_joint = log_func(vals)
 
     log_outer = -log_func(outer) + len(count_marginals) * log_func(contingency_sum)
-    #     log_func(count_m.sum()) for count_m in count_marginals
-    # )
     # Combine the terms to calculate the mutual information
     mi = p_joint * (log_p_joint - log_func(contingency_sum)) + p_joint * log_outer
     return mi.sum()  # interaction information can be negative, do not clip
