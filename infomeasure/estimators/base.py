@@ -3,19 +3,18 @@
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from operator import gt
-from typing import final, Callable
+from typing import Callable, final
 
-from numpy import asarray, issubdtype, integer
-from numpy import log, log2, log10, ndarray, std, nan
+from numpy import asarray, integer, issubdtype, log, log2, log10, nan, ndarray, std
 from numpy import mean as np_mean
 from numpy import sum as np_sum
 from numpy.random import default_rng
 
-from .utils.normalize import normalize_data_0_1
-from .utils.te_slicing import te_observations, cte_observations
 from .. import Config
 from ..utils.config import logger
 from ..utils.types import LogBaseType
+from .utils.normalize import normalize_data_0_1
+from .utils.te_slicing import cte_observations, te_observations
 
 
 class Estimator(ABC):
@@ -1279,12 +1278,12 @@ class PValueMixin(RandomGeneratorMixin):
             observed_value=self.global_val(), test_values=permuted_values
         )
 
-    def test_te(self, n_permutations: int) -> float:
+    def test_te(self, n_tests: int) -> float:
         """Calculate the permutation test for transfer entropy.
 
         Parameters
         ----------
-        n_permutations : int
+        n_tests : int
             The number of permutations to perform.
 
         Returns
@@ -1297,10 +1296,10 @@ class PValueMixin(RandomGeneratorMixin):
         ValueError
             If the number of permutations is not a positive integer.
         """
-        if not issubdtype(type(n_permutations), integer) or n_permutations < 1:
+        if not issubdtype(type(n_tests), integer) or n_tests < 1:
             raise ValueError(
                 "Number of permutations must be a positive integer, "
-                f"not {n_permutations} ({type(n_permutations)})."
+                f"not {n_tests} ({type(n_tests)})."
             )
         # Activate the permutation flag to permute the source data when slicing
         if self.p_val_method == "permutation_test":
@@ -1309,7 +1308,7 @@ class PValueMixin(RandomGeneratorMixin):
             self.resample_src = self.rng
         else:
             raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
-        permuted_values = [self._calculate() for _ in range(n_permutations)]
+        permuted_values = [self._calculate() for _ in range(n_tests)]
         if isinstance(permuted_values[0], ndarray):
             permuted_values = [np_mean(x) for x in permuted_values]
         # Deactivate the permutation/resample flag
