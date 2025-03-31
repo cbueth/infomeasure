@@ -2,19 +2,20 @@
 
 from abc import ABC
 
-from numpy import mean as np_mean, unique, issubdtype, integer
+from numpy import integer, issubdtype, ndarray
 
-from ..base import (
-    PValueMixin,
-    EffectiveValueMixin,
-    TransferEntropyEstimator,
-    ConditionalTransferEntropyEstimator,
-)
-from ..utils.ordinal import symbolize_series
-from ..utils.te_slicing import te_observations, cte_observations
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
+from ..base import (
+    ConditionalTransferEntropyEstimator,
+    EffectiveValueMixin,
+    PValueMixin,
+    TransferEntropyEstimator,
+)
+from ..utils.discrete_transfer_entropy import combined_te_form
+from ..utils.ordinal import symbolize_series
+from ..utils.te_slicing import cte_observations, te_observations
 
 
 class BaseOrdinalTEEstimator(ABC):
@@ -148,165 +149,6 @@ class BaseOrdinalTEEstimator(ABC):
         self.embedding_dim = embedding_dim
         self.stable = stable
 
-    @staticmethod
-    def _estimate_probabilities(slicing_method, *data, **hist_lens):
-        """
-        Estimate the joint and conditional probabilities of the symbol sequences.
-
-        Parameters
-        ----------
-        slicing_method : function
-            The slicing method to use for the symbolized data.
-        symbols_source : ndarray, (n - (embedding_dim - 1) * step_size, embedding_dim)
-            The symbolized source data.
-        symbols_dest : ndarray, (n - (embedding_dim - 1) * step_size, embedding_dim)
-            The symbolized destination data.
-        symbols_cond : ndarray, (n - (embedding_dim - 1) * step_size, embedding_dim), optional
-            The symbolized conditional data.
-        src_hist_len : int
-            Number of past observations to consider for the source data.
-
-        Returns
-        -------
-        joint_prob : dict
-            Joint probabilities: p(x^l_t, y^k_t, y_{t+1})
-        dest_past_prob : dict
-            Embedded past destination probabilities: p(y^k_t)
-        marginal_1_prob : dict
-            Marginal probabilities: p(x^l_t, y^k_t)
-        marginal_2_prob : dict
-            Marginal probabilities: p(y^k_t, y_{t+1}).
-        """
-        # Slicing
-        (
-            joint_space_data,
-            dest_past_embedded,
-            marginal_1_space_data,
-            marginal_2_space_data,
-        ) = slicing_method(
-            *data,
-            **hist_lens,
-            step_size=1,  # Step size is considered in symbolization
-        )
-
-        joint_unique, joint_counts = unique(
-            joint_space_data, axis=0, return_counts=True
-        )
-        dest_past_unique, dest_past_counts = unique(
-            dest_past_embedded, axis=0, return_counts=True
-        )
-        marginal_1_unique, marginal_1_counts = unique(
-            marginal_1_space_data, axis=0, return_counts=True
-        )
-        marginal_2_unique, marginal_2_counts = unique(
-            marginal_2_space_data, axis=0, return_counts=True
-        )
-
-        def to_prob(uniq, counts):
-            total = sum(counts)
-            return {
-                row if isinstance(row, int) else tuple(row): count / total
-                for row, count in zip(uniq, counts)
-            }
-
-        joint_prob = to_prob(joint_unique, joint_counts)
-        dest_past_prob = to_prob(dest_past_unique, dest_past_counts)
-        marginal_1_prob = to_prob(marginal_1_unique, marginal_1_counts)
-        marginal_2_prob = to_prob(marginal_2_unique, marginal_2_counts)
-
-        return joint_prob, dest_past_prob, marginal_1_prob, marginal_2_prob
-
-    def _combined_te_form(self, slice_method):
-        """
-        Calculate the Transfer Entropy using the combined TE formula.
-
-        Parameters
-        ----------
-        slice_method : function
-            The slicing method to use for the symbolized data.
-        *data : array-like
-            The source, destination, and if applicable, conditional data.
-        **slice_kwargs : dict
-            The history lengths for the source, destination, and if applicable,
-            conditional data.
-
-        Returns
-        -------
-        float
-            The Transfer Entropy value.
-        """
-
-        if self.embedding_dim == 1:
-            return 0.0
-        data = (self.source, self.dest)
-        slice_kwargs = dict(
-            src_hist_len=self.src_hist_len,
-            dest_hist_len=self.dest_hist_len,
-        )
-        if getattr(self, "cond", None) is not None:
-            data += (self.cond,)
-            slice_kwargs["cond_hist_len"] = self.cond_hist_len
-        else:
-            self.cond_hist_len = 0
-            slice_kwargs["permute_src"] = self.permute_src
-            slice_kwargs["resample_src"] = self.resample_src
-
-        # Symbolize the time series dest and source, use Lehmer code
-        symbols = (
-            symbolize_series(
-                var, self.embedding_dim, self.step_size, to_int=True, stable=self.stable
-            )
-            for var in data
-        )
-        # Estimate joint and conditional probabilities
-        joint_prob, dest_past_prob, marginal_1_prob, marginal_2_prob = (
-            self._estimate_probabilities(slice_method, *symbols, **slice_kwargs)
-        )
-        # Calculate Transfer Entropy for each permutation pattern
-        te_perm = []
-        for pattern in joint_prob:
-            p_joint = joint_prob[pattern]  # p(x^l_t, y^k_t, y_{t+1})
-            # / (x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})
-
-            # Define conditional patterns
-            cond_pattern_joint = pattern[
-                : self.src_hist_len + self.cond_hist_len + self.dest_hist_len
-            ]  # (x^l_t, y^k_t) / (x_i^{(l)}, z_i^{(m)}, y_i^{(k)})
-            cond_pattern_marginal = pattern[
-                self.src_hist_len : self.src_hist_len
-                + self.cond_hist_len
-                + self.dest_hist_len
-            ]  # y^k_t / (\hat y_i^{(k)}, z_i^{(m)})
-            cond_pattern_conditional = pattern[self.src_hist_len :]
-            # (y^k_t, y_{t+1}) / (z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})
-
-            # Retrieve probabilities from the precomputed dictionaries
-            p_cond_joint = marginal_1_prob.get(cond_pattern_joint, 0)  # p(x^l_t, y^k_t)
-            p_cond_marginal = dest_past_prob.get(cond_pattern_marginal, 0)  # p(y^k_t)
-            p_cond_conditional = marginal_2_prob.get(
-                cond_pattern_conditional, 0
-            )  # p(y^k_t, y_{t+1})
-
-            # Compute the conditional probabilities
-            p_conditional_joint = (
-                p_joint / p_cond_joint if p_cond_joint > 0 else 0
-            )  # p(y_{t+1} | x^l_t, y^k_t)
-            p_conditional_marginal = (
-                p_cond_conditional / p_cond_marginal if p_cond_marginal > 0 else 0
-            )  # p(y_{t+1} | y^k_t)
-
-            if p_joint > 0 and p_conditional_joint > 0 and p_conditional_marginal > 0:
-                # Using the TE formula
-                te_perm.append(
-                    self._log_base(p_conditional_joint / p_conditional_marginal)
-                    * p_joint
-                )
-        if len(te_perm) == 0:
-            return 0.0
-
-        # Compute average of Local Transfer Entropy values
-        return float(np_mean(te_perm))
-
 
 class OrdinalTEEstimator(
     BaseOrdinalTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
@@ -347,9 +189,42 @@ class OrdinalTEEstimator(
 
     def _calculate(self) -> float:
         """Calculate the Ordinal / Permutation transfer entropy."""
-
-        return self._combined_te_form(
+        self.symbols = tuple(
+            symbolize_series(
+                var, self.embedding_dim, self.step_size, to_int=True, stable=self.stable
+            )
+            for var in (self.source, self.dest)
+        )
+        return combined_te_form(
             te_observations,
+            *self.symbols,
+            local=False,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+            permute_src=self.permute_src,
+            resample_src=self.resample_src,
+        )
+
+    def _extract_local_values(self) -> ndarray:
+        """Separately calculate the local values.
+
+        Returns
+        -------
+        ndarray[float]
+            The calculated local values of cmi.
+        """
+        return combined_te_form(
+            te_observations,
+            *self.symbols,
+            local=True,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+            permute_src=self.permute_src,
+            resample_src=self.resample_src,
         )
 
 
@@ -390,6 +265,38 @@ class OrdinalCTEEstimator(BaseOrdinalTEEstimator, ConditionalTransferEntropyEsti
 
     def _calculate(self) -> float:
         """Calculate the Ordinal / Permutation conditional transfer entropy."""
-        return self._combined_te_form(
+        self.symbols = tuple(
+            symbolize_series(
+                var, self.embedding_dim, self.step_size, to_int=True, stable=self.stable
+            )
+            for var in (self.source, self.dest, self.cond)
+        )
+        return combined_te_form(
             cte_observations,
+            *self.symbols,
+            local=False,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            cond_hist_len=self.cond_hist_len,
+            step_size=self.step_size,
+        )
+
+    def _extract_local_values(self) -> ndarray:
+        """Separately calculate the local values.
+
+        Returns
+        -------
+        ndarray[float]
+            The calculated local values of cmi.
+        """
+        return combined_te_form(
+            cte_observations,
+            *self.symbols,
+            local=True,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            cond_hist_len=self.cond_hist_len,
+            step_size=self.step_size,
         )

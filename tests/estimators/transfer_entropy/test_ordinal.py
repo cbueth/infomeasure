@@ -1,16 +1,17 @@
 """Explicit ordinal / permutation transfer entropy estimator."""
 
 import pytest
-from numpy import isnan
+from numpy import isnan, e, log
 
+from infomeasure.estimators.transfer_entropy import (
+    OrdinalCTEEstimator,
+    OrdinalTEEstimator,
+)
 from tests.conftest import (
+    discrete_random_variables_condition,
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
-    discrete_random_variables_condition,
-)
-from infomeasure.estimators.transfer_entropy import (
-    OrdinalTEEstimator,
-    OrdinalCTEEstimator,
+    discrete_random_variables_shifted,
 )
 
 
@@ -73,15 +74,15 @@ def test_ordinal_te_invalid_embedding_dim(embedding_dim, default_rng):
     [
         (5, 1, 0.0),
         (6, 1, 0.0),
-        (5, 2, 0.003214612864590),
-        (6, 2, 0.00224052033287),
-        (7, 2, 0.00433834421171),
-        (5, 3, 0.0010093514626),
-        (6, 3, 0.000786386118684),
-        (5, 4, 0.001311055546311),
-        (6, 4, 0.001369174129191),
-        (5, 5, 0.001663653489971),
-        (6, 5, 0.001694007216101),
+        (5, 2, 0.0257169029),
+        (6, 2, 0.0179241626),
+        (7, 2, 0.0347067536),
+        (5, 3, 0.1090099579),
+        (6, 3, 0.0841433146),
+        (5, 4, 0.9282273267),
+        (6, 4, 0.9816978506),
+        (5, 5, 1.6187348457),
+        (6, 5, 1.6550450501),
     ],
 )
 def test_ordinal_te(rng_int, embedding_dim, expected):
@@ -96,24 +97,80 @@ def test_ordinal_te(rng_int, embedding_dim, expected):
         assert res == 0.0
         return
     assert res == pytest.approx(expected)
+    est.local_val()
+
+
+@pytest.mark.parametrize(
+    "rng_int,embedding_dim,prop_time,base,expected_xy,expected_xc",
+    [
+        (1, 2, 0, 2, 0.87707321, 0.00058214135),
+        (1, 2, 1, 2, 0.87649858, 0.00066425255),
+        (1, 3, 1, 2, 1.4169192, 0.06293442),
+        (1, 4, 1, 2, 1.8091009, 0.78871896),
+        (1, 5, 1, 2, 1.7659465, 1.6169571),
+        (1, 6, 1, 2, 0.98537632, 1.0487262),
+        (1, 7, 1, 2, 0.30596859, 0.39661209),
+        (1, 8, 1, 2, 0.081406137, 0.10395102),
+        (1, 2, 2, 2, 0.87624404, 0.0022847915),
+        (1, 2, 3, 2, 0.87598611, 0.00037429202),
+        (2, 2, 1, 2, 0.9080654, 2.06959e-05),
+        (2, 2, 1, e, 0.62942297, 1.4345305e-05),
+        (2, 2, 1, 10, 0.27335492, 6.2300867e-06),
+        (3, 2, 1, 2, 0.91241141, 0.00061093181),
+        (4, 2, 1, 2, 0.88478851, 0.00024895695),
+        (5, 2, 1, 2, 0.88559227, 0.0060727024),
+        (6, 2, 1, 2, 0.87798884, 0.0014716052),
+    ],
+)
+def test_te_discrete_shifted(
+    rng_int, embedding_dim, prop_time, base, expected_xy, expected_xc
+):
+    """Test the discrete transfer entropy estimator with shifted data."""
+    source, dest, control = discrete_random_variables_shifted(
+        rng_int, prop_time, low=0, high=5
+    )
+    est_xy = OrdinalTEEstimator(
+        source,
+        dest,
+        base=base,
+        prop_time=prop_time - 1,
+        embedding_dim=embedding_dim,
+        stable=True,
+    )
+    res_xy = est_xy.result()
+    assert isinstance(res_xy, float)
+    assert res_xy == pytest.approx(expected_xy)
+    est_xc = OrdinalTEEstimator(
+        source,
+        control,
+        base=base,
+        prop_time=prop_time - 1,
+        embedding_dim=embedding_dim,
+        stable=True,
+    )
+    res_xc = est_xc.result()
+    assert isinstance(res_xc, float)
+    assert res_xc == pytest.approx(expected_xc)
+    est_xy.local_val()
+    est_xc.local_val()
 
 
 @pytest.mark.parametrize(
     "rng_int,prop_time,step_size,src_hist_len,dest_hist_len,base,embedding_dim,expected",
     [
-        (5, 0, 1, 1, 1, 2.0, 2, 0.003214612864590),
-        (5, 1, 2, 1, 1, 2.0, 2, 0.000577684847751),
-        (5, 1, 3, 1, 1, 2.0, 2, 0.000865495306628),
-        (5, 1, 1, 2, 1, 2.0, 3, 0.000724064947895),
-        (5, 1, 1, 1, 2, 2.0, 3, 0.0006569632791),
-        (5, 1, 1, 2, 2, 2.0, 3, 0.000944074581746),
-        (5, 1, 2, 1, 1, 10.0, 2, 0.0001739004672137),
-        (5, 0, 1, 1, 1, 2.0, 3, 0.0010093514626),
-        (5, 1, 2, 1, 1, 2.0, 3, 0.000707949219652),
-        (5, 1, 2, 1, 1, 2.0, 4, 0.002702735512532),
-        (5, 1, 2, 1, 1, 2.0, 5, 0.00292637099912),
-        (5, 1, 1, 1, 3, 2.0, 2, 0.000254923743392),
-        (5, 1, 1, 3, 1, 2.0, 2, 0.000499981827461),
+        (5, 0, 1, 1, 1, 2.0, 2, 0.02571690291),
+        (5, 1, 2, 1, 1, 2.0, 2, 0.0001610875315),
+        (5, 1, 3, 1, 1, 2.0, 2, 0.001006379651),
+        (5, 1, 1, 2, 1, 2.0, 3, 0.2020141204),
+        (5, 1, 1, 1, 2, 2.0, 3, 0.1826357915),
+        (5, 1, 1, 2, 2, 2.0, 3, 0.4956391554),
+        (5, 1, 2, 1, 1, 10.0, 2, 4.84921789e-05),
+        (5, 0, 1, 1, 1, 2.0, 3, 0.1090099579),
+        (5, 1, 2, 1, 1, 2.0, 3, 0.08746380612),
+        (5, 1, 2, 1, 1, 2.0, 4, 1.254118058),
+        (5, 1, 2, 1, 1, 2.0, 5, 1.407790949),
+        (5, 1, 1, 1, 3, 2.0, 2, 0.00815755978),
+        (5, 1, 1, 3, 1, 2.0, 2, 0.0159994184),
     ],
 )
 def test_ordinal_te_slicing(
@@ -137,9 +194,11 @@ def test_ordinal_te_slicing(
         dest_hist_len=dest_hist_len,
         base=base,
         embedding_dim=embedding_dim,
+        stable=True,
     )
     res = est.result()
     assert res == pytest.approx(expected)
+    est.local_val()
 
 
 @pytest.mark.parametrize(
@@ -147,15 +206,15 @@ def test_ordinal_te_slicing(
     [
         (5, 1, 0.0),
         (6, 1, 0.0),
-        (5, 2, 0.001668221515),
-        (6, 2, 0.002548207973),
-        (7, 2, 0.001463248840),
-        (5, 3, 0.000431291903),
-        (6, 3, 0.000474948707),
-        (5, 4, 0.000258042951),
-        (6, 4, 0.000332053759),
-        (5, 5, 5.2984961e-05),
-        (6, 5, -3.0930624e-05),
+        (5, 2, 0.0266969890),
+        (6, 2, 0.0407713275),
+        (7, 2, 0.0244538839),
+        (5, 3, 0.354216979),
+        (6, 3, 0.344597243),
+        (5, 4, 0.809789189),
+        (6, 4, 0.811645250),
+        (5, 5, 0.0778992713),
+        (6, 5, 0.0866981532),
     ],
 )
 def test_ordinal_cte(rng_int, embedding_dim, expected):
@@ -182,19 +241,19 @@ def test_ordinal_cte(rng_int, embedding_dim, expected):
 @pytest.mark.parametrize(
     "rng_int,step_size,src_hist_len,dest_hist_len,base,embedding_dim,expected",
     [
-        (5, 1, 1, 1, 2.0, 2, 0.001668221515),
-        (5, 2, 1, 1, 2.0, 2, 0.001499847155),
-        (5, 3, 1, 1, 2.0, 2, 0.002246209913),
-        (5, 1, 2, 1, 2.0, 3, 0.000854933772),
-        (5, 1, 1, 2, 2.0, 3, 0.000463333827),
-        (5, 1, 2, 2, 2.0, 3, 0.000741430819),
-        (5, 2, 1, 1, 10.0, 2, 0.00045149898),
-        (5, 1, 1, 1, 2.0, 3, 0.000431291903),
-        (5, 2, 1, 1, 2.0, 3, 0.001090703247),
-        (5, 2, 1, 1, 2.0, 4, 0.000759534290),
-        (5, 2, 1, 1, 2.0, 5, 3.4400513e-05),
-        (5, 1, 1, 3, 2.0, 2, 0.000199071124),
-        (5, 1, 3, 1, 2.0, 2, 0.000749478055),
+        (5, 1, 1, 1, 2.0, 2, 0.026696989),
+        (5, 2, 1, 1, 2.0, 2, 0.010281364),
+        (5, 3, 1, 1, 2.0, 2, 0.018216100),
+        (5, 1, 2, 1, 2.0, 3, 0.76446151),
+        (5, 1, 1, 2, 2.0, 3, 0.60662724),
+        (5, 1, 2, 2, 2.0, 3, 0.95203964),
+        (5, 2, 1, 1, 10.0, 2, 0.0030949991),
+        (5, 1, 1, 1, 2.0, 3, 0.3542169),
+        (5, 2, 1, 1, 2.0, 3, 0.5646381),
+        (5, 2, 1, 1, 2.0, 4, 0.5367281),
+        (5, 2, 1, 1, 2.0, 5, 4 / 165),
+        (5, 1, 1, 3, 2.0, 2, 0.03516579),
+        (5, 1, 3, 1, 2.0, 2, 0.04797205),
     ],
 )
 def test_ordinal_cte_slicing(
@@ -229,14 +288,14 @@ def test_ordinal_cte_slicing(
     "rng_int,embedding_dim,expected_xy,expected_yx",
     [
         (1, 1, 0.0, 0.0),
-        (1, 2, 0.00282503667, 0.000248359479),
-        (1, 3, -0.00304940021, 0.000223400525),
-        (1, 4, -0.00025159207, 0.00017453445),
-        (1, 5, 0.00034294439, 0.000157359844),
-        (2, 2, 0.00194385878, 9.45014940e-05),
-        (2, 3, -0.00226919442, 0.000341760325),
-        (3, 2, 0.00141154442, 0.000402597923),
-        (3, 4, -0.00058057170, 0.000239034145),
+        (1, 2, 0.04530477596, 0.00444690475),
+        (1, 3, 0.2198833229, 0.187374397),
+        (1, 4, 0.8567380900, 0.564197118),
+        (1, 5, 0.6287293606, 0.162603467),
+        (2, 2, 0.03125016321, 0.00198517698),
+        (2, 3, 0.2451663233, 0.204250588),
+        (3, 2, 0.02267760186, 0.00646406629),
+        (3, 4, 0.8442503912, 0.583530971),
     ],
 )
 def test_cte_ordinal_autoregressive(rng_int, embedding_dim, expected_xy, expected_yx):

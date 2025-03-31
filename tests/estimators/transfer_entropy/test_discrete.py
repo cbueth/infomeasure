@@ -1,15 +1,17 @@
 """Explicit discrete transfer entropy estimator tests."""
 
 import pytest
+from numpy import e, log
 
 import infomeasure as im
+from infomeasure.estimators.transfer_entropy import (
+    DiscreteCTEEstimator,
+    DiscreteTEEstimator,
+)
 from tests.conftest import (
     discrete_random_variables,
     discrete_random_variables_condition,
-)
-from infomeasure.estimators.transfer_entropy import (
-    DiscreteTEEstimator,
-    DiscreteCTEEstimator,
+    discrete_random_variables_shifted,
 )
 
 
@@ -49,6 +51,41 @@ def test_discrete_autoregressive(rng_int_prop, prop_time, expected_xy, expected_
     assert im.transfer_entropy(
         data_dest, data_source, approach="discrete", base=2, prop_time=prop_time
     ) == pytest.approx(expected_yx)
+
+
+@pytest.mark.parametrize(
+    "rng_int,prop_time",
+    [
+        (1, 0),
+        (1, 1),
+        (1, 2),
+        (1, 3),
+        (2, 1),
+        (2, 1),
+        (2, 1),
+        (3, 1),
+        (4, 1),
+        (5, 1),
+        (6, 1),
+    ],
+)
+@pytest.mark.parametrize("high", [2, 4, 7])
+@pytest.mark.parametrize("base", [2, e, 10])
+def test_te_discrete_shifted(rng_int, prop_time, base, high):
+    """Test the discrete transfer entropy estimator with shifted data."""
+    source, dest, control = discrete_random_variables_shifted(
+        rng_int, prop_time, low=0, high=high
+    )
+    est_xy = DiscreteTEEstimator(source, dest, base=base, prop_time=prop_time - 1)
+    res_xy = est_xy.result()
+    assert isinstance(res_xy, float)
+    assert res_xy == pytest.approx(log(high) / log(base), rel=0.02)
+    est_xc = DiscreteTEEstimator(source, control, base=base, prop_time=prop_time - 1)
+    res_xc = est_xc.result()
+    assert isinstance(res_xc, float)
+    assert res_xc == pytest.approx(0.0, abs=0.018 * base * high)
+    est_xy.local_val()
+    est_xc.local_val()
 
 
 @pytest.mark.parametrize(

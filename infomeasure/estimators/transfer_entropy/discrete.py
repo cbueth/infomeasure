@@ -2,16 +2,19 @@
 
 from abc import ABC
 
-from ..base import (
-    PValueMixin,
-    EffectiveValueMixin,
-    TransferEntropyEstimator,
-    ConditionalTransferEntropyEstimator,
-)
-from ..entropy.discrete import DiscreteEntropyEstimator
+from numpy import ndarray
+
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
+from ..base import (
+    ConditionalTransferEntropyEstimator,
+    EffectiveValueMixin,
+    PValueMixin,
+    TransferEntropyEstimator,
+)
+from ..utils.discrete_transfer_entropy import combined_te_form
+from ..utils.te_slicing import cte_observations, te_observations
 
 
 class BaseDiscreteTEEstimator(ABC):
@@ -145,9 +148,38 @@ class DiscreteTEEstimator(
 
     def _calculate(self):
         """Estimate the Discrete Transfer Entropy."""
+        return combined_te_form(
+            te_observations,
+            self.source,
+            self.dest,
+            local=False,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+            permute_src=self.permute_src,
+            resample_src=self.resample_src,
+        )
 
-        return self._generic_te_from_entropy(
-            estimator=DiscreteEntropyEstimator, kwargs=dict(base=self.base)
+    def _extract_local_values(self) -> ndarray:
+        """Separately calculate the local values.
+
+        Returns
+        -------
+        ndarray[float]
+            The calculated local values of cmi.
+        """
+        return combined_te_form(
+            te_observations,
+            self.source,
+            self.dest,
+            local=True,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            step_size=self.step_size,
+            permute_src=self.permute_src,
+            resample_src=self.resample_src,
         )
 
 
@@ -171,13 +203,37 @@ class DiscreteCTEEstimator(
     """
 
     def _calculate(self):
-        """Estimate the Discrete Conditional Transfer Entropy.
+        """Estimate the Discrete Transfer Entropy."""
+        return combined_te_form(
+            cte_observations,
+            self.source,
+            self.dest,
+            self.cond,
+            local=False,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            cond_hist_len=self.cond_hist_len,
+            step_size=self.step_size,
+        )
+
+    def _extract_local_values(self) -> ndarray:
+        """Separately calculate the local values.
 
         Returns
         -------
-        float
-            The Renyi conditional transfer entropy.
+        ndarray[float]
+            The calculated local values of cmi.
         """
-        return self._generic_cte_from_entropy(
-            estimator=DiscreteEntropyEstimator, kwargs=dict(base=self.base)
+        return combined_te_form(
+            cte_observations,
+            self.source,
+            self.dest,
+            self.cond,
+            local=True,
+            log_func=self._log_base,
+            src_hist_len=self.src_hist_len,
+            dest_hist_len=self.dest_hist_len,
+            cond_hist_len=self.cond_hist_len,
+            step_size=self.step_size,
         )
