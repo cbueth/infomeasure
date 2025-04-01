@@ -10,7 +10,7 @@ It is worthwhile to start by defining the `Kullback–Leibler (KL) divergence` (
 $$
 D_{KL}(P \parallel Q) = \sum_{x \in \mathcal{X}} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
 $$
-One can interpret the K-L divergence as degree of surprise one encounter by falsely assigning the distribution $Q$ for true distribution $P$ in a model. Even though K-L divergence seems to measure some sort of _distance_ (in a sense) between the two probability distributions, it is not a distance metric  in mathematical sense as it lacks some of the properties such as being symmetric and satisfying the triangle inequality.  
+One can interpret the K-L divergence as degree of surprise one encounter by falsely assigning the distribution $Q$ for true distribution $P$ in a model. Even though K-L divergence seems to measure some sort of _distance_ (in a sense) between the two probability distributions, it is not a distance metric  in mathematical sense as it lacks some of the properties such as being symmetric and satisfying the triangle inequality.
 
 Hence, a more improvised form of divergence known as `Jensen–Shannon divergence` was purposed as a method of measuring similarity between the probability distributions {cite:p}`Divergence_measures_Lin`. One can say, the Jensen–Shannon Divergence is the symmetrized version of $K-L$ divergence, written as:
 
@@ -31,8 +31,8 @@ $$
 JS_{\pi}(P_1, P_2, \cdots, P_n) = H\left( \sum_{i=1}^{n} \pi_i P_i \right) - \sum_{i=1}^{n} \pi_i H(P_i),
 $$
 
-where $\pi = (\pi_1, \pi_2, \cdots, \pi_n)$ and $\sum_{i=1}^{n} \pi_i = 1$. 
-For the case of two probability distributions ($P_1 = P, P_2 =Q$  $ \pi_1 = \pi_2 = 1/2 $) we get back to the expression we started. Hence, the **Jensen–Shannon divergence** can also be understood as the difference between the entropy of average distributions to average of entropies. 
+where $\pi = (\pi_1, \pi_2, \cdots, \pi_n)$ and $\sum_{i=1}^{n} \pi_i = 1$.
+For the case of two probability distributions ($P_1 = P, P_2 =Q$  $ \pi_1 = \pi_2 = 1/2 $) we get back to the expression we started. Hence, the **Jensen–Shannon divergence** can also be understood as the difference between the entropy of average distributions to average of entropies.
 
 ```{admonition} Bound of Jensen–Shannon divergence
 :class: tip
@@ -43,16 +43,16 @@ $$
 $$
 ```
 
-The `Jensen Shannon Distance` (JSD) was purposed as the square root of Jensen Shannon Divergence, ie. $\left[ D_{JS}(P, Q) \right]^{1/2}$ as it comes to fulfill the triangle inequality property required for the distance metric {cite:p}`JSD_distance_Endres`. 
+The `Jensen Shannon Distance` (JSD) was purposed as the square root of Jensen Shannon Divergence, ie. $\left[ D_{JS}(P, Q) \right]^{1/2}$ as it comes to fulfill the triangle inequality property required for the distance metric {cite:p}`JSD_distance_Endres`.
 
 
-> Since JSD is a measure of the similarity between the probability distributions, the larger the value of this metric indicate less the similarity. 
+> Since JSD is a measure of the similarity between the probability distributions, the larger the value of this metric indicate less the similarity.
 
 ## Estimation:
 Both the `Jensen Shannon Divergence` and `Jensen Shannon Distance`  (JSD) are estimated by using the three different estimation techniques. The probability distribution function required to compute the these metrics is estimated by the respective estimation method described in hyper-linked pages.
 
-- Discrete estimation [{ref}`discrete_entropy`]  
-- Symbolic estimation [{ref}`symbolic_entropy`]  
-- Kernel estimation [{ref}`kernel_entropy`]  
+- Discrete estimation [{ref}`discrete_entropy`]
+- Symbolic estimation [{ref}`symbolic_entropy`]
+- Kernel estimation [{ref}`kernel_entropy`]
 
 ## Usage

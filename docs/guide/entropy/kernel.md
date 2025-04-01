@@ -20,37 +20,37 @@ $$
     \hat{p}_r(x_n) = \frac{1}{N r^d} \sum_{n'=1}^{N} K \left( \frac{x_n - x_{n'}}{r} \right).
 $$
 where:
-- $N$ is the number of data points,  
-- $r$ is the bandwidth or kernel radius,  
-- $d$ is the dimension of the data,  
-- $x_n$ and $x_{n'}$ are the data points,  
+- $N$ is the number of data points,
+- $r$ is the bandwidth or kernel radius,
+- $d$ is the dimension of the data,
+- $x_n$ and $x_{n'}$ are the data points,
 - $\hat{p}_r(x_n)$ is the estimated probability density.
-For multivariate kernel functions, the **_pdf_** is estimated by dividing by a factor of $r^d$, where $d$ is the number of dimensions. Thus estimated **_pdf_** is then used to compute the Shannon entropy.  
+For multivariate kernel functions, the **_pdf_** is estimated by dividing by a factor of $r^d$, where $d$ is the number of dimensions. Thus estimated **_pdf_** is then used to compute the Shannon entropy.
 
-``kernel functions:``  
-This package supports two types of kernel functions:  
+``kernel functions:``
+This package supports two types of kernel functions:
 
-1. **Box Kernel (Step Kernel):**  
-   Defined as:  
+1. **Box Kernel (Step Kernel):**
+   Defined as:
 
    $$
    K(|u| \geq 1) = 0, \quad K(|u| < 1) = 1,
    $$
-   where $\hat{p}_r(x_n)$ is computed as the fraction of $N$ points within a distance $r$ from $x_n$.  
+   where $\hat{p}_r(x_n)$ is computed as the fraction of $N$ points within a distance $r$ from $x_n$.
 
-2. **Gaussian Kernel:**  
-   Defined as:  
+2. **Gaussian Kernel:**
+   Defined as:
 
    $$
    K(r) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}r^2},
    $$
-   providing a smooth decline in weight with increasing distance from $x_n$.  
+   providing a smooth decline in weight with increasing distance from $x_n$.
 
-> Note: 
-> Kernel estimation is model-free but depends on the Kernel-width parameter $(r)$. A small $(r)$ can lead to under-sampling, while a large $(r)$ may over-smooth the data, obscuring details.  
+> Note:
+> Kernel estimation is model-free but depends on the Kernel-width parameter $(r)$. A small $(r)$ can lead to under-sampling, while a large $(r)$ may over-smooth the data, obscuring details.
 
 ## Implementation
-This is a test of the entropy kernel estimator (as developed above) on synthetically generated Gaussian distributed datasets. 
+This is a test of the entropy kernel estimator (as developed above) on synthetically generated Gaussian distributed datasets.
 Since there is an analytical function for computing the entropy (H) for a Gaussian distribution, this allows us to check if our estimator's estimates are close to the analytical values.
 
 ....code showing the usage of kernel estimator...

@@ -24,6 +24,3 @@ Similarly, the local conditional MI estimator is:
 $$
 i(x; y \mid z) = \psi(k) +  \psi(n_z(i) + 1) - \psi(n_{xz}(i) + 1) - \psi(n_{yz}(i) + 1)
 $$
-
-
-

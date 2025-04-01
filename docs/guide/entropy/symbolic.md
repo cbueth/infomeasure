@@ -12,13 +12,13 @@ $$
 H(X) = -\int_{X} p(x) \log p(x) \, dx,
 $$
 
-where, $p(x)$ is the probability density function(_pdf_). 
+where, $p(x)$ is the probability density function(_pdf_).
 
 ``Symbolic entropy estimator``
 
-For a given time series dataset $\{x_t\}_{t=1, \ldots, T}$, where $T$ is the number of time points, each value can be replaced by a symbolic sequence $s(t)$ of length $s$, defined by the order parameter $s$. Using a sliding window of size $s$, subsets of the data are generated sequentially, and each subset is symbolized using a specific symbolization technique.  
+For a given time series dataset $\{x_t\}_{t=1, \ldots, T}$, where $T$ is the number of time points, each value can be replaced by a symbolic sequence $s(t)$ of length $s$, defined by the order parameter $s$. Using a sliding window of size $s$, subsets of the data are generated sequentially, and each subset is symbolized using a specific symbolization technique.
 
-The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **_ordinal pattern approach_** is used for symbolization {cite:p}`PermutationEntropy2002`. 
+The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **_ordinal pattern approach_** is used for symbolization {cite:p}`PermutationEntropy2002`.
 
 ```{Note}
 **Example of Ordinal Pattern symbolization:**
@@ -41,7 +41,7 @@ $$
 H(n) = -\sum p(\pi) \log p(\pi),
 $$
 
-where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures the information contained in comparing $n$ consecutive values of the time series. 
+where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures the information contained in comparing $n$ consecutive values of the time series.
 
 ```{note}
 - **Example**:
@@ -58,7 +58,7 @@ where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures 
 
 
 ## Implementation
-his is a test of the entropy symbolic estimator (as developed above) on synthetically generated Gaussian distributed datasets. 
+his is a test of the entropy symbolic estimator (as developed above) on synthetically generated Gaussian distributed datasets.
 Since there is an analytical function for computing the entropy (H) for a Gaussian distribution, this allows us to check if our estimator's estimates are close to the analytical values.
 
 ....code showing the usage of kernel estimator...
@@ -66,7 +66,7 @@ Since there is an analytical function for computing the entropy (H) for a Gaussi
 The estimator is implemented in the {py:class}`SymbolicEntropyEstimator <infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator>` class,
 which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
 
-```{eval-rst} 
+```{eval-rst}
 .. autoclass:: infomeasure.measures.entropy.symbolic.SymbolicEntropyEstimator
     :noindex:
     :undoc-members:
