@@ -3,7 +3,7 @@
 from functools import cache
 
 import pytest
-from numpy import zeros
+from numpy import roll, zeros
 from numpy.random import default_rng as rng
 
 from infomeasure import Config
@@ -28,9 +28,9 @@ ENTROPY_APPROACHES = {
         "functional_str": ["metric", "kl"],
         "needed_kwargs": {},
     },
-    "SymbolicEntropyEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalEntropyEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "RenyiEntropyEstimator": {
         "functional_str": ["renyi"],
@@ -59,9 +59,9 @@ MI_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicMIEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalMIEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisMIEstimator": {
         "functional_str": ["tsallis"],
@@ -86,9 +86,9 @@ CMI_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicCMIEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalCMIEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisCMIEstimator": {
         "functional_str": ["tsallis"],
@@ -113,9 +113,9 @@ TE_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicTEEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalTEEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisTEEstimator": {
         "functional_str": ["tsallis"],
@@ -141,9 +141,9 @@ CTE_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
-    "SymbolicCTEEstimator": {
-        "functional_str": ["symbolic", "permutation"],
-        "needed_kwargs": {"order": 2},
+    "OrdinalCTEEstimator": {
+        "functional_str": ["ordinal", "symbolic", "permutation"],
+        "needed_kwargs": {"embedding_dim": 2},
     },
     "TsallisCTEEstimator": {
         "functional_str": ["tsallis"],
@@ -359,6 +359,42 @@ def discrete_random_variables(rng_int, prop_time=0, low=0, high=4, length=1000):
     for i in range(1, length):
         Y[i] = (X[i - 1 - prop_time] & 1) + (generator.integers(0, 2) << 1)
     return X, Y
+
+
+@cache
+def discrete_random_variables_shifted(rng_int, shift=1, low=0, high=2, length=1000):
+    """
+    Generate the source array filled with random integers in [low, high[.
+    Create the destination array by circularly shifting the source array by `prop_time` index.
+
+    A third random array is generated, uncoupled from the first two.
+
+    Parameters
+    ----------
+    rng_int : int
+        Random number generator seed.
+    shift : int
+        Time delay.
+    low : int
+        low
+    high : int
+        high
+    length : int
+        Length of the output arrays.
+
+    Returns
+    -------
+    X : ndarray
+        Source array.
+    Y : ndarray
+        Destination array.
+    C : ndarray
+        Control array.
+    """
+    generator = rng(rng_int)
+    X = generator.integers(low, high, length)
+    Y = roll(X, shift)  # e.g., roll([0, 1, 2, 3], 1) = [3, 0, 1, 2]
+    return X, Y, generator.integers(low, high, length)
 
 
 @cache

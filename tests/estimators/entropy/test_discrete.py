@@ -3,7 +3,7 @@
 import pytest
 from numpy import e, log
 
-from infomeasure import entropy
+from infomeasure import entropy, estimator
 
 
 @pytest.mark.parametrize(
@@ -22,6 +22,23 @@ from infomeasure import entropy
 def test_discrete_entropy(data, base, expected):
     """Test the discrete entropy estimator."""
     assert entropy(data, approach="discrete", base=base) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "data,base,expected",
+    [
+        (([1, 1, 1, 1, 1], [1, 1, 1, 1, 1]), 2, 0.0),
+        (([1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]), 2, 0.0),
+        (([1, 1, 7, 2, 3, 6, 6, 3], [2, 3, 6, 6, 3, 6, 5, 7]), 2, 3.0),
+        (([1, 1, 7, 2, 3, 6, 6, 3], [2, 3, 6, 6, 3, 6, 5, 7]), 10, 0.90308999),
+        (([1, 2, 3 - 2] * 1000, [1, 2, 3 - 2] * 1000), 10, 0.276434591),
+    ],
+)
+def test_discrete_joint_entropy(data, base, expected):
+    """Test the discrete joint entropy estimator."""
+    est = estimator(data, measure="entropy", approach="discrete", base=base)
+    assert est.result() == pytest.approx(expected)
+    est.local_val()
 
 
 # try different bases with uniform distribution

@@ -6,13 +6,15 @@ from collections import Counter
 from numpy import (
     clip,
     int64,
-    ravel,
     log,
-    prod,
-    unique,
-    ones,
-    zeros,
     ndarray,
+    ones,
+    prod,
+    ravel,
+    unique,
+    zeros,
+)
+from numpy import (
     sum as np_sum,
 )
 from scipy.sparse import find as sp_find
@@ -48,7 +50,7 @@ def mutual_information_global(*data: tuple, log_func: callable = log) -> float:
 def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) -> float:
     """Estimate the global mutual information between an arbitrary number of
     random variables."""
-    _, indices = zip(*[unique(var, return_inverse=True) for var in data])
+    _, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
     contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
 
     # Non-zero indices and values
@@ -88,8 +90,6 @@ def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) ->
     log_p_joint = log_func(vals)
 
     log_outer = -log_func(outer) + len(count_marginals) * log_func(contingency_sum)
-    #     log_func(count_m.sum()) for count_m in count_marginals
-    # )
     # Combine the terms to calculate the mutual information
     mi = p_joint * (log_p_joint - log_func(contingency_sum)) + p_joint * log_outer
     return mi.sum()  # interaction information can be negative, do not clip
@@ -202,7 +202,7 @@ def mutual_information_local(*data: tuple, log_func: callable = log) -> ndarray:
         The local mutual information between the random variables.
     """
     # Contingency table - COOrdinate sparse matrix
-    _, indices = zip(*[unique(var, return_inverse=True) for var in data])
+    _, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
     contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
 
     # Normalized contingency table (joint probability)
@@ -271,7 +271,9 @@ def _conditional_mutual_information_global_nd_int(
 ) -> float:
     """Estimate the global conditional mutual information between an arbitrary number of
     random variables and a conditioning variable."""
-    _, indices = zip(*[unique(var, return_inverse=True) for var in (data + (cond,))])
+    _, indices = zip(
+        *[unique(var, return_inverse=True, axis=0) for var in (data + (cond,))]
+    )
     contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
 
     # Non-zero indices and values
@@ -351,7 +353,9 @@ def conditional_mutual_information_local(
         The local conditional mutual information between the random variables.
     """
     # Contingency table - COOrdinate sparse matrix
-    _, indices = zip(*[unique(var, return_inverse=True) for var in (data + (cond,))])
+    _, indices = zip(
+        *[unique(var, return_inverse=True, axis=0) for var in (data + (cond,))]
+    )
     contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
 
     # Normalized contingency table (joint probability)

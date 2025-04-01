@@ -17,12 +17,12 @@ def test_kld_discrete(default_rng):
     im.kld(data_x, data_y, approach="discrete")
 
 
-@pytest.mark.parametrize("order", [1, 2, 3, 4, 6])
-def test_kld_permutation(default_rng, order):
+@pytest.mark.parametrize("embedding_dim", [1, 2, 3, 4, 6])
+def test_kld_permutation(default_rng, embedding_dim):
     """Test the Kulback-Leibler Divergence (KLD) estimator with permutation approach."""
     data_x = default_rng.normal(size=(1000))
     data_y = default_rng.normal(size=(1000))
-    im.kld(data_x, data_y, approach="permutation", order=order)
+    im.kld(data_x, data_y, approach="permutation", embedding_dim=embedding_dim)
 
 
 @pytest.mark.parametrize(
@@ -32,22 +32,22 @@ def test_kld_permutation(default_rng, order):
         (2, "discrete", {}, 1.38361671),
         (3, "discrete", {}, 1.38066809),
         (4, "discrete", {}, 1.38264482),
-        (1, "permutation", {"order": 1}, 0.0),
-        (1, "permutation", {"order": 2}, 0.6349968),
-        (1, "permutation", {"order": 3}, 1.5890538),
+        (1, "permutation", {"embedding_dim": 1}, 0.0),
+        (1, "permutation", {"embedding_dim": 2}, 0.6349968),
+        (1, "permutation", {"embedding_dim": 3}, 1.5890538),
         (
             1,
             "permutation",
-            {"order": 4, "stable": True},
+            {"embedding_dim": 4, "stable": True},
             (2.58961692, 2.5730411),
         ),  # Apple Silicon: 2.5730411
         (
             1,
             "permutation",
-            {"order": 5, "stable": True},
+            {"embedding_dim": 5, "stable": True},
             (2.38246712, 2.37888639),
         ),  # Apple Silicon: 2.37888639
-        (1, "permutation", {"order": 20}, 0.0),
+        (1, "permutation", {"embedding_dim": 20}, 0.0),
     ],
 )
 def test_kld_explicit_discrete(rng_int, approach, kwargs, expected):

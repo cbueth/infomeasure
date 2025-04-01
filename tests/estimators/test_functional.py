@@ -20,7 +20,7 @@ def test_entropy_functional_addressing(entropy_approach):
     approach_str, needed_kwargs = entropy_approach
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     entropy = im.entropy(data, approach=approach_str, **needed_kwargs)
-    assert isinstance(entropy, (float, tuple))
+    assert isinstance(entropy, float)
 
 
 def test_entropy_class_addressing(entropy_approach):
@@ -29,10 +29,15 @@ def test_entropy_class_addressing(entropy_approach):
     approach_str, needed_kwargs = entropy_approach
     est = im.estimator(data, measure="entropy", approach=approach_str, **needed_kwargs)
     assert isinstance(est, EntropyEstimator)
-    assert isinstance(est.result(), (float, tuple))
+    assert isinstance(est.result(), float)
     assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
+    if approach_str in ["renyi", "tsallis"]:
+        with pytest.raises(UnsupportedOperation):
+            est.local_val()
+    else:
+        assert isinstance(est.local_val(), np.ndarray)
 
 
 @pytest.mark.parametrize("offset", [0, 1, 5])
@@ -49,12 +54,12 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
     )
-    assert isinstance(mi, (float, tuple))
+    assert isinstance(mi, float)
     if isinstance(mi, tuple):
         assert len(mi) == 3
         assert isinstance(mi[0], float)
@@ -77,7 +82,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -94,6 +99,35 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert 0 <= est.p_value(10) <= 1
 
 
+@pytest.mark.parametrize("n_vars", [2, 3, 4])
+def test_mutual_information_class_addressing_n_vars(n_vars, mi_approach, default_rng):
+    """Test the mutual information estimator classes with multiple variables."""
+    approach_str, needed_kwargs = mi_approach
+    data = (default_rng.integers(0, 5, 1000) for _ in range(n_vars))
+    est = im.estimator(
+        *data,
+        measure="mutual_information",
+        approach=approach_str,
+        **needed_kwargs,
+    )
+    assert isinstance(est, MutualInformationEstimator)
+    assert isinstance(est.global_val(), float)
+    assert est.global_val() == est.res_global
+    assert isinstance(est.result(), float)
+    # Shannon-like measures have local values
+    if approach_str not in ["renyi", "tsallis"]:
+        assert isinstance(est.local_val(), np.ndarray)
+    else:
+        with pytest.raises(UnsupportedOperation):
+            est.local_val()
+    # p-value is only supported for 2 variables
+    if n_vars == 2:
+        assert 0 <= est.p_value(10) <= 1
+    else:
+        with pytest.raises(UnsupportedOperation):
+            est.p_value(10)
+
+
 @pytest.mark.parametrize("normalize", [True, False])
 def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
     """Test addressing the conditional mutual information estimator classes."""
@@ -108,12 +142,12 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
     )
-    assert isinstance(mi, (float, tuple))
+    assert isinstance(mi, float)
     if isinstance(mi, tuple):
         assert len(mi) == 3
         assert isinstance(mi[0], float)
@@ -127,7 +161,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -139,11 +173,41 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
     )
+
+
+@pytest.mark.parametrize("n_vars", [2, 3, 4])
+def test_cond_mutual_information_class_addressing_n_vars(
+    n_vars, cmi_approach, default_rng
+):
+    """Test the conditional mutual information estimator classes with multiple variables."""
+    approach_str, needed_kwargs = cmi_approach
+    data = (default_rng.integers(0, 5, 1000) for _ in range(n_vars))
+    cond = default_rng.integers(0, 5, 1000)
+    est = im.estimator(
+        *data,
+        cond=cond,
+        measure="conditional_mutual_information",
+        approach=approach_str,
+        **needed_kwargs,
+    )
+    assert isinstance(est, ConditionalMutualInformationEstimator)
+    assert isinstance(est.global_val(), float)
+    assert est.global_val() == est.res_global
+    assert isinstance(est.result(), float)
+    # Shannon-like measures have local values
+    if approach_str not in ["renyi", "tsallis"]:
+        assert isinstance(est.local_val(), np.ndarray)
+    else:
+        with pytest.raises(UnsupportedOperation):
+            est.local_val()
+    # p-value is not supported for conditional mutual information
+    with pytest.raises(AttributeError):
+        est.p_value(10)
 
 
 def test_cmi_functional_addressing_faulty():
@@ -171,7 +235,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "symbolic", "permutation"]
+            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
             else {}
         ),
         **needed_kwargs,
@@ -179,7 +243,12 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est, ConditionalMutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.result(), (float, tuple))
+    assert isinstance(est.result(), float)
+    if approach_str in ["renyi", "tsallis"]:
+        with pytest.raises(UnsupportedOperation):
+            est.local_val()
+    else:
+        assert isinstance(est.local_val(), np.ndarray)
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])
@@ -201,7 +270,7 @@ def test_transfer_entropy_functional_addressing(
         dest_hist_len=dest_hist_len,
         **needed_kwargs,
     )
-    assert isinstance(te, (float, tuple))
+    assert isinstance(te, float)
     if isinstance(te, tuple):
         assert len(te) == 3
         assert isinstance(te[0], float)
@@ -230,7 +299,7 @@ def test_cond_transfer_entropy_functional_addressing(
         cond_hist_len=cond_hist_len,
         **needed_kwargs,
     )
-    assert isinstance(te, (float, tuple))
+    assert isinstance(te, float)
     if isinstance(te, tuple):
         assert len(te) == 3
         assert isinstance(te[0], float)
@@ -249,13 +318,15 @@ def test_cond_transfer_entropy_functional_addressing(
     )
 
 
-def test_cte_functional_addressing_faulty():
+def test_cte_functional_addressing_faulty(cte_approach):
     """Test wrong usage of the conditional transfer entropy estimator."""
+    approach_str, needed_kwargs = cte_approach
     with pytest.raises(ValueError):
         im.conditional_transfer_entropy(
             np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
             np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-            approach="metric",
+            approach=approach_str,
+            **needed_kwargs,
         )
 
 
@@ -274,8 +345,8 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    if approach_str in ["discrete", "renyi", "tsallis", "symbolic", "permutation"]:
-        assert isinstance(est.result(), float)
+    assert isinstance(est.result(), float)
+    if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_val()
     else:
@@ -301,7 +372,12 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert isinstance(est, ConditionalTransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.result(), (tuple, float))
+    assert isinstance(est.result(), float)
+    if approach_str in ["renyi", "tsallis"]:
+        with pytest.raises(UnsupportedOperation):
+            est.local_val()
+    else:
+        assert isinstance(est.local_val(), np.ndarray)
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])

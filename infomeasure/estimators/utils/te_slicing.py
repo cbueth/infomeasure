@@ -23,6 +23,8 @@ The TE is calculated as:
 
 """
 
+from typing import Iterable
+
 from numpy import arange, ndarray, concatenate, expand_dims, issubdtype, integer
 from numpy.random import Generator, default_rng
 
@@ -37,7 +39,8 @@ def te_observations(
     step_size=1,
     permute_src=False,
     resample_src=False,
-) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+    construct_joint_spaces: bool = True,
+) -> tuple[ndarray, ndarray, ndarray, ndarray] | Iterable | tuple:
     r"""
     Slice the data arrays to prepare for TE calculation.
 
@@ -78,6 +81,9 @@ def te_observations(
         Rows are resampled with replacement, keeping the history intact.
         If a random number generator is provided, it will be used for resampling.
         If True, a new random number generator will be created.
+    construct_joint_spaces : bool, optional
+        Whether to construct the joint spaces. Default is True.
+        If False, the sliced source and destination data are returned instead.
 
     Returns
     -------
@@ -90,7 +96,15 @@ def te_observations(
         source.
     marginal_2_space_data : array, shape (max_len, dest_hist_len + 1)
         :math:`g(y_i^{(k)}, \hat{y}_{i+1})` : Marginal space data for destination.
-
+    sliced data : tuple of arrays
+        If ``construct_joint_spaces`` is False, the sliced source and destination
+        data are returned instead. Namely, the tuple contains:
+        - ``src_history`` : array, shape (max_len, src_hist_len)
+           :math:`x_i^{(l)}` : Source history.
+        - ``dest_history`` : array, shape (max_len, dest_hist_len)
+            :math:`y_i^{(k)}` : Destination history.
+        - ``dest_future`` : array, shape (max_len,)
+            :math:`\hat{y}_{i+1}` : Destination future.
 
     With ``max_len = data_len - (max(src_hist_len, dest_hist_len) - 1) * step_size``.
 
@@ -183,29 +197,14 @@ def te_observations(
         if dest_future.ndim < 3
         else dest_future.reshape(dest_future.shape[0], -1)
     )
-
-    # g(x_i^{(l)}, y_i^{(k)}, \hat{y}_{i+1})
-    joint_space_data = concatenate(
-        (
+    if construct_joint_spaces:
+        return _construct_joint_space_data(
             src_history,  # x_i^{(l)}
             dest_history,  # y_i^{(k)}
             dest_future,  # \hat{y}_{i+1}
-        ),
-        axis=1,
-    )
-    # g(\hat{y}_i^{(k)})
-    # dest_past_embedded = dest_history
-    # g(x_i^{(l)}, y_i^{(k)})
-    marginal_1_space_data = concatenate((src_history, dest_history), axis=1)
-    # g(y_i^{(k)}, \hat{y}_{i+1})
-    marginal_2_space_data = concatenate((dest_history, dest_future), axis=1)
-
-    return (
-        joint_space_data,
-        dest_history,
-        marginal_1_space_data,
-        marginal_2_space_data,
-    )
+        )
+    else:
+        return src_history, dest_history, dest_future
 
 
 def cte_observations(
@@ -216,7 +215,8 @@ def cte_observations(
     dest_hist_len=1,
     cond_hist_len=1,
     step_size=1,
-) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+    construct_joint_spaces: bool = True,
+) -> tuple[ndarray, ndarray, ndarray, ndarray] | Iterable | tuple:
     r"""
     Slice the data arrays to prepare for CTE calculation.
 
@@ -250,6 +250,9 @@ def cte_observations(
         Default is None, which equals to 1, every observation is considered.
         If step_size is greater than 1, the history is subsampled.
         This applies to both the source and destination data.
+    construct_joint_spaces : bool, optional
+        Whether to construct the joint spaces. Default is True.
+        If False, the sliced source and destination data are returned instead.
 
     Returns
     -------
@@ -265,6 +268,11 @@ def cte_observations(
     marginal_2_space_data : array, shape (max_len, dest_hist_len + 1)
         :math:`g(z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})` :
         Conditional marginal space data for destination.
+    sliced data : tuple of arrays
+        If ``construct_joint_spaces`` is False, the sliced source, destination and
+        conditional data are returned instead.
+        Namely, the tuple contains:
+
 
 
     With ``max_len = data_len - (max(src_hist_len, dest_hist_len, cond_hist_len) - 1)
@@ -364,25 +372,59 @@ def cte_observations(
         else dest_future.reshape(dest_future.shape[0], -1)
     )
 
-    # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})
-    joint_space_data = concatenate(
-        (
+    if construct_joint_spaces:
+        return _construct_joint_space_data(
             src_history,  # x_i^{(l)}
-            cond_history,  # z_i^{(m)}
             dest_history,  # y_i^{(k)}
             dest_future,  # \hat{y}_{i+1}
-        ),
-        axis=1,
+            cond_history,  # z_i^{(m)}
+        )
+    else:
+        return src_history, dest_history, dest_future, cond_history
+
+
+def _construct_joint_space_data(
+    *sliced_data,
+) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+    """Construct joint space data.
+
+    Parameters
+    ----------
+    src_history : np.ndarray
+        Source history.
+    dest_history : np.ndarray
+        Destination history.
+    dest_future : np.ndarray
+        Destination future.
+    cond_history : np.ndarray, optional
+        Conditioning history.
+    Returns
+    -------
+    tuple of np.ndarray
+        Joint space data, as returned by :func:`te_observations` and
+        :func:`cte_observations`, if conditioning history is provided.
+    """
+
+    # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})
+    joint_space_data = concatenate(
+        sliced_data,  # x_i^{(l)}, y_i^{(k)}, \hat{y}_{i+1}, z_i^{(m)}
+        axis=1,  # or x_i^{(l)}, y_i^{(k)}, \hat{y}_{i+1}
     )
-    # g(\hat y_i^{(k)}, z_i^{(m)})
-    dest_past_embedded = concatenate((dest_history, cond_history), axis=1)
-    # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)})
+
+    if len(sliced_data) == 3:  # g(\hat y_i^{(k)})
+        dest_past_embedded = sliced_data[1]
+    else:  # g(\hat y_i^{(k)}, z_i^{(m)})
+        dest_past_embedded = concatenate((sliced_data[1], *sliced_data[3:]), axis=1)
+
+    # g(x_i^{(l)}, y_i^{(k)}, z_i^{(m)})
     marginal_1_space_data = concatenate(
-        (src_history, cond_history, dest_history), axis=1
-    )
-    # g(z_i^{(m)}, y_i^{(k)}, \hat{y}_{i+1})
+        (*sliced_data[:2], *sliced_data[3:]), axis=1
+    )  # x_i^{(l)}, y_i^{(k)}, z_i^{(m)} or x_i^{(l)}, y_i^{(k)}
+
+    # g(y_i^{(k)}, \hat{y}_{i+1}, z_i^{(m)})
     marginal_2_space_data = concatenate(
-        (cond_history, dest_history, dest_future), axis=1
+        sliced_data[1:],  # y_i^{(k)}, \hat{y}_{i+1}, z_i^{(m)}
+        axis=1,  # or y_i^{(k)}, \hat{y}_{i+1}
     )
 
     return (

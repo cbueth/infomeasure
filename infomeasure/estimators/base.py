@@ -3,22 +3,21 @@
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from operator import gt
-from typing import final, Callable
+from typing import Callable, Generic, final
 
-from numpy import asarray, issubdtype, integer
-from numpy import log, log2, log10, ndarray, std, nan
+from numpy import asarray, integer, issubdtype, log, log2, log10, nan, ndarray, std
 from numpy import mean as np_mean
 from numpy import sum as np_sum
 from numpy.random import default_rng
 
-from .utils.normalize import normalize_data_0_1
-from .utils.te_slicing import te_observations, cte_observations
 from .. import Config
 from ..utils.config import logger
-from ..utils.types import LogBaseType
+from ..utils.types import EstimatorType, LogBaseType
+from .utils.normalize import normalize_data_0_1
+from .utils.te_slicing import cte_observations, te_observations
 
 
-class Estimator(ABC):
+class Estimator(Generic[EstimatorType], ABC):
     """Abstract base class for all measure estimators.
 
     Find :ref:`Estimator Usage` on how to use the estimators and an overview of the
@@ -228,7 +227,7 @@ class Estimator(ABC):
             return log(x) / log(self.base)
 
 
-class EntropyEstimator(Estimator, ABC):
+class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
     """Abstract base class for entropy estimators.
 
     Estimates simple entropy of a data array or joint entropy of two data arrays.
@@ -254,7 +253,7 @@ class EntropyEstimator(Estimator, ABC):
     .entropy.kernel.KernelEntropyEstimator
     .entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
     .entropy.renyi.RenyiEntropyEstimator
-    .entropy.symbolic.SymbolicEntropyEstimator
+    .entropy.ordinal.OrdinalEntropyEstimator
     .entropy.tsallis.TsallisEntropyEstimator
     """
 
@@ -324,7 +323,9 @@ class RandomGeneratorMixin:
         super().__init__(*args, **kwargs)
 
 
-class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
+class MutualInformationEstimator(
+    RandomGeneratorMixin, Estimator["MutualInformationEstimator"], ABC
+):
     """Abstract base class for mutual information estimators.
 
     Attributes
@@ -359,7 +360,7 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
     .mutual_information.kernel.KernelMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     .mutual_information.renyi.RenyiMIEstimator
-    .mutual_information.symbolic.SymbolicMIEstimator
+    .mutual_information.ordinal.OrdinalMIEstimator
     .mutual_information.tsallis.TsallisMIEstimator
     """
 
@@ -470,7 +471,9 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
             )
 
 
-class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
+class ConditionalMutualInformationEstimator(
+    RandomGeneratorMixin, Estimator["ConditionalMutualInformationEstimator"], ABC
+):
     """Abstract base class for conditional mutual information estimators.
 
     Conditional Mutual Information (CMI) between two (or more)
@@ -516,7 +519,7 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
     .mutual_information.discrete.DiscreteCMIEstimator
     .mutual_information.kernel.KernelCMIEstimator
     .mutual_information.kraskov_stoegbauer_grassberger.KSGCMIEstimator
-    .mutual_information.symbolic.SymbolicCMIEstimator
+    .mutual_information.ordinal.OrdinalCMIEstimator
     """
 
     def __init__(
@@ -638,7 +641,9 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
             raise ValueError(f"Estimator must be an EntropyEstimator, not {estimator}.")
 
 
-class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
+class TransferEntropyEstimator(
+    RandomGeneratorMixin, Estimator["TransferEntropyEstimator"], ABC
+):
     """Abstract base class for transfer entropy estimators.
 
     Attributes
@@ -675,7 +680,7 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
     .transfer_entropy.kernel.KernelTEEstimator
     .transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
     .transfer_entropy.renyi.RenyiTEEstimator
-    .transfer_entropy.symbolic.SymbolicTEEstimator
+    .transfer_entropy.ordinal.OrdinalTEEstimator
     .transfer_entropy.tsallis.TsallisTEEstimator
     """
 
@@ -829,7 +834,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             )
 
 
-class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
+class ConditionalTransferEntropyEstimator(
+    RandomGeneratorMixin, Estimator["ConditionalTransferEntropyEstimator"], ABC
+):
     """Abstract base class for conditional transfer entropy estimators.
 
     Conditional Transfer Entropy (CTE) from source :math:`X` to destination :math:`Y`
@@ -1108,7 +1115,7 @@ class PValueMixin(RandomGeneratorMixin):
         self.n_tests = n_tests
         if isinstance(self, MutualInformationEstimator):
             if len(self.data) != 2:
-                raise ValueError(
+                raise UnsupportedOperation(
                     "Permutation test on mutual information is only supported "
                     "for two variables."
                 )
@@ -1279,12 +1286,12 @@ class PValueMixin(RandomGeneratorMixin):
             observed_value=self.global_val(), test_values=permuted_values
         )
 
-    def test_te(self, n_permutations: int) -> float:
+    def test_te(self, n_tests: int) -> float:
         """Calculate the permutation test for transfer entropy.
 
         Parameters
         ----------
-        n_permutations : int
+        n_tests : int
             The number of permutations to perform.
 
         Returns
@@ -1297,10 +1304,10 @@ class PValueMixin(RandomGeneratorMixin):
         ValueError
             If the number of permutations is not a positive integer.
         """
-        if not issubdtype(type(n_permutations), integer) or n_permutations < 1:
+        if not issubdtype(type(n_tests), integer) or n_tests < 1:
             raise ValueError(
                 "Number of permutations must be a positive integer, "
-                f"not {n_permutations} ({type(n_permutations)})."
+                f"not {n_tests} ({type(n_tests)})."
             )
         # Activate the permutation flag to permute the source data when slicing
         if self.p_val_method == "permutation_test":
@@ -1309,7 +1316,7 @@ class PValueMixin(RandomGeneratorMixin):
             self.resample_src = self.rng
         else:
             raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
-        permuted_values = [self._calculate() for _ in range(n_permutations)]
+        permuted_values = [self._calculate() for _ in range(n_tests)]
         if isinstance(permuted_values[0], ndarray):
             permuted_values = [np_mean(x) for x in permuted_values]
         # Deactivate the permutation/resample flag
