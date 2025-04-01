@@ -36,6 +36,11 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         If the noise level is negative
     ValueError
         If the Minkowski power parameter is invalid
+
+    Notes
+    -----
+    Changing the number of nearest neighbors ``k`` can change the outcome,
+    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
 
     def __init__(

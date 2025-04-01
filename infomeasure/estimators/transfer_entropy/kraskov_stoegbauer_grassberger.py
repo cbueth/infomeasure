@@ -156,6 +156,11 @@ class KSGTEEstimator(
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
+
+    Notes
+    -----
+    Changing the number of nearest neighbors ``k`` can change the outcome,
+    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
 
     def _calculate(self) -> ndarray:
@@ -254,6 +259,11 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
         and conditional data.
     prop_time : int, optional
         Not compatible with the ``cond`` parameter / conditional TE.
+
+    Notes
+    -----
+    Changing the number of nearest neighbors ``k`` can change the outcome,
+    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
 
     def _calculate(self) -> ndarray:

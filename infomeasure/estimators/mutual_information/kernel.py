@@ -88,12 +88,12 @@ class BaseKernelMIEstimator(ABC):
 
 
 class KernelMIEstimator(BaseKernelMIEstimator, PValueMixin, MutualInformationEstimator):
-    """Estimator for mutual information using Kernel Density Estimation (KDE).
+    r"""Estimator for mutual information using Kernel Density Estimation (KDE).
 
     .. math::
 
-        I(X;Y) = \\sum_{i=1}^{n} p(x_i, y_i) \\log
-                 \\left( \frac{p(x_i, y_i)}{p(x_i)p(y_i)} \right)
+        I(X;Y) = \sum_{i=1}^{n} p(x_i, y_i) \log
+                 \left( \frac{p(x_i, y_i)}{p(x_i)p(y_i)} \right)
 
     Attributes
     ----------
@@ -110,6 +110,11 @@ class KernelMIEstimator(BaseKernelMIEstimator, PValueMixin, MutualInformationEst
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def _calculate(self) -> ndarray:
@@ -148,13 +153,13 @@ class KernelMIEstimator(BaseKernelMIEstimator, PValueMixin, MutualInformationEst
 
 
 class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEstimator):
-    """Estimator for conditional mutual information using
+    r"""Estimator for conditional mutual information using
     Kernel Density Estimation (KDE).
 
     .. math::
 
-        I(X;Y|Z) = \\sum_{i=1}^{n} p(x_i, y_i, z_i) \\log
-                   \\left( \frac{p(z_i)p(x_i, y_i, z_i)}{p(x_i, z_i)p(y_i, z_i)} \right)
+        I(X;Y|Z) = \sum_{i=1}^{n} p(x_i, y_i, z_i) \log
+                   \left( \frac{p(z_i)p(x_i, y_i, z_i)}{p(x_i, z_i)p(y_i, z_i)} \right)
 
     Attributes
     ----------
@@ -170,6 +175,11 @@ class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEsti
         implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def _calculate(self) -> ndarray:

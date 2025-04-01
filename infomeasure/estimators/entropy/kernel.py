@@ -21,6 +21,11 @@ class KernelEntropyEstimator(EntropyEstimator):
     kernel : str
         Type of kernel to use, compatible with the KDE
         implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def __init__(

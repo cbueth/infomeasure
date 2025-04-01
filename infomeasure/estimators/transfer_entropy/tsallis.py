@@ -178,6 +178,14 @@ class TsallisTEEstimator(
         If the number of nearest neighbors is not a positive integer.
     ValueError
         If the step_size is not a non-negative integer.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def _calculate(self):
@@ -220,6 +228,14 @@ class TsallisCTEEstimator(BaseTsallisTEEstimator, ConditionalTransferEntropyEsti
         If the number of nearest neighbors is not a positive integer.
     ValueError
         If the step_size is not a non-negative integer.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def _calculate(self):

@@ -119,6 +119,11 @@ class KSGMIEstimator(BaseKSGMIEstimator, PValueMixin, MutualInformationEstimator
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    Changing the number of nearest neighbors ``k`` can change the outcome,
+    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
 
     def _calculate(self) -> ndarray:
@@ -202,6 +207,11 @@ class KSGCMIEstimator(BaseKSGMIEstimator, ConditionalMutualInformationEstimator)
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    Changing the number of nearest neighbors ``k`` can change the outcome,
+    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
 
     def _calculate(self) -> ndarray:

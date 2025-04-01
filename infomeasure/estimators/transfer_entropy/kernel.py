@@ -137,6 +137,11 @@ class KernelTEEstimator(
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def _calculate(self):
@@ -226,6 +231,11 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
         and conditional data.
     prop_time : int, optional
         Not compatible with the ``cond`` parameter / conditional TE.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def _calculate(self):

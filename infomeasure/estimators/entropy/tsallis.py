@@ -32,6 +32,14 @@ class TsallisEntropyEstimator(EntropyEstimator):
         If the Tsallis parameter is not a positive number.
     ValueError
         If the number of nearest neighbors is not a positive integer.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def __init__(

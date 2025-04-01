@@ -127,6 +127,14 @@ class TsallisMIEstimator(
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def _calculate(self):
@@ -168,6 +176,14 @@ class TsallisCMIEstimator(
         issues with zero distances.
     normalize
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def _calculate(self):

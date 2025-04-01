@@ -122,6 +122,16 @@ class RenyiMIEstimator(BaseRenyiMIEstimator, PValueMixin, MutualInformationEstim
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    The Rényi entropy is a generalization of Shannon entropy,
+    where the small values of probabilities are emphasized for :math:`\alpha < 1`,
+    and higher probabilities are emphasized for :math:`\alpha > 1`.
+    For :math:`\alpha = 1`, it reduces to Shannon entropy.
+    The Rényi-Entropy class can be particularly interesting for systems where additivity
+    (in Shannon sense) is not always preserved, especially in nonlinear complex systems,
+    such as when dealing with long-range forces.
     """
 
     def _calculate(self):
@@ -163,6 +173,16 @@ class RenyiCMIEstimator(BaseRenyiMIEstimator, ConditionalMutualInformationEstima
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    The Rényi entropy is a generalization of Shannon entropy,
+    where the small values of probabilities are emphasized for :math:`\alpha < 1`,
+    and higher probabilities are emphasized for :math:`\alpha > 1`.
+    For :math:`\alpha = 1`, it reduces to Shannon entropy.
+    The Rényi-Entropy class can be particularly interesting for systems where additivity
+    (in Shannon sense) is not always preserved, especially in nonlinear complex systems,
+    such as when dealing with long-range forces.
     """
 
     def _calculate(self):
