@@ -20,7 +20,7 @@ def test_entropy_functional_addressing(entropy_approach):
     approach_str, needed_kwargs = entropy_approach
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     entropy = im.entropy(data, approach=approach_str, **needed_kwargs)
-    assert isinstance(entropy, (float, tuple))
+    assert isinstance(entropy, float)
 
 
 def test_entropy_class_addressing(entropy_approach):
@@ -29,7 +29,7 @@ def test_entropy_class_addressing(entropy_approach):
     approach_str, needed_kwargs = entropy_approach
     est = im.estimator(data, measure="entropy", approach=approach_str, **needed_kwargs)
     assert isinstance(est, EntropyEstimator)
-    assert isinstance(est.result(), (float, tuple))
+    assert isinstance(est.result(), float)
     assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
@@ -59,7 +59,7 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         ),
         **needed_kwargs,
     )
-    assert isinstance(mi, (float, tuple))
+    assert isinstance(mi, float)
     if isinstance(mi, tuple):
         assert len(mi) == 3
         assert isinstance(mi[0], float)
@@ -147,7 +147,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         ),
         **needed_kwargs,
     )
-    assert isinstance(mi, (float, tuple))
+    assert isinstance(mi, float)
     if isinstance(mi, tuple):
         assert len(mi) == 3
         assert isinstance(mi[0], float)
@@ -243,7 +243,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est, ConditionalMutualInformationEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.result(), (float, tuple))
+    assert isinstance(est.result(), float)
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_val()
@@ -270,7 +270,7 @@ def test_transfer_entropy_functional_addressing(
         dest_hist_len=dest_hist_len,
         **needed_kwargs,
     )
-    assert isinstance(te, (float, tuple))
+    assert isinstance(te, float)
     if isinstance(te, tuple):
         assert len(te) == 3
         assert isinstance(te[0], float)
@@ -299,7 +299,7 @@ def test_cond_transfer_entropy_functional_addressing(
         cond_hist_len=cond_hist_len,
         **needed_kwargs,
     )
-    assert isinstance(te, (float, tuple))
+    assert isinstance(te, float)
     if isinstance(te, tuple):
         assert len(te) == 3
         assert isinstance(te[0], float)
@@ -372,7 +372,7 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert isinstance(est, ConditionalTransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
-    assert isinstance(est.result(), (tuple, float))
+    assert isinstance(est.result(), float)
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_val()
