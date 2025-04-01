@@ -439,13 +439,24 @@ def test_use_both_offset_prop_time(te_approach):
     "func", [im.entropy, im.mutual_information, im.transfer_entropy]
 )
 def test_functional_addressing_unknown_approach(func):
-    """Test addressing the entropy estimator classes."""
+    """Test addressing the functional wrappers with unknown approaches."""
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match="Unknown estimator: unknown. Available estimators: "
+    ):
         func(data, approach="unknown")
 
 
+@pytest.mark.parametrize(
+    "func", [im.entropy, im.mutual_information, im.transfer_entropy]
+)
+def test_functional_addressing_no_approach(func):
+    """Test addressing the functional wrappers without an approach."""
+    with pytest.raises(ValueError, match="``approach`` must be provided"):
+        func([1, 2, 3, 4, 5], approch="test")
+
+
 def test_class_addressing_unknown_measure():
-    """Test addressing the entropy estimator classes."""
-    with pytest.raises(ValueError):
+    """Test addressing the estimator wrapper with an unknown measure."""
+    with pytest.raises(ValueError, match="Unknown measure: unknown"):
         im.estimator(measure="unknown", approach="")

@@ -209,13 +209,7 @@ def _dynamic_estimator(measure) -> callable:
         def wrapper(*args, **kwargs):
             estimator_name = kwargs.get("approach")
             if estimator_name is None:
-                raise ValueError(
-                    "Estimator name is required, choose one of: , ".join(
-                        measure.keys()
-                        if isinstance(measure, dict)
-                        else measure[0].keys()
-                    )
-                )
+                raise ValueError("``approach`` must be provided")
             # if  `cond` is passed, it is a conditional estimator
             if isinstance(measure, str):
                 # Inject EstimatorClass into kwargs
