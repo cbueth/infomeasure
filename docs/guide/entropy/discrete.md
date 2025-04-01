@@ -6,17 +6,15 @@ kernelspec:
 
 (discrete_entropy)=
 # Discrete Entropy Estimation
-The Shannon {cite:p}`shannonMathematicalTheoryCommunication1948` discrete entropy formula is given by:
+The Shannon discrete {ref}`entropy_overview` formula is given as {cite:p}`shannonMathematicalTheoryCommunication1948`:
 
 $$
-H(X) = -\sum_{x \in X} p(x) \log_b p(x),
+H(X) = -\sum_{x \in X} p(x) \log p(x),
 $$
 
-where $x$ denotes the realizations of the random variable $X$ with probability $p(x)$, and $b$ is the base of the logarithm. More details on Entropy can be found in the {ref}`Entropy / Uncertainty` section.
+where, $p(x)$ is the **_probability mass function_ (pmf)**. 
 
-To estimate the entropy of a discrete random variable $X$, our implementation uses a plug-in method. Unlike other implementations that require a predefined probability distribution, our entropy estimator directly accepts a list of observations. 
-Probabilities are estimated by counting occurrences of each configuration in the dataset, and these frequencies are substituted into the formula.
-This estimator is simple and computationally efficient, however it currently does not include bias correction techniques yet. 
+To estimate the entropy of a discrete random variable $X$, our implementation uses a plug-in method. Probabilities are estimated by counting occurrences of each configuration in the dataset, and these frequencies are substituted into the formula above. This estimator is simple and computationally efficient.
 
 ## Implementation
 Let's compute the Shanon entropy.

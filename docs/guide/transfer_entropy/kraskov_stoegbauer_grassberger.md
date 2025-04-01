@@ -5,51 +5,42 @@ kernelspec:
 ---
 (KSG_TE)=
 # Kraskov-Stoegbauer-Grassberger TE Estimation
-[Transfer Entropy](index.md#transfer_entropy_overview) (TE) from the source process $X$ to the target process $Y$ is the amount of uncertainty reduced in the future values of target $Y$ by knowing the past values of source $X$ after considering the past values of target.
-
-$$T_{X \rightarrow Y}(k, l) = I \left[ \mathbf{X}_n^{(k)}; Y_{n+1} \mid \mathbf{Y}_n^{(l)} \right].$$
-where,
-- $\mathbf{X}_n^{(k)}$ is a vector/history of the past $k$ states of the source process $X$.
-- $\mathbf{Y}_n^{(l)}$ is a vector/history of the past $l$ states of the target process $Y$.
-
-The expression of TE in terms of probabilities is as follows:
+The [Transfer Entropy](index.md#transfer_entropy_overview) (TE) from the source process $X(x_n)$ to the target process $Y(y_n)$ in terms of probabilities is written as:
 
 $$
-T_{x \rightarrow y}(k, l, u) = \sum_{y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
-p(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}) 
-\log \left( \frac{p(y_{n+1+u} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
-{p(y_{n+1+u} \mid \mathbf{y}_n^{(l)})} \right).
+T_{x \rightarrow y}(k, l) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
+p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}) 
+\log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
+{p(y_{n+1} \mid \mathbf{y}_n^{(l)})} \right).
 $$
 
 Where:
-- $y_{n+1+u}$ is the next state of $y$ at time $n+1+u$, accounting for a propagation time $u$.
-- $\mathbf{y}_n^{(l)}$ is a vector/history of the past $l$ states of the target process $y$.
-- $\mathbf{x}_n^{(k)}$ is a vector/history of the past $k$ states of the source process $x$.
-- $p(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability distribution of the next state of $y$, its history, and the history of $x$.
-- $p(y_{n+1+u} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of $y_{n+1+u}$ given the histories of $x$ and $y$.
-- $p(y_{n+1+u} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of $y_{n+1+u}$ given only the history of $y$.
+- $y_{n+1}$ is the next state of $Y$ at time $n$, 
+- $ \mathbf{y}_n^{(l)} = \{y_n, \dots, y_{n-l+1}\} $ is the embedding vector of $Y$ considering the  $ l $ previous states (history length),
+- $ \mathbf{x}_n^{(k)} = \{x_n, \dots, x_{n-k+1}\} $ embedding vector of $X$ considering the $ k $ previous states (history length),
+- $p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability of the next state of $Y$, its history, and the history of $X$,
+- $p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of next state of $Y$ given the histories of $X$ and $Y$,
+- $p(y_{n+1} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of next state of $Y$ given only the history of $Y$,
+- - $\langle \cdot \rangle$ represents the expectation operator.
 
-
-**Kraskov-Stoegbauer-Grassberger (KSG) TE estimator** technique uses the improved version of  [Kernel estimation of MI](index.md#Kernel_MI) by using the  [KL estimator](index.md#entropy_kozachenko_leonenko) {cite:p}`Symbolic_TE`.  
-It relies on the technique of dynamically changing the kernel width for adjusting the density of samples in provided space. 
-The basic idea is to estimate the densities in the $X$ and $Y$ spaces using the distances to the $k-th$ nearest neighbors, and then relate these density estimates to mutual information using the **digamma function**.
-The methodology is based on the article "Estimating mutual information" {cite:p}`miKSG2004`. 
+**Kraskov-Stoegbauer-Grassberger (KSG) TE estimator** adapts the {ref}`KSG_MI` technique and make it suitable for estimating the TE between source and target variable {cite:p}`article_KSG_TE`. Similar to  MI estimation , it takes an advantage that the  {ref}`entropy_kozachenko_leonenko`  for entropy {cite:p}`kozachenko1987sample` holds for any value of the nearest neighbour $k$ . Therefore, one can vary the value of $k$ in each data point in such a way that the radius (distance) of the corresponding $\epsilon$- balls would be approximately the same for the joint and the marginal spaces. That means the distance is computed in the joint space for the fixed $k$ nearest neighbour, and then it is projected into the marginal spaces. Following the algorithm one, the expression for the TE is as follows:
 
 $$
 TE(X \to Y, u) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}} + 1 \right)
-- \psi \left( n_{y_{n+1+u}, \mathbf{y}_n^{(l)}} + 1 \right)
+- \psi \left( n_{y_{n+1}, \mathbf{y}_n^{(l)}} + 1 \right)
 - \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} + 1 \right) \right\rangle_n.
 $$
 
 where:
-- $\psi(\cdot)$ denotes the digamma function.
-- $n_{\mathbf{y}_n^{(l)}}$ is the number of nearest neighbors of $\mathbf{y}_n^{(l)}$.
-- $n_{y_{n+1+u}, \mathbf{y}_n^{(l)}}$ is the number of nearest neighbors....
-- $n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}}$ is the number of neighbors ....
-- $\langle \cdot \rangle_n$ represents the expectation over $n$.
+- $\psi(\cdot)$ denotes the **_digamma function_**,
+- $\langle \cdot \rangle$ represents the expectation operator.
+- $ n_x(\cdot) $ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector the size of the hypercube in each of the marginal spaces is defined based on the distance to the $k-th$ nearest neighbor in the highest dimensional space.
 
 
 ## Implementation
+Example usage of KSG TE estimator...
+
+
 The estimator is implemented in the {py:class}`KSGTEEstimator <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.transfer_entropy>` module.
 
