@@ -1,6 +1,6 @@
 (cond_MI_overview)=
 # Conditional MI
-{ref}`Mutual Information <mutual_information_overview>` (MI) in between two processes $X$ and $Y$ can also be conditioned on other processes, such as $Z$, known as conditional MI. Such conditional MI now provides the shared information between  $X$ & $Y$ by considering the knowledge of the third conditional variable (eg: $Z$) and is written as $I(X;Y \mid Z)$.  
+{ref}`Mutual Information <mutual_information_overview>` (MI) in between two processes $X$ and $Y$ can also be conditioned on other processes, such as $Z$, known as conditional MI. Such conditional MI now provides the shared information between  $X$ & $Y$ by considering the knowledge of the third conditional variable (eg: $Z$) and is written as $I(X;Y \mid Z)$.
 
 $$
 I(X;Y \mid Z) = \sum_{x, y, z} p(x,y,z) \log \frac{p(x \mid y,z)}{p(x \mid z)}
@@ -38,11 +38,11 @@ The CMI expression can be expressed in the form of entropies and joint entropies
 $$
 I(X;Y \mid Z) = - H(X,Z,Y) + H(X,Z) + H(Z,Y) - H(Z)
 $$
- 
+
 While `estimating conditional MI`, the above formulation has been used to compute the respective entropies and joint entropies from available estimation techniques (detail: {ref}`Types of Estimation techniques available`. Hence, user can choose the desired technique to estimate the conditional MI, which are:
-- Discrete estimation [{ref}`discrete_entropy`]  
-- Symbolic estimation [{ref}`symbolic_entropy`]  
-- Kernel estimation [{ref}`kernel_entropy`]  
+- Discrete estimation [{ref}`discrete_entropy`]
+- Symbolic estimation [{ref}`symbolic_entropy`]
+- Kernel estimation [{ref}`kernel_entropy`]
 
 However, one has to be careful about the biases arising form the differing dimensionality of the states spaces across the terms in above equation. The KSG method is known to have reduce such biases, we here have implemented the dedicated formulation to compute the conditional MI via KSG as explained in subsequent section.
 

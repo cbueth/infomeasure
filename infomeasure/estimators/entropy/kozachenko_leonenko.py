@@ -1,19 +1,18 @@
 """Module for the Kozacenko-Leonenko entropy estimator."""
 
-from numpy import inf, log, issubdtype, integer
-from numpy import sum as np_sum
 from numpy import column_stack
+from numpy import inf, log, issubdtype, integer
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
+from ..base import EntropyEstimator, RandomGeneratorMixin
+from ..utils.array import assure_2d_data
+from ..utils.unit_ball_volume import unit_ball_volume
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
-from ..utils.unit_ball_volume import unit_ball_volume
-from ..utils.array import assure_2d_data
 
 
-class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
+class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator):
     r"""Kozachenko-Leonenko estimator for Shannon entropies.
 
     Attributes
@@ -37,6 +36,11 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
         If the noise level is negative
     ValueError
         If the Minkowski power parameter is invalid
+
+    Notes
+    -----
+    Changing the number of nearest neighbors ``k`` can change the outcome,
+    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
 
     def __init__(
@@ -109,16 +113,10 @@ class KozachenkoLeonenkoEntropyEstimator(PValueMixin, EntropyEstimator):
         # Volume of the d-dimensional unit ball for maximum norm
         c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
 
-        # Compute the entropy estimator considering that the distances are
-        # already doubled
-        entropy = (
-            -digamma(self.k)
-            + digamma(N)
-            + log(c_d)
-            + (d / N) * np_sum(log(2 * distances))
-        )
+        # Compute the local entropies
+        local_h = -digamma(self.k) + digamma(N) + log(c_d) + d * log(2 * distances)
         # return in desired base
-        return entropy / log(self.base) if self.base != "e" else entropy
+        return local_h / log(self.base) if self.base != "e" else local_h
 
     def _joint_entropy(self):
         """Calculate the joint entropy of the data.

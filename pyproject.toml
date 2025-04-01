@@ -5,26 +5,26 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "infomeasure"
 authors = [
-    { name = "Carlson Büth", email = "carlson@ifisc.uib-csic.es" },
+    { name = "Carlson Büth", email = "code@cbueth.de" },
     { name = "Kishor Achary" },
     { name = "Massimilliano Zanin" },
 ]
-maintainers = [{ name = "Carlson Büth", email = "carlson@cbueth.de" }]
+maintainers = [{ name = "Carlson Büth", email = "code@cbueth.de" }]
 license = { text = "APGL-3.0-or-later" }
 readme = "README.md"
 description = "Comprehensive collection of information measures."
 keywords = ["Entropy", "Mutual Information", "Information Theory", "Information Measures"]
 classifiers = [
-    "Development Status :: 3 - Alpha",  # 4 - Beta, 5 - Production/Stable
-    "Intended Audience :: Developers",
+    "Development Status :: 4 - Beta",  # 5 - Production/Stable
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Natural Language :: English",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
@@ -35,6 +35,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "scipy",
+    "sparse>0.10.0",
 ]
 
 [project.urls]

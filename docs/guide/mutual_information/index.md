@@ -13,8 +13,8 @@ MI allows to detect the both liner and non-liner relationships between the varia
 
 #### Local Mutual Information
 Similar to {ref}`Local Entropy`, one can build the **local or point-wise mutual information**  directly from its average counterparts by aligning with the average definition of MI {cite:p}`Lizier2014` {cite:p}`manning1999foundations` {cite:p}`fano1961transmission` .
-The local MI values can be either positive or negative , in contrast to the local entropy which cannot take negative values. One can interpret the negative local MI value (i.e$i(x: y)=-ve$ ) as knowledge of the event $y$ increasing the uncertainty about $x$, being _misinformative_. 
-However, these local MI will always average to the non-negative global MI value {cite:p}`Lizier2014_localinfomeasure`. 
+The local MI values can be either positive or negative , in contrast to the local entropy which cannot take negative values. One can interpret the negative local MI value (i.e$i(x: y)=-ve$ ) as knowledge of the event $y$ increasing the uncertainty about $x$, being _misinformative_.
+However, these local MI will always average to the non-negative global MI value {cite:p}`Lizier2014_localinfomeasure`.
 The local MI (or shared information content) between the two events $x$ and $y$, also known as **point-wise mutual information** is given as:
 
  $$
@@ -42,7 +42,7 @@ where,
 - $u$: the propagation time or the lag between two time series.
 
 > Note:
-> The package allows user to set the desired time-lag between the series. The default value is set to $u=0$, no lag. 
+> The package allows user to set the desired time-lag between the series. The default value is set to $u=0$, no lag.
 
 ## MI estimation
 When estimating MI, several factors must be considered (ref: {ref}`Estimation`). First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, and the non-parametric techniques, with detailed explanations and implementation guidelines available in the subsequent pages.
@@ -53,7 +53,7 @@ When estimating MI, several factors must be considered (ref: {ref}`Estimation`).
 .. toctree::
    :maxdepth: 2
    mutual_information/cond_MI/index
-   
+
 .. toctree::
    :maxdepth: 2
    :caption: Discrete RV

@@ -5,7 +5,7 @@ kernelspec:
 ---
 (discrete_MI)=
 # Discrete MI Estimation
-{ref}`mutual_information_overview` (MI) quantifies the information shared between two discrete random variables $X$ and $Y$ and expressed as below: 
+{ref}`mutual_information_overview` (MI) quantifies the information shared between two discrete random variables $X$ and $Y$ and expressed as below:
 
 $$
 I(X;Y) = \sum_{x, y} p(x, y) \log \frac{p(x,y)}{p(x) p(y)}
@@ -36,5 +36,3 @@ data_x = [0, 1, 0, 1, 0, 1, 0, 1]
 data_y = [0, 0, 1, 1, 0, 0, 1, 1]
 im.mutual_information(data_x, data_y, approach="discrete", base=2)
 ```
-
-

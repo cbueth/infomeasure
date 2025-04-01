@@ -4,14 +4,14 @@ from abc import ABC
 
 from numpy import issubdtype, integer
 
-from ... import Config
-from ...utils.types import LogBaseType
 from ..base import (
-    EffectiveValueMixin,
+    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
 from ..entropy.tsallis import TsallisEntropyEstimator
+from ... import Config
+from ...utils.types import LogBaseType
 
 
 class BaseTsallisMIEstimator(ABC):
@@ -19,9 +19,11 @@ class BaseTsallisMIEstimator(ABC):
 
     Attributes
     ----------
-    data_x, data_y : array-like
+    *data : array-like, shape (n_samples,)
         The data used to estimate the (conditional) mutual information.
-    data_z : array-like, optional
+        You can pass an arbitrary number of data arrays as positional arguments.
+        For conditional mutual information, only two data arrays are allowed.
+    cond : array-like, optional
         The conditional data used to estimate the conditional mutual information.
     k : int
         The number of nearest neighbors used in the estimation.
@@ -34,16 +36,15 @@ class BaseTsallisMIEstimator(ABC):
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
+        Not compatible with the ``cond`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
     """
 
     def __init__(
         self,
-        data_x,
-        data_y,
-        data_z=None,
-        *,  # all following parameters are keyword-only
+        *data,
+        cond=None,
         k: int = 4,
         q: float | int = None,
         noise_level: float = 1e-8,
@@ -55,9 +56,11 @@ class BaseTsallisMIEstimator(ABC):
 
         Parameters
         ----------
-        data_x, data_y : array-like
+        *data : array-like, shape (n_samples,)
             The data used to estimate the (conditional) mutual information.
-        data_z : array-like, optional
+            You can pass an arbitrary number of data arrays as positional arguments.
+            For conditional mutual information, only two data arrays are allowed.
+        cond : array-like, optional
             The conditional data used to estimate the conditional mutual information.
         k : int
             The number of nearest neighbors to consider.
@@ -73,7 +76,7 @@ class BaseTsallisMIEstimator(ABC):
         offset : int, optional
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
-            Not compatible with the ``data_z`` parameter / conditional MI.
+            Not compatible with the ``cond`` parameter / conditional MI.
 
         Raises
         ------
@@ -82,13 +85,11 @@ class BaseTsallisMIEstimator(ABC):
         ValueError
             If the number of nearest neighbors is not a positive integer.
         """
-        if data_z is None:
-            super().__init__(
-                data_x, data_y, offset=offset, normalize=normalize, base=base
-            )
+        if cond is None:
+            super().__init__(*data, offset=offset, normalize=normalize, base=base)
         else:
             super().__init__(
-                data_x, data_y, data_z, offset=offset, normalize=normalize, base=base
+                *data, cond=cond, offset=offset, normalize=normalize, base=base
             )
 
         if not isinstance(q, (int, float)) or q <= 0:
@@ -104,14 +105,15 @@ class BaseTsallisMIEstimator(ABC):
 
 
 class TsallisMIEstimator(
-    BaseTsallisMIEstimator, EffectiveValueMixin, MutualInformationEstimator
+    BaseTsallisMIEstimator, PValueMixin, MutualInformationEstimator
 ):
     """Estimator for the Tsallis mutual information.
 
     Attributes
     ----------
-    data_x, data_y : array-like
+    *data : array-like, shape (n_samples,)
         The data used to estimate the mutual information.
+        You can pass an arbitrary number of data arrays as positional arguments.
     k : int
         The number of nearest neighbors used in the estimation.
     q : float
@@ -125,6 +127,14 @@ class TsallisMIEstimator(
         Delay/lag/shift between the variables. Default is no shift.
     normalize : bool, optional
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def _calculate(self):
@@ -150,8 +160,11 @@ class TsallisCMIEstimator(
 
     Parameters
     ----------
-    data_x, data_y, data_z : array-like
+    *data : array-like, shape (n_samples,)
         The data used to estimate the conditional mutual information.
+        You can pass an arbitrary number of data arrays as positional arguments.
+    cond : array-like
+        The conditional data used to estimate the conditional mutual information.
     k : int
         The number of nearest neighbors to consider.
     q : float | int
@@ -163,6 +176,14 @@ class TsallisCMIEstimator(
         issues with zero distances.
     normalize
         If True, normalize the data before analysis.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def _calculate(self):

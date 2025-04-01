@@ -2,18 +2,18 @@
 
 from numpy import column_stack, issubdtype, integer
 
-from ... import Config
-from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
+from ..base import EntropyEstimator
+from ..utils.array import assure_2d_data
 from ..utils.exponential_family import (
     calculate_common_entropy_components,
     exponential_family_iq,
     exponential_family_i1,
 )
-from ..utils.array import assure_2d_data
+from ... import Config
+from ...utils.types import LogBaseType
 
 
-class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
+class RenyiEntropyEstimator(EntropyEstimator):
     r"""Estimator for the Rényi entropy.
 
     Attributes
@@ -32,6 +32,16 @@ class RenyiEntropyEstimator(PValueMixin, EntropyEstimator):
         If the Renyi parameter is not a positive number.
     ValueError
         If the number of nearest neighbors is not a positive integer.
+
+    Notes
+    -----
+    The Rényi entropy is a generalization of Shannon entropy,
+    where the small values of probabilities are emphasized for :math:`\alpha < 1`,
+    and higher probabilities are emphasized for :math:`\alpha > 1`.
+    For :math:`\alpha = 1`, it reduces to Shannon entropy.
+    The Rényi-Entropy class can be particularly interesting for systems where additivity
+    (in Shannon sense) is not always preserved, especially in nonlinear complex systems,
+    such as when dealing with long-range forces.
     """
 
     def __init__(

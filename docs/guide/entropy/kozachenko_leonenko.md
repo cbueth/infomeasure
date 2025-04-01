@@ -23,10 +23,10 @@ $$
 $$
 
 where:
-- $\psi$ is the _digamma function_, the derivative of the logarithm of the gamma function $\Gamma(x)$,  
-- $k$ is the number of nearest neighbors,  
-- $\epsilon_i$ is twice the distance from $x_i$ to its $k^{th}$ nearest neighbor, representing the diameter of the hypersphere encompassing the $k$ neighbors,  
-- $c_d$ is the volume of the unit ball in $d$-dimensional space, where $\log c_d = 0$ for the maximum norm and $c_d = \pi^{d/2} / (\Gamma(1 + d/2) \cdot 2^d)$ for Euclidean spaces.  
+- $\psi$ is the _digamma function_, the derivative of the logarithm of the gamma function $\Gamma(x)$,
+- $k$ is the number of nearest neighbors,
+- $\epsilon_i$ is twice the distance from $x_i$ to its $k^{th}$ nearest neighbor, representing the diameter of the hypersphere encompassing the $k$ neighbors,
+- $c_d$ is the volume of the unit ball in $d$-dimensional space, where $\log c_d = 0$ for the maximum norm and $c_d = \pi^{d/2} / (\Gamma(1 + d/2) \cdot 2^d)$ for Euclidean spaces.
 
 
 ## Usage

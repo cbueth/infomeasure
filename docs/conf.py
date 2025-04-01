@@ -22,7 +22,7 @@ from datetime import datetime
 project = "infomeasure"
 copyright = f"2024–{datetime.now().year}, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.2.1dev0"
+version = "0.3.0dev0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -86,6 +86,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
+    "sparse": ("https://sparse.pydata.org/en/stable", None),
     "scikit-learn": ("https://scikit-learn.org/stable", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
 }

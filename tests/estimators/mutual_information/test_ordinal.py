@@ -1,59 +1,63 @@
-"""Explicit symbolic / permutation mutual information estimator tests."""
+"""Explicit ordinal / permutation mutual information estimator tests."""
+
+from datetime import datetime
 
 import pytest
+from numpy import ndarray
 
+from infomeasure.estimators.entropy import OrdinalEntropyEstimator
+from tests.conftest import (
+    generate_autoregressive_series,
+    generate_autoregressive_series_condition,
+)
 from infomeasure.estimators.mutual_information import (
-    SymbolicMIEstimator,
-    SymbolicCMIEstimator,
+    OrdinalMIEstimator,
+    OrdinalCMIEstimator,
 )
 
 
 @pytest.mark.parametrize("data_len", [10, 100, 1000])
-@pytest.mark.parametrize("order", [1, 2, 5])
+@pytest.mark.parametrize("embedding_dim", [1, 2, 5])
 @pytest.mark.parametrize("offset", [0, 1, 4])
-def test_symbolic_mi(data_len, order, offset, default_rng):
+def test_ordinal_mi(data_len, embedding_dim, offset, default_rng):
     """Test the discrete mutual information estimator."""
     data_x = default_rng.integers(0, 10, data_len)
     data_y = default_rng.integers(0, 10, data_len)
-    if data_len - abs(offset) < (order - 1) + 1:
+    if data_len - abs(offset) < (embedding_dim - 1) + 1:
         with pytest.raises(ValueError):
-            est = SymbolicMIEstimator(
+            est = OrdinalMIEstimator(
                 data_x,
                 data_y,
-                order=order,
+                embedding_dim=embedding_dim,
                 offset=offset,
             )
             est.global_val()
         return
-    if order == 1:
-        est = SymbolicMIEstimator(
-            data_x,
-            data_y,
-            order=order,
-            offset=offset,
-        )
-        assert est.global_val() == 0.0  # no local values returned
-        return
-    est = SymbolicMIEstimator(
+    est = OrdinalMIEstimator(
         data_x,
         data_y,
-        order=order,
+        embedding_dim=embedding_dim,
         offset=offset,
     )
-    max_val = est._log_base(data_len)
-    assert 0 <= est.global_val() <= max_val
+
+    if embedding_dim == 1:
+        assert est.global_val() == 0.0  # no local values returned
+    else:
+        max_val = est._log_base(data_len)
+        assert 0 <= est.global_val() <= max_val
+    assert isinstance(est.local_val(), ndarray)
 
 
-@pytest.mark.parametrize("order", [-1, 1.0, "a", 1.5, 2.0])
-def test_symbolic_mi_invalid_order(order, default_rng):
-    """Test the discrete mutual information estimator with invalid order."""
+@pytest.mark.parametrize("embedding_dim", [-1, 1.0, "a", 1.5, 2.0])
+def test_ordinal_mi_invalid_embedding_dim(embedding_dim, default_rng):
+    """Test the discrete mutual information estimator with invalid embedding_dim."""
     data = list(range(10))
     with pytest.raises(ValueError):
-        SymbolicMIEstimator(data, data, order=order)
+        OrdinalMIEstimator(data, data, embedding_dim=embedding_dim)
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,order,expected",
+    "data_x,data_y,embedding_dim,expected",
     [
         ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], 1, 0.0),
         ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], 2, 0.8112781244591328),
@@ -98,14 +102,72 @@ def test_symbolic_mi_invalid_order(order, default_rng):
         ),
     ],
 )
-def test_symbolic_mi_values(data_x, data_y, order, expected):
-    """Test the symbolic mutual information estimator."""
-    est = SymbolicMIEstimator(data_x, data_y, order=order, base=2, stable=True)
+def test_ordinal_mi_values(data_x, data_y, embedding_dim, expected):
+    """Test the ordinal mutual information estimator."""
+    est = OrdinalMIEstimator(
+        data_x, data_y, embedding_dim=embedding_dim, base=2, stable=True
+    )
     assert est.global_val() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,data_z,order,expected",
+    "rng_int,embedding_dim,expected",
+    [
+        (5, 1, 0.0),
+        (5, 2, 0.004881048),
+        (5, 3, 0.047311377),
+        (5, 4, 0.535645231),
+        (5, 5, 3.42514917),
+        (6, 2, 0.001331982),
+        (6, 3, 0.037669081),
+        (6, 4, 0.470012588),
+        (7, 3, 0.080807403),
+        (7, 4, 0.604484529),
+    ],
+)
+def test_ordinal_mi_values_autoregressive(rng_int, embedding_dim, expected):
+    """Test the ordinal mutual information estimator with autoregressive data."""
+    data_x, data_y = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4)
+    est = OrdinalMIEstimator(
+        data_x, data_y, embedding_dim=embedding_dim, base=2, stable=True
+    )
+    res = est.result()
+    assert isinstance(est.result(), float)
+    assert res == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
+
+
+@pytest.mark.parametrize(
+    "rng_int,embedding_dim,expected",
+    [
+        (5, 1, 0.0),
+        (5, 2, 0.003364152),
+        (5, 3, 0.160698565),
+        (5, 4, 2.717637411),
+        (5, 5, 2.93783424),
+        (6, 2, 0.006491342),
+        (6, 3, 0.145752994),
+        (6, 4, 2.675821510),
+        (7, 3, 0.153249279),
+        (7, 4, 2.702059925),
+    ],
+)
+def test_ordinal_mi_values_autoregressive_condition(rng_int, embedding_dim, expected):
+    """Test the ordinal mutual information estimator with autoregressive data."""
+    data_x, data_y, cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est = OrdinalCMIEstimator(
+        data_x, data_y, cond=cond, embedding_dim=embedding_dim, base=2, stable=True
+    )
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
+
+
+@pytest.mark.parametrize(
+    "data_x,data_y,cond,embedding_dim,expected",
     [
         ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 1, 0.0),
         ([0, 1, 0, 1, 2], [0, 1, 0, 1, 2], [0, 2, 0, 1, 0], 2, 1 / 2),
@@ -156,9 +218,20 @@ def test_symbolic_mi_values(data_x, data_y, order, expected):
         ),
     ],
 )
-def test_symbolic_cmi_values(data_x, data_y, data_z, order, expected):
-    """Test the symbolic conditional mutual information estimator."""
-    est = SymbolicCMIEstimator(
-        data_x, data_y, order=order, data_z=data_z, base=2, stable=True
+def test_ordinal_cmi_values(data_x, data_y, cond, embedding_dim, expected):
+    """Test the ordinal conditional mutual information estimator."""
+    est = OrdinalCMIEstimator(
+        data_x, data_y, embedding_dim=embedding_dim, cond=cond, base=2, stable=True
     )
     assert est.global_val() == pytest.approx(expected)
+    est.local_val()  # Checks internally for `global = mean(local)`
+
+
+@pytest.mark.parametrize("rng_int", [1, 2, 3, 4, 5, 6])
+@pytest.mark.parametrize("emb_dim", [1, 2, 3, 4, 8])
+def test_entropy_equality(rng_int, default_rng, emb_dim):
+    """Test the equality of MI(x, x) = H(x)."""
+    x = default_rng.normal(scale=1, size=1000)
+    mutual_info = OrdinalMIEstimator(x, x, embedding_dim=emb_dim, base="e")
+    entropy = OrdinalEntropyEstimator(x, embedding_dim=emb_dim, base="e")
+    assert entropy.result() == pytest.approx(mutual_info.result())

@@ -1,7 +1,7 @@
 """Helper function for the unit ball volume."""
 
-from scipy.special import gamma
 from numpy import pi
+from scipy.special import gamma
 
 
 def unit_ball_volume(d, r=1, p=2):

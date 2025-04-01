@@ -77,6 +77,45 @@ def test_ksg_mi(data_x, data_y, k, minkowski_p, expected):
 
 
 @pytest.mark.parametrize(
+    "data_x,data_y,k,minkowski_p,base,expected",
+    [
+        ([1.0, 1.2, 0.9, 1.1, 1.3], [1.3, 1.1, 0.9, 1.2, 1.0], 4, 3, 2, -0.36067376),
+        (
+            [1.04, 1.23, 0.92, 1.1, 1.34],
+            [1.3, 1.1, 0.9, 1.2, 1.0],
+            3,
+            inf,
+            2,
+            -0.40876359,
+        ),
+        (linspace(0, 1, 100), linspace(0, 1, 100), 4, 3, 2, 4.0915468),
+        (
+            [-2.49, 1.64, -3.05, 7.95, -5.96, 1.77, -5.24, 7.03, -0.11, -1.86],
+            [-8.59, 8.41, 3.76, 3.77, 5.69, 1.75, -3.2, -4.0, -4.0, 6.85],
+            4,
+            inf,
+            2,
+            -0.3276406,
+        ),
+    ],
+)
+def test_ksg_mi_base(data_x, data_y, k, minkowski_p, base, expected):
+    """Test the Kraskov-Stoegbauer-Grassberger mutual information estimator with a
+    different base."""
+    est = KSGMIEstimator(
+        data_x,
+        data_y,
+        k=k,
+        minkowski_p=minkowski_p,
+        noise_level=0,  # for reproducibility
+        base=base,
+    )
+    assert isinstance(est.result(), float)
+    assert est.result() == pytest.approx(expected)
+    assert isinstance(est.local_val(), ndarray)
+
+
+@pytest.mark.parametrize(
     "data_x,data_y,k,minkowski_p,expected",
     [
         ([1.0, 1.2, 0.9, 1.1, 1.3], [1.3, 1.1, 0.9, 1.2, 1.0], 4, 1, -0.25),
@@ -150,7 +189,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,data_z,k,minkowski_p,expected",
+    "data_x,data_y,cond,k,minkowski_p,base,expected",
     [
         (
             [1.0, 1.2, 0.9, 1.1, 1.3],
@@ -158,6 +197,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             4,
             1,
+            "e",
             -0.25,
         ),
         (
@@ -166,6 +206,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             4,
             2,
+            "e",
             -0.25,
         ),
         (
@@ -174,6 +215,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             4,
             3,
+            "e",
             -0.25,
         ),
         (
@@ -182,6 +224,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             1,
             2,
+            "e",
             -1.13333333333,
         ),
         (
@@ -190,6 +233,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             2,
             2,
+            "e",
             -0.699999999999,
         ),
         (
@@ -198,6 +242,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             3,
             2,
+            "e",
             -0.4833333,
         ),
         (
@@ -206,6 +251,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             1,
             inf,
+            "e",
             -0.81666666,
         ),
         (
@@ -214,6 +260,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             2,
             inf,
+            "e",
             -0.533333333,
         ),
         (
@@ -222,6 +269,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             3,
             inf,
+            "e",
             -1 / 3,
         ),
         (
@@ -230,6 +278,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(0, 1, 100),
             4,
             1,
+            "e",
             0.1326551226,
         ),
         (
@@ -238,6 +287,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(0, 1, 100),
             4,
             2,
+            "e",
             0.11333333333,
         ),
         (
@@ -246,6 +296,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(0, 1, 100),
             4,
             3,
+            "e",
             -0.242,
         ),
         (
@@ -254,6 +305,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(0, 1, 100),
             1,
             2,
+            "e",
             -1.49,
         ),
         (
@@ -262,6 +314,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(0, 1, 100),
             2,
             2,
+            "e",
             -0.493333333,
         ),
         (
@@ -270,6 +323,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(0, 1, 100),
             3,
             2,
+            "e",
             -0.210666666,
         ),
         (
@@ -278,6 +332,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(1, 0, 100),
             3,
             2,
+            "e",
             -0.210666666,
         ),
         (
@@ -286,6 +341,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             linspace(1, 0, 100),
             3,
             2,
+            "e",
             -0.210666666,
         ),
         (
@@ -294,6 +350,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [-8.59, 8.41, 3.76, 3.77, 5.69, 1.75, -3.2, -4.0, -4.0, 6.85],
             4,
             inf,
+            "e",
             -0.3055952380,
         ),
         (
@@ -302,6 +359,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [11.08, 8.41, 11.47, 8.78, 14.09, 6.03, 10.67, 9.45, 12.72, 11.12],
             4,
             inf,
+            "e",
             -0.29257936507,
         ),
         (
@@ -310,6 +368,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [-2.49, 1.64, -3.05, 7.95, -5.96, 1.77, -5.24, 7.03, -0.11, -1.86],
             4,
             inf,
+            "e",
             -0.27,
         ),
         (
@@ -318,6 +377,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [0.20, -0.97, 0.11, 1.16, 0.14, 1.18, -1.43, 0.72, 0.02, 2.29],
             4,
             inf,
+            "e",
             -0.0914285714,
         ),
         (
@@ -326,20 +386,40 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
             [-0.6, 0.4, -0.6, -0.6, -1.3, -1.3, -1.3, -0.6, -0.6, 0.4],
             4,
             inf,
+            "e",
             -0.45,
+        ),
+        (
+            [1.8, 1.1, 1.8, 1.1, 1.8, -2.0, 1.1, 1.8, -2.0, 1.1],
+            [-0.6, 0.4, -0.6, -0.6, -1.3, -1.3, -1.3, -0.6, -0.6, 0.4],
+            [-0.6, 0.4, -0.6, -0.6, -1.3, -1.3, -1.3, -0.6, -0.6, 0.4],
+            4,
+            inf,
+            2,
+            -0.6492127,
+        ),
+        (
+            [1.04, 1.23, 0.92, 1.1, 1.34],
+            [1.3, 1.1, 0.9, 1.2, 1.0],
+            [1.0, 0.9, 1.2, 1.3, 1.1],
+            3,
+            inf,
+            10,
+            -0.14476482,
         ),
     ],
 )
-def test_ksg_cmi(data_x, data_y, data_z, k, minkowski_p, expected):
+def test_ksg_cmi(data_x, data_y, cond, k, minkowski_p, base, expected):
     """Test the conditional
     Kraskov-Stoegbauer-Grassberger mutual information estimator."""
     est = KSGCMIEstimator(
         data_x,
         data_y,
-        data_z=data_z,
+        cond=cond,
         k=k,
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
+        base=base,
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)

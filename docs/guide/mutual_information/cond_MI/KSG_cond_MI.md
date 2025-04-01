@@ -15,9 +15,7 @@ $$
 
 where,
 - $k$ is the number of nearest neighbors,
-- $n_z(i)$ is the count of samples in the marginal space $\{z\}$,
-- $n_{xz}(i)$ is the count of samples in the joint space $\{x, z\}$,
-- $n_{yz}(i)$ is the count of samples in the joint space $\{y, z\}$,
+- $ n_x(\cdot) $ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector,  the size of the hypercube in each of the marginal spaces is defined based on the distance to the $k-th$ nearest neighbor in the highest dimensional space.
 - $\psi(\cdot)$ denotes the _digamma function_,
 - $\langle \cdot \rangle$ represents the expectation operator.
 
@@ -26,6 +24,3 @@ Similarly, the local conditional MI estimator is:
 $$
 i(x; y \mid z) = \psi(k) +  \psi(n_z(i) + 1) - \psi(n_{xz}(i) + 1) - \psi(n_{yz}(i) + 1)
 $$
-
-
-

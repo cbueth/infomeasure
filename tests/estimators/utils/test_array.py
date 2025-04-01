@@ -36,7 +36,6 @@ from infomeasure.estimators.utils.array import assure_2d_data
     ],
 )
 def test_assure_2d_data(data, expected):
-    print(type(data))
     result = assure_2d_data(data)
     assert array_equal(result, expected)
 

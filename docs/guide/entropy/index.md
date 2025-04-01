@@ -27,7 +27,7 @@ For a continuous random variable $X$ with the probability distribution funciton 
 $$
 H(X) = -\int_{X} p(x) \log_b p(x) \, dx
 $$
-The differential entropy is closely related to the Shannon entropy {cite:p}`cover2012elements`.  
+The differential entropy is closely related to the Shannon entropy {cite:p}`cover2012elements`.
 ````
 
 The shannon formulation is generic and of which the Hartly would be a special case where all elements are eqi-probable.
@@ -38,8 +38,8 @@ It is the measure of amount of information in message expressed in binary digits
 
 > Note: That the base of the algorithm in entropy formula only changes the value of the entropy by a multiplicative constant, hence using one form to another is only a matter of convenience.
 
-#### Local Entropy 
-The **local information** measure also refer to as a **point-wise** information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
+#### Local Entropy
+The **local information** measure also refer to as a **point-wise** information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ (at each time step or observation) rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
 Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook, as it characterize the information attributed at each local point in time.
 The  **local entropy** of an outcome $x$ of measurement of the variable $X$ is give by:
 
@@ -47,7 +47,7 @@ $$
 h(x) = -\log_b p(x).
 $$
 
-where, $h(x)$ is the information contain attributed to the individual measurement $x$. 
+where, $h(x)$ is the information contain attributed to the individual measurement $x$.
 The $H(X)$ is the **average** or **expectation value** of the local information content for each outcome $x$ in $X$, such as:
 
 $$
@@ -56,7 +56,7 @@ $$
 
 > Note:
 > - The package allows user to obtain both the local and global (average) values to the Entropy computation.
-> - A lower-case symbol is used to denote local information-theoretic measures in this documentation. 
+> - A lower-case symbol is used to denote local information-theoretic measures in this documentation.
 
 As successful as Shannon’s information theory has been, with time, it was clear that it is capable of dealing with only a limited class of systems one might hope to address in statistical physics.
 There was a growing interest to look for more general form of information applicable to diverse complex systems, such as stock market returns, protein folding, percolation, etc.

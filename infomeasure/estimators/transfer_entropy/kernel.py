@@ -4,15 +4,16 @@ from abc import ABC
 
 from numpy import zeros
 
-from ..utils.te_slicing import te_observations, cte_observations
-from ... import Config
-from ...utils.types import LogBaseType
 from ..base import (
+    PValueMixin,
     EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
 from ..utils.kde import kde_probability_density_function
+from ..utils.te_slicing import te_observations, cte_observations
+from ... import Config
+from ...utils.types import LogBaseType
 
 
 class BaseKernelTEEstimator(ABC):
@@ -35,6 +36,7 @@ class BaseKernelTEEstimator(ABC):
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
         Not compatible with the ``cond`` parameter / conditional TE.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int, optional
@@ -57,6 +59,7 @@ class BaseKernelTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
+        offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the BaseKernelTEEstimator.
@@ -73,6 +76,7 @@ class BaseKernelTEEstimator(ABC):
             Delay/lag/shift between the variables, representing propagation time.
             Assumed time taken by info to transfer from source to destination
             Not compatible with the ``cond`` parameter / conditional TE.
+            Alternatively called `offset`.
         step_size : int, optional
             Step size between elements for the state space reconstruction.
         src_hist_len, dest_hist_len : int, optional
@@ -89,6 +93,7 @@ class BaseKernelTEEstimator(ABC):
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
+                offset=offset,
                 base=base,
             )
         else:
@@ -101,6 +106,7 @@ class BaseKernelTEEstimator(ABC):
                 dest_hist_len=dest_hist_len,
                 cond_hist_len=cond_hist_len,
                 prop_time=prop_time,
+                offset=offset,
                 base=base,
             )
         self.bandwidth = bandwidth
@@ -108,7 +114,7 @@ class BaseKernelTEEstimator(ABC):
 
 
 class KernelTEEstimator(
-    BaseKernelTEEstimator, EffectiveValueMixin, TransferEntropyEstimator
+    BaseKernelTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
 ):
     """Estimator for transfer entropy using Kernel Density Estimation (KDE).
 
@@ -126,10 +132,16 @@ class KernelTEEstimator(
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
+        Alternatively called `offset`.
     step_size : int
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def _calculate(self):
@@ -153,6 +165,7 @@ class KernelTEEstimator(
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
             permute_src=self.permute_src,
+            resample_src=self.resample_src,
         )
         local_te_values = zeros(len(joint_space_data))
 
@@ -218,6 +231,11 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
         and conditional data.
     prop_time : int, optional
         Not compatible with the ``cond`` parameter / conditional TE.
+
+    Notes
+    -----
+    A small ``bandwidth`` can lead to under-sampling,
+    while a large ``bandwidth`` may over-smooth the data, obscuring details.
     """
 
     def _calculate(self):

@@ -5,14 +5,14 @@ kernelspec:
 ---
 
 # Introduction
-In this era of modernity, the systems we study and the problems we tackle are becoming increasingly complex, demanding innovative approaches to address them. 
+In this era of modernity, the systems we study and the problems we tackle are becoming increasingly complex, demanding innovative approaches to address them.
 One such approach involves leveraging **Information Theory** (cite).
-The core idea is to distill any given problem into its fundamental informational components and analyze the underlying dynamics through the lens of information sharing and transfer. 
-In recent years, **information-theoretic measures**—such as entropy, mutual information, and transfer entropy—have gained significant traction across diverse scientific disciplines (cite). 
+The core idea is to distill any given problem into its fundamental informational components and analyze the underlying dynamics through the lens of information sharing and transfer.
+In recent years, **information-theoretic measures**—such as entropy, mutual information, and transfer entropy—have gained significant traction across diverse scientific disciplines (cite).
 Researchers from various fields, many of whom are not formally trained in information theory, often seek to apply these measures to their specific problems of interest.
-However, a common challenge arises: despite the growing interest, there is often a lack of accessible tools that allow users to estimate these measures using their preferred estimation techniques. 
-This Python package is designed for anyone looking to implement **information-theoretic measures** within their field of study. 
-It provides comprehensive descriptions and implementations of these measures, making them accessible and practical to use.  
+However, a common challenge arises: despite the growing interest, there is often a lack of accessible tools that allow users to estimate these measures using their preferred estimation techniques.
+This Python package is designed for anyone looking to implement **information-theoretic measures** within their field of study.
+It provides comprehensive descriptions and implementations of these measures, making them accessible and practical to use.
 
 The package includes implementations of the following information (shannon) -theoretic measures:
 - Entropy $(H)$
@@ -27,26 +27,26 @@ Few more measures such as:
 - Renyi $H$, $MI$ and $TE$
 - Tsallis $H$, $MI$ and $TE$
 
-# Estimation 
+# Estimation
 Experimental or observational data come in various formats but generally fall into discrete or continuous categories. Discrete datasets consist of integer values (e.g., 0,1) and represented as the realization of discrete random variables (RVs). Continuous datasets contain real numbers and can be represented as realization of continuous RVs.  The  **_probability mass function (pmf)_** defines discrete RVs while the **_probability density function (pdf)_** applies to continuous RVs.
-> Note: This package provides estimation techniques for both discrete and continuous variables. 
+> Note: This package provides estimation techniques for both discrete and continuous variables.
 
 When estimating information theoretic measures—especially the underlying probability distribution function $ p(x)$—one must choose between **_parametric_** and **_non-parametric_** techniques to begin with.
-- **_Parametric estimation_** assumes $ p(x)$ belongs to a known family (e.g., Gaussian, Poisson, Student-t), with its shape defined by a set of parameters.  
+- **_Parametric estimation_** assumes $ p(x)$ belongs to a known family (e.g., Gaussian, Poisson, Student-t), with its shape defined by a set of parameters.
 - **_Non-parametric estimation_** makes no such assumptions, making it ideal when the distribution is unknown or doesn’t fit standard families.
 > Note: This package focuses on non-parametric estimation techniques.
 
 Estimating information measures (for that matter any measures) from real-life data inherently involves **bias** (the expected difference between the true and estimated values) and **variance** (the variability in estimates).  To ensure accuracy, estimation techniques must minimize both. This package offers a variety of estimation methods, allowing users to choose the most suitable one.  Additionally, it provides an option to compute **_p-values_** for measures like Mutual Information (MI) and Transfer Entropy (TE) by assuming no relationship as the null hypothesis.  For TE, we implement effective Transfer Entropy $( eTE )$, a method designed to reduce bias from finite sample effects. More details are available in the TE section {ref}`transfer_entropy_overview`.
-> Note: This Package 
-> - allows users to compute **p-values** for MI and TE to assess significance.  
+> Note: This Package
+> - allows users to compute **p-values** for MI and TE to assess significance.
 > - includes an implementation of **effective Transfer Entropy $(eTE)$**, reducing bias from finite sample sizes.
 
 This package will also allow one to compute the **local information measure** together with their well-known average counterparts. Such local values within their global values are known to provide insights into the dynamic of the system being studied .
 
 ## Types of Estimation techniques available
 For discrete variable we have discrete estimation and for the continuous variable we have the following three estimation techniques implemented:
-- Kernel Estimation 
-- Symbolic Estimation / Permutation Estimation 
+- Kernel Estimation
+- Symbolic Estimation / Permutation Estimation
 - Kraskov-Stoegbauer-Grassberger (KSG) / Metric / kNN  Estimation
 
 Let's compile all the estimation techniques along with the corresponding Shannon information measures they can estimate into a single table, as shown below:
@@ -102,14 +102,14 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - JSD
     - ✓$^++$
     - ✓$^++$
-    - 
+    -
     - ✓$^++$
 :::
 
 In the table,
 - $^*$: Though it is written KSG as generic estimation techniques, for Entropy estimation it is known as KL estimator ({ref}`entropy_kozachenko_leonenko`)
-- $^+$: Conditional measures are estimated by using the entropy and joint entropy estimators, which are further estimated by the techniques where the tick mark is located. 
-- $^++$: JSD is estimated by using the entropy estimator which are further estimated by the techniques where the tick mark is located. 
+- $^+$: Conditional measures are estimated by using the entropy and joint entropy estimators, which are further estimated by the techniques where the tick mark is located.
+- $^++$: JSD is estimated by using the entropy estimator which are further estimated by the techniques where the tick mark is located.
 
 <!-- Carlson to revisit the description below -->
 # Estimator Usage

@@ -5,5 +5,5 @@ kernelspec:
 ---
 
 (Schreiber_article_demo)=
-# Schreiber's TE article 
+# Schreiber's TE article
 Demos to recreate Schreiber's original transfer entropy examples

@@ -1,8 +1,8 @@
-"""Module for the discrete transfer entropy estimator."""
+"""Module for the Ordinal / Permutation transfer entropy estimator."""
 
 from abc import ABC
 
-from numpy import ndarray
+from numpy import integer, issubdtype, ndarray
 
 from ... import Config
 from ...utils.config import logger
@@ -14,23 +14,28 @@ from ..base import (
     TransferEntropyEstimator,
 )
 from ..utils.discrete_transfer_entropy import combined_te_form
+from ..utils.ordinal import symbolize_series
 from ..utils.te_slicing import cte_observations, te_observations
 
 
-class BaseDiscreteTEEstimator(ABC):
-    """Base class for discrete transfer entropy estimators.
+class BaseOrdinalTEEstimator(ABC):
+    r"""Base class for the Ordinal / Permutation transfer entropy.
 
     Attributes
     ----------
     source, dest : array-like
-        The source (X) and destination (Y) data used to estimate the transfer entropy.
+        The source (X) and dest (Y) data used to estimate the transfer entropy.
     cond : array-like, optional
         The conditional data used to estimate the conditional transfer entropy.
+    embedding_dim : int
+        The size of the permutation patterns.
+    stable : bool, optional
+        If True, when sorting the data, the order of equal elements is preserved.
+        This can be useful for reproducibility and testing, but might be slower.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
-        Assumed time taken by info to transfer from source to destination.
         Not compatible with the ``cond`` parameter / conditional TE.
         Alternatively called `offset`.
     step_size : int, optional
@@ -40,6 +45,20 @@ class BaseDiscreteTEEstimator(ABC):
     cond_hist_len : int, optional
         Number of past observations to consider for the conditional data.
         Only used for conditional transfer entropy.
+
+    Raises
+    ------
+    ValueError
+        If the ``embedding_dim`` is negative or not an integer.
+    ValueError
+        If the ``embedding_dim`` is too large for the given data.
+    ValueError
+        If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that
+        the data is too small.
+
+    Warning
+    -------
+    If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
     def __init__(
@@ -47,7 +66,9 @@ class BaseDiscreteTEEstimator(ABC):
         source,
         dest,
         cond=None,
-        *,  # all following parameters are keyword-only
+        *,  # Enforce keyword-only arguments
+        embedding_dim: int,
+        stable: bool = False,
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -56,7 +77,7 @@ class BaseDiscreteTEEstimator(ABC):
         offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the BaseDiscreteTEEstimator.
+        """Initialize the BaseOrdinalTEEstimator.
 
         Parameters
         ----------
@@ -64,6 +85,11 @@ class BaseDiscreteTEEstimator(ABC):
             The source (X) and destination (Y) data used to estimate the transfer entropy.
         cond : array-like, optional
             The conditional data used to estimate the conditional transfer entropy.
+        embedding_dim : int
+            The embedding dimension of the Ordinal entropy.
+        stable : bool, optional
+            If True, when sorting the data, the order of equal elements is preserved.
+            This can be useful for reproducibility and testing, but might be slower.
         prop_time : int, optional
             Number of positions to shift the data arrays relative to each other (multiple of
             ``step_size``).
@@ -79,8 +105,11 @@ class BaseDiscreteTEEstimator(ABC):
             Number of past observations to consider for the conditional data.
             Only used for conditional transfer entropy.
         """
-        self.source = source
-        self.dest = dest
+        self.source = None
+        self.dest = None
+        self.src_hist_len = None
+        self.dest_hist_len = None
+        self.step_size = None
         if cond is None:
             super().__init__(
                 source,
@@ -105,35 +134,33 @@ class BaseDiscreteTEEstimator(ABC):
                 offset=offset,
                 base=base,
             )
-            if (
-                self.source.dtype.kind == "f"
-                or self.dest.dtype.kind == "f"
-                or (self.cond is not None and self.cond.dtype.kind == "f")
-            ):
-                logger.warning(
-                    "The data looks like a float array ("
-                    f"source: {self.source.dtype}, dest: {self.dest.dtype}). "
-                    "Make sure the data is properly symbolized or discretized "
-                    "for the transfer entropy estimation."
-                )
-            if hasattr(self, "cond") and self.cond.dtype.kind == "f":
-                logger.warning(
-                    "The conditional data looks like a float array ("
-                    f"{self.cond.dtype}). "
-                    "Make sure the data is properly symbolized or discretized "
-                    "for the conditional transfer entropy estimation."
-                )
+        if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
+            raise ValueError("The embedding_dim must be a non-negative integer.")
+        if embedding_dim == 1:
+            logger.warning(
+                "The Ordinal mutual information is always 0 for embedding_dim=1."
+            )
+        if not issubdtype(type(step_size), integer) or step_size < 0:
+            raise ValueError("The step_size must be a non-negative integer.")
+        if len(self.source) < (embedding_dim - 1) * step_size + 1:
+            raise ValueError(
+                "The data is too small for the given step_size and embedding_dim."
+            )
+        self.embedding_dim = embedding_dim
+        self.stable = stable
 
 
-class DiscreteTEEstimator(
-    BaseDiscreteTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
+class OrdinalTEEstimator(
+    BaseOrdinalTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
 ):
-    """Estimator for discrete transfer entropy.
+    r"""Estimator for the Ordinal / Permutation transfer entropy.
 
     Attributes
     ----------
     source, dest : array-like
-        The source (X) and destination (Y) data used to estimate the transfer entropy.
+        The source (X) and dest (Y) data used to estimate the transfer entropy.
+    embedding_dim : int
+        The size of the permutation patterns.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
@@ -144,14 +171,33 @@ class DiscreteTEEstimator(
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int
         Number of past observations to consider for the source and destination data.
+
+    Raises
+    ------
+    ValueError
+        If the ``embedding_dim`` is negative or not an integer.
+    ValueError
+        If the ``embedding_dim`` is too large for the given data.
+    ValueError
+        If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that
+        the data is too small.
+
+    Warning
+    -------
+    If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
-    def _calculate(self):
-        """Estimate the Discrete Transfer Entropy."""
+    def _calculate(self) -> float:
+        """Calculate the Ordinal / Permutation transfer entropy."""
+        self.symbols = tuple(
+            symbolize_series(
+                var, self.embedding_dim, self.step_size, to_int=True, stable=self.stable
+            )
+            for var in (self.source, self.dest)
+        )
         return combined_te_form(
             te_observations,
-            self.source,
-            self.dest,
+            *self.symbols,
             local=False,
             log_func=self._log_base,
             src_hist_len=self.src_hist_len,
@@ -171,8 +217,7 @@ class DiscreteTEEstimator(
         """
         return combined_te_form(
             te_observations,
-            self.source,
-            self.dest,
+            *self.symbols,
             local=True,
             log_func=self._log_base,
             src_hist_len=self.src_hist_len,
@@ -183,32 +228,52 @@ class DiscreteTEEstimator(
         )
 
 
-class DiscreteCTEEstimator(
-    BaseDiscreteTEEstimator, ConditionalTransferEntropyEstimator
-):
-    """Estimator for discrete conditional transfer entropy.
+class OrdinalCTEEstimator(BaseOrdinalTEEstimator, ConditionalTransferEntropyEstimator):
+    r"""Estimator for the Ordinal / Permutation conditional transfer entropy.
 
     Attributes
     ----------
     source, dest, cond : array-like
         The source (X), destination (Y), and conditional (Z) data used to estimate the
         conditional transfer entropy.
+    embedding_dim : int
+        The size of the permutation patterns.
+    prop_time : int, optional
+        Number of positions to shift the data arrays relative to each other (multiple of
+        ``step_size``).
+        Delay/lag/shift between the variables, representing propagation time.
+        Assumed time taken by info to transfer from source to destination.
     step_size : int
         Step size between elements for the state space reconstruction.
-    src_hist_len, dest_hist_len, cond_hist_len : int, optional
-        Number of past observations to consider for the source, destination,
-        and conditional data.
-    prop_time : int, optional
-        Not compatible with the ``cond`` parameter / conditional TE.
+    src_hist_len, dest_hist_len, cond_hist_len : int
+        Number of past observations to consider for the source, destination, and conditional data.
+
+    Raises
+    ------
+    ValueError
+        If the ``embedding_dim`` is negative or not an integer.
+    ValueError
+        If the ``embedding_dim`` is too large for the given data.
+    ValueError
+        If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that the
+        data is too small.
+
+    Warning
+    -------
+    If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
-    def _calculate(self):
-        """Estimate the Discrete Transfer Entropy."""
+    def _calculate(self) -> float:
+        """Calculate the Ordinal / Permutation conditional transfer entropy."""
+        self.symbols = tuple(
+            symbolize_series(
+                var, self.embedding_dim, self.step_size, to_int=True, stable=self.stable
+            )
+            for var in (self.source, self.dest, self.cond)
+        )
         return combined_te_form(
             cte_observations,
-            self.source,
-            self.dest,
-            self.cond,
+            *self.symbols,
             local=False,
             log_func=self._log_base,
             src_hist_len=self.src_hist_len,
@@ -227,9 +292,7 @@ class DiscreteCTEEstimator(
         """
         return combined_te_form(
             cte_observations,
-            self.source,
-            self.dest,
-            self.cond,
+            *self.symbols,
             local=True,
             log_func=self._log_base,
             src_hist_len=self.src_hist_len,

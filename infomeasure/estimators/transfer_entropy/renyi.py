@@ -4,14 +4,15 @@ from abc import ABC
 
 from numpy import issubdtype, integer
 
-from ... import Config
-from ...utils.types import LogBaseType
 from ..base import (
+    PValueMixin,
     EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
 from ..entropy.renyi import RenyiEntropyEstimator
+from ... import Config
+from ...utils.types import LogBaseType
 
 
 class BaseRenyiTEEstimator(ABC):
@@ -37,6 +38,7 @@ class BaseRenyiTEEstimator(ABC):
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
         Not compatible with the ``cond`` parameter / conditional TE.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int, optional
@@ -69,6 +71,7 @@ class BaseRenyiTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
+        offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the BaseRenyiTEEstimator.
@@ -90,6 +93,7 @@ class BaseRenyiTEEstimator(ABC):
             Delay/lag/shift between the variables, representing propagation time.
             Assumed time taken by info to transfer from source to destination
             Not compatible with the ``cond`` parameter / conditional TE.
+            Alternatively called `offset`.
         step_size : int, optional
             Step size between elements for the state space reconstruction.
         src_hist_len, dest_hist_len : int, optional
@@ -106,6 +110,7 @@ class BaseRenyiTEEstimator(ABC):
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
                 step_size=step_size,
+                offset=offset,
                 base=base,
             )
         else:
@@ -118,6 +123,7 @@ class BaseRenyiTEEstimator(ABC):
                 dest_hist_len=dest_hist_len,
                 cond_hist_len=cond_hist_len,
                 prop_time=prop_time,
+                offset=offset,
                 base=base,
             )
         if not isinstance(alpha, (int, float)) or alpha <= 0:
@@ -134,7 +140,7 @@ class BaseRenyiTEEstimator(ABC):
 
 
 class RenyiTEEstimator(
-    BaseRenyiTEEstimator, EffectiveValueMixin, TransferEntropyEstimator
+    BaseRenyiTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
 ):
     r"""Estimator for the Renyi transfer entropy.
 
@@ -155,6 +161,7 @@ class RenyiTEEstimator(
         ``step_size``).
         Delay/lag/shift between the variables, representing propagation time.
         Assumed time taken by info to transfer from source to destination.
+        Alternatively called `offset`.
     step_size : int, optional
         Step size between elements for the state space reconstruction.
     src_hist_len, dest_hist_len : int, optional
@@ -168,6 +175,16 @@ class RenyiTEEstimator(
         If the number of nearest neighbors is not a positive integer.
     ValueError
         If the step_size is not a non-negative integer.
+
+    Notes
+    -----
+    The Rényi entropy is a generalization of Shannon entropy,
+    where the small values of probabilities are emphasized for :math:`\alpha < 1`,
+    and higher probabilities are emphasized for :math:`\alpha > 1`.
+    For :math:`\alpha = 1`, it reduces to Shannon entropy.
+    The Rényi-Entropy class can be particularly interesting for systems where additivity
+    (in Shannon sense) is not always preserved, especially in nonlinear complex systems,
+    such as when dealing with long-range forces.
     """
 
     def _calculate(self):
@@ -209,6 +226,16 @@ class RenyiCTEEstimator(BaseRenyiTEEstimator, ConditionalTransferEntropyEstimato
         If the number of nearest neighbors is not a positive integer.
     ValueError
         If the step_size is not a non-negative integer.
+
+    Notes
+    -----
+    The Rényi entropy is a generalization of Shannon entropy,
+    where the small values of probabilities are emphasized for :math:`\alpha < 1`,
+    and higher probabilities are emphasized for :math:`\alpha > 1`.
+    For :math:`\alpha = 1`, it reduces to Shannon entropy.
+    The Rényi-Entropy class can be particularly interesting for systems where additivity
+    (in Shannon sense) is not always preserved, especially in nonlinear complex systems,
+    such as when dealing with long-range forces.
     """
 
     def _calculate(self):

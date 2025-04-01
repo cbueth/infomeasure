@@ -4,8 +4,8 @@
 Importantly, the TE can be conditioned on other possible information sources $Z$ , to eliminate their influence from being mistaken as that of the source $Y$.
 
 $$
-TE(X \to Y \mid Z) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}} 
-p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}) 
+TE(X \to Y \mid Z) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}}
+p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})
 \log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})}
 {p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})} \right).
 $$
@@ -31,20 +31,20 @@ $$
 T_{X \rightarrow Y \mid Z}(k, l) = \langle t_{X \rightarrow Y}(n + 1, k, l) \rangle,
 $$
 
-## CTE Estimation 
+## CTE Estimation
 The CTE expression above can be written as the combination of entropies and joint entropies as follows:
 
 $$
-TE(X \to Y \mid Z) = H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}) 
-- H(\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}) 
-- H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}) 
+TE(X \to Y \mid Z) = H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})
+- H(\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})
+- H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})
 + H(\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}).
 $$
 
 While `estimating conditional TE`, the above formulation has been used to compute the respective entropies and joint entropies from available estimation techniques (detail: {ref}`Types of Estimation techniques available`. Hence, user can choose the desired techniques to estimate the conditional TE, which are:
-- Discrete estimation [{ref}`discrete_entropy`]  
-- Symbolic estimation [{ref}`symbolic_entropy`]  
-- Kernel estimation [{ref}`kernel_entropy`]  
+- Discrete estimation [{ref}`discrete_entropy`]
+- Symbolic estimation [{ref}`symbolic_entropy`]
+- Kernel estimation [{ref}`kernel_entropy`]
 
 However, one has to be careful about the biases arising form the differing dimensionality of the states spaces across the terms in above equation. The KSG method is known to have reduce such biases, we here have implemented the dedicated formulation to compute the conditional TE via KSG as explained in subsequent section.
 

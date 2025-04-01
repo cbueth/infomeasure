@@ -6,8 +6,8 @@ functions for these distributions.
 """
 
 from numpy import pi, mean as np_mean, exp as np_exp
-from scipy.special import gamma, digamma
 from scipy.spatial import KDTree
+from scipy.special import gamma, digamma
 
 
 def calculate_common_entropy_components(data, k):

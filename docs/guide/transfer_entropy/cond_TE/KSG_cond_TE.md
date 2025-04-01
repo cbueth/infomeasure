@@ -8,8 +8,8 @@ kernelspec:
 Kraskov–Grassberger–Stögbauer (KSG) method was originally developed for estimating MI ({ref}`KSG_MI`) {cite:p}`miKSG2004`, ever since it has  been adapted to estimate other information measures such as {ref}`cond_TE_overview` (CTE) {cite:p}`cond_TE_Ostargard`.  The CTE between two variables $X$ and $Y$ by conditioning the third variable $Z$, ie. CTE ($TE(X \to Y \mid Z$) is obtained by following expression:
 
 $$
-TE(X \to Y \mid Z) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}} + 1 \right) 
-- \psi \left( n_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}} + 1 \right) 
+TE(X \to Y \mid Z) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}} + 1 \right)
+- \psi \left( n_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}} + 1 \right)
 - \psi \left( n_{\mathbf{x}_n^{(k)}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}} + 1 \right) \right\rangle_n
 $$
 

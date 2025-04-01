@@ -47,13 +47,13 @@ from infomeasure.estimators.mutual_information import (
 )
 def test_renyi_mi(data_x, data_y, k, alpha, expected):
     """Test the Renyi mutual information estimator."""
-    est = RenyiMIEstimator(data_x, data_y, k=k, alpha=alpha, base=2)
+    est = RenyiMIEstimator(data_x, data_y, k=k, alpha=alpha, base=2, noise_level=0)
     res = est.result()
     assert res == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,data_z,k,alpha,expected",
+    "data_x,data_y,cond,k,alpha,expected",
     [
         ([1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0], 2, 1.0, -0.14098512),
         ([1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0], 2, 1.1, -0.14098512),
@@ -87,7 +87,7 @@ def test_renyi_mi(data_x, data_y, k, alpha, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             2,
             2.0,
-            0.057952978903,
+            0.057952978,
         ),
         (
             [-2.49, 1.64, -3.05, 7.95, -5.96, 1.77, -5.24, 7.03, -0.11, -1.86],
@@ -99,9 +99,11 @@ def test_renyi_mi(data_x, data_y, k, alpha, expected):
         ),
     ],
 )
-def test_renyi_cmi(data_x, data_y, data_z, k, alpha, expected):
+def test_renyi_cmi(data_x, data_y, cond, k, alpha, expected):
     """Test the conditional Renyi mutual information estimator."""
-    est = RenyiCMIEstimator(data_x, data_y, data_z, k=k, alpha=alpha, base=2)
+    est = RenyiCMIEstimator(
+        data_x, data_y, cond=cond, k=k, alpha=alpha, base=2, noise_level=0
+    )
     res = est.result()
     assert res == pytest.approx(expected)
 
@@ -120,9 +122,12 @@ def test_renyi_cmi(data_x, data_y, data_z, k, alpha, expected):
     ),
 )
 def test_renyi_cmi_autoregressive(rng_int, k, alpha, expected):
-    """Test the Renyi conditional mutual information estimator with autoregressive data."""
-    data_x, data_y, data_z = generate_autoregressive_series_condition(
+    """Test the Renyi conditional mutual information estimator
+    with autoregressive data."""
+    data_x, data_y, cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
-    est = RenyiCMIEstimator(data_x, data_y, data_z, k=k, alpha=alpha, base=2)
+    est = RenyiCMIEstimator(
+        data_x, data_y, cond=cond, k=k, alpha=alpha, base=2, noise_level=0
+    )
     assert est.result() == pytest.approx(expected)

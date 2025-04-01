@@ -1,12 +1,13 @@
 """Test the TE slicing utility functions."""
 
 import pytest
-from numpy import arange, array, hstack, array_equal
+from numpy import arange, array, hstack, array_equal, column_stack
 from numpy.random import default_rng
 from numpy.testing import assert_equal
 
 from infomeasure.estimators.utils.te_slicing import (
     te_observations,
+    cte_observations,
 )
 
 
@@ -32,7 +33,13 @@ def test_te_observations_old_implementation(
         data_dest_past_embedded,
         marginal_1_space_data,
         marginal_2_space_data,
-    ) = te_observations(src, dest, src_hist_len, dest_hist_len, step_size)
+    ) = te_observations(
+        src,
+        dest,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        step_size=step_size,
+    )
 
     # Old implementation
     n = len(src)
@@ -57,52 +64,670 @@ def test_te_observations_old_implementation(
     )
 
 
-def test_te_observations():
+@pytest.mark.parametrize(
+    "source,dest,src_hist_len,dest_hist_len,step_size,expected",
+    [
+        (
+            arange(10),
+            arange(10, 20),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 2, 4, 12, 14, 16],
+                    [2, 4, 6, 14, 16, 18],
+                ],
+                [
+                    [12, 14],
+                    [14, 16],
+                ],
+                [
+                    [0, 2, 4, 12, 14],
+                    [2, 4, 6, 14, 16],
+                ],
+                [
+                    [12, 14, 16],
+                    [14, 16, 18],
+                ],
+            ),
+        ),
+        (
+            arange(10).reshape(-1, 1),
+            arange(10, 20).reshape(-1, 1),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 2, 4, 12, 14, 16],
+                    [2, 4, 6, 14, 16, 18],
+                ],
+                [
+                    [12, 14],
+                    [14, 16],
+                ],
+                [
+                    [0, 2, 4, 12, 14],
+                    [2, 4, 6, 14, 16],
+                ],
+                [
+                    [12, 14, 16],
+                    [14, 16, 18],
+                ],
+            ),
+        ),
+        (
+            arange(10).reshape(-1, 1, 1),
+            arange(10, 20).reshape(-1, 1, 1, 1),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 2, 4, 12, 14, 16],
+                    [2, 4, 6, 14, 16, 18],
+                ],
+                [
+                    [12, 14],
+                    [14, 16],
+                ],
+                [
+                    [0, 2, 4, 12, 14],
+                    [2, 4, 6, 14, 16],
+                ],
+                [
+                    [12, 14, 16],
+                    [14, 16, 18],
+                ],
+            ),
+        ),
+        (
+            column_stack([arange(10), arange(10)]),
+            column_stack([arange(10, 20), arange(10, 20)]),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 0, 2, 2, 4, 4, 12, 12, 14, 14, 16, 16],
+                    [2, 2, 4, 4, 6, 6, 14, 14, 16, 16, 18, 18],
+                ],
+                [
+                    [12, 12, 14, 14],
+                    [14, 14, 16, 16],
+                ],
+                [
+                    [0, 0, 2, 2, 4, 4, 12, 12, 14, 14],
+                    [2, 2, 4, 4, 6, 6, 14, 14, 16, 16],
+                ],
+                [
+                    [12, 12, 14, 14, 16, 16],
+                    [14, 14, 16, 16, 18, 18],
+                ],
+            ),
+        ),
+        (
+            column_stack([arange(10), arange(10, 20)]),
+            column_stack([arange(20, 30), arange(30, 40)]),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 10, 2, 12, 4, 14, 22, 32, 24, 34, 26, 36],
+                    [2, 12, 4, 14, 6, 16, 24, 34, 26, 36, 28, 38],
+                ],
+                [
+                    [22, 32, 24, 34],
+                    [24, 34, 26, 36],
+                ],
+                [
+                    [0, 10, 2, 12, 4, 14, 22, 32, 24, 34],
+                    [2, 12, 4, 14, 6, 16, 24, 34, 26, 36],
+                ],
+                [
+                    [22, 32, 24, 34, 26, 36],
+                    [24, 34, 26, 36, 28, 38],
+                ],
+            ),
+        ),
+        (  # mixed dimensions
+            column_stack([arange(10), arange(10, 20)]),
+            arange(20, 30),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 10, 2, 12, 4, 14, 22, 24, 26],
+                    [2, 12, 4, 14, 6, 16, 24, 26, 28],
+                ],
+                [
+                    [22, 24],
+                    [24, 26],
+                ],
+                [
+                    [0, 10, 2, 12, 4, 14, 22, 24],
+                    [2, 12, 4, 14, 6, 16, 24, 26],
+                ],
+                [
+                    [22, 24, 26],
+                    [24, 26, 28],
+                ],
+            ),
+        ),
+        (
+            arange(10),
+            column_stack([arange(20, 30), arange(30, 40)]),
+            3,
+            2,
+            2,
+            (
+                [
+                    [0, 2, 4, 22, 32, 24, 34, 26, 36],
+                    [2, 4, 6, 24, 34, 26, 36, 28, 38],
+                ],
+                [
+                    [22, 32, 24, 34],
+                    [24, 34, 26, 36],
+                ],
+                [
+                    [0, 2, 4, 22, 32, 24, 34],
+                    [2, 4, 6, 24, 34, 26, 36],
+                ],
+                [
+                    [22, 32, 24, 34, 26, 36],
+                    [24, 34, 26, 36, 28, 38],
+                ],
+            ),
+        ),
+        (
+            arange(10),
+            column_stack([arange(20, 30), arange(30, 40)]),
+            1,
+            2,
+            3,
+            (
+                [
+                    [3, 20, 30, 23, 33, 26, 36],
+                    [6, 23, 33, 26, 36, 29, 39],
+                ],
+                [
+                    [20, 30, 23, 33],
+                    [23, 33, 26, 36],
+                ],
+                [
+                    [3, 20, 30, 23, 33],
+                    [6, 23, 33, 26, 36],
+                ],
+                [
+                    [20, 30, 23, 33, 26, 36],
+                    [23, 33, 26, 36, 29, 39],
+                ],
+            ),
+        ),
+        (
+            column_stack([arange(20, 30), arange(30, 40)]),
+            arange(10),
+            2,
+            1,
+            1,
+            (
+                [
+                    [20, 30, 21, 31, 1, 2],
+                    [21, 31, 22, 32, 2, 3],
+                    [22, 32, 23, 33, 3, 4],
+                    [23, 33, 24, 34, 4, 5],
+                    [24, 34, 25, 35, 5, 6],
+                    [25, 35, 26, 36, 6, 7],
+                    [26, 36, 27, 37, 7, 8],
+                    [27, 37, 28, 38, 8, 9],
+                ],
+                [[1], [2], [3], [4], [5], [6], [7], [8]],
+                [
+                    [20, 30, 21, 31, 1],
+                    [21, 31, 22, 32, 2],
+                    [22, 32, 23, 33, 3],
+                    [23, 33, 24, 34, 4],
+                    [24, 34, 25, 35, 5],
+                    [25, 35, 26, 36, 6],
+                    [26, 36, 27, 37, 7],
+                    [27, 37, 28, 38, 8],
+                ],
+                [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9]],
+            ),
+        ),
+    ],
+)
+def test_te_observations_explicit(
+    source, dest, src_hist_len, dest_hist_len, step_size, expected
+):
     """Test the TE observations data arrays explicitly."""
     (
         joint_space_data,
         data_dest_past_embedded,
         marginal_1_space_data,
         marginal_2_space_data,
+    ) = te_observations(source, dest, src_hist_len, dest_hist_len, step_size)
+    assert array_equal(joint_space_data, expected[0])
+    assert array_equal(data_dest_past_embedded, expected[1])
+    assert array_equal(marginal_1_space_data, expected[2])
+    assert array_equal(marginal_2_space_data, expected[3])
+
+
+@pytest.mark.parametrize(
+    "source,dest,src_hist_len,dest_hist_len,step_size,expected",
+    [
+        (
+            arange(5),
+            arange(10, 15),
+            1,
+            1,
+            1,
+            (
+                [[0], [1], [2], [3]],  # x
+                [[10], [11], [12], [13]],  # y
+                [[11], [12], [13], [14]],  # y'
+            ),
+        ),
+        (
+            arange(5),
+            arange(10, 15),
+            1,
+            1,
+            1,
+            ([[0], [1], [2], [3]], [[10], [11], [12], [13]], [[11], [12], [13], [14]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            1,
+            1,
+            2,
+            (
+                [[0], [2]],
+                [[10, 15], [12, 17]],
+                [[12, 17], [14, 19]],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            1,
+            2,
+            2,
+            ([[2]], [[10, 15, 12, 17]], [[14, 19]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            1,
+            1,
+            2,
+            ([[0], [2]], [[10, 15], [12, 17]], [[12, 17], [14, 19]]),
+        ),
+        (
+            arange(20).reshape(-1, 1),
+            arange(20, 40),
+            3,
+            2,
+            3,
+            (
+                [[0, 3, 6], [3, 6, 9], [6, 9, 12], [9, 12, 15]],
+                [[23, 26], [26, 29], [29, 32], [32, 35]],
+                [[29], [32], [35], [38]],
+            ),
+        ),
+    ],
+)
+def test_te_observations_explicit_separate(
+    source, dest, src_hist_len, dest_hist_len, step_size, expected
+):
+    """Test the TE observations data arrays with spaces not constructed"""
+    (
+        src_history,
+        dest_history,
+        dest_future,
     ) = te_observations(
-        arange(10), arange(10, 20), src_hist_len=3, dest_hist_len=2, step_size=2
+        source,
+        dest,
+        src_hist_len,
+        dest_hist_len,
+        step_size,
+        construct_joint_spaces=False,
     )
-    assert (
-        array(
-            [
-                [0, 2, 4, 12, 14, 16],
-                [2, 4, 6, 14, 16, 18],
-            ]
-        )
-        == joint_space_data
-    ).all()
-    assert (
-        array(
-            [
-                [12, 14],
-                [14, 16],
-            ]
-        )
-        == data_dest_past_embedded
-    ).all()
-    assert (
-        array(
-            [
-                [0, 2, 4, 12, 14],
-                [2, 4, 6, 14, 16],
-            ]
-        )
-        == marginal_1_space_data
-    ).all()
-    assert (
-        array(
-            [
-                [12, 14, 16],
-                [14, 16, 18],
-            ]
-        )
-        == marginal_2_space_data
-    ).all()
+    assert array_equal(src_history, expected[0])
+    assert array_equal(dest_history, expected[1])
+    assert array_equal(dest_future, expected[2])
+
+
+@pytest.mark.parametrize(
+    "source,dest,cond,src_hist_len,dest_hist_len,cond_hist_len,step_size,expected",
+    [
+        (
+            arange(5),
+            arange(10, 15),
+            arange(20, 25),
+            1,
+            1,
+            1,
+            1,
+            (
+                [  # x,  y, y',  z
+                    [0, 10, 11, 20],
+                    [1, 11, 12, 21],
+                    [2, 12, 13, 22],
+                    [3, 13, 14, 23],
+                ],
+                [  #  y,  z
+                    [10, 20],
+                    [11, 21],
+                    [12, 22],
+                    [13, 23],
+                ],
+                [  # x,  y,  z
+                    [0, 10, 20],
+                    [1, 11, 21],
+                    [2, 12, 22],
+                    [3, 13, 23],
+                ],
+                [  #  y, y',  z
+                    [10, 11, 20],
+                    [11, 12, 21],
+                    [12, 13, 22],
+                    [13, 14, 23],
+                ],
+            ),
+        ),
+        (
+            arange(5),
+            arange(10, 15),
+            arange(20, 25),
+            1,
+            1,
+            2,
+            1,
+            (
+                [  # x,  y, y', z1, z2
+                    [1, 11, 12, 20, 21],
+                    [2, 12, 13, 21, 22],
+                    [3, 13, 14, 22, 23],
+                ],
+                [  #  y, z1, z2
+                    [11, 20, 21],
+                    [12, 21, 22],
+                    [13, 22, 23],
+                ],
+                [  # x,  y, z1, z2
+                    [1, 11, 20, 21],
+                    [2, 12, 21, 22],
+                    [3, 13, 22, 23],
+                ],
+                [  #  y, y', z1, z2
+                    [11, 12, 20, 21],
+                    [12, 13, 21, 22],
+                    [13, 14, 22, 23],
+                ],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            1,
+            1,
+            2,
+            (
+                [  # x, ( y ) , ( y') ,  z
+                    [0, 10, 15, 12, 17, 20],
+                    [2, 12, 17, 14, 19, 22],
+                ],
+                [  # ( y ) ,  z
+                    [10, 15, 20],
+                    [12, 17, 22],
+                ],
+                [  # x, ( y ) ,  z
+                    [0, 10, 15, 20],
+                    [2, 12, 17, 22],
+                ],
+                [  # ( y ) , ( y') ,  z
+                    [10, 15, 12, 17, 20],
+                    [12, 17, 14, 19, 22],
+                ],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            2,
+            1,
+            2,
+            (
+                [  # x, ( y1 ), ( y2 ), ( y') ,  z
+                    [2, 10, 15, 12, 17, 14, 19, 22],
+                ],
+                [  # ( y1 ), ( y2 ),  z
+                    [10, 15, 12, 17, 22],
+                ],
+                [  # x, ( y1 ), ( y2 ),  z
+                    [2, 10, 15, 12, 17, 22],
+                ],
+                [  # ( y1 ), ( y2 ), ( y') ,  z
+                    [10, 15, 12, 17, 14, 19, 22],
+                ],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            1,
+            2,
+            2,
+            (
+                [  # x, ( y ) , ( y') , z1, z2
+                    [2, 12, 17, 14, 19, 20, 22],
+                ],
+                [  # ( y ) , z1, z2
+                    [12, 17, 20, 22],
+                ],
+                [  # x, ( y ) , z1, z2
+                    [2, 12, 17, 20, 22],
+                ],
+                [  # ( y ) , ( y') , z1, z2
+                    [12, 17, 14, 19, 20, 22],
+                ],
+            ),
+        ),
+        (
+            arange(20).reshape(-1, 1),
+            arange(20, 40),
+            column_stack([arange(40, 60), arange(60, 80), arange(80, 100)]),
+            3,
+            2,
+            1,
+            3,
+            (
+                [
+                    [0, 3, 6, 23, 26, 29, 46, 66, 86],
+                    [3, 6, 9, 26, 29, 32, 49, 69, 89],
+                    [6, 9, 12, 29, 32, 35, 52, 72, 92],
+                    [9, 12, 15, 32, 35, 38, 55, 75, 95],
+                ],
+                [
+                    [23, 26, 46, 66, 86],
+                    [26, 29, 49, 69, 89],
+                    [29, 32, 52, 72, 92],
+                    [32, 35, 55, 75, 95],
+                ],
+                [
+                    [0, 3, 6, 23, 26, 46, 66, 86],
+                    [3, 6, 9, 26, 29, 49, 69, 89],
+                    [6, 9, 12, 29, 32, 52, 72, 92],
+                    [9, 12, 15, 32, 35, 55, 75, 95],
+                ],
+                [
+                    [23, 26, 29, 46, 66, 86],
+                    [26, 29, 32, 49, 69, 89],
+                    [29, 32, 35, 52, 72, 92],
+                    [32, 35, 38, 55, 75, 95],
+                ],
+            ),
+        ),
+    ],
+)
+def test_cte_observations_explicit(
+    source, dest, cond, src_hist_len, dest_hist_len, cond_hist_len, step_size, expected
+):
+    """Test the CTE observations data arrays explicitly."""
+    (
+        joint_space_data,
+        data_dest_past_embedded,
+        marginal_1_space_data,
+        marginal_2_space_data,
+    ) = cte_observations(
+        source, dest, cond, src_hist_len, dest_hist_len, cond_hist_len, step_size
+    )
+    assert array_equal(joint_space_data, expected[0])
+    assert array_equal(data_dest_past_embedded, expected[1])
+    assert array_equal(marginal_1_space_data, expected[2])
+    assert array_equal(marginal_2_space_data, expected[3])
+
+
+@pytest.mark.parametrize(
+    "source,dest,cond,src_hist_len,dest_hist_len,cond_hist_len,step_size,expected",
+    [
+        (
+            arange(5),
+            arange(10, 15),
+            arange(20, 25),
+            1,
+            1,
+            1,
+            1,
+            (
+                [[0], [1], [2], [3]],  # x
+                [[10], [11], [12], [13]],  # y
+                [[11], [12], [13], [14]],  # y'
+                [[20], [21], [22], [23]],  # z
+            ),
+        ),
+        (
+            arange(5),
+            arange(10, 15),
+            arange(20, 25),
+            1,
+            1,
+            2,
+            1,
+            (
+                [[1], [2], [3]],
+                [[11], [12], [13]],
+                [[12], [13], [14]],
+                [[20, 21], [21, 22], [22, 23]],
+            ),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            1,
+            1,
+            2,
+            ([[0], [2]], [[10, 15], [12, 17]], [[12, 17], [14, 19]], [[20], [22]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            2,
+            1,
+            2,
+            ([[2]], [[10, 15, 12, 17]], [[14, 19]], [[22]]),
+        ),
+        (
+            arange(5),
+            column_stack([arange(10, 15), arange(15, 20)]),
+            arange(20, 25),
+            1,
+            1,
+            2,
+            2,
+            ([[2]], [[12, 17]], [[14, 19]], [[20, 22]]),
+        ),
+        (
+            arange(20).reshape(-1, 1),
+            arange(20, 40),
+            column_stack([arange(40, 60), arange(60, 80), arange(80, 100)]),
+            3,
+            2,
+            1,
+            3,
+            (
+                [[0, 3, 6], [3, 6, 9], [6, 9, 12], [9, 12, 15]],
+                [[23, 26], [26, 29], [29, 32], [32, 35]],
+                [[29], [32], [35], [38]],
+                [[46, 66, 86], [49, 69, 89], [52, 72, 92], [55, 75, 95]],
+            ),
+        ),
+    ],
+)
+def test_cte_observations_explicit_separate(
+    source, dest, cond, src_hist_len, dest_hist_len, cond_hist_len, step_size, expected
+):
+    """Test the CTE observations data arrays with spaces not constructed"""
+    (
+        src_history,
+        dest_history,
+        dest_future,
+        cond_history,
+    ) = cte_observations(
+        source,
+        dest,
+        cond,
+        src_hist_len,
+        dest_hist_len,
+        cond_hist_len,
+        step_size,
+        construct_joint_spaces=False,
+    )
+    assert array_equal(src_history, expected[0])
+    assert array_equal(dest_history, expected[1])
+    assert array_equal(dest_future, expected[2])
+    assert array_equal(cond_history, expected[3])
+
+
+@pytest.mark.parametrize(
+    "replace_idx,value,expected_error",
+    [
+        (3, 0, ValueError),
+        (3, None, ValueError),
+        (3, 1.0, ValueError),
+        (4, 0, ValueError),
+        (4, -3, ValueError),
+        (5, 0, ValueError),
+        (5, "0", ValueError),
+        (6, 0, ValueError),
+        (0, 1, TypeError),
+        (1, [1], TypeError),
+        (1, 1, TypeError),
+        (2, None, TypeError),
+    ],
+)
+def test_cte_observations_invalid_inputs(replace_idx, value, expected_error):
+    """Test the CTE observations data arrays with invalid inputs."""
+    arr = arange(10)
+    args = [arr, arr, arr, 1, 1, 1, 1]
+    args[replace_idx] = value
+    with pytest.raises(expected_error):
+        cte_observations(*tuple(args))
 
 
 def test_te_observations_chars():
@@ -143,8 +768,8 @@ def test_te_observations_tuple():
     assert (
         array(
             [
-                [(2, 2), (5, 5), (6, 6), (7, 7)],
-                [(3, 3), (6, 6), (7, 7), (8, 8)],
+                [2, 2, 5, 5, 6, 6, 7, 7],
+                [3, 3, 6, 6, 7, 7, 8, 8],
             ]
         )
         == joint_space_data
@@ -181,11 +806,12 @@ def test_te_observations_invalid_inputs(
     "src_hist_len, dest_hist_len, step_size",
     [(1, 1, 1), (2, 2, 2), (1, 4, 1), (4, 2, 1)],
 )
-@pytest.mark.parametrize("permute_src", [True, default_rng(5378)])
-def test_te_observations_permute_src(
-    src_hist_len, dest_hist_len, step_size, permute_src
+@pytest.mark.parametrize("value", [True, default_rng(5378)])
+@pytest.mark.parametrize("argument", ["permute_src", "resample_src"])
+def test_te_observations_permute_resample_src(
+    src_hist_len, dest_hist_len, step_size, value, argument
 ):
-    """Test the TE observations data arrays with permutation."""
+    """Test the TE observations data arrays with permutation and resampling."""
     source = arange(100)
     destination = arange(100, 200)
     (
@@ -212,7 +838,7 @@ def test_te_observations_permute_src(
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
         step_size=step_size,
-        permute_src=permute_src,
+        **{argument: value},  # permute_src or resample_src with True or Generator
     )
     assert array_equal(  # y_i^{(k)}, \hat{y}_{i+1} fixed
         joint_space_data[:, src_hist_len + 1 :],
@@ -236,6 +862,21 @@ def test_te_observations_permute_src(
     assert array_equal(  # x_i^{(k)}, \hat{y}_{i+1} fixed
         marginal_2_space_data, marginal_2_space_data_permuted
     )
+
+
+def test_te_observations_permute_resample_exclusivity():
+    """Test TE observations error when setting both
+    ``permute_src`` and ``resample_src``."""
+    with pytest.raises(ValueError):
+        te_observations(
+            arange(10),
+            arange(10, 20),
+            src_hist_len=1,
+            dest_hist_len=1,
+            step_size=1,
+            permute_src=True,
+            resample_src=True,
+        )
 
 
 @pytest.mark.parametrize(

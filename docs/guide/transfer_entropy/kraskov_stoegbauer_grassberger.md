@@ -8,14 +8,14 @@ kernelspec:
 The [Transfer Entropy](index.md#transfer_entropy_overview) (TE) from the source process $X(x_n)$ to the target process $Y(y_n)$ in terms of probabilities is written as:
 
 $$
-T_{x \rightarrow y}(k, l) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} 
-p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}) 
+T_{x \rightarrow y}(k, l) = \sum_{y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}}
+p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})
 \log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
 {p(y_{n+1} \mid \mathbf{y}_n^{(l)})} \right).
 $$
 
 Where:
-- $y_{n+1}$ is the next state of $Y$ at time $n$, 
+- $y_{n+1}$ is the next state of $Y$ at time $n$,
 - $ \mathbf{y}_n^{(l)} = \{y_n, \dots, y_{n-l+1}\} $ is the embedding vector of $Y$ considering the  $ l $ previous states (history length),
 - $ \mathbf{x}_n^{(k)} = \{x_n, \dots, x_{n-k+1}\} $ embedding vector of $X$ considering the $ k $ previous states (history length),
 - $p(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the joint probability of the next state of $Y$, its history, and the history of $X$,
@@ -33,9 +33,8 @@ $$
 
 where:
 - $\psi(\cdot)$ denotes the **_digamma function_**,
-- $n_{\mathbf{y}_n^{(l)}}$ is the counts in space $\{ \mathbf{y}_n^{(l)} \}$,
-- $n_{y_{n+1}, \mathbf{y}_n^{(l)}}$ is the counts in joint $\{ y_{n+1}, \mathbf{y}_n^{(l)} \}$ space, 
-- $n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}}$ is the counts in joint $\{ \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)} \}$ space.
+- $\langle \cdot \rangle$ represents the expectation operator.
+- $ n_x(\cdot) $ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector the size of the hypercube in each of the marginal spaces is defined based on the distance to the $k-th$ nearest neighbor in the highest dimensional space.
 
 
 ## Implementation

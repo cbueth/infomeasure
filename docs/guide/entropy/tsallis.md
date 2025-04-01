@@ -6,7 +6,7 @@ kernelspec:
 
 (tsallis_entropy)=
 # Tsallis Entropy Estimation
-The [**Tsallis entropy**](index.md#renyi-alpha-entropy) generalizes the [Shannon entropy](index.md#shannon-entropy) by modifying the additivity law {cite:p}`articleTsallis,Tsallis1999,Tsallis1998`.  
+The [**Tsallis entropy**](index.md#renyi-alpha-entropy) generalizes the [Shannon entropy](index.md#shannon-entropy) by modifying the additivity law {cite:p}`articleTsallis,Tsallis1999,Tsallis1998`.
 
 ```{admonition} Tsallis Entropy
 :class: tip
@@ -27,8 +27,8 @@ $$
 
 **Leonenko et al.** introduced a class of estimators for Tsallis entropy in the same article as the Rényi entropy estimator by extending the [K-L entropy estimation](kozachenko_leonenko.md) technique, which is based on the $K^{th}$-Nearest Neighbour (KNN) search approach {cite:p}`leonenkoClassRenyiInformation2008` {cite:p}`leonenkoEstimationEntropiesDivergences2006`.
 
-Let us suppose $X$ has $N$ data points.  
-First, for each point $X_i$, compute the distances $\rho(X_i, X_j)$ to all other points $X_j$ (where $j \neq i$) and record $\rho_{k,N-1}^{(i)}$ as the distance from $X_i$ to its $K^{th}$-Nearest Neighbour.  
+Let us suppose $X$ has $N$ data points.
+First, for each point $X_i$, compute the distances $\rho(X_i, X_j)$ to all other points $X_j$ (where $j \neq i$) and record $\rho_{k,N-1}^{(i)}$ as the distance from $X_i$ to its $K^{th}$-Nearest Neighbour.
 
 The Tsallis entropy $\hat{H}_{N,k,q}$ is estimated as follows:
 
@@ -49,9 +49,9 @@ $$
 \zeta_{N,i,k} = (N-1) C_k V_m (\rho_{k,N-1}^{(i)})^m.
 $$
 
-- $V_m = \frac{\pi^{m/2}}{\Gamma(m/2 + 1)}$ is the volume of the unit ball in $\mathbb{R}^m$,  
-- $C_k = \left[ \frac{\Gamma(k)}{\Gamma(k+1-q)} \right]^{1/(1-q)}$,  
-- $\rho_{k,N-1}^{(i)}$ is the distance from $X_i$ to its $k^{th}$ nearest neighbor.  
+- $V_m = \frac{\pi^{m/2}}{\Gamma(m/2 + 1)}$ is the volume of the unit ball in $\mathbb{R}^m$,
+- $C_k = \left[ \frac{\Gamma(k)}{\Gamma(k+1-q)} \right]^{1/(1-q)}$,
+- $\rho_{k,N-1}^{(i)}$ is the distance from $X_i$ to its $k^{th}$ nearest neighbor.
 
 ---
 
@@ -67,7 +67,7 @@ $$
 \xi_{N,i,k} = (N-1) \exp[-\Psi(k)] \, V_m \, \left(\rho_{k,N-1}^{(i)}\right)^m.
 $$
 
-- $\Psi(z) = \frac{\Gamma'(z)}{\Gamma(z)}$ is the digamma function.  
+- $\Psi(z) = \frac{\Gamma'(z)}{\Gamma(z)}$ is the digamma function.
 - For $k \geq 1$:
 
 $$
@@ -75,7 +75,7 @@ $$
 $$
 
 where:
-- $\gamma$ is the Euler-Mascheroni constant,  
+- $\gamma$ is the Euler-Mascheroni constant,
 - $A_j = \sum_{j=1}^j \frac{1}{j}$ is the sum of the harmonic series up to $j$.
 ---
 

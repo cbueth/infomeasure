@@ -1,16 +1,15 @@
 """Module for the discrete entropy estimator."""
 
-from numpy import sum as np_sum, ndarray
+from numpy import sum as np_sum, ndarray, unique
 
-from ..utils.symbolic import reduce_joint_space
-from ..utils.unique import histogram_unique_values
+from ..base import EntropyEstimator, DistributionMixin
+from ..utils.ordinal import reduce_joint_space
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin, DistributionMixin
 
 
-class DiscreteEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator):
+class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
     """Estimator for discrete entropy (Shannon entropy).
 
     Attributes
@@ -56,9 +55,13 @@ class DiscreteEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         float
             The calculated entropy.
         """
-        histogram, self.dist_dict = histogram_unique_values(self.data)
+        uniq, counts = unique(self.data, return_counts=True)
+        probabilities = counts / self.data.shape[0]  # normalize
+        self.dist_dict = dict(
+            zip(uniq, probabilities)
+        )  # store the distribution for later
         # Calculate the entropy
-        return -np_sum(histogram * self._log_base(histogram))
+        return -np_sum(probabilities * self._log_base(probabilities))
 
     def _joint_entropy(self):
         """Calculate the joint entropy of the data.
@@ -70,3 +73,14 @@ class DiscreteEntropyEstimator(DistributionMixin, PValueMixin, EntropyEstimator)
         """
         # The data has already been reduced to unique values of co-occurrences
         return self._simple_entropy()
+
+    def _extract_local_values(self):
+        """Separately calculate the local values.
+
+        Returns
+        -------
+        ndarray[float]
+            The calculated local values of entropy.
+        """
+        p_local = [self.dist_dict[val] for val in self.data]
+        return -self._log_base(p_local)

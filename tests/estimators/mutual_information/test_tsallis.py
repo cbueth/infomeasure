@@ -47,13 +47,13 @@ from infomeasure.estimators.mutual_information import (
 )
 def test_tsallis_mi(data_x, data_y, k, q, expected):
     """Test the Tsallis mutual information estimator."""
-    est = TsallisMIEstimator(data_x, data_y, k=k, q=q, base=2)
+    est = TsallisMIEstimator(data_x, data_y, k=k, q=q, base=2, noise_level=0)
     res = est.result()
     assert res == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
-    "data_x,data_y,data_z,k,q,expected",
+    "data_x,data_y,cond,k,q,expected",
     [
         ([1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0], 2, 1.0, -0.14098512),
         ([1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0], 2, 1.1, 0.0344604586),
@@ -71,7 +71,7 @@ def test_tsallis_mi(data_x, data_y, k, q, expected):
             [1.0, 0.9, 1.2, 1.3, 1.1],
             3,
             2.0,
-            -0.152998797,
+            -0.15299879,
         ),
         (
             [1.0, 1.25, 0.91, 1.13, 1.32],
@@ -99,9 +99,11 @@ def test_tsallis_mi(data_x, data_y, k, q, expected):
         ),
     ],
 )
-def test_tsallis_cmi(data_x, data_y, data_z, k, q, expected):
+def test_tsallis_cmi(data_x, data_y, cond, k, q, expected):
     """Test the conditional Tsallis mutual information estimator."""
-    est = TsallisCMIEstimator(data_x, data_y, data_z, k=k, q=q, base=2)
+    est = TsallisCMIEstimator(
+        data_x, data_y, cond=cond, k=k, q=q, base=2, noise_level=0
+    )
     res = est.result()
     assert res == pytest.approx(expected)
 
@@ -121,8 +123,10 @@ def test_tsallis_cmi(data_x, data_y, data_z, k, q, expected):
 )
 def test_tsallis_cmi_autoregressive(rng_int, k, q, expected):
     """Test the Tsallis conditional mutual information estimator with autoregressive data."""
-    data_x, data_y, data_z = generate_autoregressive_series_condition(
+    data_x, data_y, cond = generate_autoregressive_series_condition(
         rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
     )
-    est = TsallisCMIEstimator(data_x, data_y, data_z, k=k, q=q, base=2)
+    est = TsallisCMIEstimator(
+        data_x, data_y, cond=cond, k=k, q=q, base=2, noise_level=0
+    )
     assert est.result() == pytest.approx(expected)

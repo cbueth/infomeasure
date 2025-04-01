@@ -2,18 +2,18 @@
 
 from numpy import column_stack, issubdtype, integer
 
-from ... import Config
-from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, PValueMixin
+from ..base import EntropyEstimator
+from ..utils.array import assure_2d_data
 from ..utils.exponential_family import (
     calculate_common_entropy_components,
     exponential_family_iq,
     exponential_family_i1,
 )
-from ..utils.array import assure_2d_data
+from ... import Config
+from ...utils.types import LogBaseType
 
 
-class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
+class TsallisEntropyEstimator(EntropyEstimator):
     r"""Estimator for the Tsallis entropy.
 
     Attributes
@@ -32,6 +32,14 @@ class TsallisEntropyEstimator(PValueMixin, EntropyEstimator):
         If the Tsallis parameter is not a positive number.
     ValueError
         If the number of nearest neighbors is not a positive integer.
+
+    Notes
+    -----
+    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    ordinary summation,
+    and the Tallis entropy reduces to Shannon Entropy.
+    This class of entropy measure is in particularly useful in the study in connection
+    with long-range correlated systems and with non-equilibrium phenomena.
     """
 
     def __init__(

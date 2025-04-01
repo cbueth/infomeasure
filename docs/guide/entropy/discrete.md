@@ -12,7 +12,7 @@ $$
 H(X) = -\sum_{x \in X} p(x) \log p(x),
 $$
 
-where, $p(x)$ is the **_probability mass function_ (pmf)**. 
+where, $p(x)$ is the **_probability mass function_ (pmf)**.
 
 To estimate the entropy of a discrete random variable $X$, our implementation uses a plug-in method. Probabilities are estimated by counting occurrences of each configuration in the dataset, and these frequencies are substituted into the formula above. This estimator is simple and computationally efficient.
 
