@@ -5,6 +5,7 @@ from datetime import datetime
 import pytest
 from numpy import ndarray
 
+from infomeasure.estimators.entropy import OrdinalEntropyEstimator
 from tests.conftest import (
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
@@ -224,3 +225,13 @@ def test_ordinal_cmi_values(data_x, data_y, cond, embedding_dim, expected):
     )
     assert est.global_val() == pytest.approx(expected)
     est.local_val()  # Checks internally for `global = mean(local)`
+
+
+@pytest.mark.parametrize("rng_int", [1, 2, 3, 4, 5, 6])
+@pytest.mark.parametrize("emb_dim", [1, 2, 3, 4, 8])
+def test_entropy_equality(rng_int, default_rng, emb_dim):
+    """Test the equality of MI(x, x) = H(x)."""
+    x = default_rng.normal(scale=1, size=1000)
+    mutual_info = OrdinalMIEstimator(x, x, embedding_dim=emb_dim, base="e")
+    entropy = OrdinalEntropyEstimator(x, embedding_dim=emb_dim, base="e")
+    assert entropy.result() == pytest.approx(mutual_info.result())
