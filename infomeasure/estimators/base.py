@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from operator import gt
-from typing import Callable, final
+from typing import Callable, Generic, final
 
 from numpy import asarray, integer, issubdtype, log, log2, log10, nan, ndarray, std
 from numpy import mean as np_mean
@@ -12,12 +12,12 @@ from numpy.random import default_rng
 
 from .. import Config
 from ..utils.config import logger
-from ..utils.types import LogBaseType
+from ..utils.types import EstimatorType, LogBaseType
 from .utils.normalize import normalize_data_0_1
 from .utils.te_slicing import cte_observations, te_observations
 
 
-class Estimator(ABC):
+class Estimator(Generic[EstimatorType], ABC):
     """Abstract base class for all measure estimators.
 
     Find :ref:`Estimator Usage` on how to use the estimators and an overview of the
@@ -227,7 +227,7 @@ class Estimator(ABC):
             return log(x) / log(self.base)
 
 
-class EntropyEstimator(Estimator, ABC):
+class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
     """Abstract base class for entropy estimators.
 
     Estimates simple entropy of a data array or joint entropy of two data arrays.
@@ -323,7 +323,9 @@ class RandomGeneratorMixin:
         super().__init__(*args, **kwargs)
 
 
-class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
+class MutualInformationEstimator(
+    RandomGeneratorMixin, Estimator["MutualInformationEstimator"], ABC
+):
     """Abstract base class for mutual information estimators.
 
     Attributes
@@ -469,7 +471,9 @@ class MutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
             )
 
 
-class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC):
+class ConditionalMutualInformationEstimator(
+    RandomGeneratorMixin, Estimator["ConditionalMutualInformationEstimator"], ABC
+):
     """Abstract base class for conditional mutual information estimators.
 
     Conditional Mutual Information (CMI) between two (or more)
@@ -637,7 +641,9 @@ class ConditionalMutualInformationEstimator(RandomGeneratorMixin, Estimator, ABC
             raise ValueError(f"Estimator must be an EntropyEstimator, not {estimator}.")
 
 
-class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
+class TransferEntropyEstimator(
+    RandomGeneratorMixin, Estimator["TransferEntropyEstimator"], ABC
+):
     """Abstract base class for transfer entropy estimators.
 
     Attributes
@@ -828,7 +834,9 @@ class TransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
             )
 
 
-class ConditionalTransferEntropyEstimator(RandomGeneratorMixin, Estimator, ABC):
+class ConditionalTransferEntropyEstimator(
+    RandomGeneratorMixin, Estimator["ConditionalTransferEntropyEstimator"], ABC
+):
     """Abstract base class for conditional transfer entropy estimators.
 
     Conditional Transfer Entropy (CTE) from source :math:`X` to destination :math:`Y`

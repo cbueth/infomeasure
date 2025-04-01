@@ -8,8 +8,8 @@ saving time and memory by only importing the necessary classes.
 
 from functools import wraps
 
-from .base import Estimator
 from ..utils.config import logger
+from .base import EstimatorType
 
 entropy_estimators = {
     "discrete": "infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator",
@@ -135,7 +135,7 @@ def _get_estimator(estimators, estimator_name):
     return _dynamic_import(estimators[estimator_name.lower()])
 
 
-def get_estimator_class(measure=None, approach=None) -> object:
+def get_estimator_class(measure=None, approach=None):
     """Get estimator class based on the estimator name and approach.
 
     This function returns the estimator class based on the measure and approach
@@ -411,7 +411,7 @@ def estimator(
     dest_hist_len: int = 1,
     cond_hist_len: int = 1,
     **kwargs: any,
-) -> Estimator:
+) -> EstimatorType:
     """Get an estimator for a specific measure.
 
     This function provides a simple interface to get
