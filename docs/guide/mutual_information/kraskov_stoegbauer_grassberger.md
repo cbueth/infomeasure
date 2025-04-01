@@ -26,8 +26,7 @@ where:
 - $ \psi $ is the **_digamma function_**,
 - $ N $ is the number of data points,
 - $ k $ is the number of nearest neighbors considered,
-- $ n_x(i) $ is the number of data points in marginal space $X$,
-- $ n_y(i) $ is the number of data points in marginal space $Y$.
+- $ n_x(\cdot) $ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector, the size of the hypercube in each of the marginal spaces is defined based on the distance to the $k-th$ nearest neighbor in the highest dimensional space.
 
 
 ## Implementation

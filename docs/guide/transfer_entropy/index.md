@@ -56,17 +56,15 @@ The local TE values can be negative unlike its global counterpart, this means th
 
 #### Effective Transfer Entropy (eTE)
 
-The time series data as available from the real word is usually biased due to the finite size effect. 
-Depending on the type of estimators implemented the bias can be small or big but it is usually present. 
-In order to correct the bias from the finite sample side effect, it is necessary to estimate the expected values of TE estimator for finite data that are close as possible to the original data but doesn´t represent the information transfer.
-We can crease such surrogate dataset for TE bias correction which has the same finite length and the same auto-correlation properties to that of original data. 
-At the same time, the surrogates should be guaranteed to have no predictive information transfer. This can be achieved by destroying the temporal precedence structure between the source  and the target processes, that would be underlying a potential predictive information transfer in the original data.
+The time series data as available from the real word is usually biased due to the finite size effect. Depending on the type of estimators implemented the bias can be small or big but it is usually present. In order to correct the bias from the finite sample side effect, it is necessary to estimate the expected values of TE estimator for finite data that are close as possible to the original data but doesn´t represent the information transfer.
+We can crease such surrogate dataset for TE bias correction which has the same finite length and the same auto-correlation properties to that of original data.  At the same time, the surrogates should be guaranteed to have no predictive information transfer. This can be achieved by destroying the temporal precedence structure between the source  and the target processes, that would be underlying a potential predictive information transfer in the original data.
 We here used a slightly modified TE estimator, called \textit{effective} TE {cite:p}`articleKantz`, defined as the difference between the TE and the one calculated on surrogate (randomly shuffled) data:
 
 $$
 eTE = TE(X \rightarrow Y) - TE(X_{\text{shuffled}} \rightarrow Y).
 $$
 
+Add: which realization and so forth... [KA]
 
 > Note:
 > The package has an option to obtain eTE computation.
