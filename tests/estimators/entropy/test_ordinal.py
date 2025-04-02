@@ -12,7 +12,7 @@ from infomeasure.estimators.entropy import OrdinalEntropyEstimator
 @pytest.mark.parametrize("data_len", [1, 2, 10, 100, 1000, int(1e5)])
 @pytest.mark.parametrize("embedding_dim", [1, 2, 3, 4, 5])
 def test_ordinal_entropy(data_len, embedding_dim, default_rng):
-    """Test the discrete entropy estimator."""
+    """Test the ordinal entropy estimator."""
     data = default_rng.integers(0, 10, data_len)
     if embedding_dim == 1:
         est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
@@ -68,7 +68,7 @@ def test_ordinal_entropy(data_len, embedding_dim, default_rng):
     ],
 )
 def test_ordinal_entropy_explicit(data, embedding_dim, base, expected):
-    """Test the discrete entropy estimator with explicit values."""
+    """Test the ordinal entropy estimator with explicit values."""
     assert OrdinalEntropyEstimator(
         data, embedding_dim=embedding_dim, base=base, stable=True
     ).global_val() == pytest.approx(expected, rel=1e-10)
@@ -76,7 +76,7 @@ def test_ordinal_entropy_explicit(data, embedding_dim, base, expected):
 
 @pytest.mark.parametrize("embedding_dim", [1, 2, 3, 4, 5])
 def test_ordinal_entropy_minimum(embedding_dim, default_rng):
-    """Test the discrete entropy estimator with data resulting in minimum entropy."""
+    """Test the ordinal entropy estimator with data resulting in minimum entropy."""
     # only increasing values
     data = list(range(10))
     est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
@@ -198,7 +198,7 @@ def uniform_data(
 @pytest.mark.parametrize("embedding_dim", [2, 3, 4])
 @pytest.mark.parametrize("min_length", [10, 100, 1000])
 def test_ordinal_entropy_maximum(embedding_dim, min_length, default_rng):
-    """Test the discrete entropy estimator with data resulting in maximum entropy."""
+    """Test the ordinal entropy estimator with data resulting in maximum entropy."""
     max_len_abort = int(1e4)
     data = uniform_data(
         embedding_dim,
@@ -222,7 +222,48 @@ def test_ordinal_entropy_maximum(embedding_dim, min_length, default_rng):
 
 @pytest.mark.parametrize("embedding_dim", [-1, 1.0, "a", 1.5, 2.0])
 def test_ordinal_entropy_invalid_embedding_dim(embedding_dim):
-    """Test the discrete entropy estimator with invalid embedding_dim."""
+    """Test the ordinal entropy estimator with invalid embedding_dim."""
     data = list(range(10))
     with pytest.raises(ValueError):
         OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        [[1, 2], [3, 4]],
+        [(1, 2), (3, 4)],
+        ([1, 2, 3], [[1, 1], [2, 2], [3, 3]]),
+        ([1, 2, 3], [[1], [2], [3]]),
+        ([1, 2, 3], [[1, 2, 3], [4, 5, 6]]),
+        [[1], [2], [3]],
+        [[1, 1, 1], [2, 2, 2]],
+        ([1, 2], [1, 2], [1, 2], [[1, 1], [2, 2]]),
+    ],
+)
+def test_ordinal_entropy_invalid_data_type(data):
+    """Test the ordinal entropy estimator with invalid data type."""
+    with pytest.raises(
+        TypeError,
+        match="The data must be a 1D array or tuple of 1D arrays. Ordinal patterns",
+    ):
+        est = OrdinalEntropyEstimator(data, embedding_dim=2)
+        est.result()
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        [None, None, None, None],  # Not comparable
+        [1, 2, None, None],  # Inhomogeneous
+    ],
+)
+@pytest.mark.parametrize("embedding_dim", [2, 3, 4])
+def test_ordinal_entropy_type_incomparable(data, embedding_dim):
+    """Test the ordinal entropy estimator with incomparable data type."""
+    with pytest.raises(
+        TypeError,
+        match="'<' not supported between instances of",
+    ):
+        est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
+        est.result()

@@ -1,8 +1,9 @@
 """Explicit ordinal / permutation transfer entropy estimator."""
 
 import pytest
-from numpy import isnan, e, log
+from numpy import isnan, e, log, asarray
 
+from infomeasure import te
 from infomeasure.estimators.transfer_entropy import (
     OrdinalCTEEstimator,
     OrdinalTEEstimator,
@@ -324,3 +325,93 @@ def test_cte_ordinal_autoregressive(rng_int, embedding_dim, expected_xy, expecte
     res_yx = est_yx.result()
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ([1, 2], [[1, 2], [3, 4]]),
+        ([(1, 2), (3, 4)], [1, 2]),
+        ([1, 2, 3], [[1, 1], [2, 2], [3, 3]]),
+        ([1, 2, 3], [[1], [2], [3]]),
+        ([1, 2], [[1, 2, 3], [4, 5, 6]]),
+    ],
+)
+def test_ordinal_TE_invalid_data_type(data):
+    """Test the ordinal TE estimator with invalid data type."""
+    with pytest.raises(
+        TypeError,
+        match="The data must be tuples of 1D arrays. "
+        "Ordinal patterns can only be computed from 1D arrays.",
+    ):
+        # est = OrdinalTEEstimator(*data, embedding_dim=2)
+        # est.result()
+        te(*data, approach="ordinal", embedding_dim=2)
+
+
+@pytest.mark.parametrize(
+    "data, cond",
+    [
+        [([1, 2], [[1, 2], [3, 4]]), [1, 2]],
+        [([1, 2], [1, 2]), [[1], [2]]],
+        [([1, 2], [1, 2]), [[1, 2], [3, 4]]],
+        [([1, 2], [1, 2]), [(1, 2), (3, 4)]],
+        [([1, 2, 3], [[1, 1], [2, 2], [3, 3]]), [1, 2, 3]],
+        [([1, 2, 3], [1, 2, 3]), [[1, 1], [2, 2], [3, 3]]],
+        [([1, 2, 3], [[1], [2], [3]]), [1, 2, 3]],
+        [([1, 2, 3], [1, 2, 3]), [[1], [2], [3]]],
+        [([1, 2], [[1, 1, 1], [2, 2, 2]]), [1, 2]],
+        [([1, 2], [1, 2]), [[1, 1, 1], [2, 2, 2]]],
+    ],
+)
+def test_ordinal_CTE_invalid_data_type(data, cond):
+    """Test the ordinal CTE estimator with invalid data type."""
+    with pytest.raises(
+        TypeError,
+        match=(
+            "The data must be tuples of 1D arrays. "
+            "Ordinal patterns can only be computed from 1D arrays."
+        )
+        if asarray(cond).ndim == 1
+        else "The conditional variable must be an 1d array,",
+    ):
+        est = OrdinalCTEEstimator(*data, cond=cond, embedding_dim=2)
+        est.result()
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ([1, 2, 3, 4], [None] * 4),  # Incomparable
+        ([1, 2, 3, 4], [1, 2, None, None]),  # Inhomogeneous
+    ],
+)
+@pytest.mark.parametrize("embedding_dim", [2, 3, 4])
+def test_ordinal_te_type_incomparable(data, embedding_dim):
+    """Test the ordinal TE estimator with incomparable data type."""
+    with pytest.raises(
+        TypeError,
+        match="'<' not supported between instances of",
+    ):
+        est = OrdinalTEEstimator(*data, embedding_dim=embedding_dim)
+        est.result()
+
+
+@pytest.mark.parametrize(
+    "data,cond",
+    [
+        [([1, 2, 3, 4], [None] * 4), [1, 2, 3, 4]],  # Incomparable
+        [([1, 2, 3, 4], [1, 2, 3, 4]), [None] * 4],  # Incomparable
+        [([1, 2, 3, 4], [1, 2, None, None]), [1, 2, 3, 4]],  # Inhomogeneous
+        [([1, 2, 3, 4], [1, 2, 3, 4]), [None] * 4],  # Inhomogeneous
+    ],
+)
+@pytest.mark.parametrize("embedding_dim", [2, 3, 4])
+def test_ordinal_cte_type_incomparable(data, cond, embedding_dim):
+    """Test the ordinal CTE estimator with incomparable data type."""
+    with pytest.raises(
+        TypeError,
+        match="'<' not supported between instances of",
+    ):
+        est = OrdinalCTEEstimator(*data, cond=cond, embedding_dim=embedding_dim)
+        est.result()
