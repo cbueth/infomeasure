@@ -67,6 +67,22 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         assert isinstance(mi[2], float)
 
 
+@pytest.mark.parametrize("n_vars", [0, 1])
+def test_transfer_entropy_functional_too_few_vars(n_vars, default_rng, mi_approach):
+    """Test that an error is raised when not enough variables are provided."""
+    approach_str, needed_kwargs = mi_approach
+    with pytest.raises(
+        ValueError,
+        match="Mutual Information requires at least two variables as arguments. "
+        "If needed",
+    ):
+        im.mutual_information(
+            *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
 @pytest.mark.parametrize("offset", [0, 1, 5])
 @pytest.mark.parametrize("normalize", [True, False])
 def test_mutual_information_class_addressing(mi_approach, offset, normalize):
@@ -97,6 +113,34 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     else:
         assert isinstance(est.local_val(), np.ndarray)
     assert 0 <= est.p_value(10) <= 1
+
+
+@pytest.mark.parametrize("n_vars", [0, 1])
+def test_mutual_information_class_addressing_too_few_vars(
+    n_vars, default_rng, mi_approach, caplog
+):
+    """Test that an error is raised when too few variables are provided."""
+    approach_str, needed_kwargs = mi_approach
+    if n_vars == 0:
+        with pytest.raises(
+            ValueError,
+            match="No data was provided for mutual information estimation.",
+        ):
+            im.estimator(
+                measure="mutual_information", approach=approach_str, **needed_kwargs
+            )
+    if n_vars == 1:
+        im.estimator(
+            default_rng.integers(0, 2, size=10),
+            measure="mutual_information",
+            approach=approach_str,
+            **needed_kwargs,
+        )
+        assert "WARNING" in caplog.text
+        assert (
+            "Only one data array provided for mutual information estimation."
+            in caplog.text
+        )
 
 
 @pytest.mark.parametrize("n_vars", [2, 3, 4])
@@ -180,6 +224,38 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
     )
 
 
+@pytest.mark.parametrize("n_vars", [0, 1])
+def test_cmi_functional_too_few_vars(n_vars, default_rng, cmi_approach):
+    """Test that an error is raised when not enough variables are provided."""
+    approach_str, needed_kwargs = cmi_approach
+    with pytest.raises(
+        ValueError,
+        match="Mutual Information requires at least two variables as arguments. "
+        "If needed",
+    ):
+        im.mutual_information(
+            *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
+            cond=default_rng.integers(0, 2, size=10),
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
+def test_cmi_functional_no_condition(cmi_approach, default_rng):
+    """Test that an error is raised when no condition variable is provided."""
+    approach_str, needed_kwargs = cmi_approach
+    with pytest.raises(
+        ValueError,
+        match="CMI requires a conditional variable. Pass a 'cond' keyword argument.",
+    ):
+        im.conditional_mutual_information(
+            [0] * 10,
+            [1] * 10,
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
 @pytest.mark.parametrize("n_vars", [2, 3, 4])
 def test_cond_mutual_information_class_addressing_n_vars(
     n_vars, cmi_approach, default_rng
@@ -208,16 +284,6 @@ def test_cond_mutual_information_class_addressing_n_vars(
     # p-value is not supported for conditional mutual information
     with pytest.raises(AttributeError):
         est.p_value(10)
-
-
-def test_cmi_functional_addressing_faulty():
-    """Test wrong usage of the conditional mutual information estimator."""
-    with pytest.raises(ValueError):
-        im.conditional_mutual_information(
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-            approach="metric",
-        )
 
 
 @pytest.mark.parametrize("normalize", [True, False])
@@ -249,6 +315,52 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
             est.local_val()
     else:
         assert isinstance(est.local_val(), np.ndarray)
+
+
+@pytest.mark.parametrize("n_vars", [0, 1])
+def test_cmi_class_addressing_too_few_vars(n_vars, default_rng, cmi_approach, caplog):
+    """Test that an error is raised when too many variables are provided."""
+    approach_str, needed_kwargs = cmi_approach
+    if n_vars == 0:
+        with pytest.raises(
+            ValueError,
+            match="No data was provided for mutual information estimation.",
+        ):
+            im.estimator(
+                cond=default_rng.integers(0, 2, size=10),
+                measure="cmi",
+                approach=approach_str,
+                **needed_kwargs,
+            )
+    if n_vars == 1:
+        im.estimator(
+            default_rng.integers(0, 2, size=10),
+            cond=default_rng.integers(0, 2, size=10),
+            measure="cmi",
+            approach=approach_str,
+            **needed_kwargs,
+        )
+        assert "WARNING" in caplog.text
+        assert (
+            "Only one data array provided for mutual information estimation."
+            in caplog.text
+        )
+
+
+def test_cmi_class_addressing_no_condition(cmi_approach, default_rng):
+    """Test that an error is raised when no condition variable is provided."""
+    approach_str, needed_kwargs = cmi_approach
+    with pytest.raises(
+        ValueError,
+        match="No conditional data was provided",
+    ):
+        im.estimator(
+            [0] * 10,
+            [1] * 10,
+            measure="cmi",
+            approach=approach_str,
+            **needed_kwargs,
+        )
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])

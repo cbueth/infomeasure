@@ -40,6 +40,11 @@ mi_estimators = {
     "OrdinalMIEstimator",
 }
 
+# for M(x), use map to H(x)
+mi_entropy_map = {mi_key: mi_key for mi_key in mi_estimators.keys()}
+# Overwrite shorthands that differ between MI and H
+mi_entropy_map["ksg"] = "kl"
+
 cmi_estimators = {
     "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteCMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelCMIEstimator",
@@ -312,6 +317,13 @@ def mutual_information(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
+    if len(data) < 2:
+        raise ValueError(
+            "Mutual Information requires at least two variables as arguments. "
+            "If needed, a conditional variable can be passed as keyword argument: "
+            "`mutual_information(data1, data2, data3, ..., **kwargs)` or "
+            "`mutual_information(data1, data2, ..., cond=cond_var, **kwargs)`"
+        )
     return EstimatorClass(*data, **kwargs).result()
 
 
@@ -323,6 +335,13 @@ def conditional_mutual_information(*data, **parameters: any):
     if parameters.get("cond") is None:
         raise ValueError(
             "CMI requires a conditional variable. Pass a 'cond' keyword argument."
+        )
+    if len(data) < 2:
+        raise ValueError(
+            "CMI requires at least two variables as arguments and "
+            "a conditional variable as keyword argument: "
+            "`conditional_mutual_information("
+            "data1, data2, ..., cond=cond_var, **kwargs)`"
         )
     return mutual_information(*data, **parameters)
 
@@ -424,7 +443,7 @@ def estimator(
     This function provides a simple interface to get
     an :class:`Estimator <.base.Estimator>` for a specific measure.
 
-    If you are only interested in the result, use the functional interfaces:
+    If you are only interested in the global result, use the functional interfaces:
 
     - :func:`entropy <entropy>`
     - :func:`mutual_information <mutual_information>`
@@ -516,16 +535,19 @@ def estimator(
             and cond is None
         ):
             raise ValueError(
-                "``cond`` is required for conditional mutual information estimation."
+                "No conditional data was provided for conditional mutual information"
+                "estimation. Pass ``cond`` to specify the conditional data."
             )
         if len(data) == 0:
-            raise ValueError("``data`` is required for mutual information estimation.")
+            raise ValueError("No data was provided for mutual information estimation.")
         if len(data) == 1:
             logger.warning(
                 "Only one data array provided for mutual information estimation. "
                 "Using normal entropy estimator."
             )
-            EstimatorClass = _get_estimator(entropy_estimators, approach)
+            EstimatorClass = _get_estimator(
+                entropy_estimators, mi_entropy_map[approach]
+            )
             return EstimatorClass(data[0], **kwargs)
         if cond is not None:
             EstimatorClass = _get_estimator(cmi_estimators, approach)
