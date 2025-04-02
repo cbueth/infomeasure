@@ -50,8 +50,8 @@ class BaseKernelTEEstimator(ABC):
         self,
         source,
         dest,
+        *,  # Enforce keyword-only arguments
         cond=None,
-        *,  # all following parameters are keyword-only
         bandwidth: float | int = None,
         kernel: str = None,
         prop_time: int = 0,
@@ -100,7 +100,7 @@ class BaseKernelTEEstimator(ABC):
             super().__init__(
                 source,
                 dest,
-                cond,
+                cond=cond,
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,

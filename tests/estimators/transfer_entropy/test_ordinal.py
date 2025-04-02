@@ -225,7 +225,7 @@ def test_ordinal_cte(rng_int, embedding_dim, expected):
     est = OrdinalCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         embedding_dim=embedding_dim,
         base=2,
         stable=True,
@@ -272,7 +272,7 @@ def test_ordinal_cte_slicing(
     est = OrdinalCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         step_size=step_size,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,
@@ -305,7 +305,7 @@ def test_cte_ordinal_autoregressive(rng_int, embedding_dim, expected_xy, expecte
     est_xy = OrdinalCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         embedding_dim=embedding_dim,
         base=2,
         stable=True,
@@ -316,7 +316,7 @@ def test_cte_ordinal_autoregressive(rng_int, embedding_dim, expected_xy, expecte
     est_yx = OrdinalCTEEstimator(
         data_dest,
         data_source,
-        data_cond,
+        cond=data_cond,
         embedding_dim=embedding_dim,
         base=2,
         stable=True,

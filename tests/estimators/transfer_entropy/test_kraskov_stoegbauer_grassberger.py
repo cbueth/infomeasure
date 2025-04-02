@@ -114,7 +114,7 @@ def test_ksg_cte(rng_int, k, minkowski_p, base, expected):
     est = KSGCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         k=k,
         minkowski_p=minkowski_p,
         noise_level=0,  # for reproducibility
@@ -156,7 +156,7 @@ def test_ksg_cte_slicing(
     est = KSGCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         step_size=step_size,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,

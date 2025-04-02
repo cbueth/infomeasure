@@ -102,7 +102,7 @@ def test_tsallis_cte(k, q, expected):
     est = TsallisCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         k=k,
         q=q,
         noise_level=0,  # for reproducibility
@@ -142,7 +142,7 @@ def test_tsallis_cte_slicing(
     est = TsallisCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         step_size=step_size,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,

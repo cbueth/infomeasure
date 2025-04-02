@@ -694,6 +694,7 @@ class TransferEntropyEstimator(
         self,
         source,
         dest,
+        *,  # Enforce keyword-only arguments
         prop_time: int = 0,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
@@ -874,6 +875,7 @@ class ConditionalTransferEntropyEstimator(
         self,
         source,
         dest,
+        *,  # Enforce keyword-only arguments
         cond=None,
         src_hist_len: int = 1,
         dest_hist_len: int = 1,

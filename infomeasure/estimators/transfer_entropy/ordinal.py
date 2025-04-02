@@ -65,8 +65,8 @@ class BaseOrdinalTEEstimator(ABC):
         self,
         source,
         dest,
-        cond=None,
         *,  # Enforce keyword-only arguments
+        cond=None,
         embedding_dim: int,
         stable: bool = False,
         prop_time: int = 0,
@@ -125,7 +125,7 @@ class BaseOrdinalTEEstimator(ABC):
             super().__init__(
                 source,
                 dest,
-                cond,
+                cond=cond,
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,

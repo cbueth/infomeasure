@@ -61,8 +61,8 @@ class BaseRenyiTEEstimator(ABC):
         self,
         source,
         dest,
+        *,  # Enforce keyword-only arguments
         cond=None,
-        *,  # all following parameters are keyword-only
         k: int = 4,
         alpha: float | int = None,
         noise_level=1e-8,
@@ -117,7 +117,7 @@ class BaseRenyiTEEstimator(ABC):
             super().__init__(
                 source,
                 dest,
-                cond,
+                cond=cond,
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
