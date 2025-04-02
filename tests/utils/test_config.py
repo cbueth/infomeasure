@@ -53,10 +53,23 @@ class TestConfig:
             ("dit", 10),
         ],
     )
-    def test_set_logarithmic_unit(self, unit, expected_base):
+    def test_set_get_logarithmic_unit(self, unit, expected_base):
         """Test the set_logarithmic_unit method of the Config class."""
         Config.set_logarithmic_unit(unit)
         assert Config.get("base") == expected_base
+        assert (
+            unit[:-1] if unit.endswith("s") else unit
+        ) in Config.get_logarithmic_unit()
+        Config.get_logarithmic_unit_description()
+
+    def test_get_unknown_unit(self):
+        """Test getting an unknown logarithmic unit and description."""
+        Config.set("base", 3)
+        assert Config.get_logarithmic_unit() == "unknown (base 3)"
+        with pytest.raises(
+            ValueError, match="No description for logarithmic unit: base 3"
+        ):
+            Config.get_logarithmic_unit_description()
 
     def test_set_logarithmic_unit_invalid(self):
         """Test setting an invalid logarithmic unit."""

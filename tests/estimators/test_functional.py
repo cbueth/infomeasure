@@ -1,4 +1,4 @@
-"""Simple tests for the functional interface of the estimators."""
+"""Tests for the functional interface of the estimators."""
 
 from io import UnsupportedOperation
 
@@ -7,12 +7,57 @@ import pytest
 
 import infomeasure as im
 from infomeasure.estimators.base import (
-    EntropyEstimator,
-    MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
-    TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
+    EntropyEstimator,
+    Estimator,
+    MutualInformationEstimator,
+    TransferEntropyEstimator,
 )
+from infomeasure.estimators.entropy import (
+    OrdinalEntropyEstimator,
+    RenyiEntropyEstimator,
+)
+from infomeasure.estimators.mutual_information import (
+    DiscreteMIEstimator,
+    KSGCMIEstimator,
+    KSGMIEstimator,
+)
+from infomeasure.estimators.transfer_entropy import KSGTEEstimator, TsallisCTEEstimator
+
+
+@pytest.mark.parametrize(
+    "measure, approach, expected",
+    [
+        ("entropy", "permutation", OrdinalEntropyEstimator),
+        ("h", "Renyi", RenyiEntropyEstimator),
+        ("mutual_information", "discrete", DiscreteMIEstimator),
+        ("MI", "ksg", KSGMIEstimator),
+        ("conditional_mutual_information", "metric", KSGCMIEstimator),
+        ("cmi", "metric", KSGCMIEstimator),
+        ("transfer_entropy", "metric", KSGTEEstimator),
+        ("cte", "tsallis", TsallisCTEEstimator),
+    ],
+)
+def test_get_estimator_class(measure, approach, expected):
+    """Test getting the correct estimator class for a given measure and approach."""
+    estimator_cls = im.get_estimator_class(measure, approach)
+    assert issubclass(estimator_cls, Estimator)
+    assert expected == estimator_cls
+
+
+def test_get_estimator_class_invalid_measure():
+    """Test getting the correct estimator class for an invalid measure."""
+    with pytest.raises(
+        ValueError, match="Unknown measure: invalid_measure. Available measures:"
+    ):
+        im.get_estimator_class("invalid_measure", "permutation")
+
+
+def test_get_estimator_class_no_measure():
+    """Test getting the correct estimator class for no measure."""
+    with pytest.raises(ValueError, match="The measure must be specified."):
+        im.get_estimator_class(approach="permutation")
 
 
 def test_entropy_functional_addressing(entropy_approach):
@@ -40,6 +85,29 @@ def test_entropy_class_addressing(entropy_approach):
         assert isinstance(est.local_val(), np.ndarray)
 
 
+def test_entropy_class_addressing_no_data():
+    """Test addressing the entropy estimator classes without data."""
+    with pytest.raises(ValueError, match="``data`` is required for entropy estimation"):
+        im.estimator(measure="entropy", approach="renyi")
+
+
+def test_entropy_class_addressing_condition():
+    """Test addressing the entropy estimator with an unneeded condition."""
+    with pytest.raises(
+        ValueError, match="``cond`` is not required for entropy estimation."
+    ):
+        im.estimator([1, 2, 3], cond=[4, 5, 6], measure="entropy", approach="renyi")
+
+
+def test_entropy_class_addressing_too_many_vars():
+    """Test addressing the entropy estimator with too many variables."""
+    with pytest.raises(
+        ValueError,
+        match="Exactly one data array is required for entropy estimation. ",
+    ):
+        im.estimator([1, 2, 3], [4, 5, 6], measure="entropy", approach="renyi")
+
+
 @pytest.mark.parametrize("offset", [0, 1, 5])
 @pytest.mark.parametrize("normalize", [True, False])
 def test_mutual_information_functional_addressing(mi_approach, offset, normalize):
@@ -60,15 +128,10 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         **needed_kwargs,
     )
     assert isinstance(mi, float)
-    if isinstance(mi, tuple):
-        assert len(mi) == 3
-        assert isinstance(mi[0], float)
-        assert isinstance(mi[1], np.ndarray)
-        assert isinstance(mi[2], float)
 
 
 @pytest.mark.parametrize("n_vars", [0, 1])
-def test_transfer_entropy_functional_too_few_vars(n_vars, default_rng, mi_approach):
+def test_mutual_information_functional_too_few_vars(n_vars, default_rng, mi_approach):
     """Test that an error is raised when not enough variables are provided."""
     approach_str, needed_kwargs = mi_approach
     with pytest.raises(
@@ -192,11 +255,6 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         **needed_kwargs,
     )
     assert isinstance(mi, float)
-    if isinstance(mi, tuple):
-        assert len(mi) == 3
-        assert isinstance(mi[0], float)
-        assert isinstance(mi[1], np.ndarray)
-        assert isinstance(mi[2], float)
     # Use conditional_mutual_information function
     im.conditional_mutual_information(
         data_x,
@@ -230,10 +288,9 @@ def test_cmi_functional_too_few_vars(n_vars, default_rng, cmi_approach):
     approach_str, needed_kwargs = cmi_approach
     with pytest.raises(
         ValueError,
-        match="Mutual Information requires at least two variables as arguments. "
-        "If needed",
+        match="CMI requires at least two variables as arguments",
     ):
-        im.mutual_information(
+        im.conditional_mutual_information(
             *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
             cond=default_rng.integers(0, 2, size=10),
             approach=approach_str,
@@ -383,11 +440,6 @@ def test_transfer_entropy_functional_addressing(
         **needed_kwargs,
     )
     assert isinstance(te, float)
-    if isinstance(te, tuple):
-        assert len(te) == 3
-        assert isinstance(te[0], float)
-        assert isinstance(te[1], np.ndarray)
-        assert isinstance(te[2], float)
 
 
 @pytest.mark.parametrize("n_vars", [3, 4, 5])
@@ -427,11 +479,6 @@ def test_cond_transfer_entropy_functional_addressing(
         **needed_kwargs,
     )
     assert isinstance(te, float)
-    if isinstance(te, tuple):
-        assert len(te) == 3
-        assert isinstance(te[0], float)
-        assert isinstance(te[1], np.ndarray)
-        assert isinstance(te[2], float)
     # Query with cond as keyword argument in the normal im.transfer_entropy() function
     im.transfer_entropy(
         source,
@@ -559,6 +606,22 @@ def test_cte_class_addressing_too_many_vars(n_vars, default_rng, cte_approach):
         )
 
 
+def test_cte_class_addressing_no_condition(cte_approach, default_rng):
+    """Test that an error is raised when no condition variable is provided."""
+    approach_str, needed_kwargs = cte_approach
+    with pytest.raises(
+        ValueError,
+        match="No conditional data was provided",
+    ):
+        im.estimator(
+            [0] * 10,
+            [1] * 10,
+            measure="cte",
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
 @pytest.mark.parametrize("prop_time", [0, 1, 5])
 def test_te_offset_prop_time(te_approach, caplog, prop_time):
     """Test offset parameter for the transfer entropy estimator.
@@ -639,3 +702,9 @@ def test_class_addressing_unknown_measure():
     """Test addressing the estimator wrapper with an unknown measure."""
     with pytest.raises(ValueError, match="Unknown measure: unknown"):
         im.estimator(measure="unknown", approach="")
+
+
+def test_class_addressing_no_measure():
+    """Test addressing the estimator wrapper without a measure."""
+    with pytest.raises(ValueError, match="``measure`` is required."):
+        im.estimator(approach="test")

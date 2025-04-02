@@ -237,6 +237,7 @@ def test_ordinal_cte(rng_int, embedding_dim, expected):
         assert res == 0.0
         return
     assert res == pytest.approx(expected)
+    est.local_val()
 
 
 @pytest.mark.parametrize(
@@ -283,6 +284,7 @@ def test_ordinal_cte_slicing(
     )
     res = est.result()
     assert res == pytest.approx(expected)
+    est.local_val()
 
 
 @pytest.mark.parametrize(

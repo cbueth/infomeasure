@@ -511,7 +511,7 @@ def estimator(
     if measure is None:
         raise ValueError("``measure`` is required.")
     elif measure.lower() in ["entropy", "h"]:
-        if data is None:
+        if len(data) == 0:
             raise ValueError("``data`` is required for entropy estimation.")
         if cond is not None:
             raise ValueError("``cond`` is not required for entropy estimation.")
@@ -563,7 +563,8 @@ def estimator(
     ]:
         if measure.lower() in ["cte", "conditional_transfer_entropy"] and cond is None:
             raise ValueError(
-                "``cond`` is required for conditional transfer entropy estimation."
+                "No conditional data was provided for conditional transfer entropy "
+                "estimation. Pass ``cond`` to specify the conditional data."
             )
         if len(data) != 2:
             raise ValueError(

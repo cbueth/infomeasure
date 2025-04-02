@@ -548,15 +548,6 @@ class ConditionalMutualInformationEstimator(
             )
         self.data = tuple(asarray(d) for d in data)
         self.cond = asarray(cond)
-        if (
-            self.data[0].shape[0] != self.data[1].shape[0]
-            or self.data[0].shape[0] != self.cond.shape[0]
-        ):
-            raise ValueError(
-                "Data arrays must have the same first dimension, "
-                f"not {self.data[0].shape[0]}, {self.data[1].shape[0]}, "
-                f"and {self.cond.shape[0]}."
-            )
         # Normalize the data
         self.normalize = normalize
         if self.normalize and (

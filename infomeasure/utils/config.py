@@ -191,7 +191,7 @@ class Config:
         for base, units in BASE_UNIT_MAP.items():
             if cls.get("base") == base:
                 return units["description"]
-        raise ValueError(f"No description for logarithmic unit: {cls.get('base')}")
+        raise ValueError(f"No description for logarithmic unit: base {cls.get('base')}")
 
     @staticmethod
     def set_log_level(level: int | str) -> None:
