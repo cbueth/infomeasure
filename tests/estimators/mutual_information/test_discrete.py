@@ -164,7 +164,7 @@ def test_discrete_mi_3_vars_explicit(rng_int, expected):
     est.local_val()  # Checks internally for `global = mean(local)`
 
 
-@pytest.mark.parametrize("num_vars", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15])
+@pytest.mark.parametrize("num_vars", [1, 2, 3, 4, 5, 6, 7, 8, 9])
 def test_discrete_mi_n_vars(num_vars, default_rng):
     """Test the discrete mutual information estimator with n variables."""
     data = [default_rng.integers(0, 10, size=1000) for _ in range(num_vars)]

@@ -5,7 +5,7 @@ from collections import Counter
 
 from numpy import (
     clip,
-    int64,
+    uint64,
     log,
     ndarray,
     ones,
@@ -50,8 +50,13 @@ def mutual_information_global(*data: tuple, log_func: callable = log) -> float:
 def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) -> float:
     """Estimate the global mutual information between an arbitrary number of
     random variables."""
-    _, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    uniques, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
+    contingency_coo = COO(
+        coords=indices,
+        data=ones(len(indices[0]), dtype=uint64),
+        shape=tuple(len(uniq) for uniq in uniques),
+        fill_value=0,
+    )
 
     # Non-zero indices and values
     idxs = contingency_coo.nonzero()
@@ -76,7 +81,7 @@ def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) ->
     # probabilities, only for non-zero entries.
     outer = prod(
         [
-            count.take(idx).astype(int64, copy=False)
+            count.take(idx).astype(uint64, copy=False)
             for count, idx in zip(count_marginals, idxs)
         ],
         axis=0,
@@ -132,8 +137,8 @@ def _mutual_information_global_2d_int(
 
     # Calculate the expected logarithm values for the outer product of marginal
     # probabilities, only for non-zero entries.
-    outer = pi.take(nzx).astype(int64, copy=False) * pj.take(nzy).astype(
-        int64, copy=False
+    outer = pi.take(nzx).astype(uint64, copy=False) * pj.take(nzy).astype(
+        uint64, copy=False
     )
     log_outer = -log_func(outer) + log_func(pi.sum()) + log_func(pj.sum())
     # Combine the terms to calculate the mutual information
@@ -202,8 +207,13 @@ def mutual_information_local(*data: tuple, log_func: callable = log) -> ndarray:
         The local mutual information between the random variables.
     """
     # Contingency table - COOrdinate sparse matrix
-    _, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    uniques, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
+    contingency_coo = COO(
+        coords=indices,
+        data=ones(len(indices[0]), dtype=uint64),
+        shape=tuple(len(uniq) for uniq in uniques),
+        fill_value=0,
+    )
 
     # Normalized contingency table (joint probability)
     contingency_sum = contingency_coo.sum()
@@ -271,10 +281,15 @@ def _conditional_mutual_information_global_nd_int(
 ) -> float:
     """Estimate the global conditional mutual information between an arbitrary number of
     random variables and a conditioning variable."""
-    _, indices = zip(
+    uniques, indices = zip(
         *[unique(var, return_inverse=True, axis=0) for var in (data + (cond,))]
     )
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    contingency_coo = COO(
+        coords=indices,
+        data=ones(len(indices[0]), dtype=uint64),
+        shape=tuple(len(uniq) for uniq in uniques),
+        fill_value=0,
+    )
 
     # Non-zero indices and values
     idxs = contingency_coo.nonzero()
@@ -303,7 +318,7 @@ def _conditional_mutual_information_global_nd_int(
     # probabilities, only for non-zero entries.
     outer = prod(
         [
-            count[idx, idxs[-1]].astype(int64, copy=False)
+            count[idx, idxs[-1]].astype(uint64, copy=False)
             for count, idx in zip(count_marginals_cond, idxs[:-1])
         ],
         axis=0,
@@ -314,7 +329,7 @@ def _conditional_mutual_information_global_nd_int(
     p_joint = vals / contingency_sum
 
     # Logarithm of the non-zero elements
-    p_cond = count_cond.take(idxs[-1]).astype(int64, copy=False)
+    p_cond = count_cond.take(idxs[-1]).astype(uint64, copy=False)
     log_p_joint = log_func(vals * p_cond) - log_func(contingency_sum)
 
     log_outer = -log_func(outer) + sum(
@@ -353,10 +368,15 @@ def conditional_mutual_information_local(
         The local conditional mutual information between the random variables.
     """
     # Contingency table - COOrdinate sparse matrix
-    _, indices = zip(
+    uniques, indices = zip(
         *[unique(var, return_inverse=True, axis=0) for var in (data + (cond,))]
     )
-    contingency_coo = COO(coords=indices, data=ones(len(indices[0]), dtype=int64))
+    contingency_coo = COO(
+        coords=indices,
+        data=ones(len(indices[0]), dtype=uint64),
+        shape=tuple(len(uniq) for uniq in uniques),
+        fill_value=0,
+    )
 
     # Normalized contingency table (joint probability)
     contingency_sum = contingency_coo.sum()

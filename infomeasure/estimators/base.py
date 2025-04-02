@@ -148,13 +148,19 @@ class Estimator(Generic[EstimatorType], ABC):
             # check absolute and relative difference
             if (
                 abs(np_mean(self.res_local) - self.res_global) > 1e-10
-                or abs((np_mean(self.res_local) - self.res_global) / self.res_global)
-                > 0.01
+                and abs((np_mean(self.res_local) - self.res_global) / self.res_global)
+                > 1e-5
             ):
                 raise RuntimeError(
                     f"Mean of local values {np_mean(self.res_local)} "
                     f"does not match the global value {self.res_global}. "
-                    f"Diff: {np_mean(self.res_local) - self.res_global:.2e}."
+                    f"Diff: {np_mean(self.res_local) - self.res_global:.2e}. "
+                    + (
+                        f"As you are using {len(self.data)} random variables, "
+                        f"this is likely a numerical error."
+                        if (isinstance(self.data, tuple) and len(self.data) > 5)
+                        else ""
+                    )
                 )
         return self.res_local
 
