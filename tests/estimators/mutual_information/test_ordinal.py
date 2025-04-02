@@ -3,7 +3,7 @@
 from datetime import datetime
 
 import pytest
-from numpy import ndarray
+from numpy import ndarray, asarray
 
 from infomeasure.estimators.entropy import OrdinalEntropyEstimator
 from tests.conftest import (
@@ -235,3 +235,95 @@ def test_entropy_equality(rng_int, default_rng, emb_dim):
     mutual_info = OrdinalMIEstimator(x, x, embedding_dim=emb_dim, base="e")
     entropy = OrdinalEntropyEstimator(x, embedding_dim=emb_dim, base="e")
     assert entropy.result() == pytest.approx(mutual_info.result())
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ([1, 2], [[1, 2], [3, 4]]),
+        ([(1, 2), (3, 4)], [1, 2]),
+        ([1, 2, 3], [[1, 1], [2, 2], [3, 3]]),
+        ([1, 2, 3], [[1], [2], [3]]),
+        ([1, 2], [[1, 2, 3], [4, 5, 6]]),
+        ([1, 2], [1, 2], [1, 2], [[1, 1], [2, 2]]),
+    ],
+)
+def test_ordinal_MI_invalid_data_type(data):
+    """Test the ordinal MI estimator with invalid data type."""
+    with pytest.raises(
+        TypeError,
+        match="The data must be tuples of 1D arrays. "
+        "Ordinal patterns can only be computed from 1D arrays.",
+    ):
+        est = OrdinalMIEstimator(*data, embedding_dim=2)
+        est.result()
+
+
+@pytest.mark.parametrize(
+    "data, cond",
+    [
+        [([1, 2], [[1, 2], [3, 4]]), [1, 2]],
+        [([1, 2], [1, 2]), [[1], [2]]],
+        [([1, 2], [1, 2]), [[1, 2], [3, 4]]],
+        [([1, 2], [1, 2]), [(1, 2), (3, 4)]],
+        [([1, 2, 3], [[1, 1], [2, 2], [3, 3]]), [1, 2, 3]],
+        [([1, 2, 3], [1, 2, 3]), [[1, 1], [2, 2], [3, 3]]],
+        [([1, 2, 3], [[1], [2], [3]]), [1, 2, 3]],
+        [([1, 2, 3], [1, 2, 3]), [[1], [2], [3]]],
+        [([1, 2], [[1, 1, 1], [2, 2, 2]]), [1, 2]],
+        [([1, 2], [1, 2]), [[1, 1, 1], [2, 2, 2]]],
+        [([1, 2], [1, 2], [1, 2], [[1, 1], [2, 2]]), [1, 2]],
+        [([1, 2], [1, 2], [1, 2], [1, 2]), [[1, 1], [2, 2]]],
+    ],
+)
+def test_ordinal_CMI_invalid_data_type(data, cond):
+    """Test the ordinal CMI estimator with invalid data type."""
+    with pytest.raises(
+        TypeError,
+        match=(
+            "The data must be tuples of 1D arrays. "
+            "Ordinal patterns can only be computed from 1D arrays."
+        )
+        if asarray(cond).ndim == 1
+        else "The conditional variable must be an 1d array,",
+    ):
+        est = OrdinalCMIEstimator(*data, cond=cond, embedding_dim=2)
+        est.result()
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        ([1, 2, 3, 4], [None] * 4),  # Incomparable
+        ([1, 2, 3, 4], [1, 2, None, None]),  # Inhomogeneous
+    ],
+)
+@pytest.mark.parametrize("embedding_dim", [2, 3, 4])
+def test_ordinal_mi_type_incomparable(data, embedding_dim):
+    """Test the ordinal MI estimator with incomparable data type."""
+    with pytest.raises(
+        TypeError,
+        match="'<' not supported between instances of",
+    ):
+        est = OrdinalMIEstimator(*data, embedding_dim=embedding_dim)
+        est.result()
+
+
+@pytest.mark.parametrize(
+    "data,cond",
+    [
+        [([1, 2, 3, 4], [None] * 4), [1, 2, 3, 4]],  # Incomparable
+        [([1, 2, 3, 4], [1, 2, 3, 4]), [None] * 4],  # Incomparable
+        [([1, 2, 3, 4], [1, 2, None, None]), [1, 2, 3, 4]],  # Inhomogeneous
+        [([1, 2, 3, 4], [1, 2, 3, 4]), [None] * 4],  # Inhomogeneous
+    ],
+)
+@pytest.mark.parametrize("embedding_dim", [2, 3, 4])
+def test_ordinal_cmi_type_incomparable(data, cond, embedding_dim):
+    """Test the ordinal CMI estimator with incomparable data type."""
+    with pytest.raises(
+        TypeError,
+        match="'<' not supported between instances of",
+    ):
+        est = OrdinalCMIEstimator(*data, cond=cond, embedding_dim=embedding_dim)
+        est.result()

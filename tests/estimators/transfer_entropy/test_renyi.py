@@ -99,7 +99,7 @@ def test_renyi_cte(k, alpha, expected):
     est = RenyiCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         k=k,
         alpha=alpha,
         noise_level=0,  # for reproducibility
@@ -139,7 +139,7 @@ def test_renyi_cte_slicing(
     est = RenyiCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         step_size=step_size,
         src_hist_len=src_hist_len,
         dest_hist_len=dest_hist_len,

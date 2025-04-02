@@ -53,6 +53,8 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         If the ``embedding_dim`` is negative or not an integer.
     ValueError
         If the ``embedding_dim`` is too large for the given data.
+    TypeError
+        If the data are not 1d array-like(s).
 
     Warning
     -------
@@ -78,6 +80,14 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
             This can be useful for reproducibility and testing, but might be slower.
         """
         super().__init__(data, base=base)
+        if any(
+            var.ndim > 1
+            for var in (self.data if isinstance(self.data, tuple) else (self.data,))
+        ):
+            raise TypeError(
+                "The data must be a 1D array or tuple of 1D arrays. "
+                "Ordinal patterns can only be computed from 1D arrays."
+            )
         if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
             raise ValueError("The embedding_dim must be a non-negative integer.")
         if (isinstance(self.data, ndarray) and embedding_dim > self.data.shape[0]) or (

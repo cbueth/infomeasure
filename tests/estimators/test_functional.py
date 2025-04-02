@@ -278,6 +278,21 @@ def test_transfer_entropy_functional_addressing(
         assert isinstance(te[2], float)
 
 
+@pytest.mark.parametrize("n_vars", [3, 4, 5])
+def test_transfer_entropy_functional_too_many_vars(n_vars, default_rng, te_approach):
+    """Test that an error is raised when too many variables are provided."""
+    approach_str, needed_kwargs = te_approach
+    with pytest.raises(
+        ValueError,
+        match="Transfer Entropy requires two variables as arguments and if needed,",
+    ):
+        im.transfer_entropy(
+            *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
 @pytest.mark.parametrize("src_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("dest_hist_len", [1, 2, 3])
 @pytest.mark.parametrize("cond_hist_len", [1, 2, 3])
@@ -318,6 +333,23 @@ def test_cond_transfer_entropy_functional_addressing(
     )
 
 
+@pytest.mark.parametrize("n_vars", [3, 4, 5])
+def test_cte_functional_too_many_vars(n_vars, default_rng, cte_approach):
+    """Test that an error is raised when too many variables are provided."""
+    approach_str, needed_kwargs = cte_approach
+    with pytest.raises(
+        ValueError,
+        match="CTE requires two variables as arguments and "
+        "the conditional data as keyword argument:",
+    ):
+        im.conditional_transfer_entropy(
+            *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
+            cond=default_rng.integers(0, 2, size=10),
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
 def test_cte_functional_addressing_faulty(cte_approach):
     """Test wrong usage of the conditional transfer entropy estimator."""
     approach_str, needed_kwargs = cte_approach
@@ -355,6 +387,24 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est.effective_val(), float)
 
 
+@pytest.mark.parametrize("n_vars", [3, 4, 5])
+def test_transfer_entropy_class_addressing_too_many_vars(
+    n_vars, default_rng, te_approach
+):
+    """Test that an error is raised when too many variables are provided."""
+    approach_str, needed_kwargs = te_approach
+    with pytest.raises(
+        ValueError,
+        match="Exactly two data arrays are required for transfer entropy estimation.",
+    ):
+        im.estimator(
+            *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
+            measure="transfer_entropy",
+            approach=approach_str,
+            **needed_kwargs,
+        )
+
+
 def test_cond_transfer_entropy_class_addressing(cte_approach):
     """Test addressing the conditional transfer entropy estimator classes."""
     approach_str, needed_kwargs = cte_approach
@@ -378,6 +428,23 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
             est.local_val()
     else:
         assert isinstance(est.local_val(), np.ndarray)
+
+
+@pytest.mark.parametrize("n_vars", [3, 4, 5])
+def test_cte_class_addressing_too_many_vars(n_vars, default_rng, cte_approach):
+    """Test that an error is raised when too many variables are provided."""
+    approach_str, needed_kwargs = cte_approach
+    with pytest.raises(
+        ValueError,
+        match="Exactly two data arrays are required for transfer entropy estimation.",
+    ):
+        im.estimator(
+            *(default_rng.integers(0, 2, size=10) for _ in range(n_vars)),
+            cond=default_rng.integers(0, 2, size=10),
+            measure="cte",
+            approach=approach_str,
+            **needed_kwargs,
+        )
 
 
 @pytest.mark.parametrize("prop_time", [0, 1, 5])

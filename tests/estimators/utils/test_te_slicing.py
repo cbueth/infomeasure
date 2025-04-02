@@ -692,10 +692,10 @@ def test_cte_observations_explicit_separate(
         source,
         dest,
         cond,
-        src_hist_len,
-        dest_hist_len,
-        cond_hist_len,
-        step_size,
+        src_hist_len=src_hist_len,
+        dest_hist_len=dest_hist_len,
+        cond_hist_len=cond_hist_len,
+        step_size=step_size,
         construct_joint_spaces=False,
     )
     assert array_equal(src_history, expected[0])

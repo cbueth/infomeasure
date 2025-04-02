@@ -378,6 +378,13 @@ def transfer_entropy(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
+    if len(data) != 2:
+        raise ValueError(
+            "Transfer Entropy requires two variables as arguments and if needed,"
+            " the conditional data as keyword argument: "
+            "`transfer_entropy(source, dest, **kwargs)` or "
+            "`transfer_entropy(source, dest, cond=cond_var, **kwargs)`."
+        )
     return EstimatorClass(*data, **kwargs).result()
 
 
@@ -389,6 +396,12 @@ def conditional_transfer_entropy(*data, **parameters: any):
     if parameters.get("cond") is None:
         raise ValueError(
             "CTE requires a conditional variable. Pass a 'cond' keyword argument."
+        )
+    if len(data) != 2:
+        raise ValueError(
+            "CTE requires two variables as arguments and "
+            "the conditional data as keyword argument: "
+            "`conditional_transfer_entropy(source, dest, cond=cond_var, **kwargs)`."
         )
     return transfer_entropy(*data, **parameters)
 

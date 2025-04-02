@@ -55,6 +55,8 @@ class BaseOrdinalMIEstimator(ABC):
         If the ``embedding_dim`` is negative or not an integer.
     ValueError
         If ``offset`` and ``embedding_dim`` are such that the data is too small.
+    TypeError
+        If the data are not 1d array-like(s).
 
     Warning
     -------
@@ -96,12 +98,22 @@ class BaseOrdinalMIEstimator(ABC):
             super().__init__(
                 *data, cond=cond, offset=offset, normalize=False, base=base
             )
+            if self.cond.ndim > 1:
+                raise TypeError(
+                    "The conditional variable must be an 1d array, "
+                    "so that ordinal patterns can be computed from it."
+                )
         if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
             raise ValueError("The embedding_dim must be a non-negative integer.")
         if embedding_dim == 1:
             logger.warning(
                 "The Ordinal mutual information is always 0 for embedding_dim=1. "
                 "Consider using a higher embedding_dim for more meaningful results."
+            )
+        if any(var.ndim > 1 for var in self.data):
+            raise TypeError(
+                "The data must be tuples of 1D arrays. "
+                "Ordinal patterns can only be computed from 1D arrays."
             )
         self.embedding_dim = embedding_dim
         if len(self.data[0]) < (embedding_dim - 1) + 1:

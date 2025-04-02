@@ -55,6 +55,8 @@ class BaseOrdinalTEEstimator(ABC):
     ValueError
         If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that
         the data is too small.
+    TypeError
+        If the data are not 1d array-like(s).
 
     Warning
     -------
@@ -65,8 +67,8 @@ class BaseOrdinalTEEstimator(ABC):
         self,
         source,
         dest,
-        cond=None,
         *,  # Enforce keyword-only arguments
+        cond=None,
         embedding_dim: int,
         stable: bool = False,
         prop_time: int = 0,
@@ -125,7 +127,7 @@ class BaseOrdinalTEEstimator(ABC):
             super().__init__(
                 source,
                 dest,
-                cond,
+                cond=cond,
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
@@ -134,11 +136,21 @@ class BaseOrdinalTEEstimator(ABC):
                 offset=offset,
                 base=base,
             )
+            if self.cond.ndim > 1:
+                raise TypeError(
+                    "The conditional variable must be an 1d array, "
+                    "so that ordinal patterns can be computed from it."
+                )
         if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
             raise ValueError("The embedding_dim must be a non-negative integer.")
         if embedding_dim == 1:
             logger.warning(
                 "The Ordinal mutual information is always 0 for embedding_dim=1."
+            )
+        if any(var.ndim > 1 for var in (self.source, self.dest)):
+            raise TypeError(
+                "The data must be tuples of 1D arrays. "
+                "Ordinal patterns can only be computed from 1D arrays."
             )
         if not issubdtype(type(step_size), integer) or step_size < 0:
             raise ValueError("The step_size must be a non-negative integer.")

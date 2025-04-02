@@ -46,8 +46,8 @@ class BaseDiscreteTEEstimator(ABC):
         self,
         source,
         dest,
+        *,  # Enforce keyword-only arguments
         cond=None,
-        *,  # all following parameters are keyword-only
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -96,7 +96,7 @@ class BaseDiscreteTEEstimator(ABC):
             super().__init__(
                 source,
                 dest,
-                cond,
+                cond=cond,
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,

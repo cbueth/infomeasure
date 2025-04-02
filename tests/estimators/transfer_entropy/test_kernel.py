@@ -100,7 +100,7 @@ def test_kernel_cte(rng_int, bandwidth, kernel, expected):
     est = KernelCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         bandwidth=bandwidth,
         kernel=kernel,
         base=2,
@@ -143,7 +143,7 @@ def test_kernel_cte_slicing(
     est = KernelCTEEstimator(
         data_source,
         data_dest,
-        data_cond,
+        cond=data_cond,
         bandwidth=0.01,
         kernel="box",
         step_size=step_size,
