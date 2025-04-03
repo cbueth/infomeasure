@@ -37,13 +37,13 @@ def test_faulty_local_vals():
     faulty_estimator = TestEstimator(calc_vals=5, local_values=array([5, 6]))
     faulty_estimator.data = (1,)
     with pytest.raises(RuntimeError, match="Mean of local values"):
-        faulty_estimator.local_val()
-    faulty_estimator.local_val()  # Only raises the error once
+        faulty_estimator.local_vals()
+    faulty_estimator.local_vals()  # Only raises the error once
 
     faulty_estimator = TestEstimator(calc_vals=5, local_values=array([5, 6]))
     faulty_estimator.data = (1, 2, 3, 4, 5, 6)
     with pytest.raises(RuntimeError, match="As you are using 6 random variables"):
-        faulty_estimator.local_val()
+        faulty_estimator.local_vals()
 
 
 def test_faulty_call_not_overwritten():
@@ -104,7 +104,7 @@ def test_mi_faulty_data_lengths():
     """Test mutual information function with faulty data lengths."""
     with pytest.raises(
         ValueError,
-        match="Data arrays must have the same first dimension, not \[2, 3\]\.",
+        match=r"Data arrays must have the same first dimension, not \[2, 3\]\.",
     ):
         estimator([1, 2], [3, 4, 5], measure="mi", approach="discrete")
 

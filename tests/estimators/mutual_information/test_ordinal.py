@@ -45,7 +45,7 @@ def test_ordinal_mi(data_len, embedding_dim, offset, default_rng):
     else:
         max_val = est._log_base(data_len)
         assert 0 <= est.global_val() <= max_val
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize("embedding_dim", [-1, 1.0, "a", 1.5, 2.0])
@@ -108,7 +108,7 @@ def test_ordinal_mi_values(data_x, data_y, embedding_dim, expected):
         data_x, data_y, embedding_dim=embedding_dim, base=2, stable=True
     )
     assert est.global_val() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -135,7 +135,7 @@ def test_ordinal_mi_values_autoregressive(rng_int, embedding_dim, expected):
     res = est.result()
     assert isinstance(est.result(), float)
     assert res == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -163,7 +163,7 @@ def test_ordinal_mi_values_autoregressive_condition(rng_int, embedding_dim, expe
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -224,7 +224,7 @@ def test_ordinal_cmi_values(data_x, data_y, cond, embedding_dim, expected):
         data_x, data_y, embedding_dim=embedding_dim, cond=cond, base=2, stable=True
     )
     assert est.global_val() == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize("rng_int", [1, 2, 3, 4, 5, 6])

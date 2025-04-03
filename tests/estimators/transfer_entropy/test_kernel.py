@@ -36,7 +36,7 @@ def test_kernel_te(rng_int, bandwidth, kernel, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -78,7 +78,7 @@ def test_kernel_te_slicing(
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -107,7 +107,7 @@ def test_kernel_cte(rng_int, bandwidth, kernel, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -154,4 +154,4 @@ def test_kernel_cte_slicing(
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)

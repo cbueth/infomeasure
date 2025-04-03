@@ -84,8 +84,8 @@ def test_te_discrete_shifted(rng_int, prop_time, base, high):
     res_xc = est_xc.result()
     assert isinstance(res_xc, float)
     assert res_xc == pytest.approx(0.0, abs=0.018 * base * high)
-    est_xy.local_val()
-    est_xc.local_val()
+    est_xy.local_vals()
+    est_xc.local_vals()
 
 
 @pytest.mark.parametrize(

@@ -80,9 +80,9 @@ def test_entropy_class_addressing(entropy_approach):
         est.effective_val()
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     else:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
 
 
 def test_entropy_class_addressing_no_data():
@@ -172,9 +172,9 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert isinstance(est.result(), float)
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     else:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
     assert 0 <= est.p_value(10) <= 1
 
 
@@ -223,10 +223,10 @@ def test_mutual_information_class_addressing_n_vars(n_vars, mi_approach, default
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
     if approach_str not in ["renyi", "tsallis"]:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     # p-value is only supported for 2 variables
     if n_vars == 2:
         assert 0 <= est.p_value(10) <= 1
@@ -334,10 +334,10 @@ def test_cond_mutual_information_class_addressing_n_vars(
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
     if approach_str not in ["renyi", "tsallis"]:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     # p-value is not supported for conditional mutual information
     with pytest.raises(AttributeError):
         est.p_value(10)
@@ -369,9 +369,9 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est.result(), float)
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     else:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
 
 
 @pytest.mark.parametrize("n_vars", [0, 1])
@@ -539,9 +539,9 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est.result(), float)
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     else:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
     assert 0 <= est.p_value(10) <= 1
     assert isinstance(est.effective_val(), float)
 
@@ -584,9 +584,9 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert isinstance(est.result(), float)
     if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
-            est.local_val()
+            est.local_vals()
     else:
-        assert isinstance(est.local_val(), np.ndarray)
+        assert isinstance(est.local_vals(), np.ndarray)
 
 
 @pytest.mark.parametrize("n_vars", [3, 4, 5])

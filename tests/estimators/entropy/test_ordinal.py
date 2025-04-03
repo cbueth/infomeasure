@@ -25,7 +25,7 @@ def test_ordinal_entropy(data_len, embedding_dim, default_rng):
         return
     est = OrdinalEntropyEstimator(data, embedding_dim=embedding_dim)
     assert 0 <= est.global_val() <= est._log_base(data_len)
-    est.local_val()
+    est.local_vals()
 
 
 @pytest.mark.parametrize(
@@ -217,7 +217,7 @@ def test_ordinal_entropy_maximum(embedding_dim, min_length, default_rng):
         )
         # but cannot be larger
         assert est.global_val() <= est._log_base(factorial(embedding_dim))
-    est.local_val()
+    est.local_vals()
 
 
 @pytest.mark.parametrize("embedding_dim", [-1, 1.0, "a", 1.5, 2.0])

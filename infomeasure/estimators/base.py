@@ -121,7 +121,7 @@ class Estimator(Generic[EstimatorType], ABC):
         return self.res_global
 
     @final
-    def local_val(self):
+    def local_vals(self):
         """Return the local values of the measure, if available.
 
         Returns
@@ -467,8 +467,8 @@ class MutualInformationEstimator(
         # return sum(h(x_i)) - h((x_1, x_2, ..., x_n))
         try:
             return (
-                np_sum([est.local_val() for est in estimators])
-                - estimator_joint.local_val()
+                np_sum([est.local_vals() for est in estimators])
+                - estimator_joint.local_vals()
             )
         except UnsupportedOperation:
             return (
@@ -624,9 +624,9 @@ class ConditionalMutualInformationEstimator(
             # return h_x_z + h_y_z - h_x_y_z - h_z
             try:
                 (
-                    np_sum([est.local_val() for est in est_marginal_cond])
-                    - estimator_joint.local_val()
-                    - est_cond.local_val()
+                    np_sum([est.local_vals() for est in est_marginal_cond])
+                    - estimator_joint.local_vals()
+                    - est_cond.local_vals()
                 )
             except UnsupportedOperation:
                 return (
@@ -818,10 +818,10 @@ class TransferEntropyEstimator(
         # Compute Transfer Entropy
         try:
             return (
-                est_y_history_y_future.local_val()
-                + est_x_history_y_history.local_val()
-                - est_x_history_y_history_y_future.local_val()
-                - est_y_history.local_val()
+                est_y_history_y_future.local_vals()
+                + est_x_history_y_history.local_vals()
+                - est_x_history_y_history_y_future.local_vals()
+                - est_y_history.local_vals()
             )
         except UnsupportedOperation:
             return (
@@ -969,10 +969,10 @@ class ConditionalTransferEntropyEstimator(
         # Compute Conditional Transfer Entropy
         try:
             return (
-                est_cond_y_history_y_future.local_val()
-                + est_x_history_cond_y_history.local_val()
-                - est_x_history_cond_y_history_y_future.local_val()
-                - est_y_history_cond.local_val()
+                est_cond_y_history_y_future.local_vals()
+                + est_x_history_cond_y_history.local_vals()
+                - est_x_history_cond_y_history_y_future.local_vals()
+                - est_y_history_cond.local_vals()
             )
         except UnsupportedOperation:
             return (

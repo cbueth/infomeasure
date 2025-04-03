@@ -69,7 +69,7 @@ def test_kernel_entropy_explicit(data, bandwidth, kernel, expected):
     est = KernelEntropyEstimator(data, bandwidth=bandwidth, kernel=kernel, base=2)
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize("bandwidth", [0, -1, -10, None])

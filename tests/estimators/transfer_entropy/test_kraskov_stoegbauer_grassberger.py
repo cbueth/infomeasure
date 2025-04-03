@@ -45,7 +45,7 @@ def test_ksg_te(rng_int, k, minkowski_p, base, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -83,7 +83,7 @@ def test_ksg_te_slicing(
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -122,7 +122,7 @@ def test_ksg_cte(rng_int, k, minkowski_p, base, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -165,4 +165,4 @@ def test_ksg_cte_slicing(
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)

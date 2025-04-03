@@ -73,7 +73,7 @@ def test_ksg_mi(data_x, data_y, k, minkowski_p, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -112,7 +112,7 @@ def test_ksg_mi_base(data_x, data_y, k, minkowski_p, base, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -185,7 +185,7 @@ def test_ksg_mi_normalized(data_x, data_y, k, minkowski_p, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -423,4 +423,4 @@ def test_ksg_cmi(data_x, data_y, cond, k, minkowski_p, base, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
