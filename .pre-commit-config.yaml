@@ -27,9 +27,19 @@ repos:
           sh -c 'if command -v pwsh >/dev/null 2>&1 || [ "$0" = "pwsh" ]; then
               echo "Skipping in PowerShell";
           else
-              version=$(awk -F "\"" "/__version__/ {print \$2}" infomeasure/_version.py) &&
-              sed -i "" "s/^version: .*/version: $version/" CITATION.cff &&
-              sed -i "" "s/^version = .*/version = \"$version\"/" docs/conf.py;
+              os_type=$(uname) &&
+              if [ "$os_type" = "Darwin" ]; then
+                  version=$(awk -F "\"" "/__version__/ {print \$2}" infomeasure/_version.py) &&
+                  sed -i "" "s/^version: .*/version: $version/" CITATION.cff &&
+                  sed -i "" "s/^version = .*/version = \"$version\"/" docs/conf.py;
+              elif [ "$os_type" = "Linux" ]; then
+                  version=$(grep -oP "(?<=__version__ = \")[^\"]+" infomeasure/_version.py) &&
+                  sed -i "s/^version: .*/version: $version/" CITATION.cff &&
+                  sed -i "s/^version = .*/version = \"$version\"/" docs/conf.py;
+              else
+                  echo "Unsupported OS type: $os_type";
+                  exit 1;
+              fi
           fi'
 
         language: system
