@@ -52,7 +52,7 @@ The `Jensen Shannon Distance` (JSD) was purposed as the square root of Jensen Sh
 Both the `Jensen Shannon Divergence` and `Jensen Shannon Distance`  (JSD) are estimated by using the three different estimation techniques. The probability distribution function required to compute the these metrics is estimated by the respective estimation method described in hyper-linked pages.
 
 - Discrete estimation [{ref}`discrete_entropy`]
-- Symbolic estimation [{ref}`symbolic_entropy`]
+- Ordinal estimation [{ref}`ordinal_entropy`]
 - Kernel estimation [{ref}`kernel_entropy`]
 
 ## Usage

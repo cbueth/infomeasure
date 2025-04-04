@@ -32,11 +32,11 @@ where,
 ## Implementation
 Example usage of Renyi and Tsallis entropy...
 
-The estimator is implemented in the {py:class}`RenyiMIEstimator <infomeasure.measures.mutual_information.renyi.RenyiMIEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
+The estimator is implemented in the {py:class}`RenyiMIEstimator <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.mutual_information>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.mutual_information.renyi.RenyiMIEstimator
+.. autoclass:: infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

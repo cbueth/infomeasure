@@ -3,6 +3,12 @@
 from numpy import sum as np_sum, concatenate, ndarray
 
 from ..estimators.base import DistributionMixin
+from ..estimators.entropy import (
+    RenyiEntropyEstimator,
+    TsallisEntropyEstimator,
+    KozachenkoLeonenkoEntropyEstimator,
+    KernelEntropyEstimator,
+)
 from ..estimators.functional import get_estimator_class
 
 
@@ -48,14 +54,21 @@ def jensen_shannon_divergence(*data, approach: str | None = None, **kwargs):
     """
     if approach is None:
         raise ValueError("The approach must be specified.")
-    if approach in ["renyi", "tsallis", "kl"]:
-        raise ValueError(
-            "The Jensen-Shannon Divergence is not supported for the "
-            f"{approach.capitalize()} entropy."
-        )
     if not all(isinstance(var, (list, ndarray)) for var in data):
         raise ValueError("All data must be array-like objects.")
     estimator_class = get_estimator_class(measure="entropy", approach=approach)
+    if issubclass(
+        estimator_class,
+        (
+            RenyiEntropyEstimator,
+            TsallisEntropyEstimator,
+            KozachenkoLeonenkoEntropyEstimator,
+        ),
+    ):
+        raise ValueError(
+            "The Jensen-Shannon Divergence is not supported for the "
+            f"{estimator_class.__name__} estimator."
+        )
     # if estimator_class has mixin DistributionMixin
     # then we can use the distribution method
     if issubclass(estimator_class, DistributionMixin):
@@ -74,7 +87,7 @@ def jensen_shannon_divergence(*data, approach: str | None = None, **kwargs):
         mixture = list(dists.values())
         mixture = -np_sum(mixture * estimators[0]._log_base(mixture))
         return mixture - marginal
-    if approach in ["kernel"]:
+    if issubclass(estimator_class, KernelEntropyEstimator):
         # The mixture distribution is the union of the data, as the kernel density
         # estimation is applied afterward.
         mix_est = estimator_class(concatenate(data, axis=0), **kwargs)

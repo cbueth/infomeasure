@@ -24,11 +24,11 @@ where,
 Example usage of Kernel MI estimator...
 
 
-The estimator is implemented in the {py:class}`KernelMIEstimator <infomeasure.measures.mutual_information.kernel.KernelMIEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
+The estimator is implemented in the {py:class}`KernelMIEstimator <infomeasure.estimators.mutual_information.kernel.KernelMIEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.mutual_information>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.mutual_information.kernel.KernelMIEstimator
+.. autoclass:: infomeasure.estimators.mutual_information.kernel.KernelMIEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

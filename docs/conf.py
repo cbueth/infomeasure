@@ -30,7 +30,7 @@ version = "0.3.0dev1"
 extensions = [
     "sphinx.ext.autodoc",
     "myst_nb",  # Parse and execute ipynb files in Sphinx
-    "numpydoc",
+    "numpydoc",  # Automatically loads .ext.autosummary
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
@@ -61,6 +61,7 @@ myst_heading_anchors = 3
 nb_execution_timeout = 180
 
 numpydoc_xref_param_type = True
+numpydoc_show_inherited_class_members = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

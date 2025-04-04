@@ -34,11 +34,11 @@ This is a test of the entropy KL estimator (as developed above) on synthetically
 
 ....code showing the usage of K-L estimator...
 
-The estimator is implemented in the {py:class}`KozachenkoLeonenkoEntropyEstimator <infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>` class,
-which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
+The estimator is implemented in the {py:class}`KozachenkoLeonenkoEntropyEstimator <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>` class,
+which is part of the {py:mod}`im.measures.entropy <infomeasure.estimators.entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
+.. autoclass:: infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

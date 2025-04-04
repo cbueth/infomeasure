@@ -32,11 +32,11 @@ Where:
 Example usage of Renyi and Tsallis TE estimator...
 
 
-The estimator is implemented in the {py:class}`RenyiTEEstimator <infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.transfer_entropy>` module.
+The estimator is implemented in the {py:class}`RenyiTEEstimator <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.transfer_entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.transfer_entropy.renyi.RenyiTEEstimator
+.. autoclass:: infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

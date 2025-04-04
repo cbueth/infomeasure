@@ -31,11 +31,11 @@ Where:
 ## Implementation
 Example usage of Kernel TE estimator...
 
-The estimator is implemented in the {py:class}`KernelTEEstimator <infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.transfer_entropy>` module.
+The estimator is implemented in the {py:class}`KernelTEEstimator <infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.transfer_entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.transfer_entropy.kernel.KernelTEEstimator
+.. autoclass:: infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

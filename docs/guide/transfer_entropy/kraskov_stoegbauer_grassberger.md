@@ -41,11 +41,11 @@ where:
 Example usage of KSG TE estimator...
 
 
-The estimator is implemented in the {py:class}`KSGTEEstimator <infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.transfer_entropy>` module.
+The estimator is implemented in the {py:class}`KSGTEEstimator <infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.transfer_entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
+.. autoclass:: infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

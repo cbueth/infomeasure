@@ -65,7 +65,7 @@ Basically the axiom states that: if $P$ and $Q$ are discrete generalized probabi
 On this level two modes of reasoning can be formulated. One may either keep the additivity of independent information but utilize more general definition of means, or keep the usual definition of linear means but generalize the additivity law, each leading us to two generalized class of entropies: **R ́enyi entropy**, **Tsallis Entropy**.
 
 ### Renyi $\alpha$-Entropy
-Alfréd Rényi (mid-60´s) derived generalized family of one-parameter entropies as an exponentially weighted mean of unexpectedness functional (i.e $-log(p)$) known as **Renyi $\alpha$-Entropy**, for detail check {cite:p}`renyi1976selected` & {cite:p}`Jizba2003`.
+Alfréd Rényi (mid-60´s) derived generalized family of one-parameter entropies as an exponentially weighted mean of unexpectedness functional (i.e $-log(p)$) known as **Renyi $\alpha$-Entropy**, for detail check {cite:p}`renyi1976selected,jizbaInformationTheoryGeneralized2004`.
 Rényi $\alpha$-Entropy is the most general class of information measure preserving the additivity for independent systems and compatible with Kolmogorov´s probability axioms {cite:p}`kolmogoroff1933`.
 
 Let $\alpha > 0$, $\xi_n$ be a random variable with probability distribution $\mathcal{P} = (p_1, ..., p_n)$ where $\sum_{i=1}^{n} p_i = 1$ and $H_\alpha[\mathcal{P}]$ is such that:
@@ -123,7 +123,7 @@ This class of entropy measure is in particularly useful in the study in connecti
 
    kernel
    kozachenko_leonenko
-   symbolic
+   ordinal
    renyi
    tsallis
 ```

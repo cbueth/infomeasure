@@ -58,8 +58,8 @@ class BaseOrdinalMIEstimator(ABC):
     TypeError
         If the data are not 1d array-like(s).
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
@@ -161,8 +161,8 @@ class OrdinalMIEstimator(
     ValueError
         If ``offset`` and ``embedding_dim`` are such that the data is too small.
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
@@ -217,8 +217,8 @@ class OrdinalCMIEstimator(
     ValueError
         If ``offset`` and ``embedding_dim`` are such that the data is too small.
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 

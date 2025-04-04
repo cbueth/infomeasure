@@ -29,13 +29,13 @@ In this example data, each state of $0$ or $1$ has a probability of $0.5$, resul
 $H(X) = -0.5 \log_2 0.5 - 0.5 \log_2 0.5 = -\log_2\left(\tfrac{1}{2}\right) = \log_2 2 = 1$ bit.
 
 
-The estimator is implemented in the {py:class}`DiscreteEntropyEstimator <infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator>` class,
-which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
+The estimator is implemented in the {py:class}`DiscreteEntropyEstimator <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>` class,
+which is part of the {py:mod}`im.measures.entropy <infomeasure.estimators.entropy>` module.
 
 
 (DiscreteEntropyEstimator_impl)=
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.entropy.discrete.DiscreteEntropyEstimator
+.. autoclass:: infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

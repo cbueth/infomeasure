@@ -30,11 +30,11 @@ where:
 
 
 ## Implementation
-The estimator is implemented in the {py:class}`KSGMIEstimator <infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
+The estimator is implemented in the {py:class}`KSGMIEstimator <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.mutual_information>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
+.. autoclass:: infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

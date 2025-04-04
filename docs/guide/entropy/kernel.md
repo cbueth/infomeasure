@@ -55,13 +55,13 @@ Since there is an analytical function for computing the entropy (H) for a Gaussi
 
 ....code showing the usage of kernel estimator...
 
-The estimator is implemented in the {py:class}`KernelEntropyEstimator <infomeasure.measures.entropy.kernel.KernelEntropyEstimator>` class,
-which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
+The estimator is implemented in the {py:class}`KernelEntropyEstimator <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>` class,
+which is part of the {py:mod}`im.measures.entropy <infomeasure.estimators.entropy>` module.
 
 
 [//]: # (Not sure if we want to include this everywhere)
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.entropy.kernel.KernelEntropyEstimator
+.. autoclass:: infomeasure.estimators.entropy.kernel.KernelEntropyEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

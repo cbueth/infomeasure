@@ -88,6 +88,6 @@ Add: which realization and so forth... [KA]
 
    kernel
    kraskov_stoegbauer_grassberger
-   symbolic
+   ordinal
    renyi
 ```

@@ -56,8 +56,8 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
     TypeError
         If the data are not 1d array-like(s).
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the entropy is always 0.
     """
 

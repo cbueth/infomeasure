@@ -58,8 +58,8 @@ class BaseOrdinalTEEstimator(ABC):
     TypeError
         If the data are not 1d array-like(s).
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
@@ -194,8 +194,8 @@ class OrdinalTEEstimator(
         If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that
         the data is too small.
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 
@@ -270,8 +270,8 @@ class OrdinalCTEEstimator(BaseOrdinalTEEstimator, ConditionalTransferEntropyEsti
         If ``step_size``, ``prop_time``, and ``embedding_dim`` are such that the
         data is too small.
 
-    Warning
-    -------
+    Warns
+    -----
     If ``embedding_dim`` is set to 1, the transfer entropy is always 0.
     """
 

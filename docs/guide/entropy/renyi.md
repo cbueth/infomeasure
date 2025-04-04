@@ -86,11 +86,11 @@ im.entropy([1, 2, 3, 4, 5], approach="renyi", alpha=2)
 ```
 
 
-The estimator is implemented in the {py:class}`RenyiEntropyEstimator <infomeasure.measures.entropy.renyi.RenyiEntropyEstimator>` class,
-which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
+The estimator is implemented in the {py:class}`RenyiEntropyEstimator <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>` class,
+which is part of the {py:mod}`im.measures.entropy <infomeasure.estimators.entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.entropy.renyi.RenyiEntropyEstimator
+.. autoclass:: infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

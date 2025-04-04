@@ -66,6 +66,6 @@ When estimating MI, several factors must be considered (ref: {ref}`Estimation`).
 
    kernel
    kraskov_stoegbauer_grassberger
-   symbolic
+   ordinal
    renyi
 ```

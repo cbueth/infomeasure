@@ -88,11 +88,11 @@ im.entropy([1, 2, 3, 4, 5], approach="tsallis", q=2)  # Havrda-Charvát entropy
 
 
 
-The estimator is implemented in the {py:class}`TsallisEntropyEstimator <infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator>` class,
-which is part of the {py:mod}`im.measures.entropy <infomeasure.measures.entropy>` module.
+The estimator is implemented in the {py:class}`TsallisEntropyEstimator <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>` class,
+which is part of the {py:mod}`im.measures.entropy <infomeasure.estimators.entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.entropy.tsallis.TsallisEntropyEstimator
+.. autoclass:: infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

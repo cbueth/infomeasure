@@ -63,9 +63,13 @@ def test_get_estimator_class_no_measure():
 def test_entropy_functional_addressing(entropy_approach):
     """Test addressing the entropy estimator classes."""
     approach_str, needed_kwargs = entropy_approach
-    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    entropy = im.entropy(data, approach=approach_str, **needed_kwargs)
+    data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    entropy = im.entropy(np.array(data), approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
+    # test list input
+    assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
+        entropy
+    )
 
 
 def test_entropy_class_addressing(entropy_approach):

@@ -27,11 +27,11 @@ Where:
 ## Implementation
 Example usage of Discrete TE estimator...
 
-The estimator is implemented in the {py:class}`DiscreteTEEstimator <infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator>` class,
-which is part of the {py:mod}`im.measures.transfer_entropy <infomeasure.measures.transfer_entropy>` module.
+The estimator is implemented in the {py:class}`DiscreteTEEstimator <infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator>` class,
+which is part of the {py:mod}`im.measures.transfer_entropy <infomeasure.estimators.transfer_entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.transfer_entropy.discrete.DiscreteTEEstimator
+.. autoclass:: infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

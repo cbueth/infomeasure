@@ -43,7 +43,7 @@ $$
 
 While `estimating conditional TE`, the above formulation has been used to compute the respective entropies and joint entropies from available estimation techniques (detail: {ref}`Types of Estimation techniques available`. Hence, user can choose the desired techniques to estimate the conditional TE, which are:
 - Discrete estimation [{ref}`discrete_entropy`]
-- Symbolic estimation [{ref}`symbolic_entropy`]
+- Ordinal estimation [{ref}`ordinal_entropy`]
 - Kernel estimation [{ref}`kernel_entropy`]
 
 However, one has to be careful about the biases arising form the differing dimensionality of the states spaces across the terms in above equation. The KSG method is known to have reduce such biases, we here have implemented the dedicated formulation to compute the conditional TE via KSG as explained in subsequent section.

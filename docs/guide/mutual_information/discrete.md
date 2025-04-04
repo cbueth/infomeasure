@@ -19,11 +19,11 @@ To estimate the MI between two discrete random variable $X$ and $Y$, our impleme
 ## Implementation
 Example usage of discrete MI estimator...
 
-The estimator is implemented in the {py:class}`DiscreteMIEstimator <infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator>` class,
-which is part of the {py:mod}`im.measures.mutual_information <infomeasure.measures.mutual_information>` module.
+The estimator is implemented in the {py:class}`DiscreteMIEstimator <infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator>` class,
+which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.mutual_information>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.measures.mutual_information.discrete.DiscreteMIEstimator
+.. autoclass:: infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:
