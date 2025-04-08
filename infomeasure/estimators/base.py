@@ -1165,7 +1165,7 @@ class PValueMixin(RandomGeneratorMixin):
             and n_tests == self.n_tests
         ):
             return self.t_scr
-        self.p_value(method, n_tests)
+        self.p_value(n_tests=n_tests, method=method)
         return self.t_scr
 
     @staticmethod
