@@ -2,7 +2,7 @@
 
 from abc import ABC
 
-from numpy import zeros
+from numpy import isinf, isnan
 
 from ..base import (
     PValueMixin,
@@ -167,46 +167,34 @@ class KernelTEEstimator(
             permute_src=self.permute_src,
             resample_src=self.resample_src,
         )
-        local_te_values = zeros(len(joint_space_data))
 
-        # Compute KDE for each term directly using slices
-        for i in range(len(joint_space_data)):
-            # TODO: Vectorized version speeds up kde computation,
-            #  should outweigh the early stopping in this loop
-            # g(x_i^{(l)}, y_i^{(k)}, y_{i+1})
-            p_x_past_y_past_y_future = kde_probability_density_function(
-                joint_space_data, self.bandwidth, joint_space_data[i], self.kernel
-            )
-            if p_x_past_y_past_y_future == 0:
-                continue
-            # g(y_i^{(k)})
-            p_y_past = kde_probability_density_function(
-                dest_past_embedded, self.bandwidth, dest_past_embedded[i], self.kernel
-            )
-            numerator = p_x_past_y_past_y_future * p_y_past
-            if numerator <= 0:
-                continue
-            # g(x_i^{(l)}, y_i^{(k)})
-            p_xy_past = kde_probability_density_function(
-                marginal_1_space_data,
-                self.bandwidth,
-                marginal_1_space_data[i],
-                self.kernel,
-            )
-            if p_xy_past == 0:
-                continue
-            # g(y_i^{(k)}, y_{i+1})
-            p_y_past_y_future = kde_probability_density_function(
-                marginal_2_space_data,
-                self.bandwidth,
-                marginal_2_space_data[i],
-                self.kernel,
-            )
-            denominator = p_xy_past * p_y_past_y_future
-            if denominator <= 0:
-                continue
+        # Compute densities in vectorized manner
+        # g(x_i^{(l)}, y_i^{(k)}, y_{i+1})
+        p_x_past_y_past_y_future = kde_probability_density_function(
+            joint_space_data, self.bandwidth, self.kernel
+        )
+        # g(y_i^{(k)})
+        p_y_past = kde_probability_density_function(
+            dest_past_embedded, self.bandwidth, self.kernel
+        )
+        # g(x_i^{(l)}, y_i^{(k)})
+        p_xy_past = kde_probability_density_function(
+            marginal_1_space_data,
+            self.bandwidth,
+            self.kernel,
+        )
+        # g(y_i^{(k)}, y_{i+1})
+        p_y_past_y_future = kde_probability_density_function(
+            marginal_2_space_data,
+            self.bandwidth,
+            self.kernel,
+        )
 
-            local_te_values[i] = self._log_base(numerator / denominator)
+        local_te_values = self._log_base(
+            (p_x_past_y_past_y_future * p_y_past) / (p_y_past_y_future * p_xy_past)
+        )
+        # where inf/nan set to zero
+        local_te_values[isinf(local_te_values) | isnan(local_te_values)] = 0.0
 
         return local_te_values
 
@@ -261,43 +249,34 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
             cond_hist_len=self.cond_hist_len,
             step_size=self.step_size,
         )
-        local_cte_values = zeros(len(joint_space_data))
 
-        # Compute KDE for each term directly using slices
-        for i in range(len(joint_space_data)):
-            # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, y_{i+1})
-            p_x_history_cond_y_history_y_future = kde_probability_density_function(
-                joint_space_data, self.bandwidth, joint_space_data[i], self.kernel
-            )
-            if p_x_history_cond_y_history_y_future == 0:
-                continue
-            # g(y_i^{(k)}, z_i^{(m)})
-            p_y_history_cond = kde_probability_density_function(
-                dest_past_embedded, self.bandwidth, dest_past_embedded[i], self.kernel
-            )
-            numerator = p_x_history_cond_y_history_y_future * p_y_history_cond
-            if numerator <= 0:
-                continue
-            # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)})
-            p_x_history_cond_y_history = kde_probability_density_function(
-                marginal_1_space_data,
-                self.bandwidth,
-                marginal_1_space_data[i],
-                self.kernel,
-            )
-            if p_x_history_cond_y_history == 0:
-                continue
-            # g(z_i^{(m)}, y_i^{(k)}, y_{i+1})
-            p_cond_y_history_y_future = kde_probability_density_function(
-                marginal_2_space_data,
-                self.bandwidth,
-                marginal_2_space_data[i],
-                self.kernel,
-            )
-            denominator = p_x_history_cond_y_history * p_cond_y_history_y_future
-            if denominator <= 0:
-                continue
+        # Calculate densities in vectorized manner
+        # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, y_{i+1})
+        p_x_history_cond_y_history_y_future = kde_probability_density_function(
+            joint_space_data, self.bandwidth, self.kernel
+        )
+        # g(y_i^{(k)}, z_i^{(m)})
+        p_y_history_cond = kde_probability_density_function(
+            dest_past_embedded, self.bandwidth, self.kernel
+        )
+        # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)})
+        p_x_history_cond_y_history = kde_probability_density_function(
+            marginal_1_space_data,
+            self.bandwidth,
+            self.kernel,
+        )
+        # g(z_i^{(m)}, y_i^{(k)}, y_{i+1})
+        p_cond_y_history_y_future = kde_probability_density_function(
+            marginal_2_space_data,
+            self.bandwidth,
+            self.kernel,
+        )
 
-            local_cte_values[i] = self._log_base(numerator / denominator)
+        local_cte_values = self._log_base(
+            (p_x_history_cond_y_history_y_future * p_y_history_cond)
+            / (p_x_history_cond_y_history * p_cond_y_history_y_future)
+        )
+        # where inf/nan set to zero
+        local_cte_values[isinf(local_cte_values) | isnan(local_cte_values)] = 0.0
 
         return local_cte_values

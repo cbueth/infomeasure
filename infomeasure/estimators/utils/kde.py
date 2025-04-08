@@ -9,7 +9,7 @@ from scipy.spatial import KDTree
 from scipy.stats import gaussian_kde
 
 
-def kde_probability_density_function(data, bandwidth, x=None, kernel="box"):
+def kde_probability_density_function(data, bandwidth, kernel="box"):
     """
     Estimate the probability density function for a given data set using
     Kernel Density Estimation (KDE).
@@ -20,9 +20,6 @@ def kde_probability_density_function(data, bandwidth, x=None, kernel="box"):
         A numpy array of data points, where each column represents a dimension.
     bandwidth : float
         The bandwidth for the kernel.
-    x : array-like, optional
-        Point at which to estimate the probability density.
-        If not provided, the function will estimate at all data points.
     kernel : str
         Type of kernel to use ('gaussian' or 'box').
 
@@ -41,28 +38,9 @@ def kde_probability_density_function(data, bandwidth, x=None, kernel="box"):
     if not issubdtype(type(bandwidth), number) or bandwidth <= 0:
         raise ValueError("The bandwidth must be a positive number.")
 
-    # If x is not provided, evaluate at all data points
-    x = data if x is None else x
-
-    x = asarray(x)
-    # Make sure x is 2D for consistent numpy subtraction operation
-    if x.ndim == 1:
-        x = x[newaxis, :]
-
     if kernel == "gaussian":
-        return gaussian_kernel_densities(data.T, x.T, bandwidth)
-    elif kernel == "box" and x.shape[0] == 1:
-        # Define the box kernel density estimation
-        N, d = data.shape
-        # Compute the scaled data by the bandwidth and check if it falls within the unit hypercube centered at x
-        scaled_data = np_abs(data - x) / bandwidth
-        within_box = np_all(scaled_data <= 0.5, axis=1)
-        # Count the number of points inside the box
-        count = np_sum(within_box)
-        # Normalize by the number of points and the volume of the box (bandwidth^dimension)
-        volume = bandwidth**d
-        return count / (N * volume)
-    elif kernel == "box" and x.shape[0] > 1:
+        return gaussian_kernel_densities(data.T, bandwidth)
+    elif kernel == "box":
         # Get the number of data points (N) and the number of dimensions (d)
         N, d = data.shape
 
@@ -80,7 +58,7 @@ def kde_probability_density_function(data, bandwidth, x=None, kernel="box"):
         raise ValueError(f"Unsupported kernel type: {kernel}. Use 'gaussian' or 'box'.")
 
 
-def gaussian_kernel_densities(data, x, bandwidth, eigen_threshold: float = 1e-10):
+def gaussian_kernel_densities(data, bandwidth, eigen_threshold: float = 1e-10):
     """Calculate kde for gaussian kernel.
 
     In case of multivariate data, checks rank of data and reduces dimensions
@@ -91,8 +69,6 @@ def gaussian_kernel_densities(data, x, bandwidth, eigen_threshold: float = 1e-10
     ----------
     data : ndarray, shape (d, N)
         Data points to estimate density for.
-    x : ndarray, shape (d, n)
-        Points at which to evaluate the density.
     bandwidth : float
         Bandwidth parameter for kernel density estimation.
     eigen_threshold : float, optional
@@ -101,7 +77,7 @@ def gaussian_kernel_densities(data, x, bandwidth, eigen_threshold: float = 1e-10
     Returns
     -------
     densities : ndarray, shape (n,)
-        Estimated density values at points x.
+        Estimated density values at data points.
     """
     if data.shape[0] > 1:  # Multivariate case
         # Calculate covariance matrix
@@ -117,8 +93,9 @@ def gaussian_kernel_densities(data, x, bandwidth, eigen_threshold: float = 1e-10
         if num_non_zero_eigenvalues < data.shape[0]:
             # Project the data onto the reduced space
             pca_components = vectors_sorted[:, :num_non_zero_eigenvalues]
-            data = dot(data.T, pca_components).T
-            x = dot(x.T, pca_components).T
+            data_projected = dot(data.T, pca_components).T
+            kde = gaussian_kde(data_projected, bw_method=bandwidth)
+            return kde.evaluate(data_projected).squeeze()
 
     kde = gaussian_kde(data, bw_method=bandwidth)
-    return kde.evaluate(x).squeeze()
+    return kde.evaluate(data).squeeze()
