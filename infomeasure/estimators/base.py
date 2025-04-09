@@ -1271,7 +1271,7 @@ class PValueMixin(RandomGeneratorMixin):
             )
         elif self.p_val_method == "bootstrap":
             method_resample_src = lambda data_src: self.rng.choice(
-                data_src, size=data_src.shape, replace=True, axis=0
+                data_src, size=data_src.shape[0], replace=True, axis=0
             )
         else:
             raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
