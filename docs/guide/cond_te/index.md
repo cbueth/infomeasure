@@ -1,4 +1,4 @@
-(cond_TE_overview)=
+(cond_te_overview)=
 # Conditional TE
 {ref}`Transfer Entropy <transfer_entropy_overview>` (TE) from the source process $X$ to the target process $Y$ can also be conditioned on other possible sources, such as $Z$. In that case, the conditional TE corresponds to the amount of uncertainty reduced in the future values of target $Y$ by knowing the past values of source $X$, $Z$ and also after considering the past values of target $Y$ itself.
 Importantly, the TE can be conditioned on other possible information sources $Z$ , to eliminate their influence from being mistaken as that of the source $Y$.
@@ -17,8 +17,8 @@ where:
 - $\mathbf{z}_n^{(m)}$ represents the past history of $Z$ with embedding length $m$,
 - $y_{n+1}$ is the future state of $Y$.
 
-#### Local Conditional TE
-Similar to {ref}`Local Conditional H` and {ref}`Local Conditional MI` measures, we can extract the **local or point-wise conditional transfer entropy** as suggested by _Lizier et al._ {cite:p}`Lizier2014_localinfomeasure`{cite:p}`local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
+## Local Conditional TE
+Similar to {ref}`Local Conditional H` and {ref}`Local Conditional MI` measures, we can extract the **local or point-wise conditional transfer entropy** as suggested by _Lizier et al._ {cite:p}`Lizier2014`{cite:p}`local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
 
 $$
 t_{X \rightarrow Y \mid Z}(n+1, k, l) = \log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n)}
@@ -30,6 +30,8 @@ The TE as we know can be written as the global average of the local TE:
 $$
 T_{X \rightarrow Y \mid Z}(k, l) = \langle t_{X \rightarrow Y}(n + 1, k, l) \rangle,
 $$
+
+{ref}`Local Values`
 
 ## CTE Estimation
 The CTE expression above can be written as the combination of entropies and joint entropies as follows:
@@ -53,5 +55,5 @@ However, one has to be careful about the biases arising form the differing dimen
    :maxdepth: 2
    :caption: KSG method
 
-   KSG_cond_TE
+   ksg_cond_te
  ```

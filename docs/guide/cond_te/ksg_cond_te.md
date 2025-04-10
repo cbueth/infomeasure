@@ -3,9 +3,9 @@ file_format: mystnb
 kernelspec:
   name: python3
 ---
-(KSG_cond_TE)=
-#  KSG cond_TE Estimation
-Kraskov–Grassberger–Stögbauer (KSG) method was originally developed for estimating MI ({ref}`KSG_MI`) {cite:p}`miKSG2004`, ever since it has  been adapted to estimate other information measures such as {ref}`cond_TE_overview` (CTE) {cite:p}`cond_TE_Ostargard`.  The CTE between two variables $X$ and $Y$ by conditioning the third variable $Z$, ie. CTE ($TE(X \to Y \mid Z$) is obtained by following expression:
+(ksg_cond_te)=
+#  KSG cond_te Estimation
+Kraskov–Grassberger–Stögbauer (KSG) method was originally developed for estimating MI ({ref}`KSG_MI`) {cite:p}`miKSG2004`, ever since it has  been adapted to estimate other information measures such as {ref}`cond_te_overview` (CTE) {cite:p}`cond_te_Ostargard`.  The CTE between two variables $X$ and $Y$ by conditioning the third variable $Z$, ie. CTE ($TE(X \to Y \mid Z$) is obtained by following expression:
 
 $$
 TE(X \to Y \mid Z) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)}} + 1 \right)

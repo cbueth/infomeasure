@@ -14,32 +14,39 @@ It was only during 1948, **Claude Shannon** in his seminal paper "_Mathematical 
 $$
 H(X) = -\sum_{x \in X} p(x) \log_b p(x),
 $$
-where,
-- $X$: The set of possible values of the random variable.
-- $p(x)$: The probability of the value $x$ occurring.
-- $b$: The base of the logarithm.
-  - If $b = 2$, the unit of information is "bit".
-  - If $b = e$, the unit of information is "nat".
 
-````{sidebar} Continuous Variable
+where,
+
+```{sidebar} Continuous Variable
 For a continuous random variable $X$ with the probability distribution funciton $p(x)$ the differential entropy is written as:
 
 $$
 H(X) = -\int_{X} p(x) \log_b p(x) \, dx
 $$
 The differential entropy is closely related to the Shannon entropy {cite:p}`cover2012elements`.
-````
+```
 
-The shannon formulation is generic and of which the Hartly would be a special case where all elements are eqi-probable.
+- $X$: The set of possible values of the random variable.
+- $p(x)$: The probability of the value $x$ occurring.
+- $b$: The base of the logarithm.
+  - If $b = 2$, the unit of information is "bit".
+  - If $b = e$, the unit of information is "nat".
+
+The shannon formulation is generic and of which the Hartley would be a special case where all elements are eqi-probable.
 Thus, the Shannon entropy quantifies the average amount of information we expect to gain when observing specific outcomes or equivalently the average decrease in uncertainty about the possible values of a RV.
-Shannon’s motivation to use his mathematical formalism (entropy) was to determine whether or not the data stream can be encoded in such a way that even after it has been sent through the channel noisy enough to corrupt the data during the transmission,
+Shannon’s motivation to use his mathematical formalism (entropy) was to determine whether the data stream can be encoded in such a way that even after it has been sent through the channel noisy enough to corrupt the data during the transmission,
 the original data stream can be reconstructed in an error-free way at the receiver end. The interested reader can read his paper {cite:p}`shannonMathematicalTheoryCommunication1948` for his findings but here we would like to state another way to understand the Shannon entropy formulation in terms of messages associated with the RV (source).
 It is the measure of amount of information in message expressed in binary digits needed to express the message using the most appropiate way to code to get the shortest sequence.
 
-> Note: That the base of the algorithm in entropy formula only changes the value of the entropy by a multiplicative constant, hence using one form to another is only a matter of convenience.
+```{note}
+The base of the algorithm in the entropy formula only changes the value of the entropy by a multiplicative constant, hence using one form to another is only a matter of convenience.
+Our package supports using any information unit.
+Default is the natural unit (nats).
+If you want to use bits or another base, find the {ref}`package configuration`.
+```
 
 #### Local Entropy
-The **local information** measure also refer to as a **point-wise** information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ (at each time step or observation) rather than the average information associated with the variables $X$ {cite:p}`Lizier2014_localinfomeasure`.
+The **local information** measure also refer to as a **point-wise** information-theoretic measure {cite:p}`Lizier2014` characterize the local information associated with the individual value points i.e $x$ (at each time step or observation) rather than the average information associated with the variables $X$ {cite:p}`Lizier2014`.
 Applied to time series data, the local information measure can uncover dynamic structures that averaged measures overlook, as it characterize the information attributed at each local point in time.
 The  **local entropy** of an outcome $x$ of measurement of the variable $X$ is give by:
 
@@ -54,9 +61,10 @@ $$
 H(X) = \langle h(x) \rangle.
 $$
 
-> Note:
-> - The package allows user to obtain both the local and global (average) values to the Entropy computation.
-> - A lower-case symbol is used to denote local information-theoretic measures in this documentation.
+```{note}
+- The package allows user to obtain both the local and global (average) values to the Entropy computation. {ref}`Local Values`
+- A lower-case symbol is used to denote local information-theoretic measures in this documentation.
+```
 
 As successful as Shannon’s information theory has been, with time, it was clear that it is capable of dealing with only a limited class of systems one might hope to address in statistical physics.
 There was a growing interest to look for more general form of information applicable to diverse complex systems, such as stock market returns, protein folding, percolation, etc.
@@ -64,6 +72,7 @@ The additivity of independent mean information was the most natural axiom to att
 Basically the axiom states that: if $P$ and $Q$ are discrete generalized probability distributions of two independent random variables, then $H[P Q] = H[P]+H[Q]$.
 On this level two modes of reasoning can be formulated. One may either keep the additivity of independent information but utilize more general definition of means, or keep the usual definition of linear means but generalize the additivity law, each leading us to two generalized class of entropies: **R ́enyi entropy**, **Tsallis Entropy**.
 
+(renyi-alpha-entropy)=
 ### Renyi $\alpha$-Entropy
 Alfréd Rényi (mid-60´s) derived generalized family of one-parameter entropies as an exponentially weighted mean of unexpectedness functional (i.e $-log(p)$) known as **Renyi $\alpha$-Entropy**, for detail check {cite:p}`renyi1976selected,jizbaInformationTheoryGeneralized2004`.
 Rényi $\alpha$-Entropy is the most general class of information measure preserving the additivity for independent systems and compatible with Kolmogorov´s probability axioms {cite:p}`kolmogoroff1933`.
@@ -112,13 +121,13 @@ This class of entropy measure is in particularly useful in the study in connecti
 
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Discrete RV
 
    discrete
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Continuous RV
 
    kernel

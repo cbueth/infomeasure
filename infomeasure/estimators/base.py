@@ -60,7 +60,7 @@ class Estimator(Generic[EstimatorType], ABC):
         self.base = base
 
     @final
-    def calculate(self):
+    def calculate(self) -> None:
         """Calculate the measure.
 
         Estimate the measure and store the results in the attributes.
@@ -87,25 +87,21 @@ class Estimator(Generic[EstimatorType], ABC):
                 f"Invalid result type {type(results)} for {self.__class__.__name__}."
             )
 
-    def result(self):
+    @final
+    def result(self) -> float:
         """Return the global value of the measure.
 
         Calculate the measure if not already calculated.
 
         Returns
         -------
-        results : tuple | float
-            Tuple of the global, local, and standard deviation values,
-            or just the global value if others are not available.
-
-        Notes
-        -----
-        The local and standard deviation values are not available for all estimators.
+        results : float
+           The global value of the measure.
         """
         return self.global_val()
 
     @final
-    def global_val(self):
+    def global_val(self) -> float:
         """Return the global value of the measure.
 
         Calculate the measure if not already calculated.

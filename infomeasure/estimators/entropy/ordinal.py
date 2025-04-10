@@ -45,7 +45,8 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
 
     Notes
     -----
-    The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+    - The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+    - If ``embedding_dim`` is set to 1, the entropy is always 0.
 
     Raises
     ------
@@ -55,10 +56,6 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         If the ``embedding_dim`` is too large for the given data.
     TypeError
         If the data are not 1d array-like(s).
-
-    Warns
-    -----
-    If ``embedding_dim`` is set to 1, the entropy is always 0.
     """
 
     def __init__(

@@ -46,8 +46,9 @@ class BaseOrdinalMIEstimator(ABC):
 
     Notes
     -----
-    The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
-    There is no ``normalize`` option, as this would not influence the order of the data.
+    - The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+      There is no ``normalize`` option, as this would not influence the order of the data.
+    - If ``embedding_dim`` is set to 1, the mutual information is always 0.
 
     Raises
     ------
@@ -57,10 +58,6 @@ class BaseOrdinalMIEstimator(ABC):
         If ``offset`` and ``embedding_dim`` are such that the data is too small.
     TypeError
         If the data are not 1d array-like(s).
-
-    Warns
-    -----
-    If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
     def __init__(
@@ -151,8 +148,9 @@ class OrdinalMIEstimator(
 
     Notes
     -----
-    The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
-    There is no ``normalize`` option, as this would not influence the order of the data.
+    - The ordinality will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+      There is no ``normalize`` option, as this would not influence the order of the data.
+    - If ``embedding_dim`` is set to 1, the mutual information is always 0.
 
     Raises
     ------
@@ -160,10 +158,6 @@ class OrdinalMIEstimator(
         If the ``embedding_dim`` is negative or not an integer.
     ValueError
         If ``offset`` and ``embedding_dim`` are such that the data is too small.
-
-    Warns
-    -----
-    If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
     def _calculate(self) -> float:
@@ -207,8 +201,9 @@ class OrdinalCMIEstimator(
 
     Notes
     -----
-    The order will be determined via :func:`numpy.argsort() <numpy.argsort>`.
-    There is no ``normalize`` option, as this would not influence the order of the data.
+    - The order will be determined via :func:`numpy.argsort() <numpy.argsort>`.
+      There is no ``normalize`` option, as this would not influence the order of the data.
+    - If ``embedding_dim`` is set to 1, the mutual information is always 0.
 
     Raises
     ------
@@ -216,10 +211,6 @@ class OrdinalCMIEstimator(
         If the ``embedding_dim`` is negative or not an integer.
     ValueError
         If ``offset`` and ``embedding_dim`` are such that the data is too small.
-
-    Warns
-    -----
-    If ``embedding_dim`` is set to 1, the mutual information is always 0.
     """
 
     def __init__(self, *args, **kwargs):

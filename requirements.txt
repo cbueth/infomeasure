@@ -14,5 +14,7 @@ numpydoc
 myst-nb
 sphinx-book-theme
 sphinxcontrib-bibtex
+sphinx-automodapi
+graphviz
 # Plotting
 matplotlib

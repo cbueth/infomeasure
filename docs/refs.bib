@@ -368,23 +368,6 @@
     url = {https://link.aps.org/doi/10.1103/PhysRevLett.100.158101}
 }
 
-@Inbook{Lizier2014_localinfomeasure,
-    author = "Lizier, Joseph T.",
-    editor = "Wibral, Michael
-and Vicente, Raul
-and Lizier, Joseph T.",
-    title = "Measuring the Dynamics of Information Processing on a Local Scale in Time and Space",
-    bookTitle = "Directed Information Measures in Neuroscience",
-    year = "2014",
-    publisher = "Springer Berlin Heidelberg",
-    address = "Berlin, Heidelberg",
-    pages = "161--193",
-    abstract = "Studies of how information is processed in natural systems, in particular in nervous systems, are rapidly gaining attention. Less known however is that the local dynamics of such information processing in space and time can be measured. In this chapter, we review the mathematics of how to measure local entropy and mutual information values at specific observations of time-series processes.We then review how these techniques are used to construct measures of local information storage and transfer within a distributed system, and we describe how these measures can reveal much more intricate details about the dynamics of complex systems than their more well-known ``average'' measures do. This is done by examining their application to cellular automata, a classic complex system, where these local information profiles have provided quantitative evidence for long-held conjectures regarding the information transfer and processing role of gliders and glider collisions. Finally, we describe the outlook in anticipating the broad application of these local measures of information processing in computational neuroscience.",
-    isbn = "978-3-642-54474-3",
-    doi = "10.1007/978-3-642-54474-3_7",
-    url = "https://doi.org/10.1007/978-3-642-54474-3_7"
-}
-
 #JSD
 
 @ARTICLE{Divergence_measures_Lin,
@@ -432,9 +415,28 @@ and Lizier, Joseph T.",
     url = {https://link.aps.org/doi/10.1103/PhysRevE.77.026110}
 }
 
+@article{lizierJIDTInformationTheoreticToolkit2014,
+  title = {{{JIDT}}: {{An Information-Theoretic Toolkit}} for {{Studying}} the {{Dynamics}} of {{Complex Systems}}},
+  shorttitle = {{{JIDT}}},
+  author = {Lizier, Joseph T.},
+  year = {2014},
+  month = dec,
+  journal = {Frontiers in Robotics and AI},
+  volume = {1},
+  publisher = {Frontiers},
+  issn = {2296-9144},
+  doi = {10.3389/frobt.2014.00011},
+  urldate = {2025-04-10},
+  abstract = {Complex systems are increasingly being viewed as distributed information processing systems, particularly in the domains of computational neuroscience, bioinformatics, and artificial life. This trend has resulted in a strong uptake in the use of (Shannon) information-theoretic measures to analyze the dynamics of complex systems in these fields. We introduce the Java Information Dynamics Toolkit (JIDT): a Google code project, which provides a standalone (GNU GPL v3 licensed) open-source code implementation for empirical estimation of information-theoretic measures from time-series data. While the toolkit provides classic information-theoretic measures (e.g., entropy, mutual information, and conditional mutual information), it ultimately focuses on implementing higher-level measures for information dynamics. That is, JIDT focuses on quantifying information storage, transfer, and modification, and the dynamics of these operations in space and time. For this purpose, it includes implementations of the transfer entropy and active information storage, their multivariate extensions and local or pointwise variants. JIDT provides implementations for both discrete and continuous-valued data for each measure, including various types of estimator for continuous data (e.g., Gaussian, box-kernel, and Kraskov--St{\"o}gbauer--Grassberger), which can be swapped at run-time due to Java's object-oriented polymorphism. Furthermore, while written in Java, the toolkit can be used directly in MATLAB, GNU Octave, Python, and other environments. We present the principles behind the code design, and provide several examples to guide users.},
+  langid = {english},
+  keywords = {complex networks,complex systems,information storage,Information Theory,information transfer,Java,MATLAB,Octave,python,transfer entropy}
+}
+
+
+
 #conditional TE article
 
-@Article{cond_TE_Ostargard,
+@Article{cond_te_Ostargard,
     AUTHOR = {Shahsavari Baboukani, Payam and Graversen, Carina and Alickovic, Emina and Østergaard, Jan},
     TITLE = {Estimating Conditional Transfer Entropy in Time Series Using Mutual Information and Nonlinear Prediction},
     JOURNAL = {Entropy},

@@ -1,4 +1,4 @@
-"""Jensen Shannon Divergence (JSD)."""
+"""Jensen-Shannon Divergence (JSD)."""
 
 from numpy import sum as np_sum, concatenate, ndarray
 

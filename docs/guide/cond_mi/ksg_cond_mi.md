@@ -3,9 +3,9 @@ file_format: mystnb
 kernelspec:
   name: python3
 ---
-(KSG_cond_MI)=
-#  KSG cond_MI Estimation
-Kraskov–Grassberger–Stögbauer (KSG) method was originally developed for estimating MI ({ref}`KSG_MI`) {cite:p}`miKSG2004`, ever since it has  been adapted to estimate other information measures such as {ref}`cond_MI_overview` (CMI) {cite:p}`CMI_KSG_Frenzel_Pompe`.
+(ksg_cond_mi)=
+#  KSG cond_mi Estimation
+Kraskov–Grassberger–Stögbauer (KSG) method was originally developed for estimating MI ({ref}`KSG_MI`) {cite:p}`miKSG2004`, ever since it has  been adapted to estimate other information measures such as {ref}`cond_mi_overview` (CMI) {cite:p}`CMI_KSG_Frenzel_Pompe`.
 The CMI in between two variables $X$ and $Y$ by conditioning the third variable $Z$, ie. CMI $(I(X; Y \mid Z))$ is obtained by following expression:
 
 

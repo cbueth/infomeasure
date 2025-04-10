@@ -1,4 +1,4 @@
-(cond_MI_overview)=
+(cond_mi_overview)=
 # Conditional MI
 {ref}`Mutual Information <mutual_information_overview>` (MI) in between two processes $X$ and $Y$ can also be conditioned on other processes, such as $Z$, known as conditional MI. Such conditional MI now provides the shared information between  $X$ & $Y$ by considering the knowledge of the third conditional variable (eg: $Z$) and is written as $I(X;Y \mid Z)$.
 
@@ -12,7 +12,7 @@ $$
 = H(X \mid Z) - H(X \mid Y,Z)
 $$
 
-#### Local conditional MI
+## Local Conditional MI
 Similar to that of {ref}`Local Conditional H`, **local or point-wise conditional MI**, as defined by Fano {cite:p}`fano1961transmission`, as follows:
 
 $$
@@ -31,6 +31,8 @@ $$
 > Note:
 > The conditional MI $I(X;Y \mid Z)$ can be either larger or smaller than its non-conditional counter-part (i.e $I(X;Y )$), this leads to the idea of **Synergy** and **redundancy** and can be addressed by _information decomposition_ approach (cite)).
 > CMI is symmetric under the same condition $Z$, $I(X;Y \mid Z) =  I(Y;X \mid Z)$.
+
+{ref}`Local Values`
 
 ## CMI Estimation
 The CMI expression can be expressed in the form of entropies and joint entropies as follows:
@@ -51,5 +53,5 @@ However, one has to be careful about the biases arising form the differing dimen
    :maxdepth: 2
    :caption: KSG method
 
-   KSG_cond_MI
+   ksg_cond_mi
 ```

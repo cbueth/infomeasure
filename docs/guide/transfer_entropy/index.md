@@ -34,8 +34,8 @@ $$
 
 TE reduces to well-known Granger causality (upto a factor of 2) for the multivariate gaussian processes (cite).
 
-#### Local Transfer Entropy
-Similar to {ref}`Local Entropy`and {ref}`Local Mutual Information`, we can extract the **local or point-wise transfer entropy** as suggested by _Lizier et al._ {cite:p}`Lizier2014_localinfomeasure`{cite:p}`local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
+## Local Transfer Entropy
+Similar to {ref}`Local Entropy` and {ref}`Local Mutual Information`, we can extract the **local or point-wise transfer entropy** as suggested by Lizier _et al._ {cite:p}`Lizier2014,local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
 
 $$
 t_{X \rightarrow Y}(n+1, k, l) = \log \left( \frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}
@@ -45,45 +45,44 @@ $$
 The TE as we know can be written as the global average of the local TE:
 
 $$
-T_{X \rightarrow Y}(k, l, u) = \langle t_{X \rightarrow Y}(n + 1, k, l) \rangle,
+T_{X \rightarrow Y}(k, l, u) = \langle t_{X \rightarrow Y}(n + 1, k, l) \rangle
 $$
 
 The local TE values can be negative unlike its global counterpart, this means the source is misleading about the prediction of target´s next step.
 
 > Note:
-> - The package allows user to obtain both the local and global (average) values to the TE computation.
+> - The package allows user to obtain both the local and global (average) values to the TE computation. {ref}`Local Values`
 > - The package allows user to set the desired propagation time $u$ between the variables. The default value is set to $u=0$.
 
-#### Effective Transfer Entropy (eTE)
+## Effective Transfer Entropy (eTE)
 
 The time series data as available from the real word is usually biased due to the finite size effect. Depending on the type of estimators implemented the bias can be small or big but it is usually present. In order to correct the bias from the finite sample side effect, it is necessary to estimate the expected values of TE estimator for finite data that are close as possible to the original data but doesn´t represent the information transfer.
 We can crease such surrogate dataset for TE bias correction which has the same finite length and the same auto-correlation properties to that of original data.  At the same time, the surrogates should be guaranteed to have no predictive information transfer. This can be achieved by destroying the temporal precedence structure between the source  and the target processes, that would be underlying a potential predictive information transfer in the original data.
 We here used a slightly modified TE estimator, called \textit{effective} TE {cite:p}`articleKantz`, defined as the difference between the TE and the one calculated on surrogate (randomly shuffled) data:
 
 $$
-eTE = TE(X \rightarrow Y) - TE(X_{\text{shuffled}} \rightarrow Y).
+\operatorname{eTE} = \operatorname{T}_{X \rightarrow Y} - \operatorname{T}_{X_{\text{shuffled}} \rightarrow Y}
 $$
 
-Add: which realization and so forth... [KA]
+directly shuffling the entire source series might not be the valid approach as it destroy the source_history vector unless the history length is 1.
+Instead, we shuffle the source_history vector in the tuple of (target, target_history, source_history) and compute the TE, subsequently the eTE {cite:p}`lizierJIDTInformationTheoreticToolkit2014`.
 
-> Note:
-> The package has an option to obtain eTE computation.
+```{tip}
+The package has an option to obtain eTE computation, see {ref}`Effective value`.
+```
+ 
 
 ## List of Estimation Techniques Implemented:
 
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 2
-   transfer_entropy/cond_TE/index
-
-.. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Discrete RV
 
    discrete
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Continuous RV
 
    kernel

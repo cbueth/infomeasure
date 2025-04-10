@@ -20,8 +20,8 @@ BASE_UNIT_MAP = {
         "which is fundamental in digital systems.",
     },
     "e": {
-        "identifiers": ["nats", "nat"],
-        "name": "nat",
+        "identifiers": ["nats", "nat", "nit", "nepit"],
+        "name": "nat/nit/nepit",
         "description": "This base is best suited for "
         "continuous probability distributions.",
     },

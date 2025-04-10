@@ -31,7 +31,8 @@ extensions = [
     "sphinx.ext.autodoc",
     "myst_nb",  # Parse and execute ipynb files in Sphinx
     "numpydoc",  # Automatically loads .ext.autosummary
-    "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
+    # "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
+    "sphinx_automodapi.automodapi",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",

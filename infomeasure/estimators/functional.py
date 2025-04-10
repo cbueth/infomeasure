@@ -140,7 +140,7 @@ def _get_estimator(estimators, estimator_name):
     return _dynamic_import(estimators[estimator_name.lower()])
 
 
-def get_estimator_class(measure=None, approach=None):
+def get_estimator_class(measure=None, approach=None) -> EstimatorType:
     """Get estimator class based on the estimator name and approach.
 
     This function returns the estimator class based on the measure and approach
@@ -327,12 +327,12 @@ def mutual_information(
     return EstimatorClass(*data, **kwargs).result()
 
 
-def conditional_mutual_information(*data, **parameters: any):
+def conditional_mutual_information(*data, **kwargs: any):
     """Conditional mutual information between two variables given a third variable.
 
     See :func:`mutual_information <mutual_information>` for more information.
     """
-    if parameters.get("cond") is None:
+    if kwargs.get("cond") is None:
         raise ValueError(
             "CMI requires a conditional variable. Pass a 'cond' keyword argument."
         )
@@ -343,7 +343,7 @@ def conditional_mutual_information(*data, **parameters: any):
             "`conditional_mutual_information("
             "data1, data2, ..., cond=cond_var, **kwargs)`"
         )
-    return mutual_information(*data, **parameters)
+    return mutual_information(*data, **kwargs)
 
 
 @_dynamic_estimator(["te", "cte"])
@@ -407,12 +407,12 @@ def transfer_entropy(
     return EstimatorClass(*data, **kwargs).result()
 
 
-def conditional_transfer_entropy(*data, **parameters: any):
+def conditional_transfer_entropy(*data, **kwargs: any):
     """Conditional transfer entropy between two variables given a third variable.
 
     See :func:`transfer_entropy <transfer_entropy>` for more information.
     """
-    if parameters.get("cond") is None:
+    if kwargs.get("cond") is None:
         raise ValueError(
             "CTE requires a conditional variable. Pass a 'cond' keyword argument."
         )
@@ -422,7 +422,7 @@ def conditional_transfer_entropy(*data, **parameters: any):
             "the conditional data as keyword argument: "
             "`conditional_transfer_entropy(source, dest, cond=cond_var, **kwargs)`."
         )
-    return transfer_entropy(*data, **parameters)
+    return transfer_entropy(*data, **kwargs)
 
 
 def estimator(
@@ -488,8 +488,10 @@ def estimator(
         Only if the measure is conditional transfer entropy.
     measure : str
         The measure to estimate.
-        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``;
-        aliases: ``h``, ``mi``, ``te``
+        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``,
+        ``conditional_mutual_information``
+        ``conditional_transfer_entropy``;
+        aliases: ``h``, ``mi``, ``te``, ``cmi``, ``cte``.
     approach : str
         The name of the estimator to use.
         Find the available estimators in the docstring of this function.
