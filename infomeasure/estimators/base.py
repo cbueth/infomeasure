@@ -1072,7 +1072,7 @@ class PValueMixin(RandomGeneratorMixin):
                 "P-value method is not implemented for the estimator."
             )
 
-    def p_value(self, n_tests: int, method=Config.get("p_value_method")) -> float:
+    def p_value(self, n_tests: int = None, method: str = None) -> float:
         """Calculate the p-value of the measure.
 
         Method can be "permutation_test" or "bootstrap".
@@ -1082,12 +1082,17 @@ class PValueMixin(RandomGeneratorMixin):
 
         Parameters
         ----------
-        n_tests : int
+        n_tests : int, optional
             Number of permutations or bootstrap samples.
             Needs to be a positive integer.
+            Default is None, which means, if :py:meth:`t_score` was calculated before,
+            the same number of tests will be used.
         method : str, optional
             The method to calculate the p-value.
-            Default is the value set in the configuration.
+            Default is None, which means, if :py:meth:`t_score` was calculated before,
+            the same method will be used.
+            If :py:meth:`t_score` was not calculated before,
+            it will be calculated using the default method set in the configuration.
 
         Returns
         -------
@@ -1101,8 +1106,8 @@ class PValueMixin(RandomGeneratorMixin):
         """
         if (
             self.p_val is not None
-            and method == self.p_val_method
-            and n_tests == self.n_tests
+            and (method == self.p_val_method or method is None)
+            and (n_tests == self.n_tests or n_tests is None)
         ):
             return self.p_val
         logger.debug(
@@ -1110,7 +1115,9 @@ class PValueMixin(RandomGeneratorMixin):
             f"of the measure {self.__class__.__name__} "
             f"using the {method} method with {n_tests} tests."
         )
-        self.p_val_method = method
+        self.p_val_method = (
+            method if method is not None else Config.get("p_value_method")
+        )
         self.n_tests = n_tests
         if isinstance(self, MutualInformationEstimator):
             if len(self.data) != 2:
@@ -1128,17 +1135,22 @@ class PValueMixin(RandomGeneratorMixin):
         self.p_val, self.t_scr = method(n_tests)
         return self.p_val
 
-    def t_score(self, n_tests: int, method=Config.get("p_value_method")) -> float:
+    def t_score(self, n_tests: int = None, method: str = None) -> float:
         """Get the t-score of the measure.
 
         Parameters
         ----------
-        n_tests : int
+        n_tests : int, optional
             Number of permutations or bootstrap samples.
             Needs to be a positive integer.
+            Default is None, which means, if :py:meth:`p_value` was calculated before,
+            the same number of tests will be used.
         method : str, optional
-            The method to calculate the p-value.
-            Default is the value set in the configuration.
+            The method to calculate the t-score.
+            Default is None, which means, if :py:meth:`p_value` was calculated before,
+            the same method will be used.
+            If :py:meth:`p_value` was not calculated before,
+            it will be calculated using the default method set in the configuration.
 
         Returns
         -------
@@ -1161,8 +1173,8 @@ class PValueMixin(RandomGeneratorMixin):
         """
         if (
             self.t_scr is not None
-            and method == self.p_val_method
-            and n_tests == self.n_tests
+            and (method == self.p_val_method or method is None)
+            and (n_tests == self.n_tests or n_tests is None)
         ):
             return self.t_scr
         self.p_value(n_tests=n_tests, method=method)
