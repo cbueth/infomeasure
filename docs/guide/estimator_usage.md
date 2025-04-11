@@ -141,7 +141,7 @@ Again, you can also directly use the {py:func}`im.transfer_entropy() <infomeasur
 
 ### Composite Measures
 
-Jensen-Shannon Divergence and Kullback-Leiber Divergence are also available as composite measures. 
+Jensen-Shannon Divergence and Kullback-Leiber Divergence are also available as composite measures.
 They can be accessed from {py:func}`im.jensen_shannon_divergence <infomeasure.jensen_shannon_divergence>` and {py:func}`im.kullback_leiber_divergence <infomeasure.kullback_leiber_divergence>` respectively, and can be called like so:
 
 ```{code-cell}
@@ -206,7 +206,7 @@ est.global_val(), est.result()
 
 ### Local values
 
-To return local values—{ref}`Local Entropy`, {ref}`Local Mutual Information`, {ref}`Local Conditional MI`, {ref}`Local Transfer Entropy`, or {ref}`Local Conditional TE`—use the 
+To return local values—{ref}`Local Entropy`, {ref}`Local Mutual Information`, {ref}`Local Conditional MI`, {ref}`Local Transfer Entropy`, or {ref}`Local Conditional TE`—use the
 {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`
 method.
 ```{code-cell}
@@ -216,7 +216,7 @@ est.local_vals()
 ### Hypothesis testing
 
 To perform hypothesis testing on the global value of an estimator,
-use the {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>` and 
+use the {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>` and
 {py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>` methods.
 Both mutual information and transfer entropy estimators support hypothesis testing.
 
@@ -288,22 +288,22 @@ The {ref}`following table <estimator-functions>` shows the available information
 *   - {py:class}`KL <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
     - X
     - X
-    - 
+    -
     -
 *   - {py:class}`Ordinal <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
     - X
     - X
-    - 
+    -
     -
 *   - {py:class}`Rényi <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
     - X
-    - 
-    - 
+    -
+    -
     -
 *   - {py:class}`Tsallis <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
     - X
-    - 
-    - 
+    -
+    -
     -
 *   - {ref}`Mutual Information <mutual_information_overview>` & {ref}`CMI <Conditional MI>`
     -
@@ -314,32 +314,32 @@ The {ref}`following table <estimator-functions>` shows the available information
     - X
     - X
     - X
-    - 
+    -
 *   - {py:class}`Kernel <infomeasure.estimators.mutual_information.kernel.KernelMIEstimator>`
     - X
     - X
     - X
-    - 
+    -
 *   - {py:class}`KSG <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
     - X
     - X
     - X
-    - 
+    -
 *   - {py:class}`Ordinal <infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator>`
     - X
     - X
     - X
-    - 
+    -
 *   - {py:class}`Rényi <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>`
     - X
-    - 
+    -
     - X
-    - 
+    -
 *   - {py:class}`Tsallis <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>`
     - X
-    - 
+    -
     - X
-    - 
+    -
 *   - {ref}`Transfer Entropy <transfer_entropy_overview>` & {ref}`CTE <Conditional TE>`
     -
     -
@@ -367,12 +367,12 @@ The {ref}`following table <estimator-functions>` shows the available information
     - X
 *   - {py:class}`Rényi <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>`
     - X
-    - 
+    -
     - X
     - X
 *   - {py:class}`Tsallis <infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator>`
     - X
-    - 
+    -
     - X
     - X
 :::
@@ -438,7 +438,7 @@ If specified in the function call, it will override the global setting.
 a = rng.integers(0, 2, size=1000)
 est = im.estimator(a, np.roll(a, -1), measure="te", approach="discrete")
 # Use bootstrap method just set with Config
-p_bootstrap = est.p_value(n_tests=50)  
+p_bootstrap = est.p_value(n_tests=50)
 t_score_bootstrap = est.t_score(n_tests=50)
 # Explicitly set to permutation test
 p_permutation_test = est.p_value(n_tests=50, method="permutation_test")  # overrides global setting

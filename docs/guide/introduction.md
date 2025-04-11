@@ -125,7 +125,7 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - ✓
     -
     - ✓
-    - 
+    -
 *   - Kullback-Leibler Divergence (KLD)
     - $\operatorname{KLD}(P||Q)$
     - ✓

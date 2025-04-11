@@ -70,7 +70,7 @@ Instead, we shuffle the source_history vector in the tuple of (target, target_hi
 ```{tip}
 The package has an option to obtain eTE computation, see {ref}`Effective value`.
 ```
- 
+
 
 ## List of Estimation Techniques Implemented:
 

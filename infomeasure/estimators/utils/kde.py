@@ -19,6 +19,7 @@ from scipy.stats import gaussian_kde
 
 from ...utils.config import logger
 
+
 def kde_probability_density_function(data, bandwidth, kernel="box", workers=-1):
     """
     Estimate the probability density function for a given data set using
@@ -52,7 +53,7 @@ def kde_probability_density_function(data, bandwidth, kernel="box", workers=-1):
     logger.debug(
         f"Called kde_probability_density_function with "
         f"kernel: {kernel}, workers: {workers}"
-        )
+    )
     if not issubdtype(type(bandwidth), number) or bandwidth <= 0:
         raise ValueError("The bandwidth must be a positive number.")
 
@@ -168,9 +169,7 @@ def parallel_kde_evaluate(data, bandwidth, workers):
     # parallelization just gets really effective, if chunk size is not too small
     # if data is not too large, use less workers than possible
     if workers == 1 or data.shape[1] < 20000:
-        logger.debug(
-            f"Evaluating kde on a single worker with data size {data.shape}."
-        )
+        logger.debug(f"Evaluating kde on a single worker with data size {data.shape}.")
         kde = gaussian_kde(data, bw_method=bandwidth)
         return kde.evaluate(data).squeeze()
 
