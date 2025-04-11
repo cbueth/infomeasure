@@ -1387,3 +1387,22 @@ class EffectiveValueMixin:
         self.permute_src = False
         # Return difference
         return self.global_val() - res_permuted
+
+
+class WorkersMixin:
+    """Mixin that adds an attribute for the numbers of workers to use.
+
+    Attributes
+    ----------
+        n_workers : int, optional
+            The number of workers to use. Default is 1.
+            -1: Use as many workers as CPU cores available.
+    """
+
+    def __init__(self, *args, workers=1, **kwargs):
+        if workers == -1:
+            from multiprocessing import cpu_count
+
+            workers = cpu_count()
+        super().__init__(*args, **kwargs)
+        self.n_workers = workers
