@@ -4,19 +4,21 @@ from abc import ABC
 
 from numpy import isinf, isnan
 
+from ... import Config
+from ...utils.config import logger
+from ...utils.types import LogBaseType
 from ..base import (
-    PValueMixin,
-    EffectiveValueMixin,
-    TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
+    EffectiveValueMixin,
+    PValueMixin,
+    TransferEntropyEstimator,
+    WorkersMixin,
 )
 from ..utils.kde import kde_probability_density_function
-from ..utils.te_slicing import te_observations, cte_observations
-from ... import Config
-from ...utils.types import LogBaseType
+from ..utils.te_slicing import cte_observations, te_observations
 
 
-class BaseKernelTEEstimator(ABC):
+class BaseKernelTEEstimator(WorkersMixin, ABC):
     """Base class for transfer entropy using Kernel Density Estimation (KDE).
 
     Attributes
@@ -44,6 +46,10 @@ class BaseKernelTEEstimator(ABC):
     cond_hist_len : int, optional
         Number of past observations to consider for the conditional data.
         Only used for conditional transfer entropy.
+    workers : int, optional
+       Number of workers to use for parallel processing.
+       Default is 1, meaning no parallel processing.
+       If set to -1, all available CPU cores will be used.
     """
 
     def __init__(
@@ -59,6 +65,7 @@ class BaseKernelTEEstimator(ABC):
         src_hist_len: int = 1,
         dest_hist_len: int = 1,
         cond_hist_len: int = 1,
+        workers: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
@@ -84,6 +91,8 @@ class BaseKernelTEEstimator(ABC):
         cond_hist_len : int, optional
             Number of past observations to consider for the conditional data.
             Only used for conditional transfer entropy.
+        workers : int, optional
+           Number of workers to use for parallel processing.
         """
         if cond is None:
             super().__init__(
@@ -93,6 +102,7 @@ class BaseKernelTEEstimator(ABC):
                 step_size=step_size,
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
+                workers=workers,
                 offset=offset,
                 base=base,
             )
@@ -105,6 +115,7 @@ class BaseKernelTEEstimator(ABC):
                 src_hist_len=src_hist_len,
                 dest_hist_len=dest_hist_len,
                 cond_hist_len=cond_hist_len,
+                workers=workers,
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
@@ -170,24 +181,38 @@ class KernelTEEstimator(
 
         # Compute densities in vectorized manner
         # g(x_i^{(l)}, y_i^{(k)}, y_{i+1})
+        logger.debug(
+            "Calculating densities for...\n1/4 g(x_i^{(l)}, y_i^{(k)}, y_{i+1})"
+        )
         p_x_past_y_past_y_future = kde_probability_density_function(
-            joint_space_data, self.bandwidth, self.kernel
+            joint_space_data,
+            self.bandwidth,
+            self.kernel,
+            workers=self.n_workers,
         )
         # g(y_i^{(k)})
+        logger.debug("2/4 g(y_i^{(k)})")
         p_y_past = kde_probability_density_function(
-            dest_past_embedded, self.bandwidth, self.kernel
+            dest_past_embedded,
+            self.bandwidth,
+            self.kernel,
+            workers=self.n_workers,
         )
         # g(x_i^{(l)}, y_i^{(k)})
+        logger.debug("3/4 g(x_i^{(l)}, y_i^{(k)})")
         p_xy_past = kde_probability_density_function(
             marginal_1_space_data,
             self.bandwidth,
             self.kernel,
+            workers=self.n_workers,
         )
         # g(y_i^{(k)}, y_{i+1})
+        logger.debug("4/4 g(y_i^{(k)}, y_{i+1})")
         p_y_past_y_future = kde_probability_density_function(
             marginal_2_space_data,
             self.bandwidth,
             self.kernel,
+            workers=self.n_workers,
         )
 
         local_te_values = self._log_base(
@@ -252,24 +277,39 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
 
         # Calculate densities in vectorized manner
         # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, y_{i+1})
+        logger.debug(
+            "Calculating densities for...\n"
+            "1/4 g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, y_{i+1})"
+        )
         p_x_history_cond_y_history_y_future = kde_probability_density_function(
-            joint_space_data, self.bandwidth, self.kernel
+            joint_space_data,
+            self.bandwidth,
+            self.kernel,
+            workers=self.n_workers,
         )
         # g(y_i^{(k)}, z_i^{(m)})
+        logger.debug("2/4 g(y_i^{(k)}, z_i^{(m)})")
         p_y_history_cond = kde_probability_density_function(
-            dest_past_embedded, self.bandwidth, self.kernel
+            dest_past_embedded,
+            self.bandwidth,
+            self.kernel,
+            workers=self.n_workers,
         )
         # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)})
+        logger.debug("3/4 g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)})")
         p_x_history_cond_y_history = kde_probability_density_function(
             marginal_1_space_data,
             self.bandwidth,
             self.kernel,
+            workers=self.n_workers,
         )
         # g(z_i^{(m)}, y_i^{(k)}, y_{i+1})
+        logger.debug("4/4 g(z_i^{(m)}, y_i^{(k)}, y_{i+1})")
         p_cond_y_history_y_future = kde_probability_density_function(
             marginal_2_space_data,
             self.bandwidth,
             self.kernel,
+            workers=self.n_workers,
         )
 
         local_cte_values = self._log_base(

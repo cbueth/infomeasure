@@ -1,9 +1,10 @@
 """Explicit Kernel entropy estimator tests."""
 
 import pytest
-from numpy import ndarray
+from numpy import allclose, ndarray
 
 from infomeasure.estimators.entropy import KernelEntropyEstimator
+from tests.conftest import generate_autoregressive_series
 
 
 @pytest.mark.parametrize("bandwidth", [0.1, 1, 10])
@@ -91,3 +92,27 @@ def test_kernel_entropy_invalid_kernel(kernel):
     ):
         est = KernelEntropyEstimator(data, kernel=kernel, bandwidth=1)
         est.result()
+
+
+@pytest.mark.parametrize("rng_int", [1, 2])
+@pytest.mark.parametrize("workers", [-1, 1])
+@pytest.mark.parametrize("kernel", ["gaussian", "box"])
+def test_kernel_mi_parallelization(rng_int, workers, kernel):
+    """Test the Kernel MI estimator with different worker counts."""
+    data_x, _ = generate_autoregressive_series(rng_int, 0.5, 0.6, 0.4, length=20001)
+    est_parallel = KernelEntropyEstimator(
+        data_x,
+        bandwidth=0.5,
+        kernel=kernel,
+        base=2,
+        workers=workers,
+    )
+    est_serial = KernelEntropyEstimator(
+        data_x,
+        bandwidth=0.5,
+        kernel=kernel,
+        base=2,
+        workers=1,
+    )
+    assert est_parallel.global_val() == pytest.approx(est_serial.global_val())
+    assert allclose(est_parallel.local_vals(), est_serial.local_vals())
