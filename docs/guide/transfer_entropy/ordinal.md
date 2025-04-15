@@ -3,8 +3,8 @@ file_format: mystnb
 kernelspec:
   name: python3
 ---
-(kernel_TE)=
-# Kernel TE Estimation
+(ordinal_TE)=
+# Ordinal / Symbolic / Permutation TE Estimation
 The {ref}`transfer_entropy_overview` from the source process $X(x_n)$ to the target process $Y(y_n)$ in terms of probabilities is written as:
 
 $$
@@ -22,13 +22,8 @@ where
 - $p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})$ is the conditional probability of next state of $Y$ given the histories of $X$ and $Y$,
 - $p(y_{n+1} \mid \mathbf{y}_n^{(l)})$ is the conditional probability of next state of $Y$ given only the history of $Y$.
 
-Kernel TE estimates the required probability density function (_pdf_) via **kernel density estimation (KDE)**, which provides the probability values to be plugged into the above formula {cite:p}`Schreiber.paper,articleKantz,TE_Kernel_Kaiser`.
-KDE estimates density at a reference point by weighting all samples based on their distance from it, using a kernel function $(K)$ {cite:p}`silverman1986density`.
-For more detail on _pdf_-estimation and available kernel functions check the {ref}`Kernel Entropy Estimation` section.
-
-```{note}
-This TE estimaton techinque offers two different kernel functions: box kernel and gaussian kernel.
- ```
+Ordinal MI estimates the required probability density function (_pdf_) based on the ordinal structure {cite:p}`Symbolic_TE`.
+The details on the _pdf_ estimation based on ordinal structure by {cite:t}`PermutationEntropy2002`, is provided in {ref}`Ordinal / Symbolic / Permutation Entropy Estimation`.
 
 
 ```{code-cell}
@@ -43,13 +38,13 @@ data_control = rng.normal(size=1000)
 (im.transfer_entropy(
     data_x,  # source
     data_y,  # target
-    approach="kernel", kernel="box", bandwidth=0.7,
+    approach="ordinal", embedding_dim = 3, 
     step_size = 1, prop_time = 0, src_hist_len = 1, dest_hist_len = 1,
 ),
  im.transfer_entropy(
     data_x,  # source
     data_control,  # target
-    approach="kernel", kernel="box", bandwidth=0.7,
+    approach="ordinal", embedding_dim = 3, 
     step_size = 1, prop_time = 0, src_hist_len = 1, dest_hist_len = 1,
 ))
 ```
@@ -68,7 +63,7 @@ est = im.estimator(
     data_x,  # source
     data_y,  # target
     measure='te',  # or 'transfer_entropy'
-    approach="kernel", kernel="box", bandwidth=0.7,
+    approach="ordinal", embedding_dim = 3, 
     step_size = 1, prop_time = 0, src_hist_len = 1, dest_hist_len = 1,
 )
 est.local_vals()
@@ -86,19 +81,11 @@ est.effective_val()
 est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
 ```
 
-Data of higher dimension can easily be digested.
-
-```{code-cell}
-data_x = rng.normal(size=(1000, 5))  # 5d data
-data_y = rng.normal(size=(1000, 3))  # 3d data
-im.te(data_x, data_y, approach="kernel", kernel="gaussian", bandwidth=0.5)
-```
-
-The estimator is implemented in the {py:class}`KernelTEEstimator <infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator>` class,
+The estimator is implemented in the {py:class}`OrdinalTEEstimator <infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator>` class,
 which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estimators.transfer_entropy>` module.
 
 ```{eval-rst}
-.. autoclass:: infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator
+.. autoclass:: infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator
     :noindex:
     :undoc-members:
     :show-inheritance:

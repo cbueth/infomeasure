@@ -15,7 +15,7 @@ from ...utils.types import LogBaseType
 
 
 class BaseTsallisMIEstimator(ABC):
-    """Base class for Tsallis mutual information estimators.
+    r"""Base class for Tsallis mutual information estimators.
 
     Attributes
     ----------
@@ -52,7 +52,7 @@ class BaseTsallisMIEstimator(ABC):
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the BaseTsallisMIEstimator.
+        r"""Initialize the BaseTsallisMIEstimator.
 
         Parameters
         ----------
@@ -107,7 +107,7 @@ class BaseTsallisMIEstimator(ABC):
 class TsallisMIEstimator(
     BaseTsallisMIEstimator, PValueMixin, MutualInformationEstimator
 ):
-    """Estimator for the Tsallis mutual information.
+    r"""Estimator for the Tsallis mutual information.
 
     Attributes
     ----------
@@ -130,7 +130,7 @@ class TsallisMIEstimator(
 
     Notes
     -----
-    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    In the :math:`q \to 1` limit, the Jackson sum (q-additivity) reduces to
     ordinary summation,
     and the Tallis entropy reduces to Shannon Entropy.
     This class of entropy measure is in particularly useful in the study in connection
@@ -156,7 +156,7 @@ class TsallisMIEstimator(
 class TsallisCMIEstimator(
     BaseTsallisMIEstimator, ConditionalMutualInformationEstimator
 ):
-    """Estimator for the conditional Tsallis mutual information.
+    r"""Estimator for the conditional Tsallis mutual information.
 
     Parameters
     ----------
@@ -179,7 +179,7 @@ class TsallisCMIEstimator(
 
     Notes
     -----
-    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    In the :math:`q \to 1` limit, the Jackson sum (q-additivity) reduces to
     ordinary summation,
     and the Tallis entropy reduces to Shannon Entropy.
     This class of entropy measure is in particularly useful in the study in connection

@@ -47,7 +47,14 @@ Changelog = "https://carlson.pages.ifisc.uib-csic.es/infomeasure/changelog/"
 [project.optional-dependencies]
 lint = ["ruff"]
 test = ["pytest", "pytest-cov", "coverage"]
-doc = ["sphinx", "numpydoc", "myst-nb", "sphinx-book-theme", "sphinxcontrib-bibtex"]
+doc = [
+    "sphinx",
+    "numpydoc",
+    "myst-nb",
+    "sphinx-book-theme",
+    "sphinxcontrib-bibtex",
+    "sphinx-automodapi",
+]
 plot = ["matplotlib"]
 all = ["infomeasure[lint,test,doc,plot]"]
 

@@ -2,20 +2,28 @@
 -----------------
 
 On these pages you can find documentation for `infomeasure`.
-The {ref}`Estimator Usage` explains the by-design usage of the package,
-while the following pages describe the implemented information-theoretic measures like Entropy (H), Mutual Information (MI), Conditional MI, Transfer Entropy (TE), Conditional TE, etc. for both the discrete and continuous-valued data and by using several estimation techniques (eg: Kernel method, Kraskov-Stögbauer-Grassberger method, etc).
-For the detailed API documentation, see the {ref}`API Reference`.
+The package implements these information-theoretic measures—such as Entropy (H),
+Mutual Information (MI), Conditional MI, Transfer Entropy (TE), Conditional TE,
+and composite measures like Jensen-Shannon Divergence (JSD)—for
+both discrete and continuous-valued data.
+A variety of estimation techniques are employed to calculate these measures,
+including methods such as the Kernel method, Kraskov-Stögbauer-Grassberger algorithm,
+among others.
+For detailed information on how to use these measures programmatically or
+access their underlying implementations, please refer to the {ref}`API Reference`.
 
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
 
    introduction
+   estimator_usage
    entropy/index
-   entropy/cond_entropy/index
+   cond_entropy/index
    mutual_information/index
-   mutual_information/cond_MI/index
+   cond_mi/index
    transfer_entropy/index
-   transfer_entropy/cond_TE/index
+   cond_te/index
+   KLD
    JSD
 ```
