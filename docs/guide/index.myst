@@ -24,5 +24,6 @@ access their underlying implementations, please refer to the {ref}`API Reference
    cond_mi/index
    transfer_entropy/index
    cond_te/index
+   KLD
    JSD
 ```

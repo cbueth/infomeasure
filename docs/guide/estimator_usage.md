@@ -32,21 +32,25 @@ np.set_printoptions(precision=5, threshold=20)
 
 ## 1. Utility functions
 
-The {ref}`utility functions <functions>` are the most straightforward way to calculate the information measures. They are designed to be easy to use and provide a quick way to calculate the information measures.
+The {ref}`utility functions <functions>` are the most straightforward way to calculate the information measures.
+They are designed to be easy to use and provide a quick way to calculate the information measures.
 
 ### Entropy
 
-For example, to calculate the {py:func}`entropy <infomeasure.entropy>` $H(X)$ of a dataset, you can use the following code:
+For example, to calculate the {py:func}`entropy() <infomeasure.entropy>` $H(X)$ of a dataset, you can use the following code:
 
 ```{code-cell}
 x = rng.integers(0, 2, size=1000)  # binary, uniform data
 im.entropy(x, approach="discrete")
 ```
 
+The available approaches can either be found in the documentation of {py:func}`entropy() <infomeasure.entropy>`,
+or on the approach pages as chapters of the {ref}`entropy_overview` section.
+
 ### Joint Entropy
 
 Calculating joint entropy $H(X_1, X_2, \ldots, X_n)$ is as simple as calling the same entropy function,
-but passing a tuple of random variables as the first argument.
+but passing a {py:class}`tuple` of random variables as the first argument.
 
 ```{code-cell}
 y = rng.choice(["a", "b", "c"], size=1000)  # e.g., using strings as symbols
@@ -58,7 +62,7 @@ With these two functions, you can use the chain rule $H(X|Y) = H(X, Y) - H(Y)$ t
 
 ### Mutual Information
 
-For {py:func}`mutual information <infomeasure.mutual_information>` $I(X; Y)$ between two variables $X$ and $Y$, you can use the following code:
+For {py:func}`mutual information() <infomeasure.mutual_information>` $I(X; Y)$ between two variables $X$ and $Y$, you can use the following code:
 
 ```{code-cell}
 x = rng.normal(0, 1, 1000)  # e.g., continuous data, gaussian distribution
@@ -81,6 +85,8 @@ w = rng.normal(0, 1, (1000, 2))  # "kernel" also supports multi-dimensional data
 im.mutual_information(x, y, z, w, approach="kernel", bandwidth=0.2, kernel="gaussian")
 ```
 
+The available options for the `approach` are listed in the docstring of {py:func}`mutual information() <infomeasure.mutual_information>`.
+An example for all functionality of each approach can be found in the subsections of {ref}`mutual_information_overview`.
 
 ### Conditional Mutual Information
 
@@ -105,7 +111,7 @@ You can also directly use the {py:func}`im.mutual_information() <infomeasure.mut
 
 ### Transfer Entropy
 
-For {py:func}`transfer entropy <infomeasure.transfer_entropy>` $T_{X\to Y}$, you can use the following code:
+For {py:func}`transfer_entropy() <infomeasure.transfer_entropy>` $T_{X\to Y}$, you can use the following code:
 
 ```{code-cell}
 im.transfer_entropy(x, y, approach="metric", k = 4,
@@ -122,6 +128,9 @@ Analogously to the `offset` in mutual information calculation,
 Furthermore, `src_hist_len` and `dest_hist_len` specify the length of the history window for source and destination variables respectively.
 `step_size`, often denoted as $\tau$ in the context of transfer entropy,
 specifies the time step between consecutive observations in the history window.
+
+As for H and MI, the approaches are documented in {py:func}`transfer_entropy() <infomeasure.transfer_entropy>`,
+and also approach by approach in the subsections of {ref}`transfer_entropy_overview`.
 
 ### Conditional Transfer Entropy
 
@@ -142,7 +151,7 @@ Again, you can also directly use the {py:func}`im.transfer_entropy() <infomeasur
 ### Composite Measures
 
 Jensen-Shannon Divergence and Kullback-Leiber Divergence are also available as composite measures.
-They can be accessed from {py:func}`im.jensen_shannon_divergence <infomeasure.jensen_shannon_divergence>` and {py:func}`im.kullback_leiber_divergence <infomeasure.kullback_leiber_divergence>` respectively, and can be called like so:
+They can be accessed from {py:func}`im.jensen_shannon_divergence() <infomeasure.jensen_shannon_divergence>` and {py:func}`im.kullback_leiber_divergence() <infomeasure.kullback_leiber_divergence>` respectively, and can be called like so:
 
 ```{code-cell}
 jsd = im.jensen_shannon_divergence(x, y, approach='ordinal', embedding_dim=3)
@@ -162,10 +171,10 @@ They are aliases and used in the same way as the before mentioned functions.
 In all utility functions, data always needs to be passed as {term}`var-positional parameters <python:parameter>`, except the conditional data.
 
 ```python
-im.mi(x=a, y=b, ...)          # wrong
-im.mi(a, b, ...)              # correct
-im.te(source=a, dest=b, ...)  # wrong
-im.te(a, b, ...)              # correct
+im.mi(x=a, y=b, ...)                  # wrong
+im.mi(a, b, ...)                      # correct
+im.te(source=a, dest=b, cond=c, ...)  # wrong
+im.te(a, b, cond=c, ...)              # correct
 ```
 
 ## 2. Estimator classes
@@ -385,6 +394,10 @@ The methods from the table do the following:
 - {py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>`: Returns the t-score of the information measure.
 - {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`: Returns the effective transfer entropy.
 - {py:func}`distribution() <infomeasure.estimators.base.DistributionMixin.distribution>`: Returns dictionary of the unique values and their frequencies (just available for discrete and ordinal entropy estimator).
+
+For {ref}`CMI <Conditional MI>` and {ref}`CTE <Conditional TE>`,
+the {ref}`hypothesis testing` methods {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>` and {py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>` are not available, neither the {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>` method.
+This is because the shuffling is not trivial for more than two inputs.
 
 ## Package configuration
 

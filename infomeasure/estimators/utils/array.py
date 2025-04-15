@@ -35,5 +35,6 @@ def assure_2d_data(data) -> ndarray | tuple[ndarray, ...]:
     if isinstance(data, Generator):
         data = tuple(data)
     if isinstance(data, tuple):
+        data = (asarray(val) for val in data)
         return tuple(val[:, newaxis] if val.ndim == 1 else val for val in data)
     raise ValueError(f"Data type {type(data)} is not supported for 2D conversion.")

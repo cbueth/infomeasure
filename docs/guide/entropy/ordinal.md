@@ -6,22 +6,23 @@ kernelspec:
 
 (ordinal_entropy)=
 # Ordinal / Symbolic / Permutation Entropy Estimation
-The Shannon differential {ref}`entropy_overview` formula for a continuous random variable $ X $ with density $ p(x)$ is given as {cite:p}`shannonMathematicalTheoryCommunication1948`:
+The Shannon discrete {ref}`entropy <entropy_overview>` formula is given as {cite:p}`shannonMathematicalTheoryCommunication1948`:
 
 $$
-H(X) = -\int_{X} p(x) \log p(x) \, dx,
+H(X) = -\sum_{x \in X} p(x) \log p(x),
 $$
 
-where, $p(x)$ is the probability density function(_pdf_).
+where $p(x)$ is the probability mass function (pmf).
 
-``Ordinal entropy estimator``
+Ordinal entropy is builds on Shannon entropy, but accepts continuous variables.
+Instead of focusing on single realizations of a variable, ordinal entropy focuses on the order or sequence of values in a dataset.
+From the time series $\{x_t\}_{t=1, \ldots, T}$, a sliding window of size $s$, called embedding dimension or order, is used to generate subsets of the data.
+These ordinal sequences are the permutation patterns of the subsets,
+describing the relative change.
+Like this, the entropy of repeating patterns can be calculated.
+The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method {cite:p}`PermutationEntropy2002`.
 
-For a given time series dataset $\{x_t\}_{t=1, \ldots, T}$, where $T$ is the number of time points, each value can be replaced by a ordinal sequence $s(t)$ of length $s$, defined by the order parameter $s$. Using a sliding window of size $s$, subsets of the data are generated sequentially, and each subset is symbolized using a specific symbolization technique.
-
-The symbol assigned to each subset carries attributes of the data, as determined by the symbolization method. In this package, the **_ordinal pattern approach_** is used for symbolization {cite:p}`PermutationEntropy2002`.
-
-```{Note}
-**Example of Ordinal Pattern symbolization:**
+```{admonition} Example for $s = 2$
 
 For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time series will be analyzed as:
 
@@ -29,7 +30,7 @@ For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time serie
 - Conversely, if $( x(t) > x(t+1) )$, the pattern type is $(1, 0)$.
 ```
 
-Once the time series is mapped into the ordinal space, the probability distribution (_pdf_) is estimated by computing the relative frequencies of symbols. Specifically, all $n!$ permutations $\pi$ of order $n$ are considered as possible order types of $n$ consecutive data points. For each permutation $\pi$, the relative frequency is:
+Once the time series is mapped into the ordinal space, the probability mass function (pmf) is estimated by computing the relative frequencies of symbols. Specifically, all $n!$ permutations $\pi$ of order $n$ are considered as possible order types of $n$ consecutive data points. For each permutation $\pi$, the relative frequency is:
 
 $$
 p(\pi) = \frac{\#\{t \mid t \leq T - n, \{x_t, \ldots, x_{t+n}\} \text{ has type } \pi\}}{T - n + 1}.
@@ -43,25 +44,51 @@ $$
 
 where the sum runs over all $n!$ permutations $\pi$ of order $n$. This measures the information contained in comparing $n$ consecutive values of the time series.
 
+```{admonition} Example for $s=3$
+- Time series: $[4, 7, 9, 10, 6, 11, 3]$
+- Ordinal Symbols of order 3: $(0, 1, 2), (0, 1, 2), (2, 0, 1), (1, 0, 2), (2, 0, 1)$
+- Probabilities: $ p((0, 1, 2)) = \frac{2}{5}, p((2, 0, 1)) = \frac{2}{5}, p((1, 0, 2)) = \frac{1}{5} $
+- Ordinal Entropy: $ H(3) = -\left(\frac{2}{5} \log_2 \frac{2}{5} + \frac{2}{5} \log_2 \frac{2}{5} + \frac{1}{5} \log_2 \frac{1}{5}\right) \approx 1.52\,\text{bit}$
+```
+
+```{code-cell}
+import infomeasure as im
+im.entropy([4, 7, 9, 10, 6, 11, 3], approach='ordinal', embedding_dim=3, base=2)
+```
+
 ```{note}
-- **Example**:
-  - Time series: $[4, 7, 9, 10, 6, 11, 3]$
-  - Ordinal Symbols of order 2: $(0, 1), (0, 1), (0, 1), (1, 0), (0, 1), (1, 0)$
-  - Probabilities of symbols: $ p((0, 1)) = \frac{4}{6} = \frac{2}{3}, p((1, 0)) = \frac{2}{6} = \frac{1}{3} $
-  - Ordinal Entropy: $ H(2) = -\left(\frac{2}{3} \log_2 \frac{2}{3} + \frac{1}{3} \log_2 \frac{1}{3}\right) $
-  $\approx -\left(0.6667 \times -0.5849 + 0.3333 \times -1.5849\right) \approx 0.918 \text{ bits} $
- ```
-
-> Note:
-> The package allows user to obtain both the local and global (average) values to the Entropy computation.
-> The ordinal entropy is bounded between the 0 to $log(n)$.
+The package allows user to obtain both the local and global (average) values to the Entropy computation.
+The ordinal entropy is bounded between 0 and $\log(n!)$.
+```
 
 
-## Implementation
-his is a test of the entropy ordinal estimator (as developed above) on synthetically generated Gaussian distributed datasets.
-Since there is an analytical function for computing the entropy (H) for a Gaussian distribution, this allows us to check if our estimator's estimates are close to the analytical values.
+For demonstration, we generate a dataset of normally distributed values with mean $0$ and standard deviation $1$.
+The analytical equation of the other approaches does not hold; as for ordinal entropy, the pmf of the ordinal patterns is analyzed.
 
-....code showing the usage of kernel estimator...
+```{code-cell}
+import numpy as np
+rng = np.random.default_rng(692475)
+
+std = 1.0
+data = rng.normal(loc=0, scale=std, size=2000)
+
+h = im.entropy(data, approach="ordinal", embedding_dim=3)
+h_expected = (1 / 2) * np.log(2 * np.pi * np.e * std ** 2)
+h, h_expected
+```
+
+To access the local values, an estimator instance is needed.
+
+```{code-cell}
+est = im.estimator(data, measure="h", approach="ordinal", embedding_dim=3)
+est.result(), est.local_vals()
+```
+
+For this estimator, access to the distribution dictionary is also available.
+```{code-cell}
+est = im.estimator(data, measure="h", approach="ordinal", embedding_dim=3)
+est.result(), est.distribution(), sum(est.distribution().values())
+```
 
 The estimator is implemented in the {py:class}`OrdinalEntropyEstimator <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>` class,
 which is part of the {py:mod}`im.measures.entropy <infomeasure.estimators.entropy>` module.

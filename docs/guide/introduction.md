@@ -77,62 +77,62 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - KL/KSG Estimator
     - Ordinal Estimator
     - Rényi & Tsallis Estimator
-*   - Entropy
+*   - {ref}`Entropy <entropy_overview>`
     - $H(X)$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
-*   - Joint Entropy
+*   - {ref}`Joint Entropy`
     - $H(X,Y)$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
-*   - Mutual Information (MI)
+*   - {ref}`Mutual Information (MI) <mutual_information_overview>`
     - $I(X;Y)$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
-*   - Conditional MI
+*   - {ref}`Conditional MI <cond_mi_overview>`
     - $I(X;Y|Z)$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
-*   - Transfer Entropy (TE)
+*   - {ref}`Transfer Entropy (TE) <transfer_entropy_overview>`
     - $T_{X \to Y}$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
-*   - Conditional TE
+*   - {ref}`Conditional TE <cond_te_overview>`
     - $T_{X \to Y|Z}$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
-*   - Jensen Shannon Divergence (JSD)
-    - $\operatorname{JSD}(P||Q)$
-    - ✓
-    - ✓
-    -
-    - ✓
-    -
-*   - Kullback-Leibler Divergence (KLD)
+*   - {ref}`Kullback-Leibler Divergence (KLD) <kullback_leibler_divergence>`
     - $\operatorname{KLD}(P||Q)$
     - ✓
     - ✓
     - ✓
     - ✓
     - ✓
+*   - {ref}`Jensen Shannon Divergence (JSD) <jensen_shannon_divergence>`
+    - $\operatorname{JSD}(P||Q)$
+    - ✓
+    - ✓
+    -
+    - ✓
+    -
 :::
 
 For Rényi and Tsallis, MI, CMI, TE and CTE use entropy combination formulas internally, as well as the composite measures JSD and KLD.
