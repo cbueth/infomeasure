@@ -7,6 +7,8 @@ build:
   jobs:
     post_install:
       - pip install --no-build-isolation --no-deps -e .
+    pre_build:
+      - sphinx-apidoc -o docs/api/ infomeasure/ -f
   apt_packages:
     - graphviz
 
