@@ -70,7 +70,7 @@ numpydoc_show_inherited_class_members = False
 html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
 html_theme_options = {
-    "repository_url": "https://gitlab.ifisc.uib-csic.es/carlson/infomeasure",
+    "repository_url": "https://github.com/cbueth/infomeasure",
     "repository_branch": "main",
     "use_source_button": True,
     "use_repository_button": True,
@@ -79,8 +79,8 @@ html_theme_options = {
     # "home_page_in_toc": True,
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
-        # "colab_url": "https://colab.research.google.com/", # not supported with gitlab
-        # "deepnote_url": "https://deepnote.com/",           # not supported with gitlab
+        "colab_url": "https://colab.research.google.com/", # not supported with gitlab
+        "deepnote_url": "https://deepnote.com/",           # not supported with gitlab
         "notebook_interface": "jupyterlab",
     },
 }

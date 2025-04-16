@@ -1,6 +1,6 @@
 # `infomeasure` — Information Measure Estimators
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://carlson.pages.ifisc.uib-csic.es/infomeasure/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://infomeasure.readthedocs.io/)
 [![pipeline status](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/pipeline.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/pipelines?page=1&scope=all&ref=main)
 [![coverage report](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/coverage.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/commits/main)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -11,8 +11,8 @@ Continuous and discrete entropy and information measures using different estimat
 ---
 
 For details on how to use this package, see the
-[Guide](https://carlson.pages.ifisc.uib-csic.es/infomeasure/guide/) or
-the [Documentation](https://carlson.pages.ifisc.uib-csic.es/infomeasure/).
+[Guide](https://infomeasure.readthedocs.io/en/latest/guide/) or
+the [Documentation](https://infomeasure.readthedocs.io/).
 
 ## Setup (don't use until public)
 

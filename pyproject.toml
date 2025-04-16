@@ -39,10 +39,10 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://carlson.pages.ifisc.uib-csic.es/infomeasure/"
-Repository = "https://gitlab.ifisc.uib-csic.es/carlson/infomeasure"
-Issues = "https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/issues"
-Changelog = "https://carlson.pages.ifisc.uib-csic.es/infomeasure/changelog/"
+Documentation = "https://infomeasure.readthedocs.io/"
+Repository = "https://github.com/cbueth/infomeasure"
+Issues = "https://github.com/cbueth/infomeasure/issues"
+Changelog = "https://infomeasure.readthedocs.io/en/latest/changelog/"
 
 [project.optional-dependencies]
 lint = ["ruff"]
@@ -54,9 +54,9 @@ doc = [
     "sphinx-book-theme",
     "sphinxcontrib-bibtex",
     "sphinx-automodapi",
+    "matplotlib",
 ]
-plot = ["matplotlib"]
-all = ["infomeasure[lint,test,doc,plot]"]
+all = ["infomeasure[lint,test,doc]"]
 
 [tool.setuptools.packages.find]
 exclude = [
