@@ -1,8 +1,8 @@
 # Introduction
 In this era of modernity, the systems we study and the problems we tackle are becoming increasingly complex, demanding innovative approaches to address them.
-One such approach involves leveraging **Information Theory** (cite).
+One such approach involves leveraging **Information Theory** {cite:p}`shannonMathematicalTheoryCommunication1948`.
 The core idea is to distill any given problem into its fundamental informational components and analyze the underlying dynamics through the lens of information sharing and transfer.
-In recent years, **information-theoretic measures**—such as entropy, mutual information, and transfer entropy—have gained significant traction across diverse scientific disciplines (cite).
+In recent years, **information-theoretic measures**—such as entropy, mutual information, and transfer entropy—have gained significant traction across diverse scientific disciplines {cite:p}`Lizier2014,versteegInformationtheoreticMeasuresInfluence2013,acharya2024representative`.
 Researchers from various fields, many of whom are not formally trained in information theory, often seek to apply these measures to their specific problems of interest.
 However, a common challenge arises: despite the growing interest, there is often a lack of accessible tools that allow users to estimate these measures using their preferred estimation techniques.
 This Python package is designed for anyone looking to implement **information-theoretic measures** within their field of study.

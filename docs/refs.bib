@@ -12,14 +12,21 @@
 # usage of Entropy
 
 @article{acharya2024representative,
-    title = {How Representative Are Air Transport Functional Complex Networks? {{A}} Quantitative Validation},
-    author = {Acharya, Kishor and Olivares, Felipe and Zanin, Massimiliano},
-    year = {2024},
-    journal = {Chaos: An Interdisciplinary Journal of Nonlinear Science},
-    volume = {34},
-    number = {4},
-    publisher = {AIP Publishing}
+  title = {How Representative Are Air Transport Functional Complex Networks? {{A}} Quantitative Validation},
+  shorttitle = {How Representative Are Air Transport Functional Complex Networks?},
+  author = {Acharya, Kishor and Olivares, Felipe and Zanin, Massimiliano},
+  year = {2024},
+  month = apr,
+  journal = {Chaos: An Interdisciplinary Journal of Nonlinear Science},
+  volume = {34},
+  number = {4},
+  pages = {043133},
+  issn = {1054-1500},
+  doi = {10.1063/5.0189642},
+  urldate = {2025-04-16},
+  abstract = {Functional networks have emerged as powerful instruments to characterize the propagation of information in complex systems, with applications ranging from neuroscience to climate and air transport. In spite of their success, reliable methods for validating the resulting structures are still missing, forcing the community to resort to expert knowledge or simplified models of the system's dynamics. We here propose the use of a real-world problem, involving the reconstruction of the structure of flights in the US air transport system from the activity of individual airports, as a way to explore the limits of such an approach. While the true connectivity is known and is, therefore, possible to provide a quantitative benchmark, this problem presents challenges commonly found in other fields, including the presence of non-stationarities and observational noise, and the limitedness of available time series. We explore the impact of elements like the specific functional metric employed, the way of detrending the time series, or the size of the reconstructed system and discuss how the conclusions here drawn could have implications for similar analyses in neuroscience.}
 }
+
 
 @article{Hartley1928TransmissionOI,
     title = {Transmission of Information},
@@ -275,6 +282,22 @@
     doi = {10.1103/PhysRevE.83.019903}
 }
 
+@misc{williamsGeneralizedMeasuresInformation2011,
+  title = {Generalized {{Measures}} of {{Information Transfer}}},
+  author = {Williams, Paul L. and Beer, Randall D.},
+  year = {2011},
+  month = feb,
+  number = {arXiv:1102.1507},
+  eprint = {1102.1507},
+  primaryclass = {physics},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1102.1507},
+  urldate = {2025-04-16},
+  abstract = {Transfer entropy provides a general tool for analyzing the magnitudes and directions---but not the {\textbackslash}emph\{kinds\}---of information transfer in a system. We extend transfer entropy in two complementary ways. First, we distinguish state-dependent from state-independent transfer, based on whether a source's influence depends on the state of the target. Second, for multiple sources, we distinguish between unique, redundant, and synergistic transfer. The new measures are demonstrated on several systems that extend examples from previous literature.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Information Theory,Mathematics - Dynamical Systems,Mathematics - Information Theory,Physics - Data Analysis Statistics and Probability}
+}
+
 
 % TE
 
@@ -461,3 +484,19 @@
     pages = {1858-1860},
     keywords = {Gaussian noise;Probability distribution;Iterative algorithms;Writing;Algorithm design and analysis;Wavelet analysis;Adaptive estimation;White noise;Bayesian methods;Convergence},
     doi = {10.1109/TIT.2003.813506} }
+
+@inproceedings{versteegInformationtheoreticMeasuresInfluence2013,
+  title = {Information-Theoretic Measures of Influence Based on Content Dynamics},
+  booktitle = {Proceedings of the Sixth {{ACM}} International Conference on {{Web}} Search and Data Mining},
+  author = {Ver Steeg, Greg and Galstyan, Aram},
+  year = {2013},
+  month = feb,
+  series = {{{WSDM}} '13},
+  pages = {3--12},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2433396.2433400},
+  urldate = {2025-04-16},
+  abstract = {The fundamental building block of social influence is for one person to elicit a response in another. Researchers measuring a "response" in social media typically depend either on detailed models of human behavior or on platform-specific cues such as re-tweets, hash tags, URLs, or mentions. Most content on social networks is difficult to model because the modes and motivation of human expression are diverse and incompletely understood. We introduce content transfer, an information-theoretic measure with a predictive interpretation that directly quantifies the strength of the effect of one user's content on another's in a model-free way. Estimating this measure is made possible by combining recent advances in non-parametric entropy estimation with increasingly sophisticated tools for content representation. We demonstrate on Twitter data collected for thousands of users that content transfer is able to capture non-trivial, predictive relationships even for pairs of users not linked in the follower or mention graph. We suggest that this measure makes large quantities of previously under-utilized social media content accessible to rigorous statistical causal analysis.},
+  isbn = {978-1-4503-1869-3}
+}

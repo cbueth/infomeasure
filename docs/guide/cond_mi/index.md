@@ -47,7 +47,8 @@ I(X; Y \mid Z) = \langle i(x; y \mid z) \rangle.
 $$
 
 ```{note}
-The conditional MI $I(X;Y \mid Z)$ can be either larger or smaller than its non-conditional counter-part (i.e., $I(X; Y)$), this leads to the idea of **Synergy** and **redundancy** and can be addressed by _information decomposition_ approach (cite)).
+The conditional MI $I(X;Y \mid Z)$ can be either larger or smaller than its non-conditional counter-part, i.e., $I(X; Y)$.
+This leads to the idea of **Synergy** and **redundancy** and can be addressed by _information decomposition_ approach {cite:p}`williamsGeneralizedMeasuresInformation2011`.
 CMI is symmetric under the same condition $Z$, $I(X;Y \mid Z) = I(Y;X \mid Z)$.
 ```
 
