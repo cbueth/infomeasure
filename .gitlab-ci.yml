@@ -13,7 +13,7 @@ stages:
     PYTHON_VERSION: "3.13"
 
 before_script:
-  - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements.txt twine python-build
+  - micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} -f requirements/build_requirements.txt -f requirements/linter_requirements.txt -f requirements/test_requirements.txt -f requirements/doc_requirements.txt -f requirements/packaging_requirements.txt
   - pip install --no-build-isolation --no-deps -e .
 
 # Test on all python versions on push to main branch, and on bi-weekly schedule
@@ -25,7 +25,7 @@ test:
         - infomeasure/**/*
         - tests/**/*
         - pyproject.toml
-        - requirements.txt
+        - requirements/**
     - if: $CI_PIPELINE_SOURCE == "schedule"
   parallel: !reference [ .pythonVersions,parallel ]
   script:
@@ -46,7 +46,7 @@ coverage:
           - infomeasure/**/*
           - tests/**/*
           - pyproject.toml
-          - requirements.txt
+          - requirements/**
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   variables: !reference [ .pythonVersions,maxVersion ]
   script:

@@ -110,10 +110,13 @@ micromamba create -n im_env -c conda-forge python=3.13
 micromamba activate im_env
 ```
 
-To let `micromamba` handle the dependencies, use the `requirements.txt` file
+To let `micromamba` handle the dependencies, use the `requirements` files
 
 ```bash
-micromamba install --file requirements.txt
+micromamba install -f requirements/build_requirements.txt \
+  -f requirements/linter_requirements.txt \
+  -f requirements/test_requirements.txt \
+  -f requirements/doc_requirements.txt
 pip install --no-build-isolation --no-deps -e .
 ```
 
