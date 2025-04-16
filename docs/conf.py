@@ -5,12 +5,6 @@
 
 # -- Path setup --------------------------------------------------------------
 
-import sys
-from pathlib import Path
-
-infomeasure_package_root = str(Path.cwd().parent)
-sys.path.insert(0, infomeasure_package_root)
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.

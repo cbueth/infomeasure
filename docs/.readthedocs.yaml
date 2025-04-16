@@ -4,13 +4,19 @@ build:
   os: "ubuntu-lts-latest"
   tools:
     python: "3"
+  jobs:
+    post_install:
+      - pip install --no-build-isolation --no-deps -e .
 
 python:
   install:
-    - requirements:
-        - requirements/build_requirements.txt
-        - requirements/doc_requirements.txt
+    - requirements: requirements/build_requirements.txt
+    - requirements: requirements/doc_requirements.txt
 
 sphinx:
   configuration: ./docs/conf.py
   fail_on_warning: true
+  builder: dirhtml
+
+formats:
+  - pdf
