@@ -52,7 +52,7 @@ def test_faulty_call_not_overwritten():
     class FaultyEstimator(Estimator):
         pass
 
-    with pytest.raises(TypeError, match="abstract method '_calculate'"):
+    with pytest.raises(TypeError, match="abstract method '?_calculate"):
         FaultyEstimator()
 
 
