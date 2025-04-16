@@ -22,7 +22,7 @@ from datetime import datetime
 project = "infomeasure"
 copyright = f"2024–{datetime.now().year}, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.3.2dev0"
+version = "0.3.3"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -79,8 +79,8 @@ html_theme_options = {
     # "home_page_in_toc": True,
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
-        "colab_url": "https://colab.research.google.com/", # not supported with gitlab
-        "deepnote_url": "https://deepnote.com/",           # not supported with gitlab
+        "colab_url": "https://colab.research.google.com/",  # not supported with gitlab
+        "deepnote_url": "https://deepnote.com/",  # not supported with gitlab
         "notebook_interface": "jupyterlab",
     },
 }

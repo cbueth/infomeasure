@@ -38,13 +38,13 @@ data_control = rng.normal(size=1000)
 (im.transfer_entropy(
     data_x,  # source
     data_y,  # target
-    approach="ordinal", embedding_dim = 3, 
+    approach="ordinal", embedding_dim = 3,
     step_size = 1, prop_time = 0, src_hist_len = 1, dest_hist_len = 1,
 ),
  im.transfer_entropy(
     data_x,  # source
     data_control,  # target
-    approach="ordinal", embedding_dim = 3, 
+    approach="ordinal", embedding_dim = 3,
     step_size = 1, prop_time = 0, src_hist_len = 1, dest_hist_len = 1,
 ))
 ```
@@ -63,7 +63,7 @@ est = im.estimator(
     data_x,  # source
     data_y,  # target
     measure='te',  # or 'transfer_entropy'
-    approach="ordinal", embedding_dim = 3, 
+    approach="ordinal", embedding_dim = 3,
     step_size = 1, prop_time = 0, src_hist_len = 1, dest_hist_len = 1,
 )
 est.local_vals()

@@ -37,7 +37,7 @@ I(X; Y) = \langle i(x: y) \rangle
 $$
 
 ```{note}
-The package allows user to obtain both the {ref}`Local Values` and {ref}`Global value` of the MI computation. 
+The package allows user to obtain both the {ref}`Local Values` and {ref}`Global value` of the MI computation.
 ```
 
 ## Time-lagged Mutual Information

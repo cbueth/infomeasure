@@ -94,7 +94,7 @@ which is part of the {py:mod}`im.measures.mutual_information <infomeasure.estima
     :noindex:
     :undoc-members:
     :show-inheritance:
-    
+
 .. autoclass:: infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator
     :noindex:
     :undoc-members:

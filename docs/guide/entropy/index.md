@@ -100,7 +100,7 @@ Where,
 Its distinguishing property is that the small values of probabilities $p_i$ are emphasized for $\alpha < 1$ and, on the contrary, larger probabilities are emphasized for $\alpha > 1$. For $\alpha = 1$ Rényi entropy reduces to Shannon Entropy.
 Rényi $\alpha$-Entropy class can be in particular interesting for the system where additivity (in Shannon sense) is, however, not always preserved, especially in nonlinear complex systems, e.g., when we have to deal with long range forces.
 
-(tsallis-q-entropy)=  
+(tsallis-q-entropy)=
 ### Tsallis Entropy
 **Tsallis Entropy (q-order entropy)**, or Havrda and Charvát entropy, is another possible generalization of information measure by modifying the additivity law.
 From the infinite possible generalizations, the so-called q–additivity prescription has been used on q–calculus to formalize the entire approach in a unified manner.

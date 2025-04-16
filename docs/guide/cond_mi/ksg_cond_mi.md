@@ -17,7 +17,7 @@ $$
 
 where
 - $k$ is the number of nearest neighbors,
-- $n_x(\cdot)$ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector. 
+- $n_x(\cdot)$ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector.
   The size of the hypercube in each of the marginal spaces is defined based on the distance to the $k$-th nearest neighbor in the joint space.
 - $\psi(\cdot)$ denotes the _digamma function_,
 - $\langle \cdot \rangle$ represents the expectation operator.
@@ -49,4 +49,3 @@ est = im.estimator(
 )
 est.local_vals()
 ```
-
