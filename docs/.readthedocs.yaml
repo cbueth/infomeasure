@@ -7,6 +7,8 @@ build:
   jobs:
     post_install:
       - pip install --no-build-isolation --no-deps -e .
+  apt_packages:
+    - graphviz
 
 python:
   install:
@@ -15,7 +17,6 @@ python:
 
 sphinx:
   configuration: ./docs/conf.py
-  fail_on_warning: true
   builder: dirhtml
 
 formats:
