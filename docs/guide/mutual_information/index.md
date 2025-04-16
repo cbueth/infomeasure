@@ -19,7 +19,7 @@ $$
 I(X_1;\dots;X_n) = -\sum_{x_1,\dots,x_n} p(x_1,\dots,x_n) \log \frac{p(x_1,\dots,x_n)}{\prod_{i=1}^n p(x_i)}
 $$
 
-#### Local Mutual Information
+## Local Mutual Information
 Similar to {ref}`Local Entropy`, one can build the **local or point-wise mutual information** directly from its average counterparts by aligning with the identity, that its average needs to equal the global MI {cite:p}`Lizier2014,manning1999foundations,fano1961transmission`.
 The local MI values can be either positive or negative, in contrast to the global entropy which cannot take negative values.
 One can interpret the negative local MI value (i.e., $i(x: y)=-ve$) as knowledge of the event $y$ increasing the uncertainty about $x$, being _misinformative_.
@@ -40,7 +40,7 @@ $$
 The package allows user to obtain both the {ref}`Local Values` and {ref}`Global value` of the MI computation. 
 ```
 
-#### Time-lagged Mutual Information
+## Time-lagged Mutual Information
 If the RV are time series, they might share information with each other in a delayed manner.
 One can implement the time-lagged MI in between the $X$ and $Y$ time series:
 
@@ -60,7 +60,7 @@ The package allows user to set the desired time-lag between the series. The defa
 When estimating MI, several factors must be considered (ref: {ref}`Estimation`). First, identify whether the dataset is discrete or continuous. Then, select an appropriate estimator, which can be broadly categorized into parametric and non-parametric techniques. This package provides methods for both discrete and continuous random variables, and non-parametric techniques.
 Find detailed explanations and implementation guidelines available in the subsequent pages.
 
-### List of MI Estimation Techniques Implemented:
+## List of MI Estimation Techniques Implemented:
 
 ```{eval-rst}
 .. toctree::

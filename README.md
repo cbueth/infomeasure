@@ -1,10 +1,14 @@
 # `infomeasure` — Information Measure Estimators
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://infomeasure.readthedocs.io/)
-[![pipeline status](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/pipeline.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/pipelines?page=1&scope=all&ref=main)
-[![coverage report](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/coverage.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/commits/main)
+[![Documentation](https://readthedocs.org/projects/infomeasure/badge/)](https://infomeasure.readthedocs.io/)
+[![PyPI Version](https://badge.fury.io/py/infomeasure.svg)](https://pypi.org/project/infomeasure/)
+[![Python Version](https://img.shields.io/pypi/pyversions/infomeasure)](https://pypi.org/project/infomeasure/)
+[![Anaconda Version](https://anaconda.org/conda-forge/infomeasure/badges/version.svg)](https://anaconda.org/conda-forge/infomeasure)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.2-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
+[![pipeline status](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/pipeline.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/commits/main)
+[![coverage report](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/coverage.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/commits/main) 
 
 Continuous and discrete entropy and information measures using different estimators.
 
@@ -14,23 +18,23 @@ For details on how to use this package, see the
 [Guide](https://infomeasure.readthedocs.io/en/latest/guide/) or
 the [Documentation](https://infomeasure.readthedocs.io/).
 
-## Setup (don't use until public)
+## Setup
 
 This package can be installed from PyPI using pip:
 
 ```bash
-pip install infomeasure  # when public on PyPI
+pip install infomeasure
 ```
 
 This will automatically install all the necessary dependencies as specified in the
 `pyproject.toml` file. It is recommended to use a virtual environment, e.g. using
 `conda`, `mamba` or `micromamba` (they can be used interchangeably).
-`infomeasure` can be installed from the `conda-forge` channel (not yet).
+`infomeasure` can be installed from the `conda-forge` channel.
 
 ```bash
 conda create -n im_env -c conda-forge python=3.13
 conda activate im_env
-conda install -c conda-forge infomeasure  # when feedstock is available
+conda install -c conda-forge infomeasure
 ```
 
 ## Development Setup

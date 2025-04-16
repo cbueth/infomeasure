@@ -6,8 +6,6 @@ kernelspec:
 
 # Getting Started
 
-> Until public, use the [Development Setup](#development-setup)!
-
 This package can be installed from PyPI using pip:
 
 ```bash
@@ -21,12 +19,12 @@ It is recommended to use a virtual environment, e.g. using
 [`mamba`](https://mamba.readthedocs.io/en/latest) or
 [`micromamba`](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html)
 (they can be used interchangeably).
-`infomeasure` can be installed from the `conda-forge` channel _(not yet)_.
+`infomeasure` can be installed from the `conda-forge` channel.
 
 ```bash
 conda create -n im_env -c conda-forge python=3.13
 conda activate im_env
-conda install -c conda-forge infomeasure  # when feedstock is available
+conda install -c conda-forge infomeasure
 ```
 
 ## Usage
