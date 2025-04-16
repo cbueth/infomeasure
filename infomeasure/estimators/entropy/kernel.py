@@ -2,14 +2,14 @@
 
 from numpy import column_stack
 
-from ..base import EntropyEstimator
-from ..utils.array import assure_2d_data
-from ..utils.kde import kde_probability_density_function
 from ... import Config
 from ...utils.types import LogBaseType
+from ..base import EntropyEstimator, WorkersMixin
+from ..utils.array import assure_2d_data
+from ..utils.kde import kde_probability_density_function
 
 
-class KernelEntropyEstimator(EntropyEstimator):
+class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
     """Estimator for entropy (Shannon) using Kernel Density Estimation (KDE).
 
     Attributes
@@ -21,6 +21,10 @@ class KernelEntropyEstimator(EntropyEstimator):
     kernel : str
         Type of kernel to use, compatible with the KDE
         implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
+    workers : int, optional
+       Number of workers to use for parallel processing.
+       Default is 1, meaning no parallel processing.
+       If set to -1, all available CPU cores will be used.
 
     Notes
     -----
@@ -34,6 +38,7 @@ class KernelEntropyEstimator(EntropyEstimator):
         *,  # all following parameters are keyword-only
         bandwidth: float | int,
         kernel: str,
+        workers: int = 1,
         base: LogBaseType = Config.get("base"),
     ):
         """Initialize the KernelEntropyEstimator.
@@ -45,8 +50,12 @@ class KernelEntropyEstimator(EntropyEstimator):
         kernel : str
             Type of kernel to use, compatible with the KDE
             implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
+        workers : int, optional
+           Number of workers to use for parallel processing.
+           Default is 1, meaning no parallel processing.
+           If set to -1, all available CPU cores will be used.
         """
-        super().__init__(data, base=base)
+        super().__init__(data, workers=workers, base=base)
         self.data = assure_2d_data(data)
         self.bandwidth = bandwidth
         self.kernel = kernel
@@ -61,7 +70,7 @@ class KernelEntropyEstimator(EntropyEstimator):
         """
         # Compute the KDE densities
         densities = kde_probability_density_function(
-            self.data, self.bandwidth, kernel=self.kernel
+            self.data, self.bandwidth, kernel=self.kernel, workers=self.n_workers
         )
 
         # Compute the log of the densities

@@ -52,7 +52,7 @@ class BaseRenyiMIEstimator(ABC):
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the estimator with specific parameters.
+        r"""Initialize the estimator with specific parameters.
 
         Parameters
         ----------
@@ -102,7 +102,7 @@ class BaseRenyiMIEstimator(ABC):
 
 
 class RenyiMIEstimator(BaseRenyiMIEstimator, PValueMixin, MutualInformationEstimator):
-    """Estimator for the Renyi mutual information.
+    r"""Estimator for the Renyi mutual information.
 
     Attributes
     ----------
@@ -151,7 +151,7 @@ class RenyiMIEstimator(BaseRenyiMIEstimator, PValueMixin, MutualInformationEstim
 
 
 class RenyiCMIEstimator(BaseRenyiMIEstimator, ConditionalMutualInformationEstimator):
-    """Estimator for the conditional Renyi mutual information.
+    r"""Estimator for the conditional Renyi mutual information.
 
     Attributes
     ----------

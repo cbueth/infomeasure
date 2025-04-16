@@ -44,9 +44,9 @@ def test_ordinal_te(data_len, embedding_dim, step_size, prop_time, default_rng):
             prop_time=prop_time,
         )
         assert est.global_val() == 0
-        for i in est.local_val():
+        for i in est.local_vals():
             assert i == 0
-        if len(est.local_val()) > 0:
+        if len(est.local_vals()) > 0:
             assert est.std_val() == 0
         else:
             assert isnan(est.std_val())
@@ -98,7 +98,7 @@ def test_ordinal_te(rng_int, embedding_dim, expected):
         assert res == 0.0
         return
     assert res == pytest.approx(expected)
-    est.local_val()
+    est.local_vals()
 
 
 @pytest.mark.parametrize(
@@ -152,8 +152,8 @@ def test_te_discrete_shifted(
     res_xc = est_xc.result()
     assert isinstance(res_xc, float)
     assert res_xc == pytest.approx(expected_xc)
-    est_xy.local_val()
-    est_xc.local_val()
+    est_xy.local_vals()
+    est_xc.local_vals()
 
 
 @pytest.mark.parametrize(
@@ -199,7 +199,7 @@ def test_ordinal_te_slicing(
     )
     res = est.result()
     assert res == pytest.approx(expected)
-    est.local_val()
+    est.local_vals()
 
 
 @pytest.mark.parametrize(
@@ -237,6 +237,7 @@ def test_ordinal_cte(rng_int, embedding_dim, expected):
         assert res == 0.0
         return
     assert res == pytest.approx(expected)
+    est.local_vals()
 
 
 @pytest.mark.parametrize(
@@ -283,6 +284,7 @@ def test_ordinal_cte_slicing(
     )
     res = est.result()
     assert res == pytest.approx(expected)
+    est.local_vals()
 
 
 @pytest.mark.parametrize(

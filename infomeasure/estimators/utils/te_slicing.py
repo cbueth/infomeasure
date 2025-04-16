@@ -7,13 +7,13 @@ a target/destination variable (Y).
 In this context, the future state is always associated with
 the target/destination variable.
 
-
 Conventions:
-- X: Source variable
-- Y: Destination/target variable
-- dest_future: Future state of the destination variable (Y)
-- dest_history: Past states of the destination variable (Y)
-- src_history: Past states of the source variable (X)
+
+- ``X``: Source variable
+- ``Y``: Destination/target variable
+- ``dest_future``: Future state of the destination variable (Y)
+- ``dest_history``: Past states of the destination variable (Y)
+- ``src_history``: Past states of the source variable (X)
 
 The TE is calculated as:
 
@@ -99,18 +99,18 @@ def te_observations(
     sliced data : tuple of arrays
         If ``construct_joint_spaces`` is False, the sliced source and destination
         data are returned instead. Namely, the tuple contains:
-        - ``src_history`` : array, shape (max_len, src_hist_len)
-           :math:`x_i^{(l)}` : Source history.
-        - ``dest_history`` : array, shape (max_len, dest_hist_len)
-            :math:`y_i^{(k)}` : Destination history.
-        - ``dest_future`` : array, shape (max_len,)
-            :math:`\hat{y}_{i+1}` : Destination future.
 
-    With ``max_len = data_len - (max(src_hist_len, dest_hist_len) - 1) * step_size``.
+        - ``src_history`` : array, shape (max_len, src_hist_len)
+          :math:`x_i^{(l)}` : Source history.
+        - ``dest_history`` : array, shape (max_len, dest_hist_len)
+          :math:`y_i^{(k)}` : Destination history.
+        - ``dest_future`` : array, shape (max_len,)
+          :math:`\hat{y}_{i+1}` : Destination future.
 
     Notes
     -----
-    For permutation TE, ``permute_src`` xor ``resample_src`` can be used.
+    - For permutation TE, ``permute_src`` xor ``resample_src`` can be used.
+    - With ``max_len = data_len - (max(src_hist_len, dest_hist_len) - 1) * step_size``.
 
     Raises
     ------
@@ -273,8 +273,17 @@ def cte_observations(
         conditional data are returned instead.
         Namely, the tuple contains:
 
+        - ``src_history`` : array, shape (max_len, src_hist_len)
+          :math:`x_i^{(l)}` : Source history.
+        - ``dest_history`` : array, shape (max_len, dest_hist_len)
+          :math:`y_i^{(k)}` : Destination history.
+        - ``dest_future`` : array, shape (max_len,)
+          :math:`\hat{y}_{i+1}` : Destination future.
+        - ``cond_history`` : array, shape (max_len, cond_hist_len)
+          :math:`z_i^{(m)}` : Condition history.
 
-
+    Notes
+    -----
     With ``max_len = data_len - (max(src_hist_len, dest_hist_len, cond_hist_len) - 1)
     * step_size``.
 

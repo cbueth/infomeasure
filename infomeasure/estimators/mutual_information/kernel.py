@@ -7,6 +7,7 @@ from numpy import newaxis
 
 from ..base import (
     PValueMixin,
+    WorkersMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
@@ -16,7 +17,7 @@ from ... import Config
 from ...utils.types import LogBaseType
 
 
-class BaseKernelMIEstimator(ABC):
+class BaseKernelMIEstimator(WorkersMixin, ABC):
     """Base class for mutual information using Kernel Density Estimation (KDE).
 
     Attributes
@@ -37,6 +38,10 @@ class BaseKernelMIEstimator(ABC):
         Not compatible with the ``cond`` parameter / conditional MI.
     normalize : bool, optional
         If True, normalize the data before analysis.
+    workers : int, optional
+       Number of workers to use for parallel processing.
+       Default is 1, meaning no parallel processing.
+       If set to -1, all available CPU cores will be used.
     """
 
     def __init__(
@@ -46,6 +51,7 @@ class BaseKernelMIEstimator(ABC):
         bandwidth: float | int = None,
         kernel: str = None,
         offset: int = 0,
+        workers: int = 1,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
@@ -64,6 +70,8 @@ class BaseKernelMIEstimator(ABC):
         kernel : str
             Type of kernel to use, compatible with the KDE
             implementation :func:`kde_probability_density_function() <infomeasure.estimators.utils.kde.kde_probability_density_function>`.
+        workers : int, optional
+           Number of workers to use for parallel processing.
         offset : int, optional
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
@@ -74,10 +82,17 @@ class BaseKernelMIEstimator(ABC):
         self.data: tuple[ndarray] = None
         self.cond = None
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=normalize, base=base)
+            super().__init__(
+                *data, offset=offset, workers=workers, normalize=normalize, base=base
+            )
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=normalize, base=base
+                *data,
+                cond=cond,
+                offset=offset,
+                workers=workers,
+                normalize=normalize,
+                base=base,
             )
             # Ensure self.cond is a 2D array
             self.cond = assure_2d_data(self.cond)
@@ -134,11 +149,17 @@ class KernelMIEstimator(BaseKernelMIEstimator, PValueMixin, MutualInformationEst
         densities = column_stack(
             [
                 kde_probability_density_function(
-                    joint_data, self.bandwidth, kernel=self.kernel
+                    joint_data,
+                    self.bandwidth,
+                    kernel=self.kernel,
+                    workers=self.n_workers,
                 ),
                 *(
                     kde_probability_density_function(
-                        var, self.bandwidth, kernel=self.kernel
+                        var,
+                        self.bandwidth,
+                        kernel=self.kernel,
+                        workers=self.n_workers,
                     )
                     for var in self.data
                 ),
@@ -199,16 +220,25 @@ class KernelCMIEstimator(BaseKernelMIEstimator, ConditionalMutualInformationEsti
         densities = column_stack(
             [
                 kde_probability_density_function(
-                    joint_all, self.bandwidth, kernel=self.kernel
+                    joint_all,
+                    self.bandwidth,
+                    kernel=self.kernel,
+                    workers=self.n_workers,
                 ),
                 *(
                     kde_probability_density_function(
-                        joint_all[:, [i, -1]], self.bandwidth, kernel=self.kernel
+                        joint_all[:, [i, -1]],
+                        self.bandwidth,
+                        kernel=self.kernel,
+                        workers=self.n_workers,
                     )
                     for i in range(len(self.data))
                 ),
                 kde_probability_density_function(
-                    joint_all[:, -1, newaxis], self.bandwidth, kernel=self.kernel
+                    joint_all[:, -1, newaxis],
+                    self.bandwidth,
+                    kernel=self.kernel,
+                    workers=self.n_workers,
                 ),
             ]
         )

@@ -40,6 +40,11 @@ mi_estimators = {
     "OrdinalMIEstimator",
 }
 
+# for M(x), use map to H(x)
+mi_entropy_map = {mi_key: mi_key for mi_key in mi_estimators.keys()}
+# Overwrite shorthands that differ between MI and H
+mi_entropy_map["ksg"] = "kl"
+
 cmi_estimators = {
     "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteCMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelCMIEstimator",
@@ -135,7 +140,7 @@ def _get_estimator(estimators, estimator_name):
     return _dynamic_import(estimators[estimator_name.lower()])
 
 
-def get_estimator_class(measure=None, approach=None):
+def get_estimator_class(measure=None, approach=None) -> EstimatorType:
     """Get estimator class based on the estimator name and approach.
 
     This function returns the estimator class based on the measure and approach
@@ -312,19 +317,33 @@ def mutual_information(
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
+    if len(data) < 2:
+        raise ValueError(
+            "Mutual Information requires at least two variables as arguments. "
+            "If needed, a conditional variable can be passed as keyword argument: "
+            "`mutual_information(data1, data2, data3, ..., **kwargs)` or "
+            "`mutual_information(data1, data2, ..., cond=cond_var, **kwargs)`"
+        )
     return EstimatorClass(*data, **kwargs).result()
 
 
-def conditional_mutual_information(*data, **parameters: any):
+def conditional_mutual_information(*data, **kwargs: any):
     """Conditional mutual information between two variables given a third variable.
 
     See :func:`mutual_information <mutual_information>` for more information.
     """
-    if parameters.get("cond") is None:
+    if kwargs.get("cond") is None:
         raise ValueError(
             "CMI requires a conditional variable. Pass a 'cond' keyword argument."
         )
-    return mutual_information(*data, **parameters)
+    if len(data) < 2:
+        raise ValueError(
+            "CMI requires at least two variables as arguments and "
+            "a conditional variable as keyword argument: "
+            "`conditional_mutual_information("
+            "data1, data2, ..., cond=cond_var, **kwargs)`"
+        )
+    return mutual_information(*data, **kwargs)
 
 
 @_dynamic_estimator(["te", "cte"])
@@ -388,12 +407,12 @@ def transfer_entropy(
     return EstimatorClass(*data, **kwargs).result()
 
 
-def conditional_transfer_entropy(*data, **parameters: any):
+def conditional_transfer_entropy(*data, **kwargs: any):
     """Conditional transfer entropy between two variables given a third variable.
 
     See :func:`transfer_entropy <transfer_entropy>` for more information.
     """
-    if parameters.get("cond") is None:
+    if kwargs.get("cond") is None:
         raise ValueError(
             "CTE requires a conditional variable. Pass a 'cond' keyword argument."
         )
@@ -403,7 +422,7 @@ def conditional_transfer_entropy(*data, **parameters: any):
             "the conditional data as keyword argument: "
             "`conditional_transfer_entropy(source, dest, cond=cond_var, **kwargs)`."
         )
-    return transfer_entropy(*data, **parameters)
+    return transfer_entropy(*data, **kwargs)
 
 
 def estimator(
@@ -424,7 +443,7 @@ def estimator(
     This function provides a simple interface to get
     an :class:`Estimator <.base.Estimator>` for a specific measure.
 
-    If you are only interested in the result, use the functional interfaces:
+    If you are only interested in the global result, use the functional interfaces:
 
     - :func:`entropy <entropy>`
     - :func:`mutual_information <mutual_information>`
@@ -469,8 +488,10 @@ def estimator(
         Only if the measure is conditional transfer entropy.
     measure : str
         The measure to estimate.
-        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``;
-        aliases: ``h``, ``mi``, ``te``
+        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``,
+        ``conditional_mutual_information``
+        ``conditional_transfer_entropy``;
+        aliases: ``h``, ``mi``, ``te``, ``cmi``, ``cte``.
     approach : str
         The name of the estimator to use.
         Find the available estimators in the docstring of this function.
@@ -492,7 +513,7 @@ def estimator(
     if measure is None:
         raise ValueError("``measure`` is required.")
     elif measure.lower() in ["entropy", "h"]:
-        if data is None:
+        if len(data) == 0:
             raise ValueError("``data`` is required for entropy estimation.")
         if cond is not None:
             raise ValueError("``cond`` is not required for entropy estimation.")
@@ -516,16 +537,19 @@ def estimator(
             and cond is None
         ):
             raise ValueError(
-                "``cond`` is required for conditional mutual information estimation."
+                "No conditional data was provided for conditional mutual information"
+                "estimation. Pass ``cond`` to specify the conditional data."
             )
         if len(data) == 0:
-            raise ValueError("``data`` is required for mutual information estimation.")
+            raise ValueError("No data was provided for mutual information estimation.")
         if len(data) == 1:
             logger.warning(
                 "Only one data array provided for mutual information estimation. "
                 "Using normal entropy estimator."
             )
-            EstimatorClass = _get_estimator(entropy_estimators, approach)
+            EstimatorClass = _get_estimator(
+                entropy_estimators, mi_entropy_map[approach]
+            )
             return EstimatorClass(data[0], **kwargs)
         if cond is not None:
             EstimatorClass = _get_estimator(cmi_estimators, approach)
@@ -541,7 +565,8 @@ def estimator(
     ]:
         if measure.lower() in ["cte", "conditional_transfer_entropy"] and cond is None:
             raise ValueError(
-                "``cond`` is required for conditional transfer entropy estimation."
+                "No conditional data was provided for conditional transfer entropy "
+                "estimation. Pass ``cond`` to specify the conditional data."
             )
         if len(data) != 2:
             raise ValueError(

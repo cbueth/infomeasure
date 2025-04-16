@@ -38,7 +38,7 @@ def test_discrete_joint_entropy(data, base, expected):
     """Test the discrete joint entropy estimator."""
     est = estimator(data, measure="entropy", approach="discrete", base=base)
     assert est.result() == pytest.approx(expected)
-    est.local_val()
+    est.local_vals()
 
 
 # try different bases with uniform distribution

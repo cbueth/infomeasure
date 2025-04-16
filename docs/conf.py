@@ -5,6 +5,12 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import sys
+from pathlib import Path
+
+infomeasure_package_root = str(Path.cwd().parent)
+sys.path.insert(0, infomeasure_package_root)
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -22,7 +28,7 @@ from datetime import datetime
 project = "infomeasure"
 copyright = f"2024–{datetime.now().year}, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.3.0dev1"
+version = "0.3.2dev0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -30,8 +36,9 @@ version = "0.3.0dev1"
 extensions = [
     "sphinx.ext.autodoc",
     "myst_nb",  # Parse and execute ipynb files in Sphinx
-    "numpydoc",
-    "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
+    "numpydoc",  # Automatically loads .ext.autosummary
+    # "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
+    "sphinx_automodapi.automodapi",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
@@ -61,6 +68,7 @@ myst_heading_anchors = 3
 nb_execution_timeout = 180
 
 numpydoc_xref_param_type = True
+numpydoc_show_inherited_class_members = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

@@ -35,7 +35,7 @@ class TsallisEntropyEstimator(EntropyEstimator):
 
     Notes
     -----
-    In the $q \to 1$ limit, the Jackson sum (q-additivity) reduces to
+    In the :math:`q \to 1` limit, the Jackson sum (q-additivity) reduces to
     ordinary summation,
     and the Tallis entropy reduces to Shannon Entropy.
     This class of entropy measure is in particularly useful in the study in connection

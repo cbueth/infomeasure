@@ -1,7 +1,7 @@
 """Explicit kernel mutual information estimator tests."""
 
 import pytest
-from numpy import ndarray
+from numpy import ndarray, equal, allclose
 
 from tests.conftest import (
     generate_autoregressive_series,
@@ -23,7 +23,7 @@ def test_kernel_mi(bandwidth, kernel, default_rng):
     data_y = default_rng.normal(0, 1, 100)
     est = KernelMIEstimator(data_x, data_y, bandwidth=bandwidth, kernel=kernel)
     assert isinstance(est.result(), float)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -43,7 +43,7 @@ def test_kernel_mi_values(rng_int, bandwidth, kernel, expected):
     est = KernelMIEstimator(data_x, data_y, bandwidth=bandwidth, kernel=kernel, base=2)
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
 
 
 @pytest.mark.parametrize(
@@ -67,4 +67,33 @@ def test_kernel_cmi_values(rng_int, bandwidth, kernel, expected):
     )
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
-    assert isinstance(est.local_val(), ndarray)
+    assert isinstance(est.local_vals(), ndarray)
+
+
+@pytest.mark.parametrize("rng_int", [1, 2])
+@pytest.mark.parametrize("workers", [-1, 1])
+@pytest.mark.parametrize("kernel", ["gaussian", "box"])
+def test_kernel_mi_parallelization(rng_int, workers, kernel):
+    """Test the Kernel MI estimator with different worker counts."""
+    data_x, data_y = generate_autoregressive_series(
+        rng_int, 0.5, 0.6, 0.4, length=int(20001)
+    )
+    est_parallel = KernelMIEstimator(
+        data_x,
+        data_y,
+        bandwidth=0.5,
+        kernel=kernel,
+        base=2,
+        workers=workers,
+    )
+    est_serial = KernelMIEstimator(
+        data_x,
+        data_y,
+        cond=None,
+        bandwidth=0.5,
+        kernel=kernel,
+        base=2,
+        workers=1,
+    )
+    assert est_parallel.global_val() == pytest.approx(est_serial.global_val())
+    assert allclose(est_parallel.local_vals(), est_serial.local_vals())

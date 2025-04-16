@@ -24,19 +24,20 @@ It is recommended to use a virtual environment, e.g. using
 `infomeasure` can be installed from the `conda-forge` channel _(not yet)_.
 
 ```bash
-conda create -n im_env -c conda-forge python=3.12
+conda create -n im_env -c conda-forge python=3.13
 conda activate im_env
 conda install -c conda-forge infomeasure  # when feedstock is available
 ```
 
 ## Usage
 
-The package can be used as a library.
-The most common functions are exposed in the top-level namespace,
-e.g. {py:func}`~infomeasure.entropy` and
-{py:mod}`~infomeasure.estimators.kde`. The latter can also be imported directly from the
-submodule
-[...] For example:
+For a more complete introduction, find the {ref}`reference guide` with
+the {ref}`theoretical introduction <introduction>`, and
+for a quick start on how to use the estimators,
+find the {ref}`Estimator Usage` section.
+The most common functions are exposed in the {ref}`top-level namespace <functions>`,
+e.g. {py:func}`~infomeasure.entropy` or {py:func}`~infomeasure.estimator`.
+For example:
 
 ```{code-cell}
 import infomeasure as im
@@ -45,30 +46,36 @@ data = [0, 1, 0, 1, 0, 1, 0, 1]
 entropy = im.entropy(data, approach="kernel", bandwidth=3, kernel="box")
 # or
 est = im.estimator(data, measure="entropy", approach="kernel", bandwidth=3, kernel="box")
-est.results()
+print(f"Entropy with im.entropy   = {entropy}")
+print(f"Entropy with im.estimator = {est.result()}")
 ```
 
 For mutual information, there is a similar function:
 
 ```{code-cell}
 data_x = [0, 1, 0, 1, 0, 1, 0, 1]
-data_y = [0, 0, 1, 1, 0, 0, 1, 1]
+data_y = [0, 1, 0, 1, 0, 0, 0, 0]
 mi = im.mutual_information(data_x, data_y, approach="discrete")
 # or
-est = im.estimator(data_x=data_x, data_y=data_y, measure="mutual_information",
-                   approach="discrete", time_diff=1)
-est.results()
+est = im.estimator(data_x, data_y, measure="mutual_information",
+                   approach="discrete", prop_time=1)
+print(f"Mutual Information with im.mutual_information = {mi}")
+print(f"Mutual Information with im.estimator          = {est.result()}")
+print(f"P-value = {est.p_value(10)}, t-score = {est.t_score(10)}")
 ```
 
 Transfer entropy can be calculated as follows:
 
 ```{code-cell}
-source = [0.1, 0.2, 0.3, 0.4, 0.5]
-dest = [0.2, 0.3, 0.3, 0.5, 0.6]
-te = im.transfer_entropy(source, dest, approach="metric")
+source = [0.0, 0.3, 0.5, 1.2, 0.0, 0.4, 0.2, -0.6, -0.8, -0.4]
+dest = [0.0, 0.8, -0.7, 0.2, 1.2, 1.0, 1.3, 0.7, 0.8, -0.1]
+te = im.transfer_entropy(source, dest, approach="metric", noise_level=0.001)
 # or
-est = im.estimator(source=source, dest=dest, measure="transfer_entropy", approach="metric")
-est.results()
+est = im.estimator(source, dest, measure="transfer_entropy", approach="metric", noise_level=0.001)
+#te, (est.result(), est.p_value(10), est.t_score(10))
+print(f"Transfer Entropy with im.transfer_entropy = {te}")
+print(f"Transfer Entropy with im.estimator        = {est.result()} (differs due to noise)")
+print(f"p-value = {est.p_value(10)}, t-score = {est.t_score(10)}")
 ```
 
 In [Estimator Usage](guide/introduction), you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
@@ -99,14 +106,17 @@ After cloning the repository, navigate to the root folder and
 create the environment with the desired python version and the dependencies.
 
 ```bash
-micromamba create -n im_env -c conda-forge python=3.12
+micromamba create -n im_env -c conda-forge python=3.13
 micromamba activate im_env
 ```
 
-To let `micromamba` handle the dependencies, use the `requirements.txt` file
+To let `micromamba` handle the dependencies, use the `requirements` files
 
 ```bash
-micromamba install --file requirements.txt
+micromamba install -f requirements/build_requirements.txt \
+  -f requirements/linter_requirements.txt \
+  -f requirements/test_requirements.txt \
+  -f requirements/doc_requirements.txt
 pip install --no-build-isolation --no-deps -e .
 ```
 

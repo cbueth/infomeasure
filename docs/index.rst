@@ -1,3 +1,5 @@
+.. _infomeasure_docs:
+
 ===========================
 `infomeasure` Documentation
 ===========================

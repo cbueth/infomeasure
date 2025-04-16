@@ -5,31 +5,31 @@ from scipy.special import gamma
 
 
 def unit_ball_volume(d, r=1, p=2):
-    """Calculate the volume of the d-dimensional ball with radius r in L^p norm.
+    r"""Calculate the volume of the d-dimensional ball with radius r in :math:`L^p` norm.
 
     .. math::
 
         V_d = \begin{cases}
             2r & \text{if } d = 1 \text{ and } p = 2, \\
-            \frac{4\\pi r^3}{3} & \text{if } d = 3 \text{ and } p = 2, \\
-            (2r)^d & \text{if } p = \\infty, \\
-            \frac{(\\pi r^2)^{d/2}}{\\Gamma(1 + d/2)} & \text{if } p = 2, \\
-            \frac{(2r)^d \\Gamma(1 + \frac{1}{p})^d}{\\Gamma(1 + \frac{d}{p})} & \text{otherwise}.
-        \\end{cases}
+            \frac{4\pi r^3}{3} & \text{if } d = 3 \text{ and } p = 2, \\
+            (2r)^d & \text{if } p = \infty, \\
+            \frac{(\pi r^2)^{d/2}}{\Gamma(1 + d/2)} & \text{if } p = 2, \\
+            \frac{(2r)^d \Gamma(1 + \frac{1}{p})^d}{\Gamma(1 + \frac{d}{p})} & \text{otherwise}.
+        \end{cases}
 
     Parameters
     ----------
     d : int
         The dimensionality of the space.
     p : float
-        The L^p norm.
+        The :math:`L^p` norm.
     r : float, optional
         The radius of the ball (default is 1).
 
     Returns
     -------
     float
-        The volume of the d-dimensional ball with radius r in L^p norm.
+        The volume of the d-dimensional ball with radius r in :math:`L^p` norm.
     """
     if p == float("inf"):
         return (2 * r) ** d

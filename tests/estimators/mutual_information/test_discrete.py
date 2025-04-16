@@ -38,7 +38,7 @@ def test_discrete_mi(data_x, data_y, base, expected):
     res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 # test with base 2 and different offsets
@@ -68,7 +68,7 @@ def test_discrete_mi_offset(data_x, data_y, offset, expected):
     res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize(
@@ -94,7 +94,7 @@ def test_discrete_mi_explicit(rng_int_prop, offset, expected):
     data = tuple(array(d) for d in data)
     est = DiscreteMIEstimator(*data, base=2, offset=offset)
     assert est.global_val() == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize(
@@ -141,7 +141,7 @@ def test_discrete_mi_3_vars(data, base, expected):
     res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize(
@@ -161,7 +161,7 @@ def test_discrete_mi_3_vars_explicit(rng_int, expected):
     data = discrete_random_variables_condition(rng_int)
     est = DiscreteMIEstimator(*data, base=2)
     assert est.global_val() == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize("num_vars", [1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -174,7 +174,7 @@ def test_discrete_mi_n_vars(num_vars, default_rng):
         return
     im.mutual_information(*data, approach="discrete")
     est = DiscreteMIEstimator(*data, base=2)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize(
@@ -197,7 +197,7 @@ def test_discrete_cmi(data_x, data_y, cond, base, expected):
     res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
-    est.local_val()  # Checks internally for `global = mean(local)`
+    est.local_vals()  # Checks internally for `global = mean(local)`
 
 
 @pytest.mark.parametrize(
@@ -241,7 +241,7 @@ def test_discrete_cmi_multiple_vars(data, cond, base, expected):
     res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
-    est.local_val()
+    est.local_vals()
 
 
 def test_discrete_cmi_2d_cond_error():

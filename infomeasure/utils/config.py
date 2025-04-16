@@ -20,8 +20,8 @@ BASE_UNIT_MAP = {
         "which is fundamental in digital systems.",
     },
     "e": {
-        "identifiers": ["nats", "nat"],
-        "name": "nat",
+        "identifiers": ["nats", "nat", "nit", "nepit"],
+        "name": "nat/nit/nepit",
         "description": "This base is best suited for "
         "continuous probability distributions.",
     },
@@ -43,8 +43,8 @@ class Config:
 
     Default settings:
 
-    - 'base': e (nats)
-    - 'p_value_method': 'permutation_test'
+    - ``base``: "e" (nats)
+    - ``p_value_method``: "permutation_test"
 
     Attributes
     ----------
@@ -57,12 +57,12 @@ class Config:
         "base": {
             "value": "e",  # 2: bits/shannon, e: nats, 10: hartleys/bans/dits
             "types": int | float,
-            "additionally_allowed": ["e"],
+            "explicitly_allowed": ["e"],
         },
         "p_value_method": {
             "value": "permutation_test",
             "types": None,
-            "additionally_allowed": ["permutation_test", "bootstrap"],
+            "explicitly_allowed": ["permutation_test", "bootstrap"],
         },
     }
     _settings = {key: value["value"] for key, value in __default_settings.items()}
@@ -108,15 +108,15 @@ class Config:
             cls.__default_settings[key]["types"] is None
             or not isinstance(value, cls.__default_settings[key]["types"])
         ) and (
-            "additionally_allowed" not in cls.__default_settings[key]
-            or value not in cls.__default_settings[key]["additionally_allowed"]
+            "explicitly_allowed" not in cls.__default_settings[key]
+            or value not in cls.__default_settings[key]["explicitly_allowed"]
         ):
             raise TypeError(
                 f"Invalid value '{value}' ({type(value)}) for setting '{key}'. "
                 f"Expected type: {cls.__default_settings[key]['types']}"
                 + (
-                    f" or one of {cls.__default_settings[key]['additionally_allowed']}"
-                    if "additionally_allowed" in cls.__default_settings[key]
+                    f" or one of {cls.__default_settings[key]['explicitly_allowed']}"
+                    if "explicitly_allowed" in cls.__default_settings[key]
                     else ""
                 )
             )
@@ -191,7 +191,7 @@ class Config:
         for base, units in BASE_UNIT_MAP.items():
             if cls.get("base") == base:
                 return units["description"]
-        raise ValueError(f"No description for logarithmic unit: {cls.get('base')}")
+        raise ValueError(f"No description for logarithmic unit: base {cls.get('base')}")
 
     @staticmethod
     def set_log_level(level: int | str) -> None:

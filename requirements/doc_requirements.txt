@@ -1,18 +1,10 @@
-numpy
-scipy
-sparse>0.10.0
-# Code Quality
-pre-commit
-ruff
-# Testing
-pytest
-pytest-cov
-coverage
 # Documentation
 sphinx
 numpydoc
 myst-nb
 sphinx-book-theme
 sphinxcontrib-bibtex
+sphinx-automodapi
+graphviz
 # Plotting
 matplotlib

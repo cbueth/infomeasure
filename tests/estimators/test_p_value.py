@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+from tests.conftest import discrete_random_variables
 from infomeasure.estimators.base import PValueMixin
 
 
@@ -20,16 +21,45 @@ def test_mutual_information_p_value(mi_estimator, n_tests):
 
 
 @pytest.mark.parametrize("n_tests", [2, 5, 300])
+def test_mi_t_score(mi_estimator, n_tests):
+    """Test only accessing the t-score, without the p-value, for MI."""
+    source = np.arange(10)
+    dest = np.arange(10)
+    estimator, kwargs = mi_estimator
+    estimator = estimator(source, dest, **kwargs)
+    t_score = estimator.t_score(n_tests)
+    assert isinstance(t_score, float)
+
+
+@pytest.mark.parametrize("n_tests", [2, 5, 50])
 def test_transfer_entropy_p_value(te_estimator, n_tests):
     """Test the p-value calculation for transfer entropy."""
-    source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    source, dest = discrete_random_variables(0, prop_time=0, length=100)
     estimator, kwargs = te_estimator
     estimator = estimator(source, dest, **kwargs)
     p_value = estimator.p_value(n_tests)
     assert isinstance(p_value, float)
     assert 0 <= p_value <= 1
     assert isinstance(estimator.t_score(n_tests), float)
+    # calling the functions again without parameters should return the cached result
+    assert np.isclose(
+        estimator.p_value(n_tests), estimator.p_value(), rtol=0, atol=0, equal_nan=True
+    )
+    assert np.isclose(
+        estimator.t_score(n_tests), estimator.t_score(), rtol=0, atol=0, equal_nan=True
+    )
+
+
+@pytest.mark.parametrize("n_tests", [2, 5, 25])
+def test_mi_t_score(te_estimator, n_tests):
+    """Test only accessing the t-score, without the p-value, for TE."""
+    source, dest = discrete_random_variables(0, prop_time=0, length=100)
+    estimator, kwargs = te_estimator
+    estimator = estimator(source, dest, **kwargs)
+    t_score = estimator.t_score(n_tests)
+    assert isinstance(t_score, float)
+    # calling the functions again without parameters should return the cached result
+    assert np.isclose(t_score, estimator.t_score(), rtol=0, atol=0, equal_nan=True)
 
 
 @pytest.mark.parametrize(

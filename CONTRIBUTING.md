@@ -164,7 +164,11 @@ When doing so, we recommend setting up your development environment with the
 development dependencies and an editable installation of the package, like so:
 
 ```bash
-conda create -n im_env -c conda-forge python=3.13 -f requirements.txt
+conda create -n im_env -c conda-forge python=3.13 -f requirements/build_requirements.txt \
+  -f requirements/linter_requirements.txt \
+  -f requirements/test_requirements.txt \
+  -f requirements/doc_requirements.txt \
+  -f requirements/packaging_requirements.txt
 conda activate im_env
 pip install --no-build-isolation --no-deps -e .
 ```

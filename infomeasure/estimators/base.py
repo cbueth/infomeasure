@@ -60,7 +60,7 @@ class Estimator(Generic[EstimatorType], ABC):
         self.base = base
 
     @final
-    def calculate(self):
+    def calculate(self) -> None:
         """Calculate the measure.
 
         Estimate the measure and store the results in the attributes.
@@ -87,25 +87,21 @@ class Estimator(Generic[EstimatorType], ABC):
                 f"Invalid result type {type(results)} for {self.__class__.__name__}."
             )
 
-    def result(self):
+    @final
+    def result(self) -> float:
         """Return the global value of the measure.
 
         Calculate the measure if not already calculated.
 
         Returns
         -------
-        results : tuple | float
-            Tuple of the global, local, and standard deviation values,
-            or just the global value if others are not available.
-
-        Notes
-        -----
-        The local and standard deviation values are not available for all estimators.
+        results : float
+           The global value of the measure.
         """
         return self.global_val()
 
     @final
-    def global_val(self):
+    def global_val(self) -> float:
         """Return the global value of the measure.
 
         Calculate the measure if not already calculated.
@@ -121,7 +117,7 @@ class Estimator(Generic[EstimatorType], ABC):
         return self.res_global
 
     @final
-    def local_val(self):
+    def local_vals(self):
         """Return the local values of the measure, if available.
 
         Returns
@@ -467,8 +463,8 @@ class MutualInformationEstimator(
         # return sum(h(x_i)) - h((x_1, x_2, ..., x_n))
         try:
             return (
-                np_sum([est.local_val() for est in estimators])
-                - estimator_joint.local_val()
+                np_sum([est.local_vals() for est in estimators])
+                - estimator_joint.local_vals()
             )
         except UnsupportedOperation:
             return (
@@ -548,15 +544,6 @@ class ConditionalMutualInformationEstimator(
             )
         self.data = tuple(asarray(d) for d in data)
         self.cond = asarray(cond)
-        if (
-            self.data[0].shape[0] != self.data[1].shape[0]
-            or self.data[0].shape[0] != self.cond.shape[0]
-        ):
-            raise ValueError(
-                "Data arrays must have the same first dimension, "
-                f"not {self.data[0].shape[0]}, {self.data[1].shape[0]}, "
-                f"and {self.cond.shape[0]}."
-            )
         # Normalize the data
         self.normalize = normalize
         if self.normalize and (
@@ -633,9 +620,9 @@ class ConditionalMutualInformationEstimator(
             # return h_x_z + h_y_z - h_x_y_z - h_z
             try:
                 (
-                    np_sum([est.local_val() for est in est_marginal_cond])
-                    - estimator_joint.local_val()
-                    - est_cond.local_val()
+                    np_sum([est.local_vals() for est in est_marginal_cond])
+                    - estimator_joint.local_vals()
+                    - est_cond.local_vals()
                 )
             except UnsupportedOperation:
                 return (
@@ -827,10 +814,10 @@ class TransferEntropyEstimator(
         # Compute Transfer Entropy
         try:
             return (
-                est_y_history_y_future.local_val()
-                + est_x_history_y_history.local_val()
-                - est_x_history_y_history_y_future.local_val()
-                - est_y_history.local_val()
+                est_y_history_y_future.local_vals()
+                + est_x_history_y_history.local_vals()
+                - est_x_history_y_history_y_future.local_vals()
+                - est_y_history.local_vals()
             )
         except UnsupportedOperation:
             return (
@@ -978,10 +965,10 @@ class ConditionalTransferEntropyEstimator(
         # Compute Conditional Transfer Entropy
         try:
             return (
-                est_cond_y_history_y_future.local_val()
-                + est_x_history_cond_y_history.local_val()
-                - est_x_history_cond_y_history_y_future.local_val()
-                - est_y_history_cond.local_val()
+                est_cond_y_history_y_future.local_vals()
+                + est_x_history_cond_y_history.local_vals()
+                - est_x_history_cond_y_history_y_future.local_vals()
+                - est_y_history_cond.local_vals()
             )
         except UnsupportedOperation:
             return (
@@ -1081,7 +1068,7 @@ class PValueMixin(RandomGeneratorMixin):
                 "P-value method is not implemented for the estimator."
             )
 
-    def p_value(self, n_tests: int, method=Config.get("p_value_method")) -> float:
+    def p_value(self, n_tests: int = None, method: str = None) -> float:
         """Calculate the p-value of the measure.
 
         Method can be "permutation_test" or "bootstrap".
@@ -1091,12 +1078,17 @@ class PValueMixin(RandomGeneratorMixin):
 
         Parameters
         ----------
-        n_tests : int
+        n_tests : int, optional
             Number of permutations or bootstrap samples.
             Needs to be a positive integer.
+            Default is None, which means, if :py:meth:`t_score` was calculated before,
+            the same number of tests will be used.
         method : str, optional
             The method to calculate the p-value.
-            Default is the value set in the configuration.
+            Default is None, which means, if :py:meth:`t_score` was calculated before,
+            the same method will be used.
+            If :py:meth:`t_score` was not calculated before,
+            it will be calculated using the default method set in the configuration.
 
         Returns
         -------
@@ -1110,8 +1102,8 @@ class PValueMixin(RandomGeneratorMixin):
         """
         if (
             self.p_val is not None
-            and method == self.p_val_method
-            and n_tests == self.n_tests
+            and (method == self.p_val_method or method is None)
+            and (n_tests == self.n_tests or n_tests is None)
         ):
             return self.p_val
         logger.debug(
@@ -1119,7 +1111,9 @@ class PValueMixin(RandomGeneratorMixin):
             f"of the measure {self.__class__.__name__} "
             f"using the {method} method with {n_tests} tests."
         )
-        self.p_val_method = method
+        self.p_val_method = (
+            method if method is not None else Config.get("p_value_method")
+        )
         self.n_tests = n_tests
         if isinstance(self, MutualInformationEstimator):
             if len(self.data) != 2:
@@ -1137,17 +1131,22 @@ class PValueMixin(RandomGeneratorMixin):
         self.p_val, self.t_scr = method(n_tests)
         return self.p_val
 
-    def t_score(self, n_tests: int, method=Config.get("p_value_method")) -> float:
+    def t_score(self, n_tests: int = None, method: str = None) -> float:
         """Get the t-score of the measure.
 
         Parameters
         ----------
-        n_tests : int
+        n_tests : int, optional
             Number of permutations or bootstrap samples.
             Needs to be a positive integer.
+            Default is None, which means, if :py:meth:`p_value` was calculated before,
+            the same number of tests will be used.
         method : str, optional
-            The method to calculate the p-value.
-            Default is the value set in the configuration.
+            The method to calculate the t-score.
+            Default is None, which means, if :py:meth:`p_value` was calculated before,
+            the same method will be used.
+            If :py:meth:`p_value` was not calculated before,
+            it will be calculated using the default method set in the configuration.
 
         Returns
         -------
@@ -1170,11 +1169,11 @@ class PValueMixin(RandomGeneratorMixin):
         """
         if (
             self.t_scr is not None
-            and method == self.p_val_method
-            and n_tests == self.n_tests
+            and (method == self.p_val_method or method is None)
+            and (n_tests == self.n_tests or n_tests is None)
         ):
             return self.t_scr
-        self.p_value(method, n_tests)
+        self.p_value(n_tests=n_tests, method=method)
         return self.t_scr
 
     @staticmethod
@@ -1280,7 +1279,7 @@ class PValueMixin(RandomGeneratorMixin):
             )
         elif self.p_val_method == "bootstrap":
             method_resample_src = lambda data_src: self.rng.choice(
-                data_src, size=data_src.shape, replace=True, axis=0
+                data_src, size=data_src.shape[0], replace=True, axis=0
             )
         else:
             raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
@@ -1388,3 +1387,22 @@ class EffectiveValueMixin:
         self.permute_src = False
         # Return difference
         return self.global_val() - res_permuted
+
+
+class WorkersMixin:
+    """Mixin that adds an attribute for the numbers of workers to use.
+
+    Attributes
+    ----------
+        n_workers : int, optional
+            The number of workers to use. Default is 1.
+            -1: Use as many workers as CPU cores available.
+    """
+
+    def __init__(self, *args, workers=1, **kwargs):
+        if workers == -1:
+            from multiprocessing import cpu_count
+
+            workers = cpu_count()
+        super().__init__(*args, **kwargs)
+        self.n_workers = workers
