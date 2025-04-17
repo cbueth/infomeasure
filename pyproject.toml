@@ -59,7 +59,6 @@ all = ["infomeasure[lint,test,doc]"]
 
 [tool.setuptools.packages.find]
 exclude = [
-    "tests*",
     "docs*",
 ]
 namespaces = false
