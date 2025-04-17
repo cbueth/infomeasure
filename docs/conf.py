@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.inheritance_diagram",
     "sphinxcontrib.bibtex",
+    "sphinx_design",  # Further directives
 ]
 
 templates_path = ["_templates"]
@@ -60,6 +61,7 @@ language = "en"
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath", "amsmath"]
 myst_heading_anchors = 3
 nb_execution_timeout = 180
+nb_execution_excludepatterns = ["Schreiber_Article.ipynb"]
 
 numpydoc_xref_param_type = True
 numpydoc_show_inherited_class_members = False

@@ -21,6 +21,7 @@ class BaseKernelMIEstimator(WorkersMixin, ABC):
     """Base class for mutual information using Kernel Density Estimation (KDE).
 
     Attributes
+    ----------
     *data : array-like, shape (n_samples,)
         The data used to estimate the (conditional) mutual information.
         You can pass an arbitrary number of data arrays as positional arguments.
