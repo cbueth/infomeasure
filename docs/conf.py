@@ -85,6 +85,34 @@ html_theme_options = {
         "deepnote_url": "https://deepnote.com/",  # not supported with gitlab
         "notebook_interface": "jupyterlab",
     },
+    "logo": {
+        "image_light": "_static/im_logo_transparent.png",
+        "image_dark": "_static/im_logo_transparent_dark.png",
+    },
+    "secondary_sidebar_items": {
+        "**": ["page-toc"],
+        "index": [],
+    },
+   #  "icon_links": [
+   #      {
+   #          "name": "GitHub",
+   #          "url": "https://github.com/cbueth/infomeasure",  # required
+   #          # Icon class (if "type": "fontawesome"), or path to local image (if "type": "local")
+   #          "icon": "fa-brands fa-github",
+   #          "type": "fontawesome",
+   #      },
+   #      {
+   #          "name": "PyPI",
+   #          "url": "https://pypi.org/project/infomeasure/",
+   #          "icon": "https://img.shields.io/pypi/v/infomeasure",
+   #          "type": "url",
+   #      },
+   # ]
+}
+html_favicon = "_static/im_icon_transparent.png"
+html_sidebars = {
+    "**": ["navbar-logo.html", "icon-links.html", "search-button-field.html", "sbt-sidebar-nav.html", "sidebar-ethical-ads.html"],
+    "index": [],
 }
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

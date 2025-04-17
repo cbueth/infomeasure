@@ -1,3 +1,4 @@
+(reference_guide)=
 # Reference Guide
 
 On these pages you can find documentation for `infomeasure`.

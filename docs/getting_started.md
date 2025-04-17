@@ -3,7 +3,7 @@ file_format: mystnb
 kernelspec:
   name: python3
 ---
-
+(getting_started)=
 # Getting Started
 
 This package can be installed from PyPI using pip:
@@ -14,7 +14,7 @@ pip install infomeasure
 
 This will automatically install all the necessary dependencies as specified in the
 [`pyproject.toml`](https://github.com/cbueth/infomeasure/blob/main/pyproject.toml) file.
-It is recommended to use a virtual environment, e.g. using
+It is recommended to use a virtual environment, e.g., using
 [`conda`](https://conda.io/projects/conda/en/latest),
 [`mamba`](https://mamba.readthedocs.io/en/latest) or
 [`micromamba`](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html)
@@ -76,10 +76,10 @@ print(f"Transfer Entropy with im.estimator        = {est.result()} (differs due 
 print(f"p-value = {est.p_value(10)}, t-score = {est.t_score(10)}")
 ```
 
-In [Estimator Usage](guide/introduction), you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
+In {ref}`Estimator Usage`, you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
 
-For more insight into the package, read the [Guide](guide/index.myst)
-or the [API Reference](api/index.rst).
+For more insight into the package, read the {ref}`Reference Guide`
+or the {ref}`API Reference`.
 
 
 ### Set up Jupyter kernel
