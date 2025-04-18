@@ -177,7 +177,7 @@ $$
 # Analytical formula for the mutual information of two Gaussian random variables
 def mutual_information_gauss(X, Y):
     """Compute the mutual information between two Gaussian random variables.
-    
+
     Notes
     -----
     ``r`` is the correlation coefficient between X and Y.
@@ -196,7 +196,7 @@ def generate_data(N, r):
     X = data[:, 0]
     Y = data[:, 1]
     return X, Y
-    
+
 # Values of r
 r_values = np.linspace(1, 9, 9)
 # Number of data points

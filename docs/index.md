@@ -4,7 +4,7 @@ site:
   options:
     hide_toc: true
 ---
-(_infomeasure_docs)=
+(infomeasure_docs)=
 # Overview
 
 :::{image} _static/im_logo_transparent.png
@@ -61,7 +61,7 @@ How to install this package and run the first calculation.\
 Start your endeavour here!
 
 +++
-[Learn more »](getting_started)
+{ref}`Learn more » <getting_started>`
 :::
 
 :::{grid-item-card} {material-regular}`menu_book;2em` Reference Guide
@@ -72,7 +72,7 @@ Theoretic background of the library.
 See all estimation techniques with code snippets.
 
 +++
-[Learn more »](reference_guide)
+{ref}`Learn more »<reference_guide>`
 :::
 
 :::{grid-item-card} {material-regular}`lightbulb;2em` Demos
@@ -83,7 +83,7 @@ A collection of short demos showcasing the capabilities of this package.\
 An analytical comparison, model and data application.
 
 +++
-[Learn more »](Demos)
+{ref}`Learn more »<Demos>`
 :::
 
 ::::
@@ -93,12 +93,12 @@ An analytical comparison, model and data application.
 `infomeasure` is a Python library for computing information measures, such as entropy,
 mutual information and conditional mutual information.
 It provides a simple and efficient way to compute these measures on large datasets.
-The {ref}`Reference pages <guide>` provide a comprehensive, theoretical background on the concepts behind these measures, while the {ref}`Demos` provide practical examples of how to use `infomeasure` in real-world applications.
+The {ref}`Reference pages <reference_guide>` provide a comprehensive, theoretical background on the concepts behind these measures, while the {ref}`Demos` provide practical examples of how to use `infomeasure` in real-world applications.
 
 ## Setup and use
 
 To set up `infomeasure`, see the {ref}`Getting Started` page, more on
-the details of the inner workings can be found on the {ref}`Reference pages <guide>`.
+the details of the inner workings can be found on the {ref}`Reference pages <reference_guide>`.
 Furthermore, you can also find the {ref}`API documentation <API Reference>`.
 
 ## How to cite
@@ -115,8 +115,8 @@ file.
 ```{eval-rst}
 .. toctree::
    :hidden:
-   :name: overview
-   :caption: Overview
+   :name: table_of_contents
+   :caption: Table of Contents
    :maxdepth: 1
    :glob:
 

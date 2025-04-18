@@ -93,25 +93,31 @@ html_theme_options = {
         "**": ["page-toc"],
         "index": [],
     },
-   #  "icon_links": [
-   #      {
-   #          "name": "GitHub",
-   #          "url": "https://github.com/cbueth/infomeasure",  # required
-   #          # Icon class (if "type": "fontawesome"), or path to local image (if "type": "local")
-   #          "icon": "fa-brands fa-github",
-   #          "type": "fontawesome",
-   #      },
-   #      {
-   #          "name": "PyPI",
-   #          "url": "https://pypi.org/project/infomeasure/",
-   #          "icon": "https://img.shields.io/pypi/v/infomeasure",
-   #          "type": "url",
-   #      },
-   # ]
+    #  "icon_links": [
+    #      {
+    #          "name": "GitHub",
+    #          "url": "https://github.com/cbueth/infomeasure",  # required
+    #          # Icon class (if "type": "fontawesome"), or path to local image (if "type": "local")
+    #          "icon": "fa-brands fa-github",
+    #          "type": "fontawesome",
+    #      },
+    #      {
+    #          "name": "PyPI",
+    #          "url": "https://pypi.org/project/infomeasure/",
+    #          "icon": "https://img.shields.io/pypi/v/infomeasure",
+    #          "type": "url",
+    #      },
+    # ]
 }
 html_favicon = "_static/im_icon_transparent.png"
 html_sidebars = {
-    "**": ["navbar-logo.html", "icon-links.html", "search-button-field.html", "sbt-sidebar-nav.html", "sidebar-ethical-ads.html"],
+    "**": [
+        "navbar-logo.html",
+        "icon-links.html",
+        "search-button-field.html",
+        "sbt-sidebar-nav.html",
+        "sidebar-ethical-ads.html",
+    ],
     "index": [],
 }
 intersphinx_mapping = {

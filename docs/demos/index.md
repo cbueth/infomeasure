@@ -12,7 +12,7 @@ see the following notebooks which integrate the package's features.
 Showcase Entropy and Mutual Information for **all approaches**, and\
 compare with analytical results.
 +++
-[See demo »](info_estimator_demo)
+{ref}`See demo »<info_estimator_demo>`
 :::
 
 :::{grid-item-card} {material-regular}`article;2em` Reproduce Schreiber
@@ -21,7 +21,7 @@ compare with analytical results.
 Reproduce Schreiber’s seminal paper **“Measuring Information Transfer”**.\
 Analyze tent and Ulam map with TE and MI.
 +++
-[See demo »](schreiber_article)
+{ref}`See demo »<schreiber_article>`
 :::
 
 :::{grid-item-card} {material-regular}`science;2em` LEMON data
@@ -30,7 +30,7 @@ Analyze tent and Ulam map with TE and MI.
 Explore the Mind-Brain-Body Dataset - LEMON.\
 Apply Transfer Entropy to EEG data, comparing various TE approaches.
 +++
-[See demo »](lemon_demo)
+{ref}`See demo »<lemon_demo>`
 :::
 ::::
 
