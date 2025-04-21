@@ -109,7 +109,7 @@ html_theme_options = {
     #      },
     # ]
 }
-html_favicon = "_static/im_icon_transparent.png"
+html_favicon = "_static/im_icon_transparent-200x200.png"
 html_sidebars = {
     "**": [
         "navbar-logo.html",
