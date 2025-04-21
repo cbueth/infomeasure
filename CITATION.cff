@@ -23,10 +23,8 @@ keywords:
     - conditional probability
 license: AGPL-3.0-or-later
 version: 0.3.3
-
-# add when code published
-# doi: 10.5281/zenodo.0000
-# date-released: YYYY-MM-DD
+doi: 10.5281/zenodo.15241810
+date-released: 2025-04-18
 
 # add when article published
 # preferred-citation:

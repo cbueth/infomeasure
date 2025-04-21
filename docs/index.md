@@ -29,6 +29,9 @@ site:
 
    <div style="height: 10px;"></div>
    <div style="text-align: center;">
+     <a href="https://doi.org/10.5281/zenodo.15241810" style="margin: 0 10px; display: inline-block;">
+       <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.15241810.svg" alt="Zenodo Project" />
+     </a>
      <a href="https://pypi.org/project/infomeasure/" style="margin: 0 10px; display: inline-block;">
        <img src="https://badge.fury.io/py/infomeasure.svg" alt="PyPI version" />
      </a>
@@ -44,10 +47,6 @@ site:
    </div>
    <div style="height: 20px;"></div>
 
-.. hidden:: to be added when doi available
-     <a href="https://zenodo.org/badge/latestdoi/{TBA}" style="margin: 0 10px; display: inline-block;">
-       <img src="https://zenodo.org/badge/{TBA}.svg" alt="Zenodo Project" />
-     </a>
 ```
 
 ::::{grid} 1 2 2 3
@@ -103,8 +102,10 @@ Furthermore, you can also find the {ref}`API documentation <API Reference>`.
 
 ## How to cite
 
-If you use `infomeasure` in your research, find the `CITATION.cff` file in [the repository](https://github.com/cbueth/infomeasure) and cite it accordingly.
-GitHub provides a "Cite this repository" button on the right side of the page for an APA and BibTeX citation.
+If you use `infomeasure` in your research, please cite our article [To Be Published].
+You can also find citation information for this project in the `CITATION.cff` file in [the repository](https://github.com/cbueth/infomeasure) and cite it accordingly.
+Alternatively, if you'd like to cite the software itself or a specific version, find the [Zenodo project page](https://doi.org/10.5281/zenodo.15241810)
+for the specific version you are using and cite it accordingly.
 
 ## Contributing
 If you want to contribute to the development of `infomeasure`, please read the
