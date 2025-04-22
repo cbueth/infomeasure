@@ -122,7 +122,7 @@ for i, name in enumerate(approaches.keys()):
 plt.plot(analytical_stds, analytical_entropies, label='Analytical', linewidth=1.8,
          color='black')
 
-plt.xlabel('Standard deviation')
+plt.xlabel(r'Standard deviation $\sigma$')
 plt.ylabel('Entropy')
 plt.ylim(-1, 4)
 plt.title('Entropy estimation of Gaussian data')
@@ -270,7 +270,7 @@ mi_gauss_values = [mutual_information_gauss(data_mi[i][0], data_mi[i][1]) for i 
                    range(len(r_values))]
 plt.plot(r_values, mi_gauss_values, label='Analytical', linewidth=1.8, color='black')
 
-plt.xlabel('Correlation coefficient (r)')
+plt.xlabel(r'Correlation coefficient ($\rho$)')
 plt.ylabel('Mutual Information')
 plt.title('Mutual Information vs Correlation Coefficient')
 plt.legend()
