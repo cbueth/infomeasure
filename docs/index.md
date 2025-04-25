@@ -112,6 +112,11 @@ If you want to contribute to the development of `infomeasure`, please read the
 [CONTRIBUTING.md](https://github.com/cbueth/infomeasure/blob/main/CONTRIBUTING.md)
 file.
 
+## Acknowledgments
+
+This project has received funding from the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme (grant agreement No 851255).
+This work was partially supported by the María de Maeztu project CEX2021-001164-M funded by the MICIU/AEI/10.13039/501100011033 and FEDER, EU.
+
 
 ```{eval-rst}
 .. toctree::

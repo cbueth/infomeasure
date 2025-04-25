@@ -84,7 +84,7 @@ pip install -e ".[all]"
 ```
 
 Now, the package can be imported and used in the python environment, from anywhere on
-the system, if the environment is activated.
+the system if the environment is activated.
 For new changes, the repository only needs to be updated, but the package does not need
 to be reinstalled.
 
@@ -99,3 +99,8 @@ python -m ipykernel install --user --name=im_env
 
 This allows you to run Jupyter with the kernel `im_env` (Kernel > Change Kernel >
 im_env)
+
+## Acknowledgments
+
+This project has received funding from the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme (grant agreement No 851255).
+This work was partially supported by the María de Maeztu project CEX2021-001164-M funded by the MICIU/AEI/10.13039/501100011033 and FEDER, EU.
