@@ -61,7 +61,7 @@ language = "en"
 myst_enable_extensions = ["colon_fence", "deflist", "dollarmath", "amsmath"]
 myst_heading_anchors = 3
 nb_execution_timeout = 180
-nb_execution_excludepatterns = ["Schreiber_Article.ipynb"]
+nb_execution_excludepatterns = ["Schreiber_Article.ipynb", "Time_Performance.ipynb"]
 
 numpydoc_xref_param_type = True
 numpydoc_show_inherited_class_members = False
@@ -71,6 +71,7 @@ numpydoc_show_inherited_class_members = False
 
 html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
+html_js_files = ["custom.js"]
 html_theme_options = {
     "repository_url": "https://github.com/cbueth/infomeasure",
     "repository_branch": "main",
@@ -88,10 +89,6 @@ html_theme_options = {
     "logo": {
         "image_light": "_static/im_logo_transparent.png",
         "image_dark": "_static/im_logo_transparent_dark.png",
-    },
-    "secondary_sidebar_items": {
-        "**": ["page-toc"],
-        "index": [],
     },
     #  "icon_links": [
     #      {

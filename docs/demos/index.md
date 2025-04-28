@@ -24,13 +24,13 @@ Analyze tent and Ulam map with TE and MI.
 {ref}`See demo »<schreiber_article>`
 :::
 
-:::{grid-item-card} {material-regular}`science;2em` LEMON data
-:link: lemon_demo
+:::{grid-item-card} {material-regular}`timer;2em` Time Performance
+:link: time_performance
 :link-type: ref
-Explore the Mind-Brain-Body Dataset - LEMON.\
-Apply Transfer Entropy to EEG data, comparing various TE approaches.
+Time Complexity of **all approaches**.
+See how different approaches perform on large datasets.
 +++
-{ref}`See demo »<lemon_demo>`
+{ref}`See demo »<time_performance>`
 :::
 ::::
 
@@ -42,5 +42,5 @@ Apply Transfer Entropy to EEG data, comparing various TE approaches.
 
    gaussian_data
    Schreiber_Article
-   lemon_demo
+   Time_Performance
 ```

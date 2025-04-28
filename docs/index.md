@@ -79,8 +79,7 @@ See all estimation techniques with code snippets.
 :link-type: ref
 
 A collection of short demos showcasing the capabilities of this package.\
-An analytical comparison, model and data application.
-
+E.g., analytical comparison and paper reproduction.
 +++
 {ref}`Learn more »<Demos>`
 :::
