@@ -1,6 +1,6 @@
 """Module for the kernel entropy estimator."""
 
-from numpy import column_stack
+from numpy import column_stack, sum as np_sum
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -98,9 +98,12 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
             The calculated cross-entropy.
         """
         # Compute the KDE densities
-        densities_p = kde_probability_density_function(
-            self.data[0], self.bandwidth, kernel=self.kernel, workers=self.n_workers
+        densities = kde_probability_density_function(
+            self.data[1],
+            self.bandwidth,
+            at=self.data[0],
+            kernel=self.kernel,
+            workers=self.n_workers,
         )
-        densities_q = kde_probability_density_function(
-            self.data[1], self.bandwidth, kernel=self.kernel, workers=self.n_workers
-        )
+        # Compute the log of the densities
+        return -np_sum(self._log_base(densities[densities > 0])) / len(densities)

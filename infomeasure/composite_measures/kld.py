@@ -1,6 +1,7 @@
 """Kullback-Leibler divergence."""
 
 from ..estimators.functional import get_estimator_class
+from ..utils.config import logger
 
 
 def kullback_leiber_divergence(data_p, data_q, approach: str = "", **kwargs):
@@ -44,4 +45,5 @@ def kullback_leiber_divergence(data_p, data_q, approach: str = "", **kwargs):
     estimator_class = get_estimator_class(measure="entropy", approach=approach)
     h_qp = estimator_class(data_p, data_q, **kwargs).global_val()
     h_p = estimator_class(data_p, **kwargs).global_val()
+    logger.debug(f"KLD: H_Q(P)= {h_qp}, H(P) = {h_p}")
     return h_qp - h_p

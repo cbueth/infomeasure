@@ -275,6 +275,20 @@ def entropy(*data, approach: str, **kwargs: any):
     return EstimatorClass(*data, **kwargs).result()
 
 
+def cross_entropy(*data, **kwargs: any):
+    """Calculate the cross-entropy using a functional interface of different
+    estimators.
+
+    See :func:`entropy` for more details on the parameters and returns.
+    """
+    if len(data) < 2:
+        raise ValueError(
+            "Cross-entropy requires at least two random variables "
+            "passed as positional parameters: `cross_entropy(var1, var2, **kwargs)`"
+        )
+    return entropy(*data, **kwargs)
+
+
 @_dynamic_estimator(["mi", "cmi"])
 def mutual_information(
     *data,
@@ -447,6 +461,7 @@ def estimator(
     If you are only interested in the global result, use the functional interfaces:
 
     - :func:`entropy <entropy>`
+    - :func:`cross_entropy <cross_entropy>`
     - :func:`mutual_information <mutual_information>`
     - :func:`conditional_mutual_information <conditional_mutual_information>`
     - :func:`transfer_entropy <transfer_entropy>`
@@ -490,10 +505,10 @@ def estimator(
         Only if the measure is conditional transfer entropy.
     measure : str
         The measure to estimate.
-        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``,
-        ``conditional_mutual_information``
+        Options: ``entropy``, ``cross_entropy``, ``mutual_information``,
+        ``transfer_entropy``, ``conditional_mutual_information``,
         ``conditional_transfer_entropy``;
-        aliases: ``h``, ``mi``, ``te``, ``cmi``, ``cte``.
+        aliases: ``h``, ``hx``, ``mi``, ``te``, ``cmi``, ``cte``.
     approach : str
         The name of the estimator to use.
         Find the available estimators in the docstring of this function.
@@ -514,9 +529,15 @@ def estimator(
     """
     if measure is None:
         raise ValueError("``measure`` is required.")
-    elif measure.lower() in ["entropy", "h"]:
-        if len(data) == 0:
+    measure_comp = measure.lower().replace(" ", "_").replace("-", "_")
+    if measure_comp in ["entropy", "h", "cross_entropy", "hx"]:
+        if len(data) == 0 and measure_comp in ["entropy", "h"]:
             raise ValueError("``data`` is required for entropy estimation.")
+        if len(data) < 2 and measure_comp in ["cross_entropy", "hx"]:
+            raise ValueError(
+                "Cross-entropy requires at least two random variables "
+                "passed as positional parameters: `cross_entropy(var1, var2, **kwargs)`"
+            )
         if cond is not None:
             raise ValueError(
                 "Do not pass ``cond`` for entropy estimation. "
@@ -532,16 +553,13 @@ def estimator(
             )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
         return EstimatorClass(*data, **kwargs)
-    elif measure.lower() in [
+    elif measure_comp in [
         "mutual_information",
         "mi",
         "conditional_mutual_information",
         "cmi",
     ]:
-        if (
-            measure.lower() in ["cmi", "conditional_mutual_information"]
-            and cond is None
-        ):
+        if measure_comp in ["cmi", "conditional_mutual_information"] and cond is None:
             raise ValueError(
                 "No conditional data was provided for conditional mutual information"
                 "estimation. Pass ``cond`` to specify the conditional data."
@@ -563,13 +581,13 @@ def estimator(
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
             return EstimatorClass(*data, **kwargs)
-    elif measure.lower() in [
+    elif measure_comp in [
         "transfer_entropy",
         "te",
         "conditional_transfer_entropy",
         "cte",
     ]:
-        if measure.lower() in ["cte", "conditional_transfer_entropy"] and cond is None:
+        if measure_comp in ["cte", "conditional_transfer_entropy"] and cond is None:
             raise ValueError(
                 "No conditional data was provided for conditional transfer entropy "
                 "estimation. Pass ``cond`` to specify the conditional data."

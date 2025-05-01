@@ -311,14 +311,12 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
             else tuple(asarray(d) for d in var)
             for var in data
         )
-        # check that length are all the same
-        lengths = [
-            d.shape[0]
-            for var in self.data
-            for d in (var if isinstance(var, tuple) else (var,))
-        ]
-        if len(set(lengths)) != 1:
-            raise ValueError(f"All data must have the same length, found: {lengths}")
+        # differing lengths are allowed for cross-entropy, bot not inside joint RVs
+        for var in self.data:
+            if isinstance(var, tuple) and any(len(d) != len(var[0]) for d in var):
+                raise ValueError(
+                    "All elements of a joint random variable must have the same length."
+                )
 
         super().__init__(base=base)
 

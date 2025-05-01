@@ -82,11 +82,11 @@ class TsallisEntropyEstimator(EntropyEstimator):
 
         if self.q != 1:
             # Tsallis entropy for q != 1
-            I_N_k_q = exponential_family_iq(self.k, self.q, V_m, rho_k, N, m)
+            I_N_k_q = exponential_family_iq(self.k, self.q, V_m, rho_k, N - 1, m)
             return (1 - I_N_k_q) / (self.q - 1)
         else:
             # Shannon entropy (limes for alpha = 1)
-            return exponential_family_i1(self.k, V_m, rho_k, N, m, self._log_base)
+            return exponential_family_i1(self.k, V_m, rho_k, N - 1, m, self._log_base)
 
     def _joint_entropy(self):
         """Calculate the joint Tsallis entropy of the data.
@@ -101,3 +101,23 @@ class TsallisEntropyEstimator(EntropyEstimator):
         """
         self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()
+
+    def _cross_entropy(self) -> float:
+        """Calculate the cross-entropy between two distributions.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+        """
+        V_m, rho_k, M, m = calculate_common_entropy_components(
+            self.data[1], self.k, at=self.data[0]
+        )
+
+        if self.q != 1:
+            # Renyi cross-entropy for q != 1
+            I_N_k_q = exponential_family_iq(self.k, self.q, V_m, rho_k, M, m)
+            return (1 - I_N_k_q) / (self.q - 1)
+        else:
+            # Shannon cross-entropy (limes for q = 1)
+            return exponential_family_i1(self.k, V_m, rho_k, M, m, self._log_base)

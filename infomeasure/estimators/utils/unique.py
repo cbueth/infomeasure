@@ -1,19 +1,9 @@
-""""""
+"""Module for handling symbolic/discrete values."""
 
-from typing import Any
-
-from numpy import unique, ndarray, dtype, signedinteger
-from numpy._typing import _32Bit, _64Bit
-from numpy.lib._arraysetops_impl import _SCT
+from numpy import unique, ndarray
 
 
-def unique_vals(
-    data: ndarray,
-) -> tuple[
-    ndarray[tuple[int, ...], dtype[_SCT]],
-    ndarray[tuple[int, ...], dtype[signedinteger[_32Bit | _64Bit]]],
-    dict[Any, Any],
-]:
+def unique_vals(data: ndarray) -> tuple[ndarray, ndarray, dict]:
     """
     Get unique values and their counts and probability distribution.
 
@@ -28,6 +18,6 @@ def unique_vals(
         Unique values, their counts, and probability distribution.
     """
     uniq, counts = unique(data, return_counts=True)
-    probability = counts / len(data[0])
+    probability = counts / len(data)
     dist = dict(zip(uniq, probability))
     return uniq, counts, dist

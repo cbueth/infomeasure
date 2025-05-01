@@ -115,7 +115,10 @@ def test_entropy_unsupported_data(faulty_data):
 )
 def test_entropy_inhomogenous_data(faulty_data):
     """Test entropy function with inhomogenous data."""
-    with pytest.raises(ValueError, match="All data must have the same length, found: "):
+    with pytest.raises(
+        ValueError,
+        match="All elements of a joint random variable must have the same length.",
+    ):
         estimator(*faulty_data, measure="entropy", approach="discrete")
 
 

@@ -1,6 +1,6 @@
-"""Module for the Kozacenko-Leonenko entropy estimator."""
+"""Module for the Kozachenko-Leonenko entropy estimator."""
 
-from numpy import column_stack
+from numpy import column_stack, sum as np_sum
 from numpy import inf, log, issubdtype, integer
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -130,3 +130,44 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         """
         self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()
+
+    def _cross_entropy(self) -> float:
+        """Calculate the cross-entropy between two distributions.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+        """
+
+        # Copy the data to avoid modifying the original
+        data_noisy_p = self.data[0].astype(float).copy()
+        data_noisy_q = self.data[1].astype(float).copy()
+        # Add small Gaussian noise to data to avoid issues with zero distances
+        if self.noise_level and self.noise_level != 0:
+            data_noisy_p += self.rng.normal(0, self.noise_level, self.data[0].shape)
+            data_noisy_q += self.rng.normal(0, self.noise_level, self.data[1].shape)
+
+        # Build a KDTree for efficient nearest neighbor search with maximum norm
+        tree = KDTree(data_noisy_q)
+
+        # Find the k-th nearest neighbors for each point
+        distances, _ = tree.query(data_noisy_p, self.k, p=self.minkowski_p)
+        # Only keep the k-th nearest neighbor distance
+        distances = distances[:, -1]
+
+        # Constants for the entropy formula
+        M = self.data[1].shape[0]
+        d = self.data[1].shape[1]
+        # Volume of the d-dimensional unit ball for maximum norm
+        c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
+
+        # Compute the cross-entropy
+        hx = (
+            -digamma(self.k)
+            + digamma(M)
+            + log(c_d)
+            + d * np_sum(log(2 * distances)) / M
+        )
+        # return in desired base
+        return hx / log(self.base) if self.base != "e" else hx

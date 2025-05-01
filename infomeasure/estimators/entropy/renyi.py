@@ -70,9 +70,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
             )
         self.k = k
         self.alpha = alpha
-        print(len(self.data))
         self.data = tuple(assure_2d_data(var) for var in self.data)
-        print(len(self.data))
 
     def _simple_entropy(self):
         """Calculate the Renyi entropy of the data.
@@ -86,11 +84,11 @@ class RenyiEntropyEstimator(EntropyEstimator):
 
         if self.alpha != 1:
             # Renyi entropy for alpha != 1
-            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, N, m)
+            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, N - 1, m)
             return self._log_base(I_N_k_a) / (1 - self.alpha)
         else:
             # Shannon entropy (limes for alpha = 1)
-            return exponential_family_i1(self.k, V_m, rho_k, N, m, self._log_base)
+            return exponential_family_i1(self.k, V_m, rho_k, N - 1, m, self._log_base)
 
     def _joint_entropy(self):
         """Calculate the joint Renyi entropy of the data.
@@ -105,3 +103,23 @@ class RenyiEntropyEstimator(EntropyEstimator):
         """
         self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()
+
+    def _cross_entropy(self) -> float:
+        """Calculate the cross-entropy between two distributions.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+        """
+        V_m, rho_k, M, m = calculate_common_entropy_components(
+            self.data[1], self.k, at=self.data[0]
+        )
+
+        if self.alpha != 1:
+            # Renyi cross-entropy for alpha != 1
+            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, M, m)
+            return self._log_base(I_N_k_a) / (1 - self.alpha)
+        else:
+            # Shannon cross-entropy (limes for alpha = 1)
+            return exponential_family_i1(self.k, V_m, rho_k, M, m, self._log_base)

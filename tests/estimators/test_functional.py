@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 import infomeasure as im
+from conftest import discrete_random_variables
 from infomeasure.estimators.base import (
     ConditionalMutualInformationEstimator,
     ConditionalTransferEntropyEstimator,
@@ -92,29 +93,44 @@ def test_entropy_class_addressing(entropy_approach):
 def test_cross_entropy_functional_addressing(entropy_approach):
     """Test addressing the cross-entropy estimator classes."""
     approach_str, needed_kwargs = entropy_approach
-    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 10)
     entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
     # test entropy(data) == cross_entropy(data, data)
     assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
-        entropy
+        entropy, rel=1e-6 if approach_str not in ["metric", "kl"] else 1e-2
+    )
+    assert im.cross_entropy(
+        data, data, approach=approach_str, **needed_kwargs
+    ) == pytest.approx(
+        entropy, rel=1e-6 if approach_str not in ["metric", "kl"] else 1e-2
     )
 
 
-def test_cross_entropy_class_addressing(entropy_approach):
+def test_cross_entropy_class_addressing(entropy_approach, default_rng):
     """Test addressing the entropy estimator classes."""
-    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 7, 9, 5, 3, 6, 5])
+    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 7, 9, 5, 3, 6, 5] * 10)
+    data, _ = discrete_random_variables(0)
     approach_str, needed_kwargs = entropy_approach
+    if approach_str != "discrete":
+        data = data + default_rng.normal(0, 0.1, size=len(data))
     est = im.estimator(
-        data, data, measure="entropy", approach=approach_str, **needed_kwargs
+        data, data, measure="cross_entropy", approach=approach_str, **needed_kwargs
     )
     assert isinstance(est, EntropyEstimator)
     assert isinstance(est.result(), float)
     assert isinstance(est.global_val(), float)
-    # cross_entropy(data, data) == entropy(data)
-    assert est.global_val() == pytest.approx(
-        im.entropy(data, approach=approach_str, **needed_kwargs)
-    )
+    assert im.estimator(  # "cross_entropy" not needed, also works with "entropy"
+        data, data, measure="entropy", approach=approach_str, **needed_kwargs
+    ).result() == pytest.approx(est.result())
+    if approach_str not in ["metric", "kl", "renyi", "tsallis"]:
+        # cross_entropy(data, data) ~= entropy(data) :
+        # as cross_entropy considers on k less, assuming the two RVs are independent
+        # for entropy() we have +1, not counting the sample itself for the kth distances
+        # Does to this the equality is not satisfied
+        assert est.global_val() == pytest.approx(
+            im.entropy(data, approach=approach_str, **needed_kwargs)
+        )
     with pytest.raises(AttributeError):
         est.effective_val()
     with pytest.raises(UnsupportedOperation):
@@ -148,6 +164,48 @@ def test_entropy_class_addressing_condition():
         "Conditional entropy is not explicitly supported.",
     ):
         im.estimator([1, 2, 3], cond=[4, 5, 6], measure="entropy", approach="renyi")
+
+
+@pytest.mark.parametrize("n_rv", [0, 1])
+def test_cross_entropy_class_addressing_too_few_vars(n_rv):
+    """Test addressing the functional cross-entropy with too few RVs"""
+    with pytest.raises(
+        ValueError,
+        match="Cross-entropy requires at least two random variables "
+        "passed as positional parameters:",
+    ):
+        im.cross_entropy(
+            *([1, 2, 3] for _ in range(n_rv)), measure="cross_entropy", approach="renyi"
+        )
+
+
+@pytest.mark.parametrize("n_rv", [0, 1])
+def test_cross_entropy_class_addressing_too_few_vars(n_rv):
+    """Test addressing the class method for cross-entropy with too few RVs"""
+    with pytest.raises(
+        ValueError,
+        match="Cross-entropy requires at least two random variables "
+        "passed as positional parameters:",
+    ):
+        im.estimator(
+            *([1, 2, 3] for _ in range(n_rv)), measure="cross_entropy", approach="renyi"
+        )
+
+
+def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng):
+    """Test cross entropy is not symmetric. Inputs can be of differing length."""
+    approach_str, needed_kwargs = entropy_approach
+    p, q = discrete_random_variables(0)
+    if approach_str != "discrete":
+        p = p + default_rng.normal(0, 0.1, size=len(p))
+        q = q + default_rng.normal(0, 0.1, size=len(q))
+    assert (
+        abs(
+            im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)
+            - im.cross_entropy(q, p, approach=approach_str, **needed_kwargs)
+        )
+        > 0.0001
+    )
 
 
 @pytest.mark.parametrize("offset", [0, 1, 5])

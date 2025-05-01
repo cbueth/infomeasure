@@ -67,7 +67,7 @@ class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
             The calculated entropy.
         """
         uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        probabilities = asarray(self.dist_dict.values())
+        probabilities = asarray(list(self.dist_dict.values()))
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
 

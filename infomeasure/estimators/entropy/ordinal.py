@@ -11,10 +11,12 @@ from numpy import (
     issubdtype,
     ndarray,
     unique,
+    asarray,
 )
 
 from ..base import EntropyEstimator, DistributionMixin
 from ..utils.ordinal import reduce_joint_space, symbolize_series
+from ..utils.unique import unique_vals
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
@@ -221,9 +223,8 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
             symbols
         )  # reduction columns stacks the symbols
         # Calculate frequencies of co-ocurrent patterns
-        uniq, counts = unique(self.patterns, return_counts=True)
-        probabilities = counts / counts.sum()
-        self.dist_dict = dict(zip(uniq, probabilities))
+        uniq, counts, self.dist_dict = unique_vals(self.patterns)
+        probabilities = asarray(list(self.dist_dict.values()))
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
 
@@ -255,12 +256,8 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         symbols = tuple(
             symbolize_series(var, self.embedding_dim, to_int=True) for var in self.data
         )
-        uniq_p, counts_p = unique(symbols[0], return_counts=True)
-        uniq_q, counts_q = unique(symbols[1], return_counts=True)
-        p = counts_p / len(symbols[0])
-        q = counts_q / len(symbols[1])
-        dist_p = dict(zip(uniq_p, p))
-        dist_q = dict(zip(uniq_q, q))
+        uniq_p, counts_p, dist_p = unique_vals(symbols[0])
+        uniq_q, counts_q, dist_q = unique_vals(symbols[1])
         # Only consider the values where both RV have the same support
         uniq = list(set(uniq_p).intersection(set(uniq_q)))  # P ∩ Q
         if len(uniq) == 0:

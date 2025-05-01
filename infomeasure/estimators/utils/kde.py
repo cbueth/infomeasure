@@ -29,7 +29,6 @@ def kde_probability_density_function(
 
     Parameters
     ----------
-    at
     data : array
         A numpy array of data points, where each column represents a dimension.
     bandwidth : float
@@ -150,8 +149,8 @@ def gaussian_kernel_densities(
             # Project the data onto the reduced space
             pca_components = vectors_sorted[:, :num_non_zero_eigenvalues]
             data_projected = dot(data.T, pca_components).T
-            logger.debug("Reprojected data, make kde...")
-            # each worker get a chunk of data and evaluate KDE on it
+            logger.debug("Reprojected data, evaluate kde...")
+            # each worker gets a chunk of data and evaluates KDE on it
             return parallel_kde_evaluate(
                 data_projected,
                 data_projected if at is None else dot(at.T, pca_components).T,

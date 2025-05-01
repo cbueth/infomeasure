@@ -5,6 +5,7 @@ from ._version import __version__
 from .utils import Config
 from .estimators.functional import (
     entropy,
+    cross_entropy,
     mutual_information,
     conditional_mutual_information,
     transfer_entropy,
@@ -15,6 +16,7 @@ from .estimators.functional import (
 from .composite_measures import jensen_shannon_divergence, kullback_leiber_divergence
 
 h, mi, te = entropy, mutual_information, transfer_entropy
+hx = cross_entropy
 cmi, cte = conditional_mutual_information, conditional_transfer_entropy
 jsd, kld = jensen_shannon_divergence, kullback_leiber_divergence
 
@@ -26,6 +28,7 @@ __all__ = [
     "__author__",
     "Config",
     "entropy",
+    "cross_entropy",
     "mutual_information",
     "conditional_mutual_information",
     "transfer_entropy",
@@ -36,6 +39,7 @@ __all__ = [
     "kullback_leiber_divergence",
     # aliases
     "h",
+    "hx",
     "mi",
     "cmi",
     "te",
