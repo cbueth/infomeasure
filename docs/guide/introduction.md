@@ -60,61 +60,64 @@ For discrete variables, Shannon's initial, discrete estimation techniques are us
 - Kernel Estimation
 - Ordinal / Symbolic / Permutation Estimation
 - Kozachenko-Leonenko (KL) / Kraskov-Stoegbauer-Grassberger (KSG) / Metric / kNN Estimation
-- Rényi Estimation
-- Tsallis Estimation
 
 Let's compile all the estimation techniques along with the corresponding Shannon information measures they can estimate into a single table, as shown below:
 :::{list-table} Information Measures and Estimation Methods
 :name: information-measures
-:widths: 2 1 1 1 1 1 1
+:widths: 2 1 1 1 1 1
 :header-rows: 1
 :stub-columns: 1
 
-*   - Measures
+*   - Measures \ Estimators
     - Notation
     - Discrete Estimator
     - Kernel Estimator
-    - KL/KSG Estimator
+    - Metric / kNN Estimator
     - Ordinal Estimator
-    - Rényi & Tsallis Estimator
 *   - {ref}`Entropy <entropy_overview>`
     - $H(X)$
     - ✓
     - ✓
     - ✓
     - ✓
+*   - {ref}`Rényi <renyi_entropy>` & {ref}`Tsallis <tsallis_entropy>` entropies
+    - $H(X)$
+    -
+    -
     - ✓
-*   - {ref}`Joint Entropy`
+    -
+*   - {ref}`Joint Entropy`[^renyi_tsallis]
     - $H(X,Y)$
     - ✓
     - ✓
     - ✓
     - ✓
+*   - {ref}`Cross Entropy`
+    - $H_Q(P)$[^cross-nomenclature]
     - ✓
-*   - {ref}`Mutual Information (MI) <mutual_information_overview>`
+    - ✓
+    - ✓
+    - ✓
+*   - {ref}`Mutual Information (MI) <mutual_information_overview>`[^renyi_tsallis]
     - $I(X;Y)$
     - ✓
     - ✓
     - ✓
     - ✓
-    - ✓
-*   - {ref}`Conditional MI <cond_mi_overview>`
+*   - {ref}`Conditional MI <cond_mi_overview>`[^renyi_tsallis]
     - $I(X;Y|Z)$
     - ✓
     - ✓
     - ✓
     - ✓
-    - ✓
-*   - {ref}`Transfer Entropy (TE) <transfer_entropy_overview>`
+*   - {ref}`Transfer Entropy (TE) <transfer_entropy_overview>`[^renyi_tsallis]
     - $T_{X \to Y}$
     - ✓
     - ✓
     - ✓
     - ✓
-    - ✓
-*   - {ref}`Conditional TE <cond_te_overview>`
+*   - {ref}`Conditional TE <cond_te_overview>`[^renyi_tsallis]
     - $T_{X \to Y|Z}$
-    - ✓
     - ✓
     - ✓
     - ✓
@@ -125,15 +128,19 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - ✓
     - ✓
     - ✓
-    - ✓
 *   - {ref}`Jensen Shannon Divergence (JSD) <jensen_shannon_divergence>`
     - $\operatorname{JSD}(P||Q)$
     - ✓
     - ✓
     -
     - ✓
-    -
 :::
 
 For Rényi and Tsallis, MI, CMI, TE and CTE use entropy combination formulas internally, as well as the composite measures JSD and KLD.
 In all other cases, this package uses probabilistic formulas, as these introduce less bias.
+
+[^cross-nomenclature]: Nomenclature taken from Christopher Olah's blog post [Visual Information Theory](https://colah.github.io/posts/2015-09-Visual-Information/#fnref4).
+We choose this nomenclature; as the widely used $H(p, q)$ would be ambiguous with joint entropy.
+
+[^renyi_tsallis]: These measures can also be computed using the Rényi and Tsallis
+entropy formulations, in addition to the standard Shannon entropy formulation.

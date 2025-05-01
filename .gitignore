@@ -32,3 +32,5 @@ jupyter_execute/*
 
 
 # Own files
+.owncloudsync.log
+.sync_*.db*

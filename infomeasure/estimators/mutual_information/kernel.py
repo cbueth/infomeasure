@@ -157,10 +157,7 @@ class KernelMIEstimator(BaseKernelMIEstimator, PValueMixin, MutualInformationEst
                 ),
                 *(
                     kde_probability_density_function(
-                        var,
-                        self.bandwidth,
-                        kernel=self.kernel,
-                        workers=self.n_workers,
+                        var, self.bandwidth, kernel=self.kernel, workers=self.n_workers
                     )
                     for var in self.data
                 ),

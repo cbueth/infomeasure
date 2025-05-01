@@ -185,17 +185,14 @@ class KernelTEEstimator(
             "Calculating densities for...\n1/4 g(x_i^{(l)}, y_i^{(k)}, y_{i+1})"
         )
         p_x_past_y_past_y_future = kde_probability_density_function(
-            joint_space_data,
-            self.bandwidth,
-            self.kernel,
-            workers=self.n_workers,
+            joint_space_data, self.bandwidth, kernel=self.kernel, workers=self.n_workers
         )
         # g(y_i^{(k)})
         logger.debug("2/4 g(y_i^{(k)})")
         p_y_past = kde_probability_density_function(
             dest_past_embedded,
             self.bandwidth,
-            self.kernel,
+            kernel=self.kernel,
             workers=self.n_workers,
         )
         # g(x_i^{(l)}, y_i^{(k)})
@@ -203,7 +200,7 @@ class KernelTEEstimator(
         p_xy_past = kde_probability_density_function(
             marginal_1_space_data,
             self.bandwidth,
-            self.kernel,
+            kernel=self.kernel,
             workers=self.n_workers,
         )
         # g(y_i^{(k)}, y_{i+1})
@@ -211,7 +208,7 @@ class KernelTEEstimator(
         p_y_past_y_future = kde_probability_density_function(
             marginal_2_space_data,
             self.bandwidth,
-            self.kernel,
+            kernel=self.kernel,
             workers=self.n_workers,
         )
 
@@ -282,17 +279,14 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
             "1/4 g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)}, y_{i+1})"
         )
         p_x_history_cond_y_history_y_future = kde_probability_density_function(
-            joint_space_data,
-            self.bandwidth,
-            self.kernel,
-            workers=self.n_workers,
+            joint_space_data, self.bandwidth, kernel=self.kernel, workers=self.n_workers
         )
         # g(y_i^{(k)}, z_i^{(m)})
         logger.debug("2/4 g(y_i^{(k)}, z_i^{(m)})")
         p_y_history_cond = kde_probability_density_function(
             dest_past_embedded,
             self.bandwidth,
-            self.kernel,
+            kernel=self.kernel,
             workers=self.n_workers,
         )
         # g(x_i^{(l)}, z_i^{(m)}, y_i^{(k)})
@@ -300,7 +294,7 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
         p_x_history_cond_y_history = kde_probability_density_function(
             marginal_1_space_data,
             self.bandwidth,
-            self.kernel,
+            kernel=self.kernel,
             workers=self.n_workers,
         )
         # g(z_i^{(m)}, y_i^{(k)}, y_{i+1})
@@ -308,7 +302,7 @@ class KernelCTEEstimator(BaseKernelTEEstimator, ConditionalTransferEntropyEstima
         p_cond_y_history_y_future = kde_probability_density_function(
             marginal_2_space_data,
             self.bandwidth,
-            self.kernel,
+            kernel=self.kernel,
             workers=self.n_workers,
         )
 

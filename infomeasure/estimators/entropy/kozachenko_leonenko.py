@@ -17,7 +17,7 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
 
     Attributes
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
     k : int
         The number of nearest neighbors to consider.
@@ -45,8 +45,7 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
 
     def __init__(
         self,
-        data,
-        *,  # all following parameters are keyword-only
+        *data,
         k: int = 4,
         noise_level=1e-10,
         minkowski_p=inf,
@@ -79,8 +78,8 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
                 "The Minkowski power parameter must be positive, "
                 f"but got {minkowski_p}."
             )
-        super().__init__(data, base=base)
-        self.data = assure_2d_data(data)
+        super().__init__(*data, base=base)
+        self.data = tuple(assure_2d_data(var) for var in self.data)
         self.k = k
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
@@ -94,10 +93,10 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
             The calculated entropy.
         """
         # Copy the data to avoid modifying the original
-        data_noisy = self.data.astype(float).copy()
+        data_noisy = self.data[0].astype(float).copy()
         # Add small Gaussian noise to data to avoid issues with zero distances
         if self.noise_level and self.noise_level != 0:
-            data_noisy += self.rng.normal(0, self.noise_level, self.data.shape)
+            data_noisy += self.rng.normal(0, self.noise_level, self.data[0].shape)
 
         # Build a KDTree for efficient nearest neighbor search with maximum norm
         tree = KDTree(data_noisy)
@@ -108,8 +107,8 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         distances = distances[:, -1]
 
         # Constants for the entropy formula
-        N = self.data.shape[0]
-        d = self.data.shape[1]
+        N = self.data[0].shape[0]
+        d = self.data[0].shape[1]
         # Volume of the d-dimensional unit ball for maximum norm
         c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
 
@@ -129,5 +128,5 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         float
             The calculated joint entropy.
         """
-        self.data = column_stack(self.data)
+        self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()

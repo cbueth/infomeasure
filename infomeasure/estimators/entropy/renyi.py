@@ -18,7 +18,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
 
     Attributes
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
     k : int
         The number of nearest neighbors used in the estimation.
@@ -46,8 +46,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
 
     def __init__(
         self,
-        data,
-        *,  # all following parameters are keyword-only
+        *data,
         k: int = 4,
         alpha: float | int = None,
         base: LogBaseType = Config.get("base"),
@@ -62,7 +61,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
             The Renyi parameter, order or exponent.
             Sometimes denoted as :math:`\alpha` or :math:`q`.
         """
-        super().__init__(data, base)
+        super().__init__(*data, base=base)
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
         if not issubdtype(type(k), integer) or k <= 0:
@@ -71,7 +70,9 @@ class RenyiEntropyEstimator(EntropyEstimator):
             )
         self.k = k
         self.alpha = alpha
-        self.data = assure_2d_data(data)
+        print(len(self.data))
+        self.data = tuple(assure_2d_data(var) for var in self.data)
+        print(len(self.data))
 
     def _simple_entropy(self):
         """Calculate the Renyi entropy of the data.
@@ -81,7 +82,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
         float
             Renyi entropy of the data.
         """
-        V_m, rho_k, N, m = calculate_common_entropy_components(self.data, self.k)
+        V_m, rho_k, N, m = calculate_common_entropy_components(self.data[0], self.k)
 
         if self.alpha != 1:
             # Renyi entropy for alpha != 1
@@ -102,5 +103,5 @@ class RenyiEntropyEstimator(EntropyEstimator):
         float
             The calculated joint entropy.
         """
-        self.data = column_stack(self.data)
+        self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()

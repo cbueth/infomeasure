@@ -54,6 +54,7 @@ def test_kld_explicit_discrete(rng_int, approach, kwargs, expected):
     """Test the Kulback-Leibler Divergence (KLD) estimator with explicit values."""
     data_x, data_y = discrete_random_variables(rng_int)
     expected = expected if isinstance(expected, tuple) else (expected,)
+    print(expected)
     assert any(
         im.kld(data_x, data_y, approach=approach, **kwargs) == pytest.approx(e)
         for e in expected

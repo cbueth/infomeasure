@@ -18,7 +18,7 @@ class TsallisEntropyEstimator(EntropyEstimator):
 
     Attributes
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
     k : int
         The number of nearest neighbors used in the estimation.
@@ -44,8 +44,7 @@ class TsallisEntropyEstimator(EntropyEstimator):
 
     def __init__(
         self,
-        data,
-        *,  # all following parameters are keyword-only
+        *data,
         k: int = 4,
         q: float | int = None,
         base: LogBaseType = Config.get("base"),
@@ -60,7 +59,7 @@ class TsallisEntropyEstimator(EntropyEstimator):
             The Tsallis parameter, order or exponent.
             Sometimes denoted as :math:`q`, analogous to the Rényi parameter :math:`\alpha`.
         """
-        super().__init__(data, base)
+        super().__init__(*data, base=base)
         if not isinstance(q, (int, float)) or q <= 0:
             raise ValueError("The Tsallis parameter ``q`` must be a positive number.")
         if not issubdtype(type(k), integer) or k <= 0:
@@ -69,7 +68,7 @@ class TsallisEntropyEstimator(EntropyEstimator):
             )
         self.k = k
         self.q = q
-        self.data = assure_2d_data(data)
+        self.data = tuple(assure_2d_data(var) for var in self.data)
 
     def _simple_entropy(self):
         """Calculate the entropy of the data.
@@ -79,7 +78,7 @@ class TsallisEntropyEstimator(EntropyEstimator):
         float
             The Tsallis entropy.
         """
-        V_m, rho_k, N, m = calculate_common_entropy_components(self.data, self.k)
+        V_m, rho_k, N, m = calculate_common_entropy_components(self.data[0], self.k)
 
         if self.q != 1:
             # Tsallis entropy for q != 1
@@ -100,5 +99,5 @@ class TsallisEntropyEstimator(EntropyEstimator):
         float
             The joint Tsallis entropy.
         """
-        self.data = column_stack(self.data)
+        self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()

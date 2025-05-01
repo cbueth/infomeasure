@@ -15,7 +15,7 @@ def kullback_leiber_divergence(data_p, data_q, approach: str = "", **kwargs):
     .. math::
 
         KL(P \| Q) = \sum_{x \in X} P(x) \log \left( \frac{P(x)}{Q(x)} \right)
-                = H(P, Q) - H(P)
+                = H_Q(P) - H(P)
 
     Parameters
     ----------
@@ -42,6 +42,6 @@ def kullback_leiber_divergence(data_p, data_q, approach: str = "", **kwargs):
     if approach is None:
         raise ValueError("The approach must be specified.")
     estimator_class = get_estimator_class(measure="entropy", approach=approach)
-    h_pq = estimator_class((data_p, data_q), **kwargs).global_val()
+    h_qp = estimator_class(data_p, data_q, **kwargs).global_val()
     h_p = estimator_class(data_p, **kwargs).global_val()
-    return h_pq - h_p
+    return h_qp - h_p

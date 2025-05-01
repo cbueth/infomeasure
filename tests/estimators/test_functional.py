@@ -89,27 +89,65 @@ def test_entropy_class_addressing(entropy_approach):
         assert isinstance(est.local_vals(), np.ndarray)
 
 
+def test_cross_entropy_functional_addressing(entropy_approach):
+    """Test addressing the cross-entropy estimator classes."""
+    approach_str, needed_kwargs = entropy_approach
+    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
+    assert isinstance(entropy, float)
+    # test entropy(data) == cross_entropy(data, data)
+    assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
+        entropy
+    )
+
+
+def test_cross_entropy_class_addressing(entropy_approach):
+    """Test addressing the entropy estimator classes."""
+    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 7, 9, 5, 3, 6, 5])
+    approach_str, needed_kwargs = entropy_approach
+    est = im.estimator(
+        data, data, measure="entropy", approach=approach_str, **needed_kwargs
+    )
+    assert isinstance(est, EntropyEstimator)
+    assert isinstance(est.result(), float)
+    assert isinstance(est.global_val(), float)
+    # cross_entropy(data, data) == entropy(data)
+    assert est.global_val() == pytest.approx(
+        im.entropy(data, approach=approach_str, **needed_kwargs)
+    )
+    with pytest.raises(AttributeError):
+        est.effective_val()
+    with pytest.raises(UnsupportedOperation):
+        est.local_vals()
+
+
 def test_entropy_class_addressing_no_data():
     """Test addressing the entropy estimator classes without data."""
     with pytest.raises(ValueError, match="``data`` is required for entropy estimation"):
         im.estimator(measure="entropy", approach="renyi")
 
 
+@pytest.mark.parametrize("n_rv", [3, 4])
+def test_entropy_class_addressing_too_many_rv(n_rv):
+    """Test addressing the entropy estimator classes with too many random variables."""
+    with pytest.raises(
+        ValueError,
+        match="One or two data parameters are required for entropy estimation. "
+        f"Got {n_rv}. To signal that you want",
+    ):
+        im.estimator(
+            *([1, 2, 3] for _ in range(n_rv)), measure="entropy", approach="renyi"
+        )
+
+
 def test_entropy_class_addressing_condition():
     """Test addressing the entropy estimator with an unneeded condition."""
     with pytest.raises(
-        ValueError, match="``cond`` is not required for entropy estimation."
+        ValueError,
+        match="Do not pass ``cond`` for entropy estimation. "
+        "Conditional entropy is not explicitly supported.",
     ):
         im.estimator([1, 2, 3], cond=[4, 5, 6], measure="entropy", approach="renyi")
-
-
-def test_entropy_class_addressing_too_many_vars():
-    """Test addressing the entropy estimator with too many variables."""
-    with pytest.raises(
-        ValueError,
-        match="Exactly one data array is required for entropy estimation. ",
-    ):
-        im.estimator([1, 2, 3], [4, 5, 6], measure="entropy", approach="renyi")
 
 
 @pytest.mark.parametrize("offset", [0, 1, 5])

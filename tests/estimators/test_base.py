@@ -4,7 +4,11 @@ import pytest
 from numpy import array, ndarray
 
 from infomeasure import estimator
-from infomeasure.estimators.base import Estimator, ConditionalMutualInformationEstimator
+from infomeasure.estimators.base import (
+    Estimator,
+    ConditionalMutualInformationEstimator,
+    EntropyEstimator,
+)
 
 
 class TestEstimator(Estimator):
@@ -83,12 +87,54 @@ def test_log_base_function_negative_base():
 
 @pytest.mark.parametrize(
     "faulty_data",
-    [([1, 2, 3], "a"), (["a", "b"], "c"), ([1, 2, 3], [4, 5], None), (None,)],
+    [
+        (([1, 2, 3], "abc"),),
+        ((["a", "b"], "c"),),
+        ((["a", "b"], [1, 2]), "c"),
+        (([1, 2, 3], [4, 5], None),),
+        ((None,),),
+    ],
+)
+def test_entropy_unsupported_data(faulty_data):
+    """Test entropy function with unsupported data."""
+    with pytest.raises(
+        TypeError,
+        match=r"Data must be array-like\(s\) or a tuple of array-likes, found: ",
+    ):
+        estimator(*faulty_data, measure="entropy", approach="discrete")
+
+
+@pytest.mark.parametrize(
+    "faulty_data",
+    [
+        (([1, 2, 3], [1, 2]),),
+        ((["a", "b"], [1]),),
+        ((["a", "b"], [1, 2, 3]), [1, 2]),
+        (([1, 2, 3], [4, 5], [1, 2]),),
+    ],
 )
 def test_entropy_inhomogenous_data(faulty_data):
-    """Test entropy function with inhomogeneous data."""
-    with pytest.raises(ValueError, match="Data in the tuple must be arrays, not "):
-        estimator(faulty_data, measure="entropy", approach="discrete")
+    """Test entropy function with inhomogenous data."""
+    with pytest.raises(ValueError, match="All data must have the same length, found: "):
+        estimator(*faulty_data, measure="entropy", approach="discrete")
+
+
+def test_cross_entropy_missing_method():
+    """Test error for Entropy estimators without cross-entropy support"""
+
+    class FaultyEntropy(EntropyEstimator):
+        def _simple_entropy(self):
+            pass
+
+        def _joint_entropy(self):
+            pass
+
+    est = FaultyEntropy(range(10), range(10))
+    with pytest.raises(
+        NotImplementedError,
+        match="Cross-entropy is not implemented for FaultyEntropy.",
+    ):
+        est.result()
 
 
 def test_mi_faulty_offset_multiple_vars():
