@@ -193,7 +193,7 @@ def test_cross_entropy_class_addressing_too_few_vars(n_rv):
 
 
 def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng):
-    """Test cross entropy is not symmetric. Inputs can be of differing length."""
+    """Test cross-entropy is not symmetric. Inputs can be of differing length."""
     approach_str, needed_kwargs = entropy_approach
     p, q = discrete_random_variables(0)
     if approach_str != "discrete":

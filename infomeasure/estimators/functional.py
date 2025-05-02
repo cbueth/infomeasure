@@ -238,7 +238,7 @@ def _dynamic_estimator(measure) -> callable:
 
 @_dynamic_estimator("entropy")
 def entropy(*data, approach: str, **kwargs: any):
-    """Calculate the entropy using a functional interface of different estimators.
+    r"""Calculate the (joint) entropy using a functional interface of different estimators.
 
     Supports the following approaches:
 
@@ -248,6 +248,25 @@ def entropy(*data, approach: str, **kwargs: any):
     4. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
     5. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
     6. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+
+
+    For the discrete Shannon entropy this is
+
+    .. math::
+
+       \texttt{im.entropy(data_X, approach="discrete")} = H(X) = -\sum_{x \in X} p(x) \log p(x).
+
+    Where for :math:`H(x)`, the estimated pmf :math:`p(x)` belongs to the RV :math:`X`.
+
+    .. math::
+
+       \texttt{im.entropy(data_P, data_Q, ...)} = H_Q(P) = H_\times(P, Q)
+       = -\sum_{x \in X} p(x) \log q(x)
+
+    For the cross-entropy :math:`H_Q(P)`,
+    the estimated pmf :math:`p(x)` belongs to the RV :math:`P`
+    and :math:`q(x)` to the RV :math:`Q`.
+    For other approaches, this formula is generalized in different forms.
 
     Parameters
     ----------

@@ -150,7 +150,7 @@ def test_kernel_cross_entropy(data_p, data_q, kernel):
     assert est.result() > 0
     with pytest.raises(
         ValueError,
-        match="Local values can only be calculated for \(joint\) entropy, "
+        match=r"Local values can only be calculated for \(joint\) entropy, "
         "not cross-entropy.",
     ):
         est.local_vals()

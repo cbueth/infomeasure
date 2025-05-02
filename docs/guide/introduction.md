@@ -12,6 +12,7 @@ This package includes key measures in information theory,
 as developed by the principles of Shannon:
 - Entropy (H)
 - Conditional Entropy (CH)
+- Cross-Entropy (CE)
 - Mutual Information (MI)
 - Conditional Mutual Information (CMI)
 - Transfer Entropy (TE)
@@ -92,7 +93,7 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - ✓
     - ✓
     - ✓
-*   - {ref}`Cross Entropy`
+*   - {ref}`Cross-Entropy <cross_entropy_overview>`[^renyi_tsallis]
     - $H_Q(P)$[^cross-nomenclature]
     - ✓
     - ✓
@@ -140,7 +141,7 @@ For Rényi and Tsallis, MI, CMI, TE and CTE use entropy combination formulas int
 In all other cases, this package uses probabilistic formulas, as these introduce less bias.
 
 [^cross-nomenclature]: Nomenclature taken from Christopher Olah's blog post [Visual Information Theory](https://colah.github.io/posts/2015-09-Visual-Information/#fnref4).
-We choose this nomenclature; as the widely used $H(p, q)$ would be ambiguous with joint entropy.
+We choose this nomenclature $H_Q(P)$; as the widely used $H(p, q)$ would be ambiguous with joint entropy.
 
 [^renyi_tsallis]: These measures can also be computed using the Rényi and Tsallis
 entropy formulations, in addition to the standard Shannon entropy formulation.
