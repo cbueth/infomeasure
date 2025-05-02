@@ -3,12 +3,18 @@ Changelog
 *********
 
 
-Version 0.4.0 (TBA)
+Version 0.4.0 (2025-05-02)
 **************************
 
 The `0.4.0` release introduces cross-entropy support, improves code packaging, and enhances documentation.
 
-- 📈 **Cross-Entropy support**: Added cross-entropy for all approaches.
+- 📈 **Cross-Entropy support**:
+
+  - Added cross-entropy for all approaches.
+
+  - Integrated cross-entropy into the documentation with detailed explanations and examples.
+
+  - Restricted the use of joint random variables (RVs) for cross-entropy to avoid ambiguity.
 
 - 📦 **Code packaging**:
 
