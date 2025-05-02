@@ -9,8 +9,8 @@ from infomeasure.estimators.entropy import (
 )
 
 
-@pytest.mark.parametrize("k", [1, 2, 5, 10])
-@pytest.mark.parametrize("alpha", [0.5, 1.0, 1.5, 2.0, 3.0])
+@pytest.mark.parametrize("k", [1, 2, 3, 5, 10])
+@pytest.mark.parametrize("alpha", [0.5, 1.0, 1.5, 2.0, 3.0, 4.0])
 def test_renyi_entropy(k, alpha, default_rng):
     """Test the Renyi entropy estimator by design."""
     data = default_rng.normal(0, 10, 1000)
@@ -24,7 +24,7 @@ def test_renyi_entropy(k, alpha, default_rng):
 @pytest.mark.parametrize(
     "data,k,alpha,expected",
     [
-        ([1, 0, 1, 1, 1, 4, 23, 6, 1, -4, -3], 4, 1.0, -inf),
+        ([1, 0, 1, 1, 1, 4, 23, 6, 1, -4, -3], 4, 1.0, 2.522422772),
         ([1, 2, 1, 2, 1, 2, 1, 2], 4, 1.1, 2.015828887),
         ([[0, 0], [1, 3], [2, 2], [3, 1], [4, 0]], 1, 1, 5.8842423067),
         ([[0, 0], [1, 3], [2, 2], [3, 1], [4, 0]], 2, 0.9, 5.297410751),

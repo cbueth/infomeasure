@@ -55,3 +55,17 @@ def test_discrete_entropy_uniform(length, base):
     assert entropy(data, approach="discrete", base=base) == pytest.approx(
         log(length) / log(base)
     )
+
+
+@pytest.mark.parametrize(
+    "data_p, data_q",
+    [
+        ([0, 1], [0, 1]),
+        ([0, 1], [1, 0]),
+        ([0, 1, 2], [0, 1, 2]),
+        ([0, 1, 2], [2, 1, 0]),
+    ],
+)
+def test_discrete_cross_entropy(data_p, data_q):
+    """Test the discrete cross-entropy estimator."""
+    assert entropy(data_p, data_q, approach="discrete") > 0

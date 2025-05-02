@@ -60,6 +60,40 @@ im.entropy((x, y, z), approach="discrete")
 
 With these two functions, you can use the chain rule $H(X|Y) = H(X, Y) - H(Y)$ to combine them to calculate the conditional entropy $H(X|Y)$.
 
+### Cross-Entropy
+
+For two RVs $P$ and $Q$,
+you can calculate the cross-entropy $H_Q(P)$ as follows:
+
+```{code-cell}
+import infomeasure as im
+
+data_P = [0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0]
+data_Q = [1, 1, 0, 0, 2, 2, 1, 1, 0, 2, 0, 0, 2, 0, 0]
+
+# Cross-entropy between P and Q: H_Q(P) = H_x(P, Q)
+h_q_p = im.cross_entropy(data_P, data_Q, approach="discrete")
+h_q_p
+```
+
+This formulation is generalized for other approaches (e.g., continuous).
+
+```{code-cell}
+from numpy.random import default_rng
+rng = default_rng(921521569)
+data_P = rng.normal(0.0, 15, size=200)
+data_Q = rng.normal(1.0, 14, size=500)
+im.cross_entropy(data_P, data_Q, approach="metric")
+```
+
+{py:func}`im.cross_entropy() <infomeasure.cross_entropy>` and {py:func}`im.hx() <infomeasure.hx>` are
+convenience functions around {py:func}`im.entropy() <infomeasure.entropy>`,
+so the initial entropy function can also always be used.
+
+```{code-cell}
+im.entropy(data_P, data_Q, approach="metric")
+```
+
 ### Mutual Information
 
 For {py:func}`mutual information() <infomeasure.mutual_information>` $I(X; Y)$ between two variables $X$ and $Y$, you can use the following code:
@@ -164,7 +198,7 @@ All parameters the approach needs, here `embedding_dim`, are passed as keyword a
 
 ### Shorthands
 
-For convenience, there are further shorthand functions, respectively {py:func}`im.h() <infomeasure.h>`, {py:func}`im.mi() <infomeasure.mi>`, {py:func}`im.te() <infomeasure.te()>`, {py:func}`im.cmi() <infomeasure.cmi>`, {py:func}`im.cte() <infomeasure.cte>`, {py:func}`im.jsd() <infomeasure.jsd>`, and {py:func}`im.kld() <infomeasure.kld>`.
+For convenience, there are further shorthand functions, respectively {py:func}`im.h() <infomeasure.h>`, {py:func}`im.hx() <infomeasure.hx>`, {py:func}`im.mi() <infomeasure.mi>`, {py:func}`im.te() <infomeasure.te()>`, {py:func}`im.cmi() <infomeasure.cmi>`, {py:func}`im.cte() <infomeasure.cte>`, {py:func}`im.jsd() <infomeasure.jsd>`, and {py:func}`im.kld() <infomeasure.kld>`.
 They are aliases and used in the same way as the before mentioned functions.
 
 ```{caution}

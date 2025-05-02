@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from operator import gt
-from typing import Callable, Generic, final
+from typing import Callable, Generic, final, Sequence
 
 from numpy import asarray, integer, issubdtype, log, log2, log10, nan, ndarray, std
 from numpy import mean as np_mean
@@ -116,7 +116,6 @@ class Estimator(Generic[EstimatorType], ABC):
             self.calculate()
         return self.res_global
 
-    @final
     def local_vals(self):
         """Return the local values of the measure, if available.
 
@@ -129,10 +128,6 @@ class Estimator(Generic[EstimatorType], ABC):
         ------
         io.UnsupportedOperation
             If the local values are not available.
-
-        Notes
-        -----
-        Not available for :class:`EntropyEstimator` classes.
         """
         if self.global_val() is not None and self.res_local is None:
             try:
@@ -230,15 +225,17 @@ class Estimator(Generic[EstimatorType], ABC):
 
 
 class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
-    """Abstract base class for entropy estimators.
+    r"""Abstract base class for entropy estimators.
 
     Estimates simple entropy of a data array or joint entropy of two data arrays.
 
     Attributes
     ----------
-    data : array-like, shape (n_samples,) or tuple of array-like
+    *data : array-like, shape (n_samples,) or tuple of array-like
         The data used to estimate the entropy.
-        When passing tuple of arrays, the joint entropy is considered.
+        When passing a tuple of arrays, the joint entropy is considered.
+        When passing two arrays, the cross-entropy is considered,
+        the second RV relative to the first RV.
     base : int | float | "e", optional
         The logarithm base for the entropy calculation.
         The default can be set
@@ -257,35 +254,124 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
     .entropy.renyi.RenyiEntropyEstimator
     .entropy.ordinal.OrdinalEntropyEstimator
     .entropy.tsallis.TsallisEntropyEstimator
+
+    Notes
+    -----
+    - Entropy: When passing one array-like object.
+    - Joint Entropy: When passing one tuple of array-likes.
+    - Cross-Entropy: When passing two array-like objects.
+      Then the the second distribution :math:`q`
+      is considered relative to the first :math:`p`:
+
+      :math:`-\sum_{i=1}^{n} p_i \log_b q_i`
     """
 
-    def __init__(self, data, base: LogBaseType = Config.get("base")):
+    def __init__(self, *data, base: LogBaseType = Config.get("base")):
         """Initialize the estimator with the data."""
-        if isinstance(data, tuple):
-            if all(isinstance(d, (ndarray, list)) for d in data):
-                self.data = tuple(asarray(d) for d in data)
-            else:
-                raise ValueError(
-                    "Data in the tuple must be arrays, not "
-                    f"{[type(d) for d in data if not isinstance(d, ndarray)]}."
+        # Check valid input data
+        if len(data) == 0:
+            raise ValueError("Data must be provided.")
+        if len(data) > 2:
+            raise ValueError(
+                "Only one or two array-like objects are allowed. \n"
+                "- One data array for normal entropy\n"
+                "- Two data arrays for cross-entropy\n"
+                "- When given tuples instead of arrays, "
+                "they are considered as one, joint RV."
+            )
+        if len(data) == 1 and not (
+            (
+                isinstance(data[0], (ndarray, Sequence))
+                and not isinstance(data[0], (str, tuple))
+            )
+            or (
+                isinstance(data[0], tuple)
+                and all(
+                    (
+                        isinstance(v, (ndarray, Sequence))
+                        and not isinstance(v, (str, tuple))
+                    )
+                    for v in data[0]
                 )
-        else:
-            self.data = asarray(data)
+            )
+        ):
+            raise ValueError(
+                "For normal entropy, data must be a single array-like object. "
+                "For joint entropy, data must be a tuple of array-like objects. "
+                "Pass two separate data for cross-entropy."
+            )
+        if len(data) == 2 and not all(
+            isinstance(var, (ndarray, Sequence)) and not isinstance(var, (str, tuple))
+            for var in data
+        ):
+            raise ValueError(
+                "For cross-entropy, data must be two array-like objects. "
+                "Tuples for joint variables are not supported. "
+                "For (joint) entropy, just pass one argument."
+            )
+        # Convert to arrays if they are not already
+        self.data = tuple(
+            asarray(var)
+            if not isinstance(var, tuple)
+            else tuple(asarray(d) for d in var)
+            for var in data
+        )
+        # differing lengths are allowed for cross-entropy, but not inside joint RVs
+        for var in self.data:
+            if isinstance(var, tuple) and any(len(d) != len(var[0]) for d in var):
+                raise ValueError(
+                    "All elements of a joint random variable must have the same length."
+                )
+
         super().__init__(base=base)
+
+    def local_vals(self):
+        """Return the local values of the measure, if available.
+
+        For cross-entropy, local values cannot be calculated.
+
+        Returns
+        -------
+        local : array-like
+            The local values of the measure.
+
+        Raises
+        ------
+        io.UnsupportedOperation
+            If the local values are not available.
+        """
+        # Cross-entropy cannot be calculated locally:
+        # if _cross_entropy got overwritten, raise UnsupportedOperation
+        if len(self.data) > 1 and "_cross_entropy" in self.__class__.__dict__:
+            raise UnsupportedOperation(
+                "Local values can only be calculated for (joint) entropy, "
+                "not cross-entropy."
+            )
+        return super().local_vals()
 
     def _calculate(self) -> float | ndarray[float]:
         """Calculate the entropy of the data.
 
-        Depending on the `data` type, chooses simple or joint entropy calculation.
+        Depending on the `data` type, choose simple or joint entropy calculation.
 
         Returns
         -------
         float | array-like
             The calculated entropy, or local values if available.
         """
-        if isinstance(self.data, tuple):
-            return self._joint_entropy()
-        return self._simple_entropy()
+        if len(self.data) == 1:
+            if isinstance(self.data[0], tuple):
+                logger.debug("Calculating joint entropy.")
+                return self._joint_entropy()
+            logger.debug("Calculating simple entropy.")
+            return self._simple_entropy()
+        elif len(self.data) == 2:
+            logger.debug("Calculating cross-entropy.")
+            return self._cross_entropy()
+        else:
+            raise RuntimeError(
+                f"`self.data` has an invalid format (len {len(self.data)})."
+            )
 
     @abstractmethod
     def _simple_entropy(self) -> float | ndarray[float]:
@@ -308,6 +394,31 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
             The calculated entropy, or local values if available.
         """
         pass
+
+    def _cross_entropy(self) -> float:
+        r"""Calculate the cross-entropy between two distributions.
+
+        .. math::
+
+           H(p, q) = H_{q}(p) = -\sum_{x} p(x) \log q(x)
+
+        Consider self.data[0] as the distribution :math:`p` and self.data[1]
+        as the distribution :math:`q`.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+
+        Notes
+        -----
+        As cross-entropy is not symmetric,
+        data[0] and data[1] are not exchangable.
+        Remember this when overriding this method.
+        """
+        raise NotImplementedError(
+            f"Cross-entropy is not implemented for {self.__class__.__name__}."
+        )
 
 
 class RandomGeneratorMixin:
@@ -1216,6 +1327,8 @@ class PValueMixin(RandomGeneratorMixin):
             raise ValueError("Test values must be an array-like.")
         if not callable(comparison):
             raise ValueError("Comparison operator must be a function.")
+        if len(test_values) < 2:
+            raise ValueError("Not enough test values for statistical test.")
         test_values = asarray(test_values)
 
         null_mean = np_mean(test_values)

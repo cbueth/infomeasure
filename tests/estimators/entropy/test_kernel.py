@@ -116,3 +116,113 @@ def test_kernel_mi_parallelization(rng_int, workers, kernel):
     )
     assert est_parallel.global_val() == pytest.approx(est_serial.global_val())
     assert allclose(est_parallel.local_vals(), est_serial.local_vals())
+
+
+@pytest.mark.parametrize(
+    "data_p, data_q",
+    [
+        ([0, 1], [0, 1, 2]),
+        ([0, 2], [1, 0, 2]),
+        ([0, 1, 2], [0, 1, 2, 3]),
+        ([0, 1, 2], [2, 3, 0, 3]),
+        (
+            [[1, 0], [2, 0], [3, 0], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 1], [2, 0], [2.1, 0]],
+        ),
+        (
+            [[1, 0], [2, 0], [3, 1], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 0], [2, 0], [2.1, 0]],
+        ),
+        (
+            [[1, 0], [2, 0], [3, 1], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 1], [2, 0], [2.1, 0]],
+        ),
+        (
+            [[1, 0], [2, 0], [3, 0], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 0], [2, 0], [2.1, 0]],
+        ),
+    ],
+)
+@pytest.mark.parametrize("kernel", ["gaussian", "box"])
+def test_kernel_cross_entropy(data_p, data_q, kernel):
+    """Test the kernel cross-entropy estimator."""
+    est = KernelEntropyEstimator(data_p, data_q, kernel=kernel, bandwidth=2.5)
+    assert est.result() > 0
+    with pytest.raises(
+        ValueError,
+        match=r"Local values can only be calculated for \(joint\) entropy, "
+        "not cross-entropy.",
+    ):
+        est.local_vals()
+
+    assert (  # hx(p, q) != hx(q, p), except for some specific inputs
+        est.result()
+        != KernelEntropyEstimator(data_q, data_p, kernel=kernel, bandwidth=2.5).result()
+    )
+
+
+@pytest.mark.parametrize(
+    "data_p, data_q, kernel, expected_pq",
+    [
+        ([0, 1], [0, 1, 2], "gaussian", 1.92370223),
+        ([0, 2], [1, 0, 2], "gaussian", 1.95955916),
+        ([0, 1, 2], [0, 1, 2, 3], "gaussian", 2.18842463),
+        ([0, 1, 2], [2, 3, 0, 3], "gaussian", 2.3034173),
+        (
+            [[1, 0], [2, 0], [3, 0], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 1], [2, 0], [2.1, 0]],
+            "gaussian",
+            2.37827895,
+        ),
+        (
+            [[1, 0], [2, 0], [3, 1], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 0], [2, 0], [2.1, 0]],
+            "gaussian",
+            1.3833297,
+        ),
+        (
+            [[1, 0], [2, 0], [3, 1], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 1], [2, 0], [2.1, 0]],
+            "gaussian",
+            2.5519959,
+        ),
+        (
+            [[1, 0], [2, 0], [3, 0], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 0], [2, 0], [2.1, 0]],
+            "gaussian",
+            1.3833297,
+        ),
+        ([0, 1], [0, 1, 2], "box", 1.11902328),
+        ([0, 2], [1, 0, 2], "box", 1.3217558),
+        ([0, 1, 2], [0, 1, 2, 3], "box", 1.3391278),
+        ([0, 1, 2], [2, 3, 0, 3], "box", 1.7053319),
+        (
+            [[1, 0], [2, 0], [3, 0], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 1], [2, 0], [2.1, 0]],
+            "box",
+            1.9347465,
+        ),
+        (
+            [[1, 0], [2, 0], [3, 1], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 0], [2, 0], [2.1, 0]],
+            "box",
+            1.9347465,
+        ),
+        (
+            [[1, 0], [2, 0], [3, 1], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 1], [2, 0], [2.1, 0]],
+            "box",
+            1.93474658,
+        ),
+        (
+            [[1, 0], [2, 0], [3, 0], [1.2, 0], [2.1, 0]],
+            [[2, 0], [1, 0], [1.2, 0], [2, 0], [2.1, 0]],
+            "box",
+            1.93474658,
+        ),
+    ],
+)
+def test_kernel_cross_entropy_explicit(data_p, data_q, kernel, expected_pq):
+    """Test the kernel cross-entropy estimator."""
+    est = KernelEntropyEstimator(data_p, data_q, kernel=kernel, bandwidth=2.5)
+    assert est.result() == pytest.approx(expected_pq)
