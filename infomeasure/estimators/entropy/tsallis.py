@@ -83,6 +83,8 @@ class TsallisEntropyEstimator(EntropyEstimator):
         if self.q != 1:
             # Tsallis entropy for q != 1
             I_N_k_q = exponential_family_iq(self.k, self.q, V_m, rho_k, N - 1, m)
+            if I_N_k_q == 0:
+                return 0.0
             return (1 - I_N_k_q) / (self.q - 1)
         else:
             # Shannon entropy (limes for alpha = 1)
@@ -117,6 +119,8 @@ class TsallisEntropyEstimator(EntropyEstimator):
         if self.q != 1:
             # Renyi cross-entropy for q != 1
             I_N_k_q = exponential_family_iq(self.k, self.q, V_m, rho_k, M, m)
+            if I_N_k_q == 0:
+                return 0.0
             return (1 - I_N_k_q) / (self.q - 1)
         else:
             # Shannon cross-entropy (limes for q = 1)

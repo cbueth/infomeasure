@@ -74,7 +74,8 @@ def test_mi_t_score(te_estimator, n_tests):
         (0.09, [0.1, 0.2, 0.3, 0.4, 0.5], 1.0, -1.328156617),
         (1.0, [-1, 1], 0.0, 0.707106781),
         (0.0, [-2, 0], 0.0, 0.707106781),
-        (1.0, [1], 0, np.nan),
+        (1.0, [1, 1], 0, np.nan),  # Not enough variance in test_values
+        (0.0, [2.0] * 10, 1.0, np.nan),  # Not enough variance in test_values
     ],
 )
 def test_p_value_t_score(observed_value, test_values, p_value, t_score):
@@ -85,3 +86,10 @@ def test_p_value_t_score(observed_value, test_values, p_value, t_score):
         assert result[1] == pytest.approx(t_score, abs=1e-6)
     else:
         assert np.isnan(result[1])
+
+
+@pytest.mark.parametrize("n_test_vals", [0, 1])
+def test_p_value_t_score_not_enough_test_values(n_test_vals):
+    """Test the p-value and t-score calculation with not enough test values."""
+    with pytest.raises(ValueError, match="Not enough test values for statistical test"):
+        PValueMixin._p_value_t_score(1.0, [1] * n_test_vals)

@@ -5,7 +5,7 @@ family of exponential family distributions. This module provides helper
 functions for these distributions.
 """
 
-from numpy import pi, mean as np_mean, exp as np_exp
+from numpy import pi, sum as np_sum, exp as np_exp
 from scipy.spatial import KDTree
 from scipy.special import gamma, digamma
 
@@ -91,9 +91,14 @@ def exponential_family_iq(k, q, V_m, rho_k, N, m):
     float
         The :math:`I_q` of the exponential family distribution
     """
+    if q == k + 1:  # In this case, C_k is complex infinite and (C_k)^-q = 0 for real q.
+        return 0.0
     C_k = (gamma(k) / gamma(k + 1 - q)) ** (1 / (1 - q))
-    zeta_N_i_k = N * C_k * V_m * rho_k**m
-    return np_mean(zeta_N_i_k ** (1 - q))
+    return (
+        (N * C_k * V_m) ** (1 - q)
+        * np_sum((rho_k[rho_k > 0] ** m) ** (1 - q))
+        / len(rho_k)
+    )
 
 
 def exponential_family_i1(k, V_m, rho_k, N, m, log_base_func):
@@ -124,4 +129,8 @@ def exponential_family_i1(k, V_m, rho_k, N, m, log_base_func):
         The :math:`I_1` of the exponential family distribution
     """
     zeta_N_i_k = N * np_exp(-digamma(k)) * V_m * rho_k**m
-    return np_mean(log_base_func(zeta_N_i_k))
+    return np_sum(log_base_func(zeta_N_i_k[zeta_N_i_k > 0])) / len(zeta_N_i_k)
+    # return log_base_func(  # Analytically correct and efficient but inexact
+    #     prod(rho_k[rho_k > 0] ** m)
+    #     * (N * np_exp(-digamma(k)) * V_m) ** len(rho_k[rho_k > 0])
+    # ) / len(rho_k)

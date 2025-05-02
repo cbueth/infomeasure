@@ -1,6 +1,6 @@
 """Module for the Kozachenko-Leonenko entropy estimator."""
 
-from numpy import column_stack, sum as np_sum
+from numpy import column_stack, sum as np_sum, nan, isnan
 from numpy import inf, log, issubdtype, integer
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -112,8 +112,10 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         # Volume of the d-dimensional unit ball for maximum norm
         c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
 
+        distances[distances == 0] = nan
         # Compute the local entropies
         local_h = -digamma(self.k) + digamma(N) + log(c_d) + d * log(2 * distances)
+        local_h[isnan(local_h)] = 0.0
         # return in desired base
         return local_h / log(self.base) if self.base != "e" else local_h
 
@@ -167,7 +169,7 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
             -digamma(self.k)
             + digamma(M)
             + log(c_d)
-            + d * np_sum(log(2 * distances)) / M
+            + d * np_sum(log(2 * distances[distances > 0])) / M
         )
         # return in desired base
         return hx / log(self.base) if self.base != "e" else hx

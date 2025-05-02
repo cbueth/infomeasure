@@ -11,7 +11,7 @@ from infomeasure.estimators.base import (
 )
 
 
-class TestEstimator(Estimator):
+class ExampleTestEstimator(Estimator):
     """Test class for Estimator."""
 
     def __init__(self, calc_vals, local_values=None):
@@ -31,20 +31,20 @@ class TestEstimator(Estimator):
 def test_faulty_estimator_local_values(calc_vals):
     """Test estimator with local values of ndim > 1."""
     # Create an instance of the faulty estimator
-    faulty_estimator = TestEstimator(calc_vals)
+    faulty_estimator = ExampleTestEstimator(calc_vals)
     with pytest.raises(RuntimeError):
         faulty_estimator.result()
 
 
 def test_faulty_local_vals():
     """Test estimator when mean(local) != global."""
-    faulty_estimator = TestEstimator(calc_vals=5, local_values=array([5, 6]))
+    faulty_estimator = ExampleTestEstimator(calc_vals=5, local_values=array([5, 6]))
     faulty_estimator.data = (1,)
     with pytest.raises(RuntimeError, match="Mean of local values"):
         faulty_estimator.local_vals()
     faulty_estimator.local_vals()  # Only raises the error once
 
-    faulty_estimator = TestEstimator(calc_vals=5, local_values=array([5, 6]))
+    faulty_estimator = ExampleTestEstimator(calc_vals=5, local_values=array([5, 6]))
     faulty_estimator.data = (1, 2, 3, 4, 5, 6)
     with pytest.raises(RuntimeError, match="As you are using 6 random variables"):
         faulty_estimator.local_vals()
@@ -72,14 +72,14 @@ def test_faulty_call_not_overwritten():
 )
 def test_log_base_function_bases(base, expected):
     """Test log_base function."""
-    test_estimator = TestEstimator(calc_vals=None)
+    test_estimator = ExampleTestEstimator(calc_vals=None)
     test_estimator.base = base
     assert test_estimator._log_base(2) == pytest.approx(expected)
 
 
 def test_log_base_function_negative_base():
     """Test log_base function with negative base."""
-    test_estimator = TestEstimator(calc_vals=None)
+    test_estimator = ExampleTestEstimator(calc_vals=None)
     test_estimator.base = -10
     with pytest.raises(ValueError, match="Logarithm base must be positive, not -10."):
         test_estimator._log_base(2)

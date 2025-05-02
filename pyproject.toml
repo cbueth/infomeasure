@@ -83,7 +83,7 @@ select = ["NPY201"]
 # --------------------------------------------------------------------------------------
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra"
+addopts = "-ra -W error"
 testpaths = ["tests"]
 
 [tool.coverage.run]

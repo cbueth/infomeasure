@@ -1,6 +1,6 @@
 """Module for the kernel entropy estimator."""
 
-from numpy import column_stack, sum as np_sum
+from numpy import column_stack, sum as np_sum, isnan, nan
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -71,9 +71,11 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
         densities = kde_probability_density_function(
             self.data[0], self.bandwidth, kernel=self.kernel, workers=self.n_workers
         )
-
+        densities[densities == 0] = nan
         # Compute the log of the densities
-        return -self._log_base(densities)
+        log_densities = -self._log_base(densities)
+        log_densities[isnan(log_densities)] = 0
+        return log_densities
 
     def _joint_entropy(self):
         """Calculate the joint entropy of the data.

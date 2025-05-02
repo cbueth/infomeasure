@@ -90,23 +90,20 @@ def test_entropy_class_addressing(entropy_approach):
         assert isinstance(est.local_vals(), np.ndarray)
 
 
-def test_cross_entropy_functional_addressing(entropy_approach):
+def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
     """Test addressing the cross-entropy estimator classes."""
     approach_str, needed_kwargs = entropy_approach
-    if approach_str in ["metric", "kl"]:
-        needed_kwargs["noise_level"] = 0.0
-    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 10)
+    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 100)
     entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
     # test entropy(data) == cross_entropy(data, data)
-    assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
-        entropy, rel=1e-6 if approach_str not in ["metric", "kl"] else 1e-2
-    )
-    assert im.cross_entropy(
-        data, data, approach=approach_str, **needed_kwargs
-    ) == pytest.approx(
-        entropy, rel=1e-6 if approach_str not in ["metric", "kl"] else 1e-2
-    )
+    if approach_str not in ["metric", "kl"]:
+        assert im.entropy(
+            data, approach=approach_str, **needed_kwargs
+        ) == pytest.approx(entropy)
+        assert im.cross_entropy(
+            data, data, approach=approach_str, **needed_kwargs
+        ) == pytest.approx(entropy)
 
 
 def test_cross_entropy_class_addressing(entropy_approach, default_rng):

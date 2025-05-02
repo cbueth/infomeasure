@@ -1322,6 +1322,8 @@ class PValueMixin(RandomGeneratorMixin):
             raise ValueError("Test values must be an array-like.")
         if not callable(comparison):
             raise ValueError("Comparison operator must be a function.")
+        if len(test_values) < 2:
+            raise ValueError("Not enough test values for statistical test.")
         test_values = asarray(test_values)
 
         null_mean = np_mean(test_values)

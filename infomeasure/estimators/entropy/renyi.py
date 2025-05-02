@@ -85,6 +85,8 @@ class RenyiEntropyEstimator(EntropyEstimator):
         if self.alpha != 1:
             # Renyi entropy for alpha != 1
             I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, N - 1, m)
+            if I_N_k_a == 0:
+                return 0
             return self._log_base(I_N_k_a) / (1 - self.alpha)
         else:
             # Shannon entropy (limes for alpha = 1)
@@ -119,6 +121,8 @@ class RenyiEntropyEstimator(EntropyEstimator):
         if self.alpha != 1:
             # Renyi cross-entropy for alpha != 1
             I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, M, m)
+            if I_N_k_a == 0:
+                return 0.0
             return self._log_base(I_N_k_a) / (1 - self.alpha)
         else:
             # Shannon cross-entropy (limes for alpha = 1)
