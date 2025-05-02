@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 import infomeasure as im
-from conftest import discrete_random_variables
+from tests.conftest import discrete_random_variables
 from infomeasure.estimators.base import (
     ConditionalMutualInformationEstimator,
     ConditionalTransferEntropyEstimator,
@@ -93,6 +93,8 @@ def test_entropy_class_addressing(entropy_approach):
 def test_cross_entropy_functional_addressing(entropy_approach):
     """Test addressing the cross-entropy estimator classes."""
     approach_str, needed_kwargs = entropy_approach
+    if approach_str in ["metric", "kl"]:
+        needed_kwargs["noise_level"] = 0.0
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 10)
     entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
@@ -109,9 +111,10 @@ def test_cross_entropy_functional_addressing(entropy_approach):
 
 def test_cross_entropy_class_addressing(entropy_approach, default_rng):
     """Test addressing the entropy estimator classes."""
-    data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 2, 7, 9, 5, 3, 6, 5] * 10)
     data, _ = discrete_random_variables(0)
     approach_str, needed_kwargs = entropy_approach
+    if approach_str in ["metric", "kl"]:
+        needed_kwargs["noise_level"] = 0.0
     if approach_str != "discrete":
         data = data + default_rng.normal(0, 0.1, size=len(data))
     est = im.estimator(
