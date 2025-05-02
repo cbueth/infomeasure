@@ -22,9 +22,9 @@ def test_kl_entropy(data_len, noise_level, minkowski_p, k, default_rng):
 @pytest.mark.parametrize(
     "data,minkowski_p,k,expected",
     [
-        ([1, 0, 1, 1, 1, 4, 23, 6, 1], inf, 4, -inf),
+        ([1, 0, 1, 1, 1, 4, 23, 6, 1], inf, 4, 1.941190518),
         ([1, 0, 1, 0, 1, 0], inf, 3, 2.130111115363),
-        ([1, 0, 1, 0, 1, 0], inf, 1, -inf),
+        ([1, 0, 1, 0, 1, 0], inf, 1, 0.0),
         ([1, 2, 3, 4, 5], inf, 2, 2.96291962762),
         ([1, 2, 3, 4, 5], inf, 3, 3.0755571074),
         ([1, 2, 3, 4, 5], 2, 2, 2.9629196276),

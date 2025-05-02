@@ -1,6 +1,6 @@
 """Module for the kernel entropy estimator."""
 
-from numpy import column_stack
+from numpy import column_stack, sum as np_sum, isnan, nan
 
 from ... import Config
 from ...utils.types import LogBaseType
@@ -14,7 +14,7 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
 
     Attributes
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
     bandwidth : float | int
         The bandwidth for the kernel.
@@ -34,8 +34,7 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
 
     def __init__(
         self,
-        data,
-        *,  # all following parameters are keyword-only
+        *data,
         bandwidth: float | int,
         kernel: str,
         workers: int = 1,
@@ -55,8 +54,8 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
            Default is 1, meaning no parallel processing.
            If set to -1, all available CPU cores will be used.
         """
-        super().__init__(data, workers=workers, base=base)
-        self.data = assure_2d_data(data)
+        super().__init__(*data, workers=workers, base=base)
+        self.data = tuple(assure_2d_data(var) for var in self.data)
         self.bandwidth = bandwidth
         self.kernel = kernel
 
@@ -70,11 +69,13 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
         """
         # Compute the KDE densities
         densities = kde_probability_density_function(
-            self.data, self.bandwidth, kernel=self.kernel, workers=self.n_workers
+            self.data[0], self.bandwidth, kernel=self.kernel, workers=self.n_workers
         )
-
+        densities[densities == 0] = nan
         # Compute the log of the densities
-        return -self._log_base(densities)
+        log_densities = -self._log_base(densities)
+        log_densities[isnan(log_densities)] = 0
+        return log_densities
 
     def _joint_entropy(self):
         """Calculate the joint entropy of the data.
@@ -87,5 +88,24 @@ class KernelEntropyEstimator(WorkersMixin, EntropyEstimator):
         array-like
             The local form of the joint entropy.
         """
-        self.data = column_stack(self.data)
+        self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()
+
+    def _cross_entropy(self) -> float:
+        """Calculate the cross-entropy between two distributions.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+        """
+        # Compute the KDE densities
+        densities = kde_probability_density_function(
+            self.data[1],
+            self.bandwidth,
+            at=self.data[0],
+            kernel=self.kernel,
+            workers=self.n_workers,
+        )
+        # Compute the log of the densities
+        return -np_sum(self._log_base(densities[densities > 0])) / len(densities)

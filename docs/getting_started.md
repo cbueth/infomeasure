@@ -6,7 +6,7 @@ kernelspec:
 (getting_started)=
 # Getting Started
 
-This package can be installed from PyPI using pip:
+This package can be [installed from PyPI](https://pypi.org/project/infomeasure/) using pip:
 
 ```bash
 pip install infomeasure
@@ -19,7 +19,8 @@ It is recommended to use a virtual environment, e.g., using
 [`mamba`](https://mamba.readthedocs.io/en/latest) or
 [`micromamba`](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html)
 (they can be used interchangeably).
-`infomeasure` can be installed from the `conda-forge` channel.
+`infomeasure` can be installed from
+the [`conda-forge`](https://anaconda.org/conda-forge/infomeasure) channel.
 
 ```bash
 conda create -n im_env -c conda-forge python=3.13

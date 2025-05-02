@@ -11,10 +11,12 @@ from numpy import (
     issubdtype,
     ndarray,
     unique,
+    asarray,
 )
 
 from ..base import EntropyEstimator, DistributionMixin
 from ..utils.ordinal import reduce_joint_space, symbolize_series
+from ..utils.unique import unique_vals
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
@@ -35,7 +37,7 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
 
     Attributes
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
     embedding_dim : int
         The size of the permutation patterns.
@@ -60,8 +62,7 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
 
     def __init__(
         self,
-        data,
-        *,  # all following parameters are keyword-only
+        *data,
         embedding_dim: int,
         stable: bool = False,
         base: LogBaseType = Config.get("base"),
@@ -76,19 +77,24 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
             If True, when sorting the data, the order of equal elements is preserved.
             This can be useful for reproducibility and testing, but might be slower.
         """
-        super().__init__(data, base=base)
-        if any(
-            var.ndim > 1
-            for var in (self.data if isinstance(self.data, tuple) else (self.data,))
-        ):
+        super().__init__(*data, base=base)
+        for var in self.data:
+            if isinstance(var, ndarray) and var.ndim == 1:
+                continue
+            if isinstance(var, tuple) and all(
+                isinstance(var_i, ndarray) and var_i.ndim == 1 for var_i in var
+            ):
+                continue
             raise TypeError(
                 "The data must be a 1D array or tuple of 1D arrays. "
                 "Ordinal patterns can only be computed from 1D arrays."
             )
         if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
             raise ValueError("The embedding_dim must be a non-negative integer.")
-        if (isinstance(self.data, ndarray) and embedding_dim > self.data.shape[0]) or (
-            isinstance(self.data, tuple) and embedding_dim > self.data[0].shape[0]
+        if (
+            isinstance(self.data[0], ndarray) and embedding_dim > self.data[0].shape[0]
+        ) or (
+            isinstance(self.data[0], tuple) and embedding_dim > self.data[0][0].shape[0]
         ):
             raise ValueError("The embedding_dim is too large for the given data.")
         if embedding_dim == 1:
@@ -190,14 +196,14 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         """Calculate the entropy of the data."""
         if self.embedding_dim == 1:
             self.dist_dict = {0: 1.0}
-            self.patterns = [0] * len(self.data)
+            self.patterns = [0] * len(self.data[0])
             return 0.0
-        elif self.embedding_dim == self.data.shape[0]:
-            self.dist_dict = {tuple(self.data.argsort()): 1.0}
+        elif self.embedding_dim == self.data[0].shape[0]:
+            self.dist_dict = {tuple(self.data[0].argsort()): 1.0}
             self.patterns = [list(self.dist_dict.keys())[0]]
             return 0.0
         probabilities, self.dist_dict, self.patterns = self._estimate_probabilities(
-            self.data, self.embedding_dim
+            self.data[0], self.embedding_dim
         )
         # sum over probabilities, multiplied by the logarithm of the probabilities
         # we do not return these 'local' values, as these are not local to the input
@@ -210,16 +216,15 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         # Symbolize separately (permutation patterns -> Lehmer codes)
         symbols = (
             symbolize_series(marginal, self.embedding_dim, to_int=True)
-            for marginal in self.data  # data is tuple of time series
+            for marginal in self.data[0]  # data is tuple of time series
         )  # shape (n - (embedding_dim - 1), num_joints)
         # Reduce the joint space
         self.patterns = reduce_joint_space(
             symbols
         )  # reduction columns stacks the symbols
         # Calculate frequencies of co-ocurrent patterns
-        uniq, counts = unique(self.patterns, return_counts=True)
-        probabilities = counts / counts.sum()
-        self.dist_dict = dict(zip(uniq, probabilities))
+        uniq, counts, self.dist_dict = unique_vals(self.patterns)
+        probabilities = asarray(list(self.dist_dict.values()))
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
 
@@ -234,3 +239,28 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         # Use the saved patterns to calculate the local values
         p_local = [self.dist_dict[tuple(pattern)] for pattern in self.patterns]
         return -self._log_base(p_local)
+
+    def _cross_entropy(self) -> float:
+        """Calculate the ordinal cross-entropy between two distributions.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+        """
+        if any(isinstance(var, tuple) for var in self.data):
+            raise ValueError(
+                "Cross-entropy only accepts 1D data, no joint data. "
+                "This is to have a clear definition for the support set."
+            )
+        symbols = tuple(
+            symbolize_series(var, self.embedding_dim, to_int=True) for var in self.data
+        )
+        uniq_p, counts_p, dist_p = unique_vals(symbols[0])
+        uniq_q, counts_q, dist_q = unique_vals(symbols[1])
+        # Only consider the values where both RV have the same support
+        uniq = list(set(uniq_p).intersection(set(uniq_q)))  # P ∩ Q
+        if len(uniq) == 0:
+            logger.warning("No common support between the two distributions.")
+            return 0.0
+        return -np_sum([dist_p[val] * self._log_base(dist_q[val]) for val in uniq])

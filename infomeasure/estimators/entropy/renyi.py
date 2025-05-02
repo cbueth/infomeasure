@@ -18,7 +18,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
 
     Attributes
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
     k : int
         The number of nearest neighbors used in the estimation.
@@ -46,8 +46,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
 
     def __init__(
         self,
-        data,
-        *,  # all following parameters are keyword-only
+        *data,
         k: int = 4,
         alpha: float | int = None,
         base: LogBaseType = Config.get("base"),
@@ -62,7 +61,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
             The Renyi parameter, order or exponent.
             Sometimes denoted as :math:`\alpha` or :math:`q`.
         """
-        super().__init__(data, base)
+        super().__init__(*data, base=base)
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
         if not issubdtype(type(k), integer) or k <= 0:
@@ -71,7 +70,7 @@ class RenyiEntropyEstimator(EntropyEstimator):
             )
         self.k = k
         self.alpha = alpha
-        self.data = assure_2d_data(data)
+        self.data = tuple(assure_2d_data(var) for var in self.data)
 
     def _simple_entropy(self):
         """Calculate the Renyi entropy of the data.
@@ -81,15 +80,17 @@ class RenyiEntropyEstimator(EntropyEstimator):
         float
             Renyi entropy of the data.
         """
-        V_m, rho_k, N, m = calculate_common_entropy_components(self.data, self.k)
+        V_m, rho_k, N, m = calculate_common_entropy_components(self.data[0], self.k)
 
         if self.alpha != 1:
             # Renyi entropy for alpha != 1
-            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, N, m)
+            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, N - 1, m)
+            if I_N_k_a == 0:
+                return 0
             return self._log_base(I_N_k_a) / (1 - self.alpha)
         else:
             # Shannon entropy (limes for alpha = 1)
-            return exponential_family_i1(self.k, V_m, rho_k, N, m, self._log_base)
+            return exponential_family_i1(self.k, V_m, rho_k, N - 1, m, self._log_base)
 
     def _joint_entropy(self):
         """Calculate the joint Renyi entropy of the data.
@@ -102,5 +103,27 @@ class RenyiEntropyEstimator(EntropyEstimator):
         float
             The calculated joint entropy.
         """
-        self.data = column_stack(self.data)
+        self.data = (column_stack(self.data[0]),)
         return self._simple_entropy()
+
+    def _cross_entropy(self) -> float:
+        """Calculate the cross-entropy between two distributions.
+
+        Returns
+        -------
+        float
+            The calculated cross-entropy.
+        """
+        V_m, rho_k, M, m = calculate_common_entropy_components(
+            self.data[1], self.k, at=self.data[0]
+        )
+
+        if self.alpha != 1:
+            # Renyi cross-entropy for alpha != 1
+            I_N_k_a = exponential_family_iq(self.k, self.alpha, V_m, rho_k, M, m)
+            if I_N_k_a == 0:
+                return 0.0
+            return self._log_base(I_N_k_a) / (1 - self.alpha)
+        else:
+            # Shannon cross-entropy (limes for alpha = 1)
+            return exponential_family_i1(self.k, V_m, rho_k, M, m, self._log_base)

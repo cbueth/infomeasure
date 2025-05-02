@@ -237,8 +237,8 @@ def _dynamic_estimator(measure) -> callable:
 
 
 @_dynamic_estimator("entropy")
-def entropy(data, approach: str, *args, **kwargs: any):
-    """Calculate the entropy using a functional interface of different estimators.
+def entropy(*data, approach: str, **kwargs: any):
+    r"""Calculate the (joint) entropy using a functional interface of different estimators.
 
     Supports the following approaches:
 
@@ -249,14 +249,34 @@ def entropy(data, approach: str, *args, **kwargs: any):
     5. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
     6. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
 
+
+    For the discrete Shannon entropy this is
+
+    .. math::
+
+       \texttt{im.entropy(data_X, approach="discrete")} = H(X) = -\sum_{x \in X} p(x) \log p(x).
+
+    Where for :math:`H(x)`, the estimated pmf :math:`p(x)` belongs to the RV :math:`X`.
+
+    .. math::
+
+       \texttt{im.entropy(data_P, data_Q, ...)} = H_Q(P) = H_\times(P, Q)
+       = -\sum_{x \in X} p(x) \log q(x)
+
+    For the cross-entropy :math:`H_Q(P)`,
+    the estimated pmf :math:`p(x)` belongs to the RV :math:`P`
+    and :math:`q(x)` to the RV :math:`Q`.
+    For other approaches, this formula is generalized in different forms.
+
     Parameters
     ----------
-    data : array-like
+    *data : array-like
         The data used to estimate the entropy.
+        For entropy, this can be an array-like.
+        For joint entropy, pass the joint values inside a tuple.
+        For cross-entropy, pass two separate parameters.
     approach : str
         The name of the estimator to use.
-    *args: tuple
-        Additional arguments to pass to the estimator.
     **kwargs: dict
         Additional keyword arguments to pass to the estimator.
 
@@ -271,7 +291,21 @@ def entropy(data, approach: str, *args, **kwargs: any):
         If the estimator is not recognized.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
-    return EstimatorClass(data, *args, **kwargs).result()
+    return EstimatorClass(*data, **kwargs).result()
+
+
+def cross_entropy(*data, **kwargs: any):
+    """Calculate the cross-entropy using a functional interface of different
+    estimators.
+
+    See :func:`entropy` for more details on the parameters and returns.
+    """
+    if len(data) < 2:
+        raise ValueError(
+            "Cross-entropy requires at least two random variables "
+            "passed as positional parameters: `cross_entropy(var1, var2, **kwargs)`"
+        )
+    return entropy(*data, **kwargs)
 
 
 @_dynamic_estimator(["mi", "cmi"])
@@ -426,7 +460,7 @@ def conditional_transfer_entropy(*data, **kwargs: any):
 
 
 def estimator(
-    *data,  # *(data) for entropy, *data for mi, *(source, dest) for te
+    *data,  # *data for entropy, *data for mi, *(source, dest) for te
     # all arguments after this are keyword-only
     cond=None,
     measure: str = None,
@@ -446,6 +480,7 @@ def estimator(
     If you are only interested in the global result, use the functional interfaces:
 
     - :func:`entropy <entropy>`
+    - :func:`cross_entropy <cross_entropy>`
     - :func:`mutual_information <mutual_information>`
     - :func:`conditional_mutual_information <conditional_mutual_information>`
     - :func:`transfer_entropy <transfer_entropy>`
@@ -482,16 +517,17 @@ def estimator(
     *data :
         The data used to estimate the measure.
         For entropy: a single array-like data. A tuple of data for joint entropy.
+        For cross-entropy: two array-like data. Second input RV relative to the first.
         For mutual information: arbitrary number of array-like data.
         For transfer entropy: two array-like data. Source and destination.
     cond : array-like, optional
         Only if the measure is conditional transfer entropy.
     measure : str
         The measure to estimate.
-        Options: ``entropy``, ``mutual_information``, ``transfer_entropy``,
-        ``conditional_mutual_information``
+        Options: ``entropy``, ``cross_entropy``, ``mutual_information``,
+        ``transfer_entropy``, ``conditional_mutual_information``,
         ``conditional_transfer_entropy``;
-        aliases: ``h``, ``mi``, ``te``, ``cmi``, ``cte``.
+        aliases: ``h``, ``hx``, ``mi``, ``te``, ``cmi``, ``cte``.
     approach : str
         The name of the estimator to use.
         Find the available estimators in the docstring of this function.
@@ -512,30 +548,37 @@ def estimator(
     """
     if measure is None:
         raise ValueError("``measure`` is required.")
-    elif measure.lower() in ["entropy", "h"]:
-        if len(data) == 0:
+    measure_comp = measure.lower().replace(" ", "_").replace("-", "_")
+    if measure_comp in ["entropy", "h", "cross_entropy", "hx"]:
+        if len(data) == 0 and measure_comp in ["entropy", "h"]:
             raise ValueError("``data`` is required for entropy estimation.")
-        if cond is not None:
-            raise ValueError("``cond`` is not required for entropy estimation.")
-        if len(data) != 1:
+        if len(data) < 2 and measure_comp in ["cross_entropy", "hx"]:
             raise ValueError(
-                "Exactly one data array is required for entropy estimation. "
+                "Cross-entropy requires at least two random variables "
+                "passed as positional parameters: `cross_entropy(var1, var2, **kwargs)`"
+            )
+        if cond is not None:
+            raise ValueError(
+                "Do not pass ``cond`` for entropy estimation. "
+                "Conditional entropy is not explicitly supported."
+            )
+        if len(data) > 2:
+            raise ValueError(
+                "One or two data parameters are required for entropy estimation. "
                 f"Got {len(data)}. "
                 "To signal that you want to compute joint entropy, "
-                "pass your data in a tuple, e.g., (data1, data2)."
+                "pass your data in a tuple, e.g., estimator((data1, data2)). "
+                "For cross-entropy, pass two separate RVs, e.g., estimator(p, q)."
             )
         EstimatorClass = _get_estimator(entropy_estimators, approach)
-        return EstimatorClass(data[0], **kwargs)
-    elif measure.lower() in [
+        return EstimatorClass(*data, **kwargs)
+    elif measure_comp in [
         "mutual_information",
         "mi",
         "conditional_mutual_information",
         "cmi",
     ]:
-        if (
-            measure.lower() in ["cmi", "conditional_mutual_information"]
-            and cond is None
-        ):
+        if measure_comp in ["cmi", "conditional_mutual_information"] and cond is None:
             raise ValueError(
                 "No conditional data was provided for conditional mutual information"
                 "estimation. Pass ``cond`` to specify the conditional data."
@@ -557,13 +600,13 @@ def estimator(
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
             return EstimatorClass(*data, **kwargs)
-    elif measure.lower() in [
+    elif measure_comp in [
         "transfer_entropy",
         "te",
         "conditional_transfer_entropy",
         "cte",
     ]:
-        if measure.lower() in ["cte", "conditional_transfer_entropy"] and cond is None:
+        if measure_comp in ["cte", "conditional_transfer_entropy"] and cond is None:
             raise ValueError(
                 "No conditional data was provided for conditional transfer entropy "
                 "estimation. Pass ``cond`` to specify the conditional data."
