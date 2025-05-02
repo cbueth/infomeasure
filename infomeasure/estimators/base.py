@@ -233,7 +233,7 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
     ----------
     *data : array-like, shape (n_samples,) or tuple of array-like
         The data used to estimate the entropy.
-        When passing tuple of arrays, the joint entropy is considered.
+        When passing a tuple of arrays, the joint entropy is considered.
         When passing two arrays, the cross-entropy is considered,
         the second RV relative to the first RV.
     base : int | float | "e", optional
@@ -279,30 +279,35 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
                 "- When given tuples instead of arrays, "
                 "they are considered as one, joint RV."
             )
-        if not all(
-            (isinstance(var, (ndarray, Sequence)) and not isinstance(var, (str, tuple)))
+        if len(data) == 1 and not (
+            (
+                isinstance(data[0], (ndarray, Sequence))
+                and not isinstance(data[0], (str, tuple))
+            )
             or (
-                isinstance(var, tuple)
+                isinstance(data[0], tuple)
                 and all(
                     (
                         isinstance(v, (ndarray, Sequence))
                         and not isinstance(v, (str, tuple))
                     )
-                    for v in var
+                    for v in data[0]
                 )
             )
+        ):
+            raise ValueError(
+                "For normal entropy, data must be a single array-like object. "
+                "For joint entropy, data must be a tuple of array-like objects. "
+                "Pass two separate data for cross-entropy."
+            )
+        if len(data) == 2 and not all(
+            isinstance(var, (ndarray, Sequence)) and not isinstance(var, (str, tuple))
             for var in data
         ):
-            raise TypeError(
-                "Data must be array-like(s) or a tuple of array-likes, "
-                f"found: {
-                    [
-                        type(var)
-                        if not isinstance(var, tuple)
-                        else tuple(type(v) for v in var)
-                        for var in data
-                    ]
-                }"
+            raise ValueError(
+                "For cross-entropy, data must be two array-like objects. "
+                "Tuples for joint variables are not supported. "
+                "For (joint) entropy, just pass one argument."
             )
         # Convert to arrays if they are not already
         self.data = tuple(
@@ -311,7 +316,7 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
             else tuple(asarray(d) for d in var)
             for var in data
         )
-        # differing lengths are allowed for cross-entropy, bot not inside joint RVs
+        # differing lengths are allowed for cross-entropy, but not inside joint RVs
         for var in self.data:
             if isinstance(var, tuple) and any(len(d) != len(var[0]) for d in var):
                 raise ValueError(

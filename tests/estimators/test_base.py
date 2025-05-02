@@ -98,8 +98,10 @@ def test_log_base_function_negative_base():
 def test_entropy_unsupported_data(faulty_data):
     """Test entropy function with unsupported data."""
     with pytest.raises(
-        TypeError,
-        match=r"Data must be array-like\(s\) or a tuple of array-likes, found: ",
+        ValueError,
+        match="For normal entropy, data must be a single array-like object"
+        if len(faulty_data) == 1
+        else "For cross-entropy, data must be two array-like objects",
     ):
         estimator(*faulty_data, measure="entropy", approach="discrete")
 
@@ -109,7 +111,6 @@ def test_entropy_unsupported_data(faulty_data):
     [
         (([1, 2, 3], [1, 2]),),
         ((["a", "b"], [1]),),
-        ((["a", "b"], [1, 2, 3]), [1, 2]),
         (([1, 2, 3], [4, 5], [1, 2]),),
     ],
 )

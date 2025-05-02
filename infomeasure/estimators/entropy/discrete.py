@@ -1,6 +1,6 @@
 """Module for the discrete entropy estimator."""
 
-from numpy import sum as np_sum, ndarray, unique, asarray
+from numpy import sum as np_sum, ndarray, asarray
 
 from ..base import EntropyEstimator, DistributionMixin
 from ..utils.ordinal import reduce_joint_space
