@@ -28,4 +28,5 @@ access their underlying implementations, please refer to the {ref}`API Reference
    cond_te/index
    KLD
    JSD
+   settings
 ```
