@@ -92,7 +92,7 @@ For a 2D point cloud, it is as easy to calculate the entropy
 
 ```{code-cell}
 im.entropy(
-    data=rng.normal(loc=0, scale=1, size=(2000, 2)),
+    rng.normal(loc=0, scale=1, size=(2000, 2)),
     approach="kernel", kernel="box", bandwidth=0.5
 )
 ```
