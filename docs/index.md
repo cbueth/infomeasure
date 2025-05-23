@@ -101,6 +101,9 @@ The {ref}`Reference pages <reference_guide>` provide a comprehensive, theoretica
 To set up `infomeasure`, see the {ref}`Getting Started` page, more on
 the details of the inner workings can be found on the {ref}`Reference pages <reference_guide>`.
 Furthermore, you can also find the {ref}`API documentation <API Reference>`.
+The introduction talk has been recorded and can be seen on
+the [IFISC YouTube channel](https://www.youtube.com/watch?v=ckScv1E-vHE) and the
+[slides here](https://carlson.pages.ifisc.uib-csic.es/infomeasure-introduction-presentation/lab/index.html?path=infomeasure-presentation.ipynb).
 
 ## How to cite
 
