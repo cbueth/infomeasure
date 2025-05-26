@@ -4,7 +4,7 @@ Mutual Information (MI) quantifies the information shared between two random var
 In other words, MI measures the average reduction in uncertainty about $X$ that results from learning the value of $Y$, or vice versa {cite:p}`cover2012elements`. Mathematically MI is expressed as:
 
 $$
-I(X;Y) = -\sum_{x, y} p(x, y) \log \frac{p(x,y)}{p(x) p(y)}
+I(X;Y) = \sum_{x, y} p(x, y) \log \frac{p(x,y)}{p(x) p(y)}
 $$
 where
 - $p(x,y)$ is the joint probability distribution for the occurrence of joint state $(x,y)$,
@@ -16,7 +16,7 @@ If $I(X; Y) = 0$, $X$ and $Y$ can be considered independent.
 Interaction information between the $n$ RVs $X_1,\dots,X_n$ is defined as follows:
 
 $$
-I(X_1;\dots;X_n) = -\sum_{x_1,\dots,x_n} p(x_1,\dots,x_n) \log \frac{p(x_1,\dots,x_n)}{\prod_{i=1}^n p(x_i)}
+I(X_1;\dots;X_n) = \sum_{x_1,\dots,x_n} p(x_1,\dots,x_n) \log \frac{p(x_1,\dots,x_n)}{\prod_{i=1}^n p(x_i)}
 $$
 
 ## Local Mutual Information
@@ -27,7 +27,7 @@ However, these local MI will always average to the non-negative global MI value 
 The local MI (or shared information content) between the two events $x$ and $y$, also known as **point-wise mutual information** is given as:
 
 $$
-i(x; y) = -\log_b \left( \frac{p(x, y)}{p(x) p(y)} \right)
+i(x; y) = \log_b \left( \frac{p(x, y)}{p(x) p(y)} \right)
 $$
 
 The MI can be expressed as the average of local MI:
@@ -45,7 +45,7 @@ If the RV are time series, they might share information with each other in a del
 One can implement the time-lagged MI in between the $X$ and $Y$ time series:
 
 $$
-I(X_{t-u}; Y_t) = -\sum_{x_{t-u}, y_t} p(x_{t-u}, y_t) \log \frac{p(x_{t-u}, y_t)}{p(x_{t-u}) p(y_t)}
+I(X_{t-u}; Y_t) = \sum_{x_{t-u}, y_t} p(x_{t-u}, y_t) \log \frac{p(x_{t-u}, y_t)}{p(x_{t-u}) p(y_t)}
 $$
 where,
 - $p(x_t,y_t)$: the joint probability distribution at time $t$,

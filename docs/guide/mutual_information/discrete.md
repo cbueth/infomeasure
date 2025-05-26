@@ -8,7 +8,7 @@ kernelspec:
 {ref}`mutual_information_overview` quantifies the information shared between two discrete random variables $X$ and $Y$ and expressed as below:
 
 $$
-I(X;Y) = -\sum_{x, y} p(x, y) \log \frac{p(x,y)}{p(x) p(y)}
+I(X;Y) = \sum_{x, y} p(x, y) \log \frac{p(x,y)}{p(x) p(y)}
 $$
 where,
 - $p(x,y)$ is the joint probability distribution for the occurrence of joint state $(x,y)$,
