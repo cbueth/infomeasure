@@ -1,5 +1,11 @@
 <div style="text-align: center; max-width: 700px; margin: 0 auto;">
-  <img src="https://github.com/cbueth/infomeasure/blob/main/docs/_static/im_logo_transparent.png?raw=true" style="max-width: 100%; height: auto;" alt="infomeasure logo">
+  <a href="https://infomeasure.readthedocs.io/">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cbueth/infomeasure/refs/heads/main/docs/_static/im_logo_transparent.png">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cbueth/infomeasure/refs/heads/main/docs/_static/im_logo_transparent_dark.png">
+      <img src="https://raw.githubusercontent.com/cbueth/infomeasure/refs/heads/main/docs/_static/im_logo_transparent.png" style="max-width: 100%; height: auto;" alt="infomeasure logo">
+    </picture>
+  </a>
 </div>
 
 <div align="center">
