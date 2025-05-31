@@ -14,6 +14,12 @@ $$
 
 where $p(x)$ is the probability density function (pdf).
 
+```{seealso}
+For a visual and interactive explanation of kernel density estimation (KDE),
+see the chapter [Kernel Density Estimation](https://bookdown.org/egarpor/NP-UC3M/kde-i.html)
+of the Notes for Nonparametric Statistics of the MSc course _Statistics for Data Science_ at Carlos III University of Madrid {cite:p}`garcia-portuguesChapter2Kernel2025`.
+```
+
 Kernel entropy estimation relies on probability density function (pdf) estimates obtained via **kernel density estimation (KDE)** to approximate the required probability in the above formula. Density estimation involves constructing an estimate of the pdf from the available dataset. KDE estimates density at a reference point by weighting all samples based on their distance from it, using a kernel function $(K)$ {cite:p}`silverman1986density`. Nearby points contribute more to the estimate, while distant points contribute less. The KDE estimate at a point $x_n$ is given by:
 
 $$
