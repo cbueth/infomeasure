@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 import infomeasure as im
+from infomeasure import get_estimator_class
 from tests.conftest import discrete_random_variables
 from infomeasure.estimators.base import (
     ConditionalMutualInformationEstimator,
@@ -14,6 +15,7 @@ from infomeasure.estimators.base import (
     Estimator,
     MutualInformationEstimator,
     TransferEntropyEstimator,
+    DiscreteMixin,
 )
 from infomeasure.estimators.entropy import (
     OrdinalEntropyEstimator,
@@ -83,7 +85,7 @@ def test_entropy_class_addressing(entropy_approach):
     assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -97,7 +99,7 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
     entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
     # test entropy(data) == cross_entropy(data, data)
-    if approach_str not in ["metric", "kl"]:
+    if approach_str not in ["metric", "kl", "millermadow", "mm"]:
         assert im.entropy(
             data, approach=approach_str, **needed_kwargs
         ) == pytest.approx(entropy)
@@ -193,10 +195,11 @@ def test_cross_entropy_class_addressing_too_few_vars(n_rv):
 
 
 def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng):
-    """Test cross-entropy is not symmetric. Inputs can be of differing length."""
+    """Test cross-entropy is not symmetric. Inputs can be of differing lengths."""
     approach_str, needed_kwargs = entropy_approach
     p, q = discrete_random_variables(0)
-    if approach_str != "discrete":
+    entropy_class = get_estimator_class(measure="entropy", approach=approach_str)
+    if not issubclass(entropy_class, DiscreteMixin):
         p = p + default_rng.normal(0, 0.1, size=len(p))
         q = q + default_rng.normal(0, 0.1, size=len(q))
     assert (
@@ -270,7 +273,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -323,7 +326,7 @@ def test_mutual_information_class_addressing_n_vars(n_vars, mi_approach, default
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
-    if approach_str not in ["renyi", "tsallis"]:
+    if approach_str not in ["renyi", "tsallis", "millermadow", "mm"]:
         assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
@@ -435,7 +438,7 @@ def test_cond_mutual_information_class_addressing_n_vars(
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
-    if approach_str not in ["renyi", "tsallis"]:
+    if approach_str not in ["renyi", "tsallis", "millermadow", "mm"]:
         assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
@@ -469,7 +472,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -639,7 +642,7 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -685,7 +688,7 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:

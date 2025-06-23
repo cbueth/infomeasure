@@ -2,15 +2,14 @@
 
 from numpy import sum as np_sum, ndarray, asarray
 
-from ..base import EntropyEstimator, DistributionMixin
-from ..utils.ordinal import reduce_joint_space
+from ..base import EntropyEstimator, DistributionMixin, DiscreteMixin
 from ..utils.unique import unique_vals
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
 
 
-class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
+class DiscreteEntropyEstimator(DiscreteMixin, DistributionMixin, EntropyEstimator):
     """Estimator for discrete entropy (Shannon entropy).
 
     Attributes
@@ -20,43 +19,12 @@ class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
     """
 
     def __init__(self, *data, base: LogBaseType = Config.get("base")):
-        """Initialize the DiscreteEntropyEstimator."""
+        """Initialise the DiscreteEntropyEstimator."""
         super().__init__(*data, base=base)
         # warn if the data looks like a float array
-        for i_var in range(len(data)):
-            if (
-                isinstance(self.data[i_var], ndarray)
-                and self.data[i_var].dtype.kind == "f"
-            ):
-                logger.warning(
-                    "The data looks like a float array ("
-                    f"{self.data[i_var].dtype}). "
-                    "Make sure it is properly symbolized or discretized "
-                    "for the entropy estimation."
-                )
-            elif isinstance(self.data[i_var], tuple) and any(
-                isinstance(marginal, ndarray) and marginal.dtype.kind == "f"
-                for marginal in self.data[i_var]
-            ):
-                logger.warning(
-                    "Some of the data looks like a float array. "
-                    "Make sure it is properly symbolized or discretized "
-                    "for the entropy estimation."
-                )
+        self._check_data()
         # reduce any joint space if applicable
-        reduce = tuple(
-            (isinstance(var, ndarray) and var.ndim > 1) or isinstance(var, tuple)
-            for var in self.data
-        )
-        if any(reduce):
-            # As the discrete shannon entropy disregards the order of the data,
-            # we can reduce the values to unique integers.
-            # In case of having multiple random variables (tuple or list),
-            # this enumerates the unique co-occurrences.
-            self.data = tuple(
-                reduce_joint_space(var) if red else var
-                for var, red in zip(self.data, reduce)
-            )
+        self._reduce_space()
 
     def _simple_entropy(self):
         """Calculate the entropy of the data.

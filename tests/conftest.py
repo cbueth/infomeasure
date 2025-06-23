@@ -28,6 +28,10 @@ ENTROPY_APPROACHES = {
         "functional_str": ["metric", "kl"],
         "needed_kwargs": {},
     },
+    "MillerMadowEntropyEstimator": {
+        "functional_str": ["millermadow", "mm"],
+        "needed_kwargs": {},
+    },
     "OrdinalEntropyEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},

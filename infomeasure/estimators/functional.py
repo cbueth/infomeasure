@@ -18,6 +18,9 @@ entropy_estimators = {
     "KozachenkoLeonenkoEntropyEstimator",
     "kl": "infomeasure.estimators.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
+    "millermadow": "infomeasure.estimators.entropy.miller_madow."
+    "MillerMadowEntropyEstimator",
+    "mm": "infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator",
     "renyi": "infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator",
     "ordinal": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "symbolic": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",

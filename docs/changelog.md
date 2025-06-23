@@ -37,6 +37,10 @@ This release introduces an overhaul of the statistical testing functionality wit
 
   - **Consistent Return Types**: All statistical operations return structured objects.
 
+- 🧮 **Added Estimators**:
+
+  - **Miller-Madow Entropy Estimator**: Bias-corrected entropy estimation using the Miller-Madow correction formula. Provides improved entropy estimates for small sample sizes by adding a correction term `(K-1)/(2N)` to the maximum likelihood estimate.
+
 - 📚 Update Documentation
 
 - 🧪 Updated tests
@@ -59,7 +63,7 @@ The `0.4.0` release introduces cross-entropy support, improves code packaging, a
 
   - 📦 Added tests to packaged tarball for testing in `conda-forge`.
 
-  - 🔧 Updated deprecated license classifier.
+  - 🔧 Updated deprecated licence classifier.
 
   - 🔧 Added Zenodo integration and updated README.md with logo and badges.
 
@@ -69,7 +73,7 @@ The `0.4.0` release introduces cross-entropy support, improves code packaging, a
 
 - 📚 **Documentation**:
 
-  - 📚 Added benchmark demo page to documentation.
+  - 📚 Added a benchmark demo page to documentation.
 
   - 📄 Added acknowledgments and funding information.
 

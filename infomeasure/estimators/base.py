@@ -26,6 +26,7 @@ from ..utils.config import logger
 from ..utils.types import EstimatorType, LogBaseType
 from .utils.normalize import normalize_data_0_1
 from .utils.te_slicing import cte_observations, te_observations
+from .utils.ordinal import reduce_joint_space
 
 
 class Estimator(Generic[EstimatorType], ABC):
@@ -1147,6 +1148,107 @@ class DistributionMixin:
                 "Distribution is not available for this estimator."
             )
         return self.dist_dict
+
+
+class DiscreteMixin:
+    """
+    Mixin class for handling discrete data checks.
+
+    This mixin class provides utility methods to ensure that data used for entropy
+    estimation is properly symbolized or discretized. Entropy estimation methods
+    typically require categorical or discrete data and may not work correctly with
+    continuous data without preprocessing. This class helps identify potential issues
+    with the input data format.
+
+    Attributes
+    ----------
+    data : list
+        List of input data associated with each variable or marginal distribution.
+        The format of this data is validated for compatibility with entropy
+        estimation.
+    """
+
+    def _check_data(self):
+        """
+        Checks the data structure for each variable and verifies whether it is
+        properly symbolised or discretised for entropy estimation. Issues a
+        warning if the data seems to be in an inappropriate format, such as a
+        float array.
+
+        This method ensures that the input data is suitable for performing
+        entropy calculations, which may not work correctly with direct float
+        values without prior preprocessing.
+
+        Warnings
+        --------
+        Warning messages are logged if:
+        - The corresponding data for a variable in `self.data` is a NumPy array
+          of a float type.
+        - The corresponding data for a variable is a tuple where any
+          marginal distribution is a NumPy array of a float type.
+
+        """
+        for i_var in range(len(self.data)):
+            if (
+                isinstance(self.data[i_var], ndarray)
+                and self.data[i_var].dtype.kind == "f"
+            ):
+                logger.warning(
+                    "The data looks like a float array ("
+                    f"{self.data[i_var].dtype}). "
+                    "Make sure it is properly symbolized or discretized "
+                    "for the entropy estimation."
+                )
+            elif isinstance(self.data[i_var], tuple) and any(
+                isinstance(marginal, ndarray) and marginal.dtype.kind == "f"
+                for marginal in self.data[i_var]
+            ):
+                logger.warning(
+                    "Some of the data looks like a float array. "
+                    "Make sure it is properly symbolized or discretized "
+                    "for the entropy estimation."
+                )
+
+    def _reduce_space(self):
+        """
+        Reduces the dimensionality of the space by identifying regions that can be
+        collapsed based on the structure of the data.
+        Specifically, this method evaluates whether the entries in self.data are
+        multidimensional arrays or tuples, and if so, processes them to form a reduced
+        joint space representation.
+        This method is typically applied to datasets where co-occurrences or unique
+        configurations across variables need to be mapped to a simpler or more compact
+        representation.
+
+        Notes
+        -----
+        The discrete Shannon entropy calculations often do not depend on the
+        order of the data.
+        Consequently, reducing the data to a set of unique integers or enumerated joint
+        observations is enough for further statistical processing.
+        Multidimensional arrays and tuple entries are handled to enable joint reduction.
+
+        Attributes
+        ----------
+        data : iterable
+            An iterable containing the data to be processed.
+            The data can include multidimensional `ndarray` objects or
+            tuples representing variable entries. Upon processing, the
+            `data` attribute is modified to reflect its reduced form.
+        """
+        reduce = tuple(
+            (isinstance(var, ndarray) and var.ndim > 1) or isinstance(var, tuple)
+            for var in self.data
+        )
+        if any(reduce):
+            # As the discrete shannon entropy disregards the order of the data,
+            # we can reduce the values to unique integers.
+            # In case of having multiple random variables (tuple or list),
+            # this enumerates the unique co-occurrences.
+            self.data = tuple(
+                reduce_joint_space(var) if red else var
+                for var, red in zip(self.data, reduce)
+            )
 
 
 @dataclass
