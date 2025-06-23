@@ -1,11 +1,22 @@
 """Module containing the base classes for the measure estimators."""
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from io import UnsupportedOperation
-from operator import gt
-from typing import Callable, Generic, final, Sequence
+from typing import Callable, Generic, final, Sequence, Union
 
-from numpy import asarray, integer, issubdtype, log, log2, log10, nan, ndarray, std
+from numpy import (
+    asarray,
+    integer,
+    issubdtype,
+    log,
+    log2,
+    log10,
+    nan,
+    ndarray,
+    percentile,
+    std,
+)
 from numpy import mean as np_mean
 from numpy import sum as np_sum
 from numpy.random import default_rng
@@ -1138,16 +1149,133 @@ class DistributionMixin:
         return self.dist_dict
 
 
-class PValueMixin(RandomGeneratorMixin):
-    """Mixin for p-value calculation.
+@dataclass
+class StatisticalTestResult:
+    """Comprehensive statistical test result containing *p*-value, *t*-score,
+    and confidence intervals.
 
-    There are two methods to calculate the p-value:
+    Attributes
+    ----------
+    p_value : float
+        The *p*-value of the statistical test.
+    t_score : float
+        The *t*-score (standardized test statistic).
+    test_values : ndarray
+        The test values from permutation/bootstrap sampling.
+    observed_value : float
+        The observed value being tested.
+    null_mean : float
+        Mean of the null distribution (test values).
+    null_std : float
+        Standard deviation of the null distribution.
+    n_tests : int
+        Number of tests performed (permutations or bootstrap samples).
+    method : str
+        The statistical test method used ("permutation_test" or "bootstrap").
+    """
+
+    p_value: float
+    t_score: float
+    test_values: ndarray
+    observed_value: float
+    null_mean: float
+    null_std: float
+    n_tests: int
+    method: str
+
+    def percentile(self, q, method="linear"):
+        """Compute the q-th percentile of the test values.
+
+        This method wraps numpy's percentile function to compute percentiles
+        of the test values from the statistical test.
+
+        Parameters
+        ----------
+        q : array_like of float
+            Percentage or sequence of percentages for the percentiles to compute.
+            Values must be between 0 and 100 inclusive.
+        method : str, optional
+            Method to use for estimating the percentile. Default is "linear".
+            See :py:func:`numpy.percentile` for available methods.
+
+        Returns
+        -------
+        percentile : scalar or ndarray
+            If `q` is a single percentile, returns a scalar.
+            If multiple percentiles are given, returns an array.
+
+        See Also
+        --------
+        numpy.percentile : Compute percentiles along specified axes.
+
+        Notes
+        -----
+        For details on the method parameter, reference :py:func:`numpy.percentile`.
+
+        Examples
+        --------
+        >>> result = estimator.statistical_test(n_tests=100,method="permutation_test")
+        >>> result.percentile(50)  # Median
+        >>> result.percentile([25, 75])  # Quartiles
+        >>> result.percentile(95, method="nearest")  # 95th percentile with nearest method
+        """
+        return percentile(self.test_values, q, method=method)
+
+    def confidence_interval(self, confidence_level, method="linear"):
+        """Get confidence interval for the specified confidence level.
+
+        This is a convenience function that converts a confidence level
+        (e.g., 95 for 95% CI) to the appropriate percentile calls.
+
+        Parameters
+        ----------
+        confidence_level : float
+            Confidence level as a percentage (e.g., 95 for 95% CI).
+            Must be between 0 and 100.
+        method : str, optional
+            Method to use for estimating the percentile. Default is "linear".
+            See :py:func:`numpy.percentile` for available methods.
+
+        Returns
+        -------
+        ndarray
+            Array containing [lower_bound, upper_bound] of the confidence interval.
+
+        Raises
+        ------
+        ValueError
+            If confidence_level is not between 0 and 100.
+
+        Examples
+        --------
+        >>> result = estimator.statistical_test(n_tests=100)
+        >>> result.confidence_interval(95)  # 95% CI
+        >>> result.confidence_interval(90, method="nearest")  # 90% CI with nearest method
+        """
+        # Validate confidence level
+        if not 0 < confidence_level < 100:
+            raise ValueError(
+                f"Confidence level must be between 0 and 100, got {confidence_level}"
+            )
+
+        # Calculate percentiles: y = (100 - x) / 2
+        y = (100 - confidence_level) / 2
+        percentiles = [y, 100 - y]
+
+        return self.percentile(percentiles, method=method)
+
+
+class PValueMixin(RandomGeneratorMixin):
+    """Mixin for comprehensive statistical testing including *p*-values, *t*-scores,
+    and confidence intervals.
+
+    There are two methods to perform statistical tests:
 
     - Permutation test: shuffle the data and calculate the measure.
     - Bootstrap: resample the data and calculate the measure.
 
-    The :func:`p_value` can be used to determine a p-value for a measure,
-    and :func:`t_score` to get the corresponding t-score.
+    The :func:`statistical_test` method provides comprehensive statistical analysis
+    including *p*-value, *t*-score, and confidence intervals in a single call.
 
     To be used as a mixin class with other :class:`Estimator` Estimator classes.
     Inherit before the main class.
@@ -1156,31 +1284,33 @@ class PValueMixin(RandomGeneratorMixin):
     -----
     The permutation test is a non-parametric statistical test to determine if the
     observed effect is significant. The null hypothesis is that the measure is
-    not different from random, and the p-value is the proportion of permuted
+    not different from random, and the *p*-value is the proportion of permuted
     measures greater than the observed measure.
+
+    Confidence intervals are calculated using percentiles of the null distribution
+    from the resampling procedure.
 
     Raises
     ------
     NotImplementedError
-        If the p-value method is not implemented for the estimator.
+        If the statistical test is not implemented for the estimator.
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize the permutation test."""
+        """Initialize the statistical test mixin."""
         self.original_data = None
         self.data = None
-        self.p_val: float = None
-        self.t_scr: float = None
-        self.p_val_method: str = None
-        self.n_tests: int = None
         super().__init__(*args, **kwargs)
         if not isinstance(self, (MutualInformationEstimator, TransferEntropyEstimator)):
             raise NotImplementedError(
-                "P-value method is not implemented for the estimator."
+                "Statistical test is not implemented for the estimator."
             )
 
-    def p_value(self, n_tests: int = None, method: str = None) -> float:
-        """Calculate the p-value of the measure.
+    def statistical_test(
+        self, n_tests: int = None, method: str = None
+    ) -> StatisticalTestResult:
+        """Perform comprehensive statistical test including *p*-value, *t*-score,
+        and confidence intervals.
 
         Method can be "permutation_test" or "bootstrap".
 
@@ -1192,156 +1322,132 @@ class PValueMixin(RandomGeneratorMixin):
         n_tests : int, optional
             Number of permutations or bootstrap samples.
             Needs to be a positive integer.
-            Default is None, which means, if :py:meth:`t_score` was calculated before,
-            the same number of tests will be used.
+            Default is the value set in the configuration.
         method : str, optional
-            The method to calculate the p-value.
-            Default is None, which means, if :py:meth:`t_score` was calculated before,
-            the same method will be used.
-            If :py:meth:`t_score` was not calculated before,
-            it will be calculated using the default method set in the configuration.
+            The method to calculate the statistical test.
+            Options are "permutation_test" or "bootstrap".
+            Default is the value set in the configuration.
 
         Returns
         -------
-        p_value : float
-            The p-value of the measure.
+        StatisticalTestResult
+            Comprehensive statistical test result containing *p*-value, *t*-score,
+            and metadata. Percentiles can be calculated on demand using
+            the percentile() method.
 
         Raises
         ------
         ValueError
             If the chosen method is unknown.
+        UnsupportedOperation
+            If the statistical test is not supported for the estimator type.
         """
-        if (
-            self.p_val is not None
-            and (method == self.p_val_method or method is None)
-            and (n_tests == self.n_tests or n_tests is None)
-        ):
-            return self.p_val
+        # Set defaults
+        if n_tests is None:
+            n_tests = Config.get("statistical_test_n_tests")
+        if method is None:
+            method = Config.get("statistical_test_method")
+
         logger.debug(
-            "Calculating the p-value and t-score "
+            "Calculating statistical test "
             f"of the measure {self.__class__.__name__} "
             f"using the {method} method with {n_tests} tests."
         )
-        self.p_val_method = (
-            method if method is not None else Config.get("p_value_method")
-        )
-        self.n_tests = n_tests
+
+        # Validate inputs
+        if not issubdtype(type(n_tests), integer) or n_tests < 1:
+            raise ValueError(
+                "Number of tests must be a positive integer, "
+                f"not {n_tests} ({type(n_tests)})."
+            )
+
         if isinstance(self, MutualInformationEstimator):
             if len(self.data) != 2:
                 raise UnsupportedOperation(
-                    "Permutation test on mutual information is only supported "
+                    "Statistical test on mutual information is only supported "
                     "for two variables."
                 )
-            method = self.test_mi
+            test_method = self._test_mi
         elif isinstance(self, TransferEntropyEstimator):
-            method = self.test_te
+            test_method = self._test_te
         else:
             raise NotImplementedError(
-                "Permutation test is not implemented for this estimator."
+                "Statistical test is not implemented for this estimator."
             )
-        self.p_val, self.t_scr = method(n_tests)
-        return self.p_val
 
-    def t_score(self, n_tests: int = None, method: str = None) -> float:
-        """Get the t-score of the measure.
-
-        Parameters
-        ----------
-        n_tests : int, optional
-            Number of permutations or bootstrap samples.
-            Needs to be a positive integer.
-            Default is None, which means, if :py:meth:`p_value` was calculated before,
-            the same number of tests will be used.
-        method : str, optional
-            The method to calculate the t-score.
-            Default is None, which means, if :py:meth:`p_value` was calculated before,
-            the same method will be used.
-            If :py:meth:`p_value` was not calculated before,
-            it will be calculated using the default method set in the configuration.
-
-        Returns
-        -------
-        t_score : float
-            The t-score of the measure.
-
-        Notes
-        -----
-        The t-score is the difference between the observed value and the mean of the
-        permuted values, divided by the standard deviation of the permuted values
-        (if it is greater than 0).
-        One can get the z-score by converting the t-score using the cumulative
-        distribution function (CDF) of the t-distribution and the inverse CDF
-        (percent-point function) of the standard normal distribution.
-
-        Raises
-        ------
-        ValueError
-            If the chosen method is unknown.
-        """
-        if (
-            self.t_scr is not None
-            and (method == self.p_val_method or method is None)
-            and (n_tests == self.n_tests or n_tests is None)
-        ):
-            return self.t_scr
-        self.p_value(n_tests=n_tests, method=method)
-        return self.t_scr
+        # Generate test values and calculate comprehensive result
+        test_values = test_method(n_tests, method)
+        return self._statistical_test_result(
+            observed_value=self.global_val(),
+            test_values=test_values,
+            n_tests=n_tests,
+            method=method,
+        )
 
     @staticmethod
-    def _p_value_t_score(
-        observed_value, test_values, comparison: Callable = gt
-    ) -> tuple[float, float]:
+    def _statistical_test_result(
+        observed_value: float,
+        test_values: Union[ndarray, list, tuple],
+        n_tests: int,
+        method: str,
+    ) -> StatisticalTestResult:
         """
-        Calculate the p-value and t-score of the observed value.
-        Given a list of test values, the number of permutations, and the observed value,
-        calculate the p-value and t-score.
+        Calculate comprehensive statistical test result including *p*-value, *t*-score,
+        and confidence intervals.
 
         Parameters
         ----------
         observed_value : float
             The observed value.
         test_values : array-like
-            The test values.
-        comparison : operator, optional
-            The comparison operator to use.
-            Pass `operator.lt` for less than, `operator.gt` for greater than.
-            Default is greater.
+            The test values from permutation/bootstrap sampling.
+        n_tests : int
+            Number of tests performed (permutations or bootstrap samples).
+        method : str
+            The statistical test method used ("permutation_test" or "bootstrap").
 
         Returns
         -------
-        float, float
-            The p-value and t-score of the measure.
+        StatisticalTestResult
+            Comprehensive statistical test result object.
 
         Raises
         ------
         ValueError
-            If the observed value is not a float.
+            If the observed value is not numeric.
         ValueError
-            If the test values are not an array-like.
-        ValueError
-            If the comparison operator is not a function.
+            If the test values are not array-like.
         """
-        if not isinstance(observed_value, float):
-            raise ValueError("Observed value must be a float.")
+        # Input validation
+        if not isinstance(observed_value, (int, float)):
+            raise ValueError("Observed value must be numeric.")
         if not isinstance(test_values, (ndarray, list, tuple)):
-            raise ValueError("Test values must be an array-like.")
-        if not callable(comparison):
-            raise ValueError("Comparison operator must be a function.")
+            raise ValueError("Test values must be array-like.")
         if len(test_values) < 2:
             raise ValueError("Not enough test values for statistical test.")
+
         test_values = asarray(test_values)
 
+        # Calculate basic statistics
         null_mean = np_mean(test_values)
         null_std = std(test_values, ddof=1)  # Unbiased estimator (dividing by N-1)
 
-        # Compute p-value: proportion of test values greater than the observed value
-        #                  (or different operator if specified)
-        p_value = np_sum(comparison(test_values, observed_value)) / len(test_values)
+        # Compute *p*-value: proportion of test values greater than the observed value
+        p_value = np_sum(test_values > observed_value) / len(test_values)
 
-        # Compute t-score:
+        # Compute *t*-score
         t_score = (observed_value - null_mean) / null_std if null_std > 0 else nan
 
-        return p_value, t_score
+        return StatisticalTestResult(
+            p_value=p_value,
+            t_score=t_score,
+            test_values=test_values.copy(),
+            observed_value=float(observed_value),
+            null_mean=null_mean,
+            null_std=null_std,
+            n_tests=n_tests,
+            method=method,
+        )
 
     def _calculate_mi_with_data_selection(self, method_resample_src: Callable):
         """Calculate the measure for the resampled data using specific method."""
@@ -1360,90 +1466,91 @@ class PValueMixin(RandomGeneratorMixin):
             res_permuted if isinstance(res_permuted, float) else np_mean(res_permuted)
         )
 
-    def test_mi(self, n_tests: int) -> float:
-        """Test the mutual information with a permutation test or bootstrap.
+    def _test_mi(self, n_tests: int, method: str) -> ndarray:
+        """Generate test values for mutual information using permutation test or
+        bootstrap.
 
         Parameters
         ----------
         n_tests : int
             The number of permutations or bootstrap samples.
+        method : str
+            The method to use ("permutation_test" or "bootstrap").
 
         Returns
         -------
-        float, float
-            The p-value and t-score of the measure.
+        ndarray
+            Array of test values from resampling.
 
         Raises
         ------
         ValueError
-            If the number of permutations is not a positive integer.
+            If the method is invalid.
         """
-        if not issubdtype(type(n_tests), integer) or n_tests < 1:
-            raise ValueError(
-                "Number of permutations must be a positive integer, "
-                f"not {n_tests} ({type(n_tests)})."
-            )
         # Store unshuffled data
         self.original_data = self.data
-        # Perform permutations
-        if self.p_val_method == "permutation_test":
+
+        # Set up resampling method
+        if method == "permutation_test":
             method_resample_src = lambda data_src: self.rng.permutation(
                 data_src, axis=0
             )
-        elif self.p_val_method == "bootstrap":
+        elif method == "bootstrap":
             method_resample_src = lambda data_src: self.rng.choice(
                 data_src, size=data_src.shape[0], replace=True, axis=0
             )
         else:
-            raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
+            raise ValueError(f"Invalid statistical test method: {method}.")
+
+        # Generate test values
         permuted_values = [
             self._calculate_mi_with_data_selection(method_resample_src)
             for _ in range(n_tests)
         ]
+
         # Restore the original data
         self.data = self.original_data
-        return self._p_value_t_score(
-            observed_value=self.global_val(), test_values=permuted_values
-        )
+        return asarray(permuted_values)
 
-    def test_te(self, n_tests: int) -> float:
-        """Calculate the permutation test for transfer entropy.
+    def _test_te(self, n_tests: int, method: str) -> ndarray:
+        """Generate test values for transfer entropy using permutation test or
+        bootstrap.
 
         Parameters
         ----------
         n_tests : int
-            The number of permutations to perform.
+            The number of permutations or bootstrap samples.
+        method : str
+            The method to use ("permutation_test" or "bootstrap").
 
         Returns
         -------
-        float
-            The p-value of the measure.
+        ndarray
+            Array of test values from resampling.
 
         Raises
         ------
         ValueError
-            If the number of permutations is not a positive integer.
+            If the method is invalid.
         """
-        if not issubdtype(type(n_tests), integer) or n_tests < 1:
-            raise ValueError(
-                "Number of permutations must be a positive integer, "
-                f"not {n_tests} ({type(n_tests)})."
-            )
-        # Activate the permutation flag to permute the source data when slicing
-        if self.p_val_method == "permutation_test":
+        # Set up resampling method
+        if method == "permutation_test":
             self.permute_src = self.rng
-        elif self.p_val_method == "bootstrap":
+            self.resample_src = False
+        elif method == "bootstrap":
             self.resample_src = self.rng
+            self.permute_src = False
         else:
-            raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
+            raise ValueError(f"Invalid statistical test method: {method}.")
+
+        # Generate test values
         permuted_values = [self._calculate() for _ in range(n_tests)]
         if isinstance(permuted_values[0], ndarray):
             permuted_values = [np_mean(x) for x in permuted_values]
-        # Deactivate the permutation/resample flag
+
+        # Deactivate the permutation/resample flags
         self.permute_src, self.resample_src = False, False
-        return self._p_value_t_score(
-            observed_value=self.global_val(), test_values=permuted_values
-        )
+        return asarray(permuted_values)
 
 
 class EffectiveValueMixin:

@@ -45,12 +45,12 @@ two key issues: **bias**, which is the expected difference between true values a
 **variance**, which refers to the variability or spread in the estimates.
 To ensure accuracy, estimation techniques must minimize both.
 This package offers a variety of estimation methods, allowing users to choose the most suitable one.
-Additionally, it provides an option to compute **p-values** for measures like Mutual Information (MI) and Transfer Entropy (TE) by assuming no relationship as the null hypothesis.
-The corresponding **t-scores** are also provided.
+Additionally, it provides an option to compute **_p_-values** for measures like Mutual Information (MI) and Transfer Entropy (TE) by assuming no relationship as the null hypothesis.
+The corresponding **_t_-scores** and **confidence intervals** are also provided.
 For TE, we implement effective Transfer Entropy (eTE), a method designed to reduce bias from finite sample effects.
 
 ```{admonition} This Package
-- allows users to compute **p-values** for MI and TE to assess significance.
+- allows users to compute **_p_-values** for MI and TE to assess significance.
 - includes  **effective Transfer Entropy (eTE)**, reducing bias from finite sample sizes.
 ```
 

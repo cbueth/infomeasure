@@ -67,7 +67,8 @@ im.mutual_information(data_x, data_y, data_z, approach="discrete")
 
 ```{code-cell}
 est = im.estimator(data_x, data_y, measure="mi", approach="discrete")
-est.local_vals(), est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+est.local_vals(), stat_test.p_value, stat_test.t_score, stat_test.confidence_interval(90), stat_test.percentile(50)
 ```
 
 

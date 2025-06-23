@@ -60,7 +60,8 @@ est = im.estimator(data_x, data_y, measure="mutual_information",
                    approach="discrete", prop_time=1)
 print(f"Mutual Information with im.mutual_information = {mi}")
 print(f"Mutual Information with im.estimator          = {est.result()}")
-print(f"P-value = {est.p_value(10)}, t-score = {est.t_score(10)}")
+result = est.statistical_test(n_tests=10)
+print(f"p-value = {result.p_value}, p-score = {result.t_score}")
 ```
 
 Transfer entropy can be calculated as follows:
@@ -71,13 +72,14 @@ dest = [0.0, 0.8, -0.7, 0.2, 1.2, 1.0, 1.3, 0.7, 0.8, -0.1]
 te = im.transfer_entropy(source, dest, approach="metric", noise_level=0.001)
 # or
 est = im.estimator(source, dest, measure="transfer_entropy", approach="metric", noise_level=0.001)
-#te, (est.result(), est.p_value(10), est.t_score(10))
+#te, (est.result(), est.statistical_test(10).p_value, est.statistical_test(10).t_score)
 print(f"Transfer Entropy with im.transfer_entropy = {te}")
 print(f"Transfer Entropy with im.estimator        = {est.result()} (differs due to noise)")
-print(f"p-value = {est.p_value(10)}, t-score = {est.t_score(10)}")
+result = est.statistical_test(n_tests=10)
+print(f"p-value = {result.p_value}, p-score = {result.t_score}")
 ```
 
-In {ref}`Estimator Usage`, you can find more information on how to use the estimators, specific functions, p-value estimation and which approaches are available.
+In {ref}`Estimator Usage`, you can find more information on how to use the estimators, specific functions, _p_-value estimation and which approaches are available.
 
 For more insight into the package, read the {ref}`Reference Guide`
 or the {ref}`API Reference`.
