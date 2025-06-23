@@ -83,7 +83,8 @@ but {ref}`hypothesis testing` is.
 
 ```{code-cell}
 est = im.estimator(data_x, data_y, measure="mi", approach="renyi", alpha=1.0)
-est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+stat_test.p_value, stat_test.t_score, stat_test.confidence_interval(90), stat_test.percentile(50)
 ```
 
 The estimators are implemented in the {py:class}`RenyiMIEstimator <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>` and {py:class}`TsallisMIEstimator <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>` class,

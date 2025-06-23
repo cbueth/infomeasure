@@ -80,7 +80,8 @@ est.effective_val()
 {ref}`hypothesis testing` can also be conducted, with either a permutation test or bootstrapping.
 
 ```{code-cell}
-est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+stat_test.p_value, stat_test.t_score, stat_test.confidence_interval(90), stat_test.percentile(50)
 ```
 
 The estimator is implemented in the {py:class}`DiscreteTEEstimator <infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator>` class,

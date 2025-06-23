@@ -275,7 +275,8 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
             est.local_vals()
     else:
         assert isinstance(est.local_vals(), np.ndarray)
-    assert 0 <= est.p_value(10) <= 1
+    result = est.statistical_test(10)
+    assert 0 <= result.p_value <= 1
 
 
 @pytest.mark.parametrize("n_vars", [0, 1])
@@ -327,12 +328,13 @@ def test_mutual_information_class_addressing_n_vars(n_vars, mi_approach, default
     else:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
-    # p-value is only supported for 2 variables
+    # statistical test is only supported for 2 variables
     if n_vars == 2:
-        assert 0 <= est.p_value(10) <= 1
+        result = est.statistical_test(10)
+        assert 0 <= result.p_value <= 1
     else:
         with pytest.raises(UnsupportedOperation):
-            est.p_value(10)
+            est.statistical_test(10)
 
 
 @pytest.mark.parametrize("normalize", [True, False])
@@ -438,9 +440,9 @@ def test_cond_mutual_information_class_addressing_n_vars(
     else:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
-    # p-value is not supported for conditional mutual information
+    # statistical test is not supported for conditional mutual information
     with pytest.raises(AttributeError):
-        est.p_value(10)
+        est.statistical_test(10)
 
 
 @pytest.mark.parametrize("normalize", [True, False])
@@ -642,7 +644,8 @@ def test_transfer_entropy_class_addressing(te_approach):
             est.local_vals()
     else:
         assert isinstance(est.local_vals(), np.ndarray)
-    assert 0 <= est.p_value(10) <= 1
+    result = est.statistical_test(10)
+    assert 0 <= result.p_value <= 1
     assert isinstance(est.effective_val(), float)
 
 
