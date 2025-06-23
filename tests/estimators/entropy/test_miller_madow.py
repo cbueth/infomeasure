@@ -78,6 +78,7 @@ def test_miller_madow_joint_entropy(data, base, expected):
     """Test the Miller-Madow joint entropy estimator."""
     est = estimator(data, measure="entropy", approach="millermadow", base=base)
     assert est.result() == pytest.approx(expected)
+    est.local_vals()
 
 
 # try different bases with uniform distribution

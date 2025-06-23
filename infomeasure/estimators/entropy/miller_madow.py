@@ -52,14 +52,32 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         uniq, counts, self.dist_dict = unique_vals(self.data[0])
         probabilities = asarray(list(self.dist_dict.values()))
 
+        correction = self._mm_factor()
+        # Calculate the entropy
+        return -np_sum(probabilities * self._log_base(probabilities)) + correction
+
+    def _extract_local_values(self):
+        """Separately, calculate the local values.
+
+        Returns
+        -------
+        ndarray[float]
+            The calculated local values of entropy.
+        """
+        p_local = [self.dist_dict[val] for val in self.data[0]]
+
+        correction = self._mm_factor()
+
+        return -self._log_base(p_local) + correction
+
+    def _mm_factor(self):
         # Miller-Madow correction factor
         K = len(self.dist_dict)  # number of unique values
         N = len(self.data[0])  # total observations
         correction = (K - 1) / (2 * N)
         if self.base != "e":
-            correction = correction / log(self.base)
-        # Calculate the entropy
-        return -np_sum(probabilities * self._log_base(probabilities)) + correction
+            correction /= log(self.base)
+        return correction
 
     def _joint_entropy(self):
         """Calculate the joint Miller-Madow entropy of the data.

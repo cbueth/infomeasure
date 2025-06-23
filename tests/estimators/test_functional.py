@@ -85,7 +85,7 @@ def test_entropy_class_addressing(entropy_approach):
     assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
-    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -273,7 +273,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -326,7 +326,7 @@ def test_mutual_information_class_addressing_n_vars(n_vars, mi_approach, default
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
-    if approach_str not in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str not in ["renyi", "tsallis"]:
         assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
@@ -438,7 +438,7 @@ def test_cond_mutual_information_class_addressing_n_vars(
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
-    if approach_str not in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str not in ["renyi", "tsallis"]:
         assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
@@ -472,7 +472,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -642,7 +642,7 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -688,7 +688,7 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert isinstance(est.global_val(), float)
     assert est.global_val() == est.res_global
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis", "millermadow", "mm"]:
+    if approach_str in ["renyi", "tsallis"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
