@@ -86,7 +86,7 @@ def test_entropy_class_addressing(entropy_approach):
     assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str in ["renyi", "tsallis", "chao_shen", "cs"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -99,7 +99,7 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 100)
 
     # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
-    if approach_str in ["grassberger", "shrink", "js"]:
+    if approach_str in ["grassberger", "shrink", "js", "chao_shen", "cs"]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.entropy(data, data, approach=approach_str, **needed_kwargs)
         with pytest.raises(TheoreticalInconsistencyError):
@@ -109,7 +109,7 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
     entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
     # test entropy(data) == cross_entropy(data, data)
-    if approach_str not in ["metric", "kl", "millermadow", "mm"]:
+    if approach_str not in ["metric", "kl", "miller_madow", "mm"]:
         assert im.entropy(
             data, approach=approach_str, **needed_kwargs
         ) == pytest.approx(entropy)
@@ -128,7 +128,7 @@ def test_cross_entropy_class_addressing(entropy_approach, default_rng):
         data = data + default_rng.normal(0, 0.1, size=len(data))
 
     # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
-    if approach_str in ["grassberger", "shrink", "js"]:
+    if approach_str in ["grassberger", "shrink", "js", "chao_shen", "cs"]:
         with pytest.raises(TheoreticalInconsistencyError):
             est = im.estimator(
                 data,
@@ -228,7 +228,7 @@ def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng)
         q = q + default_rng.normal(0, 0.1, size=len(q))
 
     # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
-    if approach_str in ["grassberger", "shrink", "js"]:
+    if approach_str in ["grassberger", "shrink", "js", "chao_shen", "cs"]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)
         return  # Test passes by design for these approaches
@@ -259,7 +259,7 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
             if approach_str
             not in [
                 "discrete",
-                "millermadow",
+                "miller_madow",
                 "mm",
                 "ordinal",
                 "symbolic",
@@ -306,7 +306,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
             if approach_str
             not in [
                 "discrete",
-                "millermadow",
+                "miller_madow",
                 "mm",
                 "ordinal",
                 "symbolic",
@@ -404,7 +404,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
             if approach_str
             not in [
                 "discrete",
-                "millermadow",
+                "miller_madow",
                 "mm",
                 "ordinal",
                 "symbolic",
@@ -426,7 +426,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
             if approach_str
             not in [
                 "discrete",
-                "millermadow",
+                "miller_madow",
                 "mm",
                 "ordinal",
                 "symbolic",
@@ -446,7 +446,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
             if approach_str
             not in [
                 "discrete",
-                "millermadow",
+                "miller_madow",
                 "mm",
                 "ordinal",
                 "symbolic",
@@ -537,7 +537,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
             if approach_str
             not in [
                 "discrete",
-                "millermadow",
+                "miller_madow",
                 "mm",
                 "ordinal",
                 "symbolic",

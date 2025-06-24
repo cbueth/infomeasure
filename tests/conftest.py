@@ -16,6 +16,10 @@ from infomeasure.estimators import entropy, mutual_information, transfer_entropy
 #  estimator. All other kwargs should be tested in each dedicated estimator test file.
 
 ENTROPY_APPROACHES = {
+    "ChaoShenEntropyEstimator": {
+        "functional_str": ["chao_shen", "cs"],
+        "needed_kwargs": {},
+    },
     "DiscreteEntropyEstimator": {
         "functional_str": ["discrete"],
         "needed_kwargs": {},
@@ -33,7 +37,7 @@ ENTROPY_APPROACHES = {
         "needed_kwargs": {},
     },
     "MillerMadowEntropyEstimator": {
-        "functional_str": ["millermadow", "mm"],
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "OrdinalEntropyEstimator": {
@@ -68,7 +72,7 @@ MI_APPROACHES = {
         "needed_kwargs": {},
     },
     "MillerMadowMIEstimator": {
-        "functional_str": ["millermadow", "mm"],
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiMIEstimator": {
@@ -99,7 +103,7 @@ CMI_APPROACHES = {
         "needed_kwargs": {},
     },
     "MillerMadowCMIEstimator": {
-        "functional_str": ["millermadow", "mm"],
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiCMIEstimator": {
@@ -130,7 +134,7 @@ TE_APPROACHES = {
         "needed_kwargs": {},
     },
     "MillerMadowTEEstimator": {
-        "functional_str": ["millermadow", "mm"],
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiTEEstimator": {
@@ -162,7 +166,7 @@ CTE_APPROACHES = {
         "needed_kwargs": {},
     },
     "MillerMadowCTEEstimator": {
-        "functional_str": ["millermadow", "mm"],
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiCTEEstimator": {

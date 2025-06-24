@@ -45,7 +45,7 @@ from infomeasure import entropy, estimator
 )
 def test_miller_madow_entropy(data, base, expected):
     """Test the Miller-Madow entropy estimator."""
-    assert entropy(data, approach="millermadow", base=base) == pytest.approx(expected)
+    assert entropy(data, approach="miller_madow", base=base) == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
@@ -76,7 +76,7 @@ def test_miller_madow_entropy(data, base, expected):
 )
 def test_miller_madow_joint_entropy(data, base, expected):
     """Test the Miller-Madow joint entropy estimator."""
-    est = estimator(data, measure="entropy", approach="millermadow", base=base)
+    est = estimator(data, measure="entropy", approach="miller_madow", base=base)
     assert est.result() == pytest.approx(expected)
     est.local_vals()
 
@@ -99,7 +99,7 @@ def test_miller_madow_entropy_uniform(length, base):
     else:
         expected = log(length) / log(base) + correction / log(base)
 
-    assert entropy(data, approach="millermadow", base=base) == pytest.approx(expected)
+    assert entropy(data, approach="miller_madow", base=base) == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
@@ -113,4 +113,4 @@ def test_miller_madow_entropy_uniform(length, base):
 )
 def test_miller_madow_cross_entropy(data_p, data_q):
     """Test the Miller-Madow cross-entropy estimator."""
-    assert entropy(data_p, data_q, approach="millermadow") > 0
+    assert entropy(data_p, data_q, approach="miller_madow") > 0

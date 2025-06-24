@@ -42,14 +42,14 @@ def test_miller_madow_autoregressive(rng_int_prop, prop_time, expected_xy, expec
     assert isinstance(res_xy, float)
     assert res_xy == pytest.approx(expected_xy)
     assert im.transfer_entropy(
-        data_source, data_dest, approach="millermadow", base=2, prop_time=prop_time
+        data_source, data_dest, approach="miller_madow", base=2, prop_time=prop_time
     ) == pytest.approx(expected_xy)
     est_yx = MillerMadowTEEstimator(data_dest, data_source, base=2, prop_time=prop_time)
     res_yx = est_yx.result()
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)
     assert im.transfer_entropy(
-        data_dest, data_source, approach="millermadow", base=2, prop_time=prop_time
+        data_dest, data_source, approach="miller_madow", base=2, prop_time=prop_time
     ) == pytest.approx(expected_yx)
 
 
@@ -111,7 +111,7 @@ def test_cte_miller_madow_autoregressive(rng_int, expected_xy, expected_yx):
         data_source,
         data_dest,
         cond=data_cond,
-        approach="millermadow",
+        approach="miller_madow",
         base=2,
     ) == pytest.approx(expected_xy)
     est_yx = MillerMadowCTEEstimator(data_dest, data_source, cond=data_cond, base=2)
@@ -119,7 +119,7 @@ def test_cte_miller_madow_autoregressive(rng_int, expected_xy, expected_yx):
     assert isinstance(res_yx, float)
     assert res_yx == pytest.approx(expected_yx)
     assert im.transfer_entropy(
-        data_dest, data_source, cond=data_cond, approach="millermadow", base=2
+        data_dest, data_source, cond=data_cond, approach="miller_madow", base=2
     ) == pytest.approx(expected_yx)
 
 

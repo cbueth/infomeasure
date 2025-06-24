@@ -55,7 +55,7 @@ def test_miller_madow_mi_basic(data_x, data_y, base, expected_correction):
     mi_regular = im.mutual_information(data_x, data_y, approach="discrete", base=base)
 
     # Calculate MI with Miller-Madow correction
-    mi_mm = im.mutual_information(data_x, data_y, approach="millermadow", base=base)
+    mi_mm = im.mutual_information(data_x, data_y, approach="miller_madow", base=base)
 
     # The difference should be approximately the expected correction
     assert mi_mm - mi_regular == pytest.approx(expected_correction, abs=1e-10)
@@ -169,7 +169,7 @@ def test_miller_madow_mi_vs_discrete():
     data_y = [(i + 1) % 10 for i in range(1000)]
 
     mi_discrete = im.mutual_information(data_x, data_y, approach="discrete", base=2)
-    mi_mm = im.mutual_information(data_x, data_y, approach="millermadow", base=2)
+    mi_mm = im.mutual_information(data_x, data_y, approach="miller_madow", base=2)
 
     # For large samples, the correction should be small
     assert abs(mi_mm - mi_discrete) < 0.1
@@ -186,7 +186,7 @@ def test_miller_madow_cmi_vs_discrete():
         data_x, data_y, cond=cond, approach="discrete", base=2
     )
     cmi_mm = im.conditional_mutual_information(
-        data_x, data_y, cond=cond, approach="millermadow", base=2
+        data_x, data_y, cond=cond, approach="miller_madow", base=2
     )
 
     # For large samples, the correction should be small
