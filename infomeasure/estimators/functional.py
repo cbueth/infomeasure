@@ -23,6 +23,8 @@ entropy_estimators = {
     "MillerMadowEntropyEstimator",
     "mm": "infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator",
     "renyi": "infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator",
+    "shrink": "infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator",
+    "js": "infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator",
     "ordinal": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "symbolic": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "permutation": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
@@ -269,8 +271,9 @@ def entropy(*data, approach: str, **kwargs: any):
     4. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
     5. [``millermadow``, ``mm``]: :func:`Miller-Madow entropy estimator. <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
     6. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
-    7. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
-    8. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    7. [``shrink``, ``js``]: :func:`Shrinkage (James-Stein) entropy estimator. <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
+    8. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
+    9. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
 
 
     For the discrete Shannon entropy this is

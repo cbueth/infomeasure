@@ -44,6 +44,10 @@ ENTROPY_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
+    "ShrinkEntropyEstimator": {
+        "functional_str": ["shrink", "js"],
+        "needed_kwargs": {},
+    },
     "TsallisEntropyEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},

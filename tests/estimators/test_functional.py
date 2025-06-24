@@ -99,7 +99,7 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 100)
 
     # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
-    if approach_str == "grassberger":
+    if approach_str in ["grassberger", "shrink", "js"]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.entropy(data, data, approach=approach_str, **needed_kwargs)
         with pytest.raises(TheoreticalInconsistencyError):
@@ -128,7 +128,7 @@ def test_cross_entropy_class_addressing(entropy_approach, default_rng):
         data = data + default_rng.normal(0, 0.1, size=len(data))
 
     # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
-    if approach_str == "grassberger":
+    if approach_str in ["grassberger", "shrink", "js"]:
         with pytest.raises(TheoreticalInconsistencyError):
             est = im.estimator(
                 data,
@@ -228,7 +228,7 @@ def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng)
         q = q + default_rng.normal(0, 0.1, size=len(q))
 
     # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
-    if approach_str == "grassberger":
+    if approach_str in ["grassberger", "shrink", "js"]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)
         return  # Test passes by design for these approaches

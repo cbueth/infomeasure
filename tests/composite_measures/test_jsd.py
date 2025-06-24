@@ -63,6 +63,10 @@ def test_jsd_kernel(default_rng, bandwidth, kernel, dim):
         (1, "permutation", {"embedding_dim": 5, "stable": True}, 0.038191393),
         (1, "permutation", {"embedding_dim": 20}, 0.693147180),
         (1, "permutation", {"embedding_dim": 20, "base": 2}, 1.0),
+        (1, "shrink", {}, -0.0013314749742234788),
+        (2, "shrink", {}, -0.0002233690739),
+        (3, "shrink", {}, -0.0007677679012),
+        (4, "shrink", {}, -6.2609871570e-05),
     ],
 )
 def test_jsd_explicit_discrete(rng_int, approach, kwargs, expected):
@@ -99,6 +103,10 @@ def test_jsd_explicit_discrete(rng_int, approach, kwargs, expected):
         (1, "permutation", {"embedding_dim": 5, "stable": True}, 0.0415068421),
         (1, "permutation", {"embedding_dim": 20}, 1.09861228),
         (1, "permutation", {"embedding_dim": 20, "base": 3}, 1.0),
+        (1, "shrink", {}, -0.001441367070513),
+        (2, "shrink", {}, -0.000266998374615),
+        (3, "shrink", {}, -0.001155801597913),
+        (4, "shrink", {}, -0.000290650511050),
     ],
 )
 def test_jsd_explicit_discrete_three(rng_int, approach, kwargs, expected):

@@ -51,29 +51,6 @@ class GrassbergerEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
             The calculated entropy.
         """
         uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        N = len(self.data[0])  # total number of observations
-
-        # Calculate Grassberger entropy using the formula:
-        # H_Gr88 = sum_i (h_i/H) * (log(N) - psi(h_i) - (-1)^h_i/(n_i + 1))
-        probs = counts / N
-        terms = log(N) - digamma(counts) - ((-1) ** counts) / (counts + 1)
-        entropy = np_sum(probs * terms)
-
-        # Convert to the requested base if needed
-        if self.base != "e":
-            entropy /= log(self.base)
-
-        return entropy
-
-    def _extract_local_values(self):
-        """Separately, calculate the local values.
-
-        Returns
-        -------
-        ndarray[float]
-            The calculated local values of entropy.
-        """
-        uniq, counts, self.dist_dict = unique_vals(self.data[0])
         N = len(self.data[0])
 
         # Create a mapping from unique values to their counts

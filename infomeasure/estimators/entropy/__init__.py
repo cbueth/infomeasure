@@ -6,6 +6,7 @@ from .kernel import KernelEntropyEstimator
 from .kozachenko_leonenko import KozachenkoLeonenkoEntropyEstimator
 from .miller_madow import MillerMadowEntropyEstimator
 from .renyi import RenyiEntropyEstimator
+from .shrink import ShrinkEntropyEstimator
 from .ordinal import OrdinalEntropyEstimator
 from .tsallis import TsallisEntropyEstimator
 
@@ -17,5 +18,6 @@ __all__ = [
     "MillerMadowEntropyEstimator",
     "OrdinalEntropyEstimator",
     "RenyiEntropyEstimator",
+    "ShrinkEntropyEstimator",
     "TsallisEntropyEstimator",
 ]
