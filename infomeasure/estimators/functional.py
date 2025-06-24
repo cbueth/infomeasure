@@ -80,6 +80,9 @@ te_estimators = {
     "KSGTEEstimator",
     "ksg": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
+    "millermadow": "infomeasure.estimators.transfer_entropy.miller_madow."
+    "MillerMadowTEEstimator",
+    "mm": "infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator",
     "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator",
     "ordinal": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
     "symbolic": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
@@ -94,6 +97,10 @@ cte_estimators = {
     "KSGCTEEstimator",
     "ksg": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGCTEEstimator",
+    "millermadow": "infomeasure.estimators.transfer_entropy.miller_madow."
+    "MillerMadowCTEEstimator",
+    "mm": "infomeasure.estimators.transfer_entropy.miller_madow."
+    "MillerMadowCTEEstimator",
     "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiCTEEstimator",
     "ordinal": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalCTEEstimator",
     "symbolic": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalCTEEstimator",

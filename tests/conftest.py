@@ -121,6 +121,10 @@ TE_APPROACHES = {
         "functional_str": ["metric", "ksg"],
         "needed_kwargs": {},
     },
+    "MillerMadowTEEstimator": {
+        "functional_str": ["millermadow", "mm"],
+        "needed_kwargs": {},
+    },
     "RenyiTEEstimator": {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
@@ -147,6 +151,10 @@ CTE_APPROACHES = {
     },
     "KSGCTEEstimator": {
         "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "MillerMadowCTEEstimator": {
+        "functional_str": ["millermadow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiCTEEstimator": {

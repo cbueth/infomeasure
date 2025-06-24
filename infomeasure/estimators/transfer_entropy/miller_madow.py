@@ -1,10 +1,11 @@
-"""Module for the discrete transfer entropy estimator."""
+"""Module for the discrete Miller-Madow transfer entropy estimator."""
 
 from abc import ABC
 
 from numpy import ndarray
 
 from ... import Config
+from ...utils.config import logger
 from ...utils.types import LogBaseType
 from ..base import (
     ConditionalTransferEntropyEstimator,
@@ -17,8 +18,8 @@ from ..utils.discrete_transfer_entropy import combined_te_form
 from ..utils.te_slicing import cte_observations, te_observations
 
 
-class BaseDiscreteTEEstimator(DiscreteMixin, ABC):
-    """Base class for discrete transfer entropy estimators.
+class BaseMillerMadowTEEstimator(DiscreteMixin, ABC):
+    """Base class for discrete Miller-Madow transfer entropy estimators.
 
     Attributes
     ----------
@@ -56,7 +57,7 @@ class BaseDiscreteTEEstimator(DiscreteMixin, ABC):
         offset: int = None,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the BaseDiscreteTEEstimator.
+        """Initialize the BaseMillerMadowTEEstimator.
 
         Parameters
         ----------
@@ -108,10 +109,13 @@ class BaseDiscreteTEEstimator(DiscreteMixin, ABC):
         self._check_data_te()
 
 
-class DiscreteTEEstimator(
-    BaseDiscreteTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
+class MillerMadowTEEstimator(
+    BaseMillerMadowTEEstimator,
+    PValueMixin,
+    EffectiveValueMixin,
+    TransferEntropyEstimator,
 ):
-    """Estimator for discrete transfer entropy.
+    """Estimator for discrete Miller-Madow transfer entropy.
 
     Attributes
     ----------
@@ -130,13 +134,14 @@ class DiscreteTEEstimator(
     """
 
     def _calculate(self):
-        """Estimate the Discrete Transfer Entropy."""
+        """Estimate the Discrete Miller-Madow Transfer Entropy."""
         return combined_te_form(
             te_observations,
             self.source,
             self.dest,
             local=False,
             log_func=self._log_base,
+            miller_madow_correction=self.base,
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
@@ -158,6 +163,7 @@ class DiscreteTEEstimator(
             self.dest,
             local=True,
             log_func=self._log_base,
+            miller_madow_correction=self.base,
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             step_size=self.step_size,
@@ -166,10 +172,10 @@ class DiscreteTEEstimator(
         )
 
 
-class DiscreteCTEEstimator(
-    BaseDiscreteTEEstimator, ConditionalTransferEntropyEstimator
+class MillerMadowCTEEstimator(
+    BaseMillerMadowTEEstimator, ConditionalTransferEntropyEstimator
 ):
-    """Estimator for discrete conditional transfer entropy.
+    """Estimator for discrete Miller-Madow conditional transfer entropy.
 
     Attributes
     ----------
@@ -194,6 +200,7 @@ class DiscreteCTEEstimator(
             self.cond,
             local=False,
             log_func=self._log_base,
+            miller_madow_correction=self.base,
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             cond_hist_len=self.cond_hist_len,
@@ -215,6 +222,7 @@ class DiscreteCTEEstimator(
             self.cond,
             local=True,
             log_func=self._log_base,
+            miller_madow_correction=self.base,
             src_hist_len=self.src_hist_len,
             dest_hist_len=self.dest_hist_len,
             cond_hist_len=self.cond_hist_len,

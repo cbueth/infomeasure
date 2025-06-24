@@ -1255,8 +1255,7 @@ class DiscreteMixin:
             )
 
     def _check_data_mi(self):
-        """
-        _check_data_mi(self)
+        """Check the input data for discrete mutual information calculations.
 
         Verifies the types of the data attribute and condition attribute (if present)
         to ensure they are suitable for mutual information estimation. Warns if the
@@ -1296,6 +1295,54 @@ class DiscreteMixin:
                 f"{self.cond.dtype}). "
                 "Make sure it is properly symbolized or discretized "
                 "for the conditional mutual information estimation."
+            )
+
+    def _check_data_te(self):
+        """Check the input data for discrete transfer entropy calculations.
+
+        Checks the data types of the source, destination, and conditional data
+        attributes involved in the transfer entropy estimation process.
+        Issues warnings if any of these datasets are floating-point,
+        as they may need proper symbolization or discretization in order to ensure the
+        validity of the calculations.
+
+        Notes
+        -----
+        Transfer entropy estimation requires input data to be symbolized or discretized,
+        as raw continuous floating-point arrays may lead to incorrect results.
+        This method specifically warns users when it detects floating-point arrays for
+        critical data inputs (source, destination, or conditional data).
+
+        Attributes
+        ----------
+        source : array-like
+            The source data array whose data type is validated in this method.
+        dest : array-like
+            The destination data array whose data type is validated in this method.
+        cond : array-like, optional
+            The conditional data array whose data type is validated in this method if
+            present.
+
+        Warnings
+        --------
+        Issues a warning when the data type of `source` or `dest` is floating-point.
+        If the conditional data array (`cond`) exists and its data type is
+        floating-point, a separate warning will be issued.
+        """
+        if self.source.dtype.kind == "f" or self.dest.dtype.kind == "f":
+            logger.warning(
+                "The data looks like a float array ("
+                f"source: {self.source.dtype}, dest: {self.dest.dtype}). "
+                "Make sure the data is properly symbolized or discretized "
+                "for the transfer entropy estimation."
+            )
+
+        if hasattr(self, "cond") and self.cond.dtype.kind == "f":
+            logger.warning(
+                "The conditional data looks like a float array ("
+                f"{self.cond.dtype}). "
+                "Make sure the data is properly symbolized or discretized "
+                "for the conditional transfer entropy estimation."
             )
 
 

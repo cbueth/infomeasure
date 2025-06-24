@@ -10,7 +10,12 @@ from .ordinal import reduce_joint_space
 
 
 def combined_te_form(
-    slice_method, *data, local: bool = False, log_func: callable = log, **slice_kwargs
+    slice_method,
+    *data,
+    local: bool = False,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
+    **slice_kwargs,
 ) -> float | ndarray:
     """
     Calculate the Transfer Entropy using the combined TE formula.
@@ -27,6 +32,10 @@ def combined_te_form(
         Default is False.
     log_func : callable, optional
         The logarithm function to use. Default is the natural logarithm.
+    miller_madow_correction : str | float | int, optional
+        If not None, apply the Miller-Madow correction to the global mutual
+        information in the information unit of the passed value.
+        ``log_func`` and ``miller_madow_correction`` should be the same base.
     **slice_kwargs : dict
         The history lengths for the source, destination, and if applicable,
         conditional data.
@@ -53,6 +62,7 @@ def combined_te_form(
             src_history,
             cond=reduce_joint_space(dest_history),
             log_func=log_func,
+            miller_madow_correction=miller_madow_correction,
         )
     elif len(sliced_data) == 4:
         src_history, dest_history, dest_future, cond_history = sliced_data
@@ -61,6 +71,7 @@ def combined_te_form(
             src_history,
             cond=reduce_joint_space((dest_history, cond_history)),
             log_func=log_func,
+            miller_madow_correction=miller_madow_correction,
         )
     else:
         raise ValueError(
