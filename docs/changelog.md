@@ -39,7 +39,23 @@ This release introduces an overhaul of the statistical testing functionality wit
 
 - 🧮 **Added Estimators**:
 
-  - **Miller-Madow Entropy Estimator**: Bias-corrected entropy estimation using the Miller-Madow correction formula. Provides improved entropy estimates for small sample sizes by adding a correction term `(K-1)/(2N)` to the maximum likelihood estimate.
+  - **Miller-Madow Estimators**: Comprehensive suite of bias-corrected information measure estimators using the Miller-Madow correction formula. Provides improved estimates for small sample sizes by adding correction terms to maximum likelihood estimates.
+
+    - **Entropy (H)**: {class}`~infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator` with correction term `(K-1)/(2N)` for bias-corrected entropy estimation.
+
+    - **Mutual Information (MI)**: {class}`~infomeasure.estimators.mutual_information.miller_madow.MillerMadowMIEstimator` for bias-corrected mutual information with support for arbitrary number of variables.
+
+    - **Conditional Mutual Information (CMI)**: {class}`~infomeasure.estimators.mutual_information.miller_madow.MillerMadowCMIEstimator` for bias-corrected conditional mutual information.
+
+    - **Transfer Entropy (TE)**: {class}`~infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator` for bias-corrected transfer entropy with statistical testing support.
+
+    - **Conditional Transfer Entropy (CTE)**: {class}`~infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowCTEEstimator` for bias-corrected conditional transfer entropy.
+
+    - **Kullback-Leibler Divergence (KLD)**: Miller-Madow correction available through `approach="millermadow"` or `approach="mm"` in {func}`~infomeasure.kld`.
+
+    - **Jensen-Shannon Divergence (JSD)**: Miller-Madow correction available through `approach="millermadow"` or `approach="mm"` in {func}`~infomeasure.jsd`.
+
+    All Miller-Madow estimators include comprehensive test coverage and support for local values calculation where applicable.
 
 - 📚 Update Documentation
 
