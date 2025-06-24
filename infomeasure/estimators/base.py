@@ -1168,7 +1168,7 @@ class DiscreteMixin:
         estimation.
     """
 
-    def _check_data(self):
+    def _check_data_entropy(self):
         """
         Checks the data structure for each variable and verifies whether it is
         properly symbolised or discretised for entropy estimation. Issues a
@@ -1186,6 +1186,10 @@ class DiscreteMixin:
           of a float type.
         - The corresponding data for a variable is a tuple where any
           marginal distribution is a NumPy array of a float type.
+
+        Notes
+        -----
+        Designed for Entropy Estimators.
 
         """
         for i_var in range(len(self.data)):
@@ -1248,6 +1252,50 @@ class DiscreteMixin:
             self.data = tuple(
                 reduce_joint_space(var) if red else var
                 for var, red in zip(self.data, reduce)
+            )
+
+    def _check_data_mi(self):
+        """
+        _check_data_mi(self)
+
+        Verifies the types of the data attribute and condition attribute (if present)
+        to ensure they are suitable for mutual information estimation. Warns if the
+        data contains floating-point types and suggests appropriate transformations.
+
+        Notes
+        -----
+        This method checks if the data attribute contains elements with a floating-point
+        data type. If such types are detected, it logs a warning suggesting the need for
+        symbolization or discretization for mutual information calculations. Similarly,
+        if the `cond` attribute is present and has a floating-point type, the method logs
+        a warning suggesting preprocessing for conditional mutual information calculations.
+        This step ensures the validity and reliability of the mutual information estimation.
+
+        Attributes
+        ----------
+        data : Any
+            The primary data used in the computation. It must be symbolized or
+            discretized for mutual information estimation if floating-point types
+            are present.
+
+        cond : Any, optional
+            The conditional data used for conditional mutual information estimation.
+            If present, it must also be symbolized or discretized if it contains
+            elements of floating-point types.
+        """
+        if any(var.dtype.kind == "f" for var in self.data):
+            logger.warning(
+                "The data looks like a float array ("
+                f"{[var.dtype for var in self.data]}). "
+                "Make sure it is properly symbolized or discretized "
+                "for the mutual information estimation."
+            )
+        if hasattr(self, "cond") and self.cond.dtype.kind == "f":
+            logger.warning(
+                "The conditional data looks like a float array ("
+                f"{self.cond.dtype}). "
+                "Make sure it is properly symbolized or discretized "
+                "for the conditional mutual information estimation."
             )
 
 

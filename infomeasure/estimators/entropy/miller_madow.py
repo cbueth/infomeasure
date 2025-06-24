@@ -37,7 +37,7 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         """Initialize the MillerMadowEntropyEstimator."""
         super().__init__(*data, base=base)
         # warn if the data looks like a float array
-        self._check_data()
+        self._check_data_entropy()
         # reduce any joint space if applicable
         self._reduce_space()
 

@@ -13,6 +13,7 @@ from numpy import (
     ravel,
     unique,
     zeros,
+    count_nonzero,
 )
 from numpy import (
     sum as np_sum,
@@ -22,7 +23,11 @@ from scipy.stats.contingency import crosstab
 from sparse import COO, asnumpy
 
 
-def mutual_information_global(*data: tuple, log_func: callable = log) -> float:
+def mutual_information_global(
+    *data: tuple,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
+) -> float:
     """Estimate the global mutual information between multiple random variables.
 
     Parameters
@@ -32,22 +37,52 @@ def mutual_information_global(*data: tuple, log_func: callable = log) -> float:
         You can pass an arbitrary number of data arrays as positional arguments.
     log_func : callable, optional
         The logarithm function to use. Default is the natural logarithm.
+    miller_madow_correction : str | float | int, optional
+        If not None, apply the Miller-Madow correction to the global mutual
+        information in the information unit of the passed value.
+        ``log_func`` and ``miller_madow_correction`` should be the same base.
 
     Returns
     -------
     float
         The global mutual information between the random variables.
     """
+    # check that miller_madow_correction is None, float, int or "e"
+    if miller_madow_correction is not None and (
+        not isinstance(miller_madow_correction, (str, float, int))
+        or (isinstance(miller_madow_correction, str) and miller_madow_correction != "e")
+    ):
+        raise ValueError(
+            f"miller_madow_correction must be None, float or 'e', "
+            f"got {miller_madow_correction}."
+        )
+
     if all(d.ndim == 1 for d in data):
         if len(data) == 2:
-            return _mutual_information_global_2d_int(*data, log_func=log_func)
+            return _mutual_information_global_2d_int(
+                *data,
+                log_func=log_func,
+                miller_madow_correction=miller_madow_correction,
+            )
         else:
-            return _mutual_information_global_nd_int(*data, log_func=log_func)
+            return _mutual_information_global_nd_int(
+                *data,
+                log_func=log_func,
+                miller_madow_correction=miller_madow_correction,
+            )
     else:
-        return _mutual_information_global_nd_other(*data, log_func=log_func)
+        return _mutual_information_global_nd_other(
+            *data,
+            log_func=log_func,
+            miller_madow_correction=miller_madow_correction,
+        )
 
 
-def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) -> float:
+def _mutual_information_global_nd_int(
+    *data: tuple,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
+) -> float:
     """Estimate the global mutual information between an arbitrary number of
     random variables."""
     uniques, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
@@ -97,11 +132,21 @@ def _mutual_information_global_nd_int(*data: tuple, log_func: callable = log) ->
     log_outer = -log_func(outer) + len(count_marginals) * log_func(contingency_sum)
     # Combine the terms to calculate the mutual information
     mi = p_joint * (log_p_joint - log_func(contingency_sum)) + p_joint * log_outer
-    return mi.sum()  # interaction information can be negative, do not clip
+
+    misum = mi.sum()  # interaction information can be negative, do not clip
+    if miller_madow_correction is None:
+        return misum
+    else:
+        corr = millermadow_mi_corr(
+            contingency_coo.shape, len(vals), len(data[0]), miller_madow_correction
+        )
+        return misum + corr
 
 
 def _mutual_information_global_2d_int(
-    *data: tuple[ndarray[int]], log_func: callable = log
+    *data: tuple[ndarray[int]],
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
 ) -> float:
     """Estimate the global mutual information between two random variables.
 
@@ -111,10 +156,6 @@ def _mutual_information_global_2d_int(
     Code adapted from
     the :func:`mutual_info_score() <sklearn.metrics.mutual_info_score>` function in
     scikit-learn.
-
-    Parameters
-    ----------
-
     """
     # Contingency table - COOrdinate sparse matrix
     contingency_coo = crosstab(*data, sparse=True).count
@@ -143,18 +184,27 @@ def _mutual_information_global_2d_int(
     log_outer = -log_func(outer) + log_func(pi.sum()) + log_func(pj.sum())
     # Combine the terms to calculate the mutual information
     mi = p_joint * (log_p_joint - log_func(contingency_sum)) + p_joint * log_outer
-    return clip(mi.sum(), 0.0, None)
+    misum = clip(mi.sum(), 0.0, None)
+    if miller_madow_correction is None:
+        return misum
+    else:
+        corr = millermadow_mi_corr(
+            contingency_coo.shape, len(nzv), len(data[0]), miller_madow_correction
+        )
+        return misum + corr
 
 
 def _mutual_information_global_nd_other(
-    *data: tuple[ndarray], log_func: callable = log
+    *data: tuple[ndarray],
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
 ) -> float:
     """Alternative method to estimate the global mutual information between an
     arbitrary number of random variables.
 
     Same as :func:`_mutual_information_global_nd_int`, but for non-integer data.
     """
-    # data is a tuple of ndarrays, for joint data, concatenate these rowsj
+    # data is a tuple of ndarrays, for joint data, concatenate these rows
     # joint_data = [tuple(row) for row in column_stack(data)]
     joint_data = [tuple(tuple(val) for val in row) for row in zip(*data)]
 
@@ -182,10 +232,25 @@ def _mutual_information_global_nd_other(
     ]
     if len(mi_sum) == 0:
         return 0.0
-    return np_sum(mi_sum)
+    misum = np_sum(mi_sum)
+
+    if miller_madow_correction is None:
+        return misum
+    else:
+        corr = millermadow_mi_corr(
+            list(len(counter.keys()) for counter in marginal_counts),
+            len(joint_counts),
+            len(data[0]),
+            miller_madow_correction,
+        )
+        return misum + corr
 
 
-def mutual_information_local(*data: tuple, log_func: callable = log) -> ndarray:
+def mutual_information_local(
+    *data: tuple,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
+) -> ndarray:
     """Estimate the local mutual information between multiple random variables.
 
     The mean of the local mutual information is the global mutual information.
@@ -200,12 +265,25 @@ def mutual_information_local(*data: tuple, log_func: callable = log) -> ndarray:
         You can pass an arbitrary number of data arrays as positional arguments.
     log_func : callable, optional
         The logarithm function to use. Default is the natural logarithm.
+    miller_madow_correction : str | float | int, optional
+        If not None, apply the Miller-Madow correction to the global mutual
+        information in the information unit of the passed value.
+        ``log_func`` and ``miller_madow_correction`` should be the same base.
 
     Returns
     -------
     ndarray
         The local mutual information between the random variables.
     """
+    # check that miller_madow_correction is None, float, int or "e"
+    if miller_madow_correction is not None and (
+        not isinstance(miller_madow_correction, (str, float, int))
+        or (isinstance(miller_madow_correction, str) and miller_madow_correction != "e")
+    ):
+        raise ValueError(
+            f"miller_madow_correction must be None, float or 'e', "
+            f"got {miller_madow_correction}."
+        )
     # Contingency table - COOrdinate sparse matrix
     uniques, indices = zip(*[unique(var, return_inverse=True, axis=0) for var in data])
     contingency_coo = COO(
@@ -240,11 +318,24 @@ def mutual_information_local(*data: tuple, log_func: callable = log) -> ndarray:
         / contingency_sum,
         axis=0,
     )
-    return -log_func(outer) + log_func(p_joint)
+    mi_local = -log_func(outer) + log_func(p_joint)
+    if miller_madow_correction is None:
+        return mi_local
+    else:
+        corr = millermadow_mi_corr(
+            contingency_coo.shape,
+            len(contingency_coo.data),
+            len(data[0]),
+            miller_madow_correction,
+        )
+        return mi_local + corr
 
 
 def conditional_mutual_information_global(
-    *data: tuple, cond: ndarray, log_func: callable = log
+    *data: tuple,
+    cond: ndarray,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
 ) -> float:
     """Estimate the global conditional mutual information
     between multiple random variables and a conditioning variable.
@@ -258,6 +349,10 @@ def conditional_mutual_information_global(
         The conditioning variable.
     log_func : callable, optional
         The logarithm function to use. Default is the natural logarithm.
+    miller_madow_correction : str | float | int, optional
+        If not None, apply the Miller-Madow correction to the global mutual
+        information in the information unit of the passed value.
+        ``log_func`` and ``miller_madow_correction`` should be the same base.
 
     Returns
     -------
@@ -269,15 +364,30 @@ def conditional_mutual_information_global(
     ValueError
         If the conditioning variable is not one-dimensional.
     """
+    # check that miller_madow_correction is None, float, int or "e"
+    if miller_madow_correction is not None and (
+        not isinstance(miller_madow_correction, (str, float, int))
+        or (isinstance(miller_madow_correction, str) and miller_madow_correction != "e")
+    ):
+        raise ValueError(
+            f"miller_madow_correction must be None, float or 'e', "
+            f"got {miller_madow_correction}."
+        )
     if cond.ndim != 1:
         raise ValueError("The conditioning variable must be one-dimensional.")
     return _conditional_mutual_information_global_nd_int(
-        *data, cond=cond, log_func=log_func
+        *data,
+        cond=cond,
+        log_func=log_func,
+        miller_madow_correction=miller_madow_correction,
     )
 
 
 def _conditional_mutual_information_global_nd_int(
-    *data: tuple, cond: ndarray, log_func: callable = log
+    *data: tuple,
+    cond: ndarray,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
 ) -> float:
     """Estimate the global conditional mutual information between an arbitrary number of
     random variables and a conditioning variable."""
@@ -337,11 +447,25 @@ def _conditional_mutual_information_global_nd_int(
     )
     # Combine the terms to calculate the mutual information
     mi = p_joint * log_p_joint + p_joint * log_outer
-    return mi.sum()  # interaction information can be negative, do not clip
+    misum = mi.sum()  # interaction information can be negative, do not clip
+    if miller_madow_correction is None:
+        return misum
+    else:
+        corr = millermadow_mi_corr(
+            list(count_nonzero(marg) for marg in count_marginals_cond),
+            len(vals),
+            len(data[0]),
+            miller_madow_correction,
+            k_cond=len(count_cond),
+        )
+        return misum + corr
 
 
 def conditional_mutual_information_local(
-    *data: tuple, cond: ndarray, log_func: callable = log
+    *data: tuple,
+    cond: ndarray,
+    log_func: callable = log,
+    miller_madow_correction: str | float | int = None,
 ) -> ndarray:
     """Estimate the local conditional mutual information between multiple
     random variables and a conditioning variable.
@@ -361,12 +485,25 @@ def conditional_mutual_information_local(
         The conditioning variable.
     log_func : callable, optional
         The logarithm function to use. Default is the natural logarithm.
+    miller_madow_correction : str | float | int, optional
+        If not None, apply the Miller-Madow correction to the global mutual
+        information in the information unit of the passed value.
+        ``log_func`` and ``miller_madow_correction`` should be the same base.
 
     Returns
     -------
     ndarray
         The local conditional mutual information between the random variables.
     """
+    # check that miller_madow_correction is None, float, int or "e"
+    if miller_madow_correction is not None and (
+        not isinstance(miller_madow_correction, (str, float, int))
+        or (isinstance(miller_madow_correction, str) and miller_madow_correction != "e")
+    ):
+        raise ValueError(
+            f"miller_madow_correction must be None, float or 'e', "
+            f"got {miller_madow_correction}."
+        )
     # Contingency table - COOrdinate sparse matrix
     uniques, indices = zip(
         *[unique(var, return_inverse=True, axis=0) for var in (data + (cond,))]
@@ -407,4 +544,65 @@ def conditional_mutual_information_local(
         / contingency_sum,
         axis=0,
     )
-    return log_func(p_joint * p_cond) - log_func(outer)
+    misum = log_func(p_joint * p_cond) - log_func(outer)
+    if miller_madow_correction is None:
+        return misum
+    else:
+        corr = millermadow_mi_corr(
+            list(count_nonzero(marg) for marg in count_marginals_cond),
+            len(contingency_coo.data),
+            len(data[0]),
+            miller_madow_correction,
+            k_cond=len(count_cond),
+        )
+        return misum + corr
+
+
+def millermadow_mi_corr(k_i, k_joint, n, base, k_cond=None):
+    """
+    Computes the Miller-Madow mutual information correction term.
+
+    This function calculates a correction term used to adjust the bias in mutual
+    information estimates, which arise due to finite sample size issues.
+    The correction is based on the marginal counts and joint count in the observed
+    distributions.
+
+    Parameters
+    ----------
+    k_i : list[int]
+        A list containing the marginal cardinalities of individual variables in the
+        dataset.
+        Each element represents the number of unique values for the respective
+        variable.
+    k_joint : int
+        The cardinality of the joint distribution.
+        Represents the number of unique
+        observations across all combined dimensions.
+    n : int
+        The sample size, representing the total number of observations in the data.
+    base : str | float | int
+        The logarithmic base used for the mutual information computation.
+        If set to
+        "e", natural logarithm is used.
+        Otherwise, log of the specified base is used.
+    k_cond : int, optional
+        The cardinality of the conditional variable.
+        When this is used, k_i can be used as k_iZ, to calculate the correction for
+        conditional MI.
+
+    Returns
+    -------
+    float
+        The calculated Miller-Madow correction term to adjust the mutual information
+        value.
+    """
+    corr = (
+        sum(k_i)  # sum K_i
+        - len(k_i)  # sum -1
+        - k_joint
+        + 1  # -(K_{1,...,i} +1)
+        - ((k_cond - 1) if k_cond is not None else 0)
+    ) / (2 * n)  # / 2N
+    if base != "e":
+        corr /= log(base)
+    return corr

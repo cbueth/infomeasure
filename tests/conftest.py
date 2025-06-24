@@ -59,6 +59,10 @@ MI_APPROACHES = {
         "functional_str": ["metric", "ksg"],
         "needed_kwargs": {},
     },
+    "MillerMadowMIEstimator": {
+        "functional_str": ["millermadow", "mm"],
+        "needed_kwargs": {},
+    },
     "RenyiMIEstimator": {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
@@ -84,6 +88,10 @@ CMI_APPROACHES = {
     },
     "KSGCMIEstimator": {
         "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "MillerMadowCMIEstimator": {
+        "functional_str": ["millermadow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiCMIEstimator": {

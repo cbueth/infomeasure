@@ -1,4 +1,4 @@
-"""Module for the discrete mutual information estimator."""
+"""Module for the discrete Miller-Madow mutual information estimator."""
 
 from abc import ABC
 
@@ -17,12 +17,11 @@ from ..utils.discrete_interaction_information import (
     conditional_mutual_information_local,
 )
 from ... import Config
-from ...utils.config import logger
 from ...utils.types import LogBaseType
 
 
-class BaseDiscreteMIEstimator(DiscreteMixin, ABC):
-    """Base class for discrete mutual information estimators.
+class BaseMillerMadowMIEstimator(DiscreteMixin, ABC):
+    """Base class for discrete Miller-Madow mutual information estimators.
 
     Attributes
     ----------
@@ -45,7 +44,7 @@ class BaseDiscreteMIEstimator(DiscreteMixin, ABC):
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
     ):
-        """Initialize the BaseDiscreteMIEstimator.
+        """Initialize the BaseMillerMadowMIEstimator.
 
         Parameters
         ----------
@@ -70,10 +69,35 @@ class BaseDiscreteMIEstimator(DiscreteMixin, ABC):
         self._check_data_mi()
 
 
-class DiscreteMIEstimator(
-    BaseDiscreteMIEstimator, PValueMixin, MutualInformationEstimator
+class MillerMadowMIEstimator(
+    BaseMillerMadowMIEstimator, PValueMixin, MutualInformationEstimator
 ):
-    """Estimator for the discrete mutual information.
+    r"""Estimator for the discrete Miller-Madow mutual information.
+
+    .. math::
+
+        \begin{align}\hat{I}_{\tiny{MM}}(X; Y)
+        &= \hat{H}_{\tiny{MM}}(X) + \hat{H}_{\tiny{MM}}(Y) - \hat{H}_{\tiny{MM}}(X, Y)\\
+        &= \hat{H}_{\tiny{MLE}}(X) + \hat{H}_{\tiny{MLE}}(Y) - \hat{H}_{\tiny{MLE}}(X, Y)
+          + (K_X + K_Y - K_{XY} - 1)/(2N \cdot \log(\texttt{base}))\\
+        &= \hat{I}_{\tiny{MLE}}(X; Y) + (K_X + K_Y - K_{XY} - 1)/(2N \cdot \log(\texttt{base}))\\
+        \end{align}
+
+    For an arbitrary number of random variables this is equivalent to:
+
+    .. math::
+
+        \begin{align}\hat{I}_{\tiny{MM}}(X_1; \dots; X_n)
+        &= \hat{I}_{\tiny{MLE}}(X_1; \dots; X_n)
+        + \frac{\left(\sum_{i=1}^{n}K_i-1\right) - \left(K_{1,\dots,i}-1\right)}{2N \cdot \log(\texttt{base})}
+        \end{align}
+
+    :math:`\hat{I}_{\tiny{MLE}}(X_1; \dots; X_n)` is the
+    initial :class:`~infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator` estimate,
+    :math:`K_i` is the number of unique values in the i-th variable,
+    :math:`K_{1,\dots,i}` is the number of unique joint values,
+    and :math:`N` is the number of samples.
+
 
     Attributes
     ----------
@@ -86,14 +110,16 @@ class DiscreteMIEstimator(
     """
 
     def _calculate(self):
-        """Calculate the mutual information of the data.
+        """Calculate the Miller-Madow mutual information of the data.
 
         Returns
         -------
         float
             The calculated mutual information.
         """
-        return mutual_information_global(*self.data, log_func=self._log_base)
+        return mutual_information_global(
+            *self.data, log_func=self._log_base, miller_madow_correction=self.base
+        )
 
     def _extract_local_values(self) -> ndarray[float]:
         """Separately calculate the local values.
@@ -103,13 +129,31 @@ class DiscreteMIEstimator(
         ndarray[float]
             The calculated local values of mi.
         """
-        return mutual_information_local(*self.data, log_func=self._log_base)
+        return mutual_information_local(
+            *self.data, log_func=self._log_base, miller_madow_correction=self.base
+        )
 
 
-class DiscreteCMIEstimator(
-    BaseDiscreteMIEstimator, ConditionalMutualInformationEstimator
+class MillerMadowCMIEstimator(
+    BaseMillerMadowMIEstimator, ConditionalMutualInformationEstimator
 ):
-    """Estimator for the discrete conditional mutual information.
+    r"""Estimator for the discrete Miller-Madow conditional mutual information.
+
+    .. math::
+
+        \begin{align}
+        \hat{I}_{\tiny{MM}}(X_1; X_2; \ldots; X_n \mid Z)&=
+        \hat{I}_{\tiny{MLE}}(\dots)
+        + \frac{\left(\sum_{i=1}^{n}K_{iZ}-1\right) - \left(K_{1,\dots,i,Z}-1\right)
+         - \left(K_{Z}-1\right)}{2N \cdot \log(\texttt{base})}
+        \end{align}
+
+    :math:`\hat{I}_{\tiny{MLE}}(X_1; \dots; X_n \mid Z)` is the
+    initial :class:`~infomeasure.estimators.mutual_information.discrete.DiscreteCMIEstimator` estimate,
+    :math:`K_{iZ}` is the number of unique values in the i-th variable joint with Z,
+    :math:`K_{1,\dots,i,Z}` is the number of unique joint values,
+    :math:`K_Z` is the number of unique values in the Z variable,
+    and :math:`N` is the number of samples.
 
     Attributes
     ----------
@@ -129,7 +173,10 @@ class DiscreteCMIEstimator(
             The calculated conditional mutual information.
         """
         return conditional_mutual_information_global(
-            *self.data, cond=self.cond, log_func=self._log_base
+            *self.data,
+            cond=self.cond,
+            log_func=self._log_base,
+            miller_madow_correction=self.base,
         )
 
     def _extract_local_values(self) -> ndarray:
@@ -141,5 +188,8 @@ class DiscreteCMIEstimator(
             The calculated local values of cmi.
         """
         return conditional_mutual_information_local(
-            *self.data, cond=self.cond, log_func=self._log_base
+            *self.data,
+            cond=self.cond,
+            log_func=self._log_base,
+            miller_madow_correction=self.base,
         )

@@ -29,12 +29,17 @@ entropy_estimators = {
 }
 
 mi_estimators = {
-    "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator",
+    "discrete": "infomeasure.estimators.mutual_information.discrete."
+    "DiscreteMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelMIEstimator",
-    "metric": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
-    "KSGMIEstimator",
+    "metric": "infomeasure.estimators.mutual_information."
+    "kraskov_stoegbauer_grassberger.KSGMIEstimator",
     "ksg": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGMIEstimator",
+    "millermadow": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowMIEstimator",
+    "mm": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowMIEstimator",
     "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator",
     "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator",
     "ordinal": "infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator",
@@ -49,12 +54,17 @@ mi_entropy_map = {mi_key: mi_key for mi_key in mi_estimators.keys()}
 mi_entropy_map["ksg"] = "kl"
 
 cmi_estimators = {
-    "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteCMIEstimator",
+    "discrete": "infomeasure.estimators.mutual_information.discrete."
+    "DiscreteCMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelCMIEstimator",
-    "metric": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
-    "KSGCMIEstimator",
+    "metric": "infomeasure.estimators.mutual_information."
+    "kraskov_stoegbauer_grassberger.KSGCMIEstimator",
     "ksg": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGCMIEstimator",
+    "millermadow": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowCMIEstimator",
+    "mm": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowCMIEstimator",
     "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiCMIEstimator",
     "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisCMIEstimator",
     "ordinal": "infomeasure.estimators.mutual_information.ordinal.OrdinalCMIEstimator",

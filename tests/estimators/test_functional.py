@@ -225,7 +225,15 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
+            if approach_str
+            not in [
+                "discrete",
+                "millermadow",
+                "mm",
+                "ordinal",
+                "symbolic",
+                "permutation",
+            ]
             else {}
         ),
         **needed_kwargs,
@@ -264,7 +272,15 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         offset=offset,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
+            if approach_str
+            not in [
+                "discrete",
+                "millermadow",
+                "mm",
+                "ordinal",
+                "symbolic",
+                "permutation",
+            ]
             else {}
         ),
         **needed_kwargs,
@@ -354,7 +370,15 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
+            if approach_str
+            not in [
+                "discrete",
+                "millermadow",
+                "mm",
+                "ordinal",
+                "symbolic",
+                "permutation",
+            ]
             else {}
         ),
         **needed_kwargs,
@@ -368,7 +392,15 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
+            if approach_str
+            not in [
+                "discrete",
+                "millermadow",
+                "mm",
+                "ordinal",
+                "symbolic",
+                "permutation",
+            ]
             else {}
         ),
         **needed_kwargs,
@@ -380,7 +412,15 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
+            if approach_str
+            not in [
+                "discrete",
+                "millermadow",
+                "mm",
+                "ordinal",
+                "symbolic",
+                "permutation",
+            ]
             else {}
         ),
         **needed_kwargs,
@@ -463,7 +503,15 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
         approach=approach_str,
         **(
             {"normalize": normalize}
-            if approach_str not in ["discrete", "ordinal", "symbolic", "permutation"]
+            if approach_str
+            not in [
+                "discrete",
+                "millermadow",
+                "mm",
+                "ordinal",
+                "symbolic",
+                "permutation",
+            ]
             else {}
         ),
         **needed_kwargs,
