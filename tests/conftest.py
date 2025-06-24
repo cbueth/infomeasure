@@ -20,6 +20,10 @@ ENTROPY_APPROACHES = {
         "functional_str": ["discrete"],
         "needed_kwargs": {},
     },
+    "GrassbergerEntropyEstimator": {
+        "functional_str": ["grassberger"],
+        "needed_kwargs": {},
+    },
     "KernelEntropyEstimator": {
         "functional_str": ["kernel"],
         "needed_kwargs": {"bandwidth": 0.3, "kernel": "box"},

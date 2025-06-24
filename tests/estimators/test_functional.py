@@ -7,6 +7,7 @@ import pytest
 
 import infomeasure as im
 from infomeasure import get_estimator_class
+from infomeasure.utils.exceptions import TheoreticalInconsistencyError
 from tests.conftest import discrete_random_variables
 from infomeasure.estimators.base import (
     ConditionalMutualInformationEstimator,
@@ -96,6 +97,15 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
     """Test addressing the cross-entropy estimator classes."""
     approach_str, needed_kwargs = entropy_approach
     data = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 4, 5, 1, 0, -4, 10] * 100)
+
+    # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
+    if approach_str == "grassberger":
+        with pytest.raises(TheoreticalInconsistencyError):
+            im.entropy(data, data, approach=approach_str, **needed_kwargs)
+        with pytest.raises(TheoreticalInconsistencyError):
+            im.cross_entropy(data, data, approach=approach_str, **needed_kwargs)
+        return  # Test passes by design for these approaches
+
     entropy = im.entropy(data, data, approach=approach_str, **needed_kwargs)
     assert isinstance(entropy, float)
     # test entropy(data) == cross_entropy(data, data)
@@ -116,6 +126,20 @@ def test_cross_entropy_class_addressing(entropy_approach, default_rng):
         needed_kwargs["noise_level"] = 0.0
     if approach_str != "discrete":
         data = data + default_rng.normal(0, 0.1, size=len(data))
+
+    # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
+    if approach_str == "grassberger":
+        with pytest.raises(TheoreticalInconsistencyError):
+            est = im.estimator(
+                data,
+                data,
+                measure="cross_entropy",
+                approach=approach_str,
+                **needed_kwargs,
+            )
+            est.result()  # Exception is raised when calling the method
+        return  # Test passes by design for these approaches
+
     est = im.estimator(
         data, data, measure="cross_entropy", approach=approach_str, **needed_kwargs
     )
@@ -202,6 +226,13 @@ def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng)
     if not issubclass(entropy_class, DiscreteMixin):
         p = p + default_rng.normal(0, 0.1, size=len(p))
         q = q + default_rng.normal(0, 0.1, size=len(q))
+
+    # Test approaches that raise TheoreticalInconsistencyError for cross-entropy
+    if approach_str == "grassberger":
+        with pytest.raises(TheoreticalInconsistencyError):
+            im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)
+        return  # Test passes by design for these approaches
+
     assert (
         abs(
             im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)

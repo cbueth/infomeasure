@@ -141,7 +141,7 @@ class TestCombinedTeForm:
         # Assert: Result should be a finite float
         assert isinstance(result, float)
         assert not (result != result)  # Check for NaN
-        assert abs(result) != float('inf')  # Check for infinity
+        assert abs(result) != float("inf")  # Check for infinity
 
     def test_miller_madow_correction_applied(self):
         """Test that Miller-Madow correction changes the result."""
@@ -201,7 +201,7 @@ class TestCombinedTeForm:
         # Assert: Result should be a finite float
         assert isinstance(result, float)
         assert not (result != result)  # Check for NaN
-        assert abs(result) != float('inf')  # Check for infinity
+        assert abs(result) != float("inf")  # Check for infinity
 
     def test_mock_slice_method_3_outputs(self):
         """Test with mock slice method returning 3 outputs."""
@@ -313,7 +313,7 @@ class TestCombinedTeForm:
         assert len(result) > 0
         # All values should be finite
         assert all(not (val != val) for val in result)  # Check for NaN
-        assert all(abs(val) != float('inf') for val in result)  # Check for infinity
+        assert all(abs(val) != float("inf") for val in result)  # Check for infinity
 
     def test_conditional_transfer_entropy_with_miller_madow(self):
         """Test conditional transfer entropy with Miller-Madow correction."""
@@ -340,7 +340,7 @@ class TestCombinedTeForm:
         # Assert: Should return a finite float
         assert isinstance(result, float)
         assert not (result != result)  # Check for NaN
-        assert abs(result) != float('inf')  # Check for infinity
+        assert abs(result) != float("inf")  # Check for infinity
 
     def test_slice_kwargs_passed_correctly(self):
         """Test that slice_kwargs are passed correctly to slice method."""
@@ -383,7 +383,7 @@ class TestCombinedTeForm:
         # Assert: Should return a finite float
         assert isinstance(result, float)
         assert not (result != result)  # Check for NaN
-        assert abs(result) != float('inf')  # Check for infinity
+        assert abs(result) != float("inf")  # Check for infinity
 
     def test_different_data_types(self):
         """Test with different data types (int, float, string)."""
@@ -402,8 +402,8 @@ class TestCombinedTeForm:
         )
 
         # Test with string data
-        source_str = array(['a', 'b', 'c', 'a', 'b', 'c', 'a', 'b'])
-        dest_str = array(['c', 'a', 'b', 'c', 'a', 'b', 'c', 'a'])
+        source_str = array(["a", "b", "c", "a", "b", "c", "a", "b"])
+        dest_str = array(["c", "a", "b", "c", "a", "b", "c", "a"])
 
         result_str = combined_te_form(
             te_observations,

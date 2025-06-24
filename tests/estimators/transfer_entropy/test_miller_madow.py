@@ -138,7 +138,9 @@ def test_cte_miller_madow_autoregressive(rng_int, expected_xy, expected_yx):
         ((2, 0), 2, 2, 2, 0.8377250837470137, 0.8116290471779718),
     ],
 )
-def test_miller_madow_te_slicing(rng_int_prop, step_size, src_hist_len, dest_hist_len, expected_xy, expected_yx):
+def test_miller_madow_te_slicing(
+    rng_int_prop, step_size, src_hist_len, dest_hist_len, expected_xy, expected_yx
+):
     """Test the Miller-Madow transfer entropy estimator with different slicing parameters."""
     data_source, data_dest = discrete_random_variables(
         rng_int_prop[0], prop_time=rng_int_prop[1]

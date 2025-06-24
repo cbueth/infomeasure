@@ -17,11 +17,36 @@ from tests.conftest import (
 @pytest.mark.parametrize(
     "data_x, data_y, base, expected_correction",
     [
-        ([1, 1, 1, 1], [1, 1, 1, 1], 2, 0.0),  # K_x=1, K_y=1, K_xy=1, correction=0 (degenerate case)
-        ([1, 0, 1, 0], [1, 0, 1, 0], 2, (2 + 2 - 2 - 2 + 1) / (2 * 4) / log(2)),  # Perfect correlation: K_x=2, K_y=2, K_xy=2
-        ([1, 0, 1, 0], [0, 1, 0, 1], 2, (2 + 2 - 2 - 2 + 1) / (2 * 4) / log(2)),  # Anti-correlation: K_x=2, K_y=2, K_xy=2
-        ([1, 2, 3, 4], [1, 2, 3, 4], 2, (4 + 4 - 2 - 4 + 1) / (2 * 4) / log(2)),  # Perfect correlation: K_x=4, K_y=4, K_xy=4
-        ([1, 2, 3, 4], [4, 3, 2, 1], 2, (4 + 4 - 2 - 4 + 1) / (2 * 4) / log(2)),  # Perfect anti-correlation: K_x=4, K_y=4, K_xy=4
+        (
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+            2,
+            0.0,
+        ),  # K_x=1, K_y=1, K_xy=1, correction=0 (degenerate case)
+        (
+            [1, 0, 1, 0],
+            [1, 0, 1, 0],
+            2,
+            (2 + 2 - 2 - 2 + 1) / (2 * 4) / log(2),
+        ),  # Perfect correlation: K_x=2, K_y=2, K_xy=2
+        (
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            2,
+            (2 + 2 - 2 - 2 + 1) / (2 * 4) / log(2),
+        ),  # Anti-correlation: K_x=2, K_y=2, K_xy=2
+        (
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            2,
+            (4 + 4 - 2 - 4 + 1) / (2 * 4) / log(2),
+        ),  # Perfect correlation: K_x=4, K_y=4, K_xy=4
+        (
+            [1, 2, 3, 4],
+            [4, 3, 2, 1],
+            2,
+            (4 + 4 - 2 - 4 + 1) / (2 * 4) / log(2),
+        ),  # Perfect anti-correlation: K_x=4, K_y=4, K_xy=4
     ],
 )
 def test_miller_madow_mi_basic(data_x, data_y, base, expected_correction):
@@ -137,8 +162,6 @@ def test_miller_madow_cmi_multiple_vars(data, cond, base):
     assert len(local_vals) == len(data[0])
 
 
-
-
 def test_miller_madow_mi_vs_discrete():
     """Test that Miller-Madow MI is close to discrete MI for large samples."""
     # Generate larger dataset where correction should be smaller
@@ -159,10 +182,12 @@ def test_miller_madow_cmi_vs_discrete():
     data_y = [(i + 1) % 5 for i in range(1000)]
     cond = [i % 3 for i in range(1000)]
 
-    cmi_discrete = im.conditional_mutual_information(data_x, data_y, cond=cond, approach="discrete", base=2)
-    cmi_mm = im.conditional_mutual_information(data_x, data_y, cond=cond, approach="millermadow", base=2)
+    cmi_discrete = im.conditional_mutual_information(
+        data_x, data_y, cond=cond, approach="discrete", base=2
+    )
+    cmi_mm = im.conditional_mutual_information(
+        data_x, data_y, cond=cond, approach="millermadow", base=2
+    )
 
     # For large samples, the correction should be small
     assert abs(cmi_mm - cmi_discrete) < 0.1
-
-
