@@ -5,20 +5,19 @@ from abc import ABC
 from numpy import ndarray
 
 from ... import Config
-from ...utils.config import logger
 from ...utils.types import LogBaseType
 from ..base import (
     ConditionalTransferEntropyEstimator,
     EffectiveValueMixin,
     PValueMixin,
     TransferEntropyEstimator,
-    DiscreteMixin,
+    DiscreteTEMixin,
 )
 from ..utils.discrete_transfer_entropy import combined_te_form
 from ..utils.te_slicing import cte_observations, te_observations
 
 
-class BaseMillerMadowTEEstimator(DiscreteMixin, ABC):
+class BaseMillerMadowTEEstimator(DiscreteTEMixin, ABC):
     """Base class for discrete Miller-Madow transfer entropy estimators.
 
     Attributes

@@ -16,7 +16,7 @@ from infomeasure.estimators.base import (
     Estimator,
     MutualInformationEstimator,
     TransferEntropyEstimator,
-    DiscreteMixin,
+    DiscreteHEstimator,
 )
 from infomeasure.estimators.entropy import (
     OrdinalEntropyEstimator,
@@ -223,7 +223,7 @@ def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng)
     approach_str, needed_kwargs = entropy_approach
     p, q = discrete_random_variables(0)
     entropy_class = get_estimator_class(measure="entropy", approach=approach_str)
-    if not issubclass(entropy_class, DiscreteMixin):
+    if not issubclass(entropy_class, DiscreteHEstimator):
         p = p + default_rng.normal(0, 0.1, size=len(p))
         q = q + default_rng.normal(0, 0.1, size=len(q))
 

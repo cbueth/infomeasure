@@ -29,8 +29,3 @@ public/*
 jupyter_execute/*
 # plots
 *.pdf
-
-
-# Own files
-.owncloudsync.log
-.sync_*.db*

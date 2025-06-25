@@ -1,20 +1,13 @@
 """Module for the shrink (James-Stein) entropy estimator."""
 
-from numpy import asarray, log
+from numpy import asarray
 from numpy import sum as np_sum
 
-from infomeasure.estimators.base import (
-    DistributionMixin,
-    EntropyEstimator,
-    DiscreteMixin,
-)
-from ..utils.unique import unique_vals
-from ... import Config
-from ...utils.types import LogBaseType
+from infomeasure.estimators.base import DiscreteHEstimator
 from ...utils.exceptions import TheoreticalInconsistencyError
 
 
-class ShrinkEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator):
+class ShrinkEntropyEstimator(DiscreteHEstimator):
     r"""Shrinkage (James-Stein) entropy estimator.
 
     This estimator applies James-Stein shrinkage to the probability estimates
@@ -43,14 +36,6 @@ class ShrinkEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator)
         The data used to estimate the entropy.
     """
 
-    def __init__(self, *data, base: LogBaseType = Config.get("base")):
-        """Initialize the ShrinkEntropyEstimator."""
-        super().__init__(*data, base=base)
-        # warn if the data looks like a float array
-        self._check_data_entropy()
-        # reduce any joint space if applicable
-        self._reduce_space()
-
     def _simple_entropy(self):
         """Calculate the shrinkage entropy of the data.
 
@@ -59,26 +44,7 @@ class ShrinkEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator)
         float
             The calculated entropy.
         """
-        _, _, self.dist_dict = unique_vals(self.data[0])
-        N = len(self.data[0])  # total number of observations
-        # K = len(uniq)  # number of unique values
-        K = len(self.dist_dict)
-
-        # Maximum likelihood probabilities
-        # p_ml = counts / N
-        p_ml = asarray(list(self.dist_dict.values()))
-
-        # Target probabilities (uniform distribution)
-        t = 1.0 / K
-
-        # Calculate lambda (shrinkage parameter)
-        if N == 0 or N == 1:
-            lambda_shrink = 1.0
-        else:
-            lambda_shrink = self._calculate_lambda_shrink(N, p_ml, t)
-
-        # Calculate shrinkage probabilities
-        p_shrink = lambda_shrink * t + (1 - lambda_shrink) * p_ml
+        p_shrink = self._shrink_probs()
 
         # Calculate entropy
         entropy = -np_sum(p_shrink * self._log_base(p_shrink))
@@ -128,45 +94,34 @@ class ShrinkEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator)
         ndarray[float]
             The calculated local values of entropy.
         """
-        uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        N = len(self.data[0])
-        K = len(uniq)
+        p_shrink = self._shrink_probs()
 
+        # Create a mapping from unique values to their shrinkage probabilities
+        shrink_dict = dict(zip(self.data[0].uniq, p_shrink))
+
+        # Calculate local values for each data point
+        local_values = asarray(
+            [-self._log_base(shrink_dict[val]) for val in self.data[0].data]
+        )
+
+        return local_values
+
+    def _shrink_probs(self):
+        N = self.data[0].N  # total number of observations
+        K = self.data[0].K
         # Maximum likelihood probabilities
-        p_ml = counts / N
-
+        # p_ml = counts / N
+        p_ml = self.data[0].probabilities
         # Target probabilities (uniform distribution)
         t = 1.0 / K
-
         # Calculate lambda (shrinkage parameter)
         if N == 0 or N == 1:
             lambda_shrink = 1.0
         else:
             lambda_shrink = self._calculate_lambda_shrink(N, p_ml, t)
-
         # Calculate shrinkage probabilities
         p_shrink = lambda_shrink * t + (1 - lambda_shrink) * p_ml
-
-        # Create a mapping from unique values to their shrinkage probabilities
-        shrink_dict = dict(zip(uniq, p_shrink))
-
-        # Calculate local values for each data point
-        local_values = asarray(
-            [-self._log_base(shrink_dict[val]) for val in self.data[0]]
-        )
-
-        return local_values
-
-    def _joint_entropy(self):
-        """Calculate the joint shrinkage entropy of the data.
-
-        Returns
-        -------
-        float
-            The calculated joint entropy.
-        """
-        # The data has already been reduced to unique values of co-occurrences
-        return self._simple_entropy()
+        return p_shrink
 
     def _cross_entropy(self) -> float:
         """Calculate cross-entropy between two distributions.
@@ -175,7 +130,7 @@ class ShrinkEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator)
         ------
         TheoreticalInconsistencyError
             Cross-entropy is not theoretically sound for shrinkage estimator
-            due to conceptual mismatch between shrinkage correction and cross-entropy.
+            due to a conceptual mismatch between shrinkage correction and cross-entropy.
         """
         raise TheoreticalInconsistencyError(
             "Cross-entropy is not implemented for shrinkage estimator. "

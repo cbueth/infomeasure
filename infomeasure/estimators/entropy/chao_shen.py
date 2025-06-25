@@ -2,18 +2,11 @@
 
 from numpy import sum as np_sum
 
-from infomeasure.estimators.base import (
-    DistributionMixin,
-    EntropyEstimator,
-    DiscreteMixin,
-)
-from ..utils.unique import unique_vals
-from ... import Config
+from infomeasure.estimators.base import DiscreteHEstimator
 from ...utils.exceptions import TheoreticalInconsistencyError
-from ...utils.types import LogBaseType
 
 
-class ChaoShenEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator):
+class ChaoShenEntropyEstimator(DiscreteHEstimator):
     r"""Chao-Shen entropy estimator.
 
     .. math::
@@ -40,14 +33,6 @@ class ChaoShenEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimato
         The data used to estimate the entropy.
     """
 
-    def __init__(self, *data, base: LogBaseType = Config.get("base")):
-        """Initialize the ChaoShenEntropyEstimator."""
-        super().__init__(*data, base=base)
-        # Standard validation for discrete entropy estimators
-        self._check_data_entropy()
-        # Reduce any joint space if applicable
-        self._reduce_space()
-
     def _simple_entropy(self):
         """Calculate the Chao-Shen entropy of the data.
 
@@ -56,31 +41,21 @@ class ChaoShenEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimato
         ndarray[float]
             The calculated local values of entropy.
         """
-        uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        N = len(self.data[0])
+        N = self.data[0].N
         # Number of singletons
-        f1 = np_sum(counts == 1)
+        f1 = np_sum(self.data[0].counts == 1)
         if f1 == N:
             f1 -= 1  # Avoid C=0
 
         # Estimated coverage
         C = 1 - f1 / N
-        pa = C * counts / len(self.data[0])  # Coverage adjusted empirical frequencies
+        pa = (  # Coverage adjusted empirical frequencies
+            C * self.data[0].probabilities
+        )
         la = 1 - (1 - pa) ** N  # Probability to see a bin (species) in the sample
 
         # Chao-Shen (2003) entropy estimator
         return -np_sum(pa * self._log_base(pa) / la)
-
-    def _joint_entropy(self):
-        """Calculate the joint Chao-Shen entropy of the data.
-
-        Returns
-        -------
-        ndarray[float]
-            The calculated local values of joint entropy.
-        """
-        # The data has already been reduced to unique values of co-occurrences
-        return self._simple_entropy()
 
     def _cross_entropy(self):
         """Calculate cross-entropy between two distributions.

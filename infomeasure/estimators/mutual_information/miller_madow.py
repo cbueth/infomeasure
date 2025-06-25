@@ -8,7 +8,7 @@ from ..base import (
     PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
-    DiscreteMixin,
+    DiscreteMIMixin,
 )
 from ..utils.discrete_interaction_information import (
     mutual_information_global,
@@ -20,7 +20,7 @@ from ... import Config
 from ...utils.types import LogBaseType
 
 
-class BaseMillerMadowMIEstimator(DiscreteMixin, ABC):
+class BaseMillerMadowMIEstimator(DiscreteMIMixin, ABC):
     """Base class for discrete Miller-Madow mutual information estimators.
 
     Attributes

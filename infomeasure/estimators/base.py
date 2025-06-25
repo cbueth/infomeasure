@@ -1,7 +1,6 @@
 """Module containing the base classes for the measure estimators."""
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from io import UnsupportedOperation
 from typing import Callable, Generic, final, Sequence, Union
 
@@ -14,7 +13,6 @@ from numpy import (
     log10,
     nan,
     ndarray,
-    percentile,
     std,
 )
 from numpy import mean as np_mean
@@ -23,6 +21,7 @@ from numpy.random import default_rng
 
 from .. import Config
 from ..utils.config import logger
+from ..utils.data import DiscreteData, StatisticalTestResult
 from ..utils.types import EstimatorType, LogBaseType
 from .utils.normalize import normalize_data_0_1
 from .utils.te_slicing import cte_observations, te_observations
@@ -50,7 +49,7 @@ class Estimator(Generic[EstimatorType], ABC):
 
     See Also
     --------
-    EntropyEstimator, MutualInformationEstimator, TransferEntropyEstimator
+    EntropyEstimator, MutualInformationEstimator, TransferEntropyEstimator, DiscreteEntropyEstimator
 
     Notes
     -----
@@ -1102,73 +1101,82 @@ class ConditionalTransferEntropyEstimator(
             )
 
 
-class DistributionMixin:
-    """Mixin for Estimators that offer introspection of the distribution.
+class DiscreteHEstimator(EntropyEstimator, ABC):
+    """Abstract base class for discrete entropy estimators.
+
+    The `DiscreteHEstimator` class is an abstract base class extending
+    :class:`EntropyEstimator`.
+    This class is specifically designed to handle entropy estimation for
+    discrete variables.
+    It ensures that input data is transformed into a format suitable for discrete
+    entropy calculations, verifies input data validity, and reduces joint spaces where
+    needed.
+
+    It works exclusively with symbolized or discretized data,
+    allowing entropy computations to remain accurate and efficient for discrete
+    variables. The class
+    also manages situations where multiple random variables' joint data can be reduced
+    to simplified forms for further statistical analysis. The data, after processing,
+    is represented using unique values and counts instead of directly storing the
+    original data.
 
     Attributes
     ----------
-    dist_dict : dict
-        The distribution of the data.
-        Format: {symbol: probability}
+    data : tuple[~infomeasure.utils.data.DiscreteData]
+        A tuple containing Discrete data objects. Each of them contains,
+        ``uniq``, ``counts``, ``N``, ``K``, and the original ``data`` array.
+        For normal and joint entropy `len(data) = 1`, for cross-entropy `len(data) = 2`.
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize the distribution attribute."""
-        self.dist_dict: dict | None = None
+        """
+        Constructs a DiscreteHEstimator object and initializes its data processing
+        pipeline for discrete entropy calculation.
+        The initializer performs multiple preprocessing steps such as checking the
+        integrity of provided data, reducing joint space if applicable,
+        and converting input data to a Probability Mass Function (PMF) format.
+        This ensures that all subsequent computations are performed on consistent
+        and discrete data.
+
+        Parameters
+        ----------
+        args : tuple
+            Positional arguments passed to the parent class constructor.
+        kwargs : dict
+            Keyword arguments passed to the parent class constructor.
+
+        """
+        if isinstance(args[0], DiscreteData):
+            self.data = (args[0],)
+            self.base = kwargs.get("base", Config.get("base"))
+            self.res_global = None
+            self.res_local = None
+            return
+
         super().__init__(*args, **kwargs)
+        # warn if the data looks like a float array
+        self._check_data()
+        # reduce any joint space if applicable
+        self._reduce_space()
+        # Convert to PMF discrete data
+        self.data = tuple(DiscreteData.from_data(var) for var in self.data)
 
-    def distribution(self) -> dict:
-        """Get the distribution of the data.
+    @classmethod
+    def from_counts(cls, uniq, counts, base: LogBaseType = Config.get("base")):
+        """Construct a DiscreteHEstimator from the provided counts.
 
-        Returns
-        -------
-        dict
-            The distribution of the data.
+        DiscreteData validates the data integrity, other validations are skipped.
+        This is used for JSD for :class:`DiscreteHEstimator` childs.
         """
-        if self.dist_dict is None:
-            self.dist_dict = self._distribution()
-        return self.dist_dict
+        return cls(DiscreteData.from_counts(uniq=uniq, counts=counts), base=base)
 
-    def _distribution(self) -> dict:
-        """Get the distribution of the data.
+    def _joint_entropy(self):
+        raise RuntimeError(
+            "Function should not be called, as _simple_entropy should be used after "
+            "_reduce_space for the joint entropy calcualtion."
+        )
 
-        Child classes can implement this method to add a dedicated distribution method.
-        If not implemented, it's expected that the `calculate` method sets the
-        distribution.
-
-        Returns
-        -------
-        dict
-            The distribution of the data.
-        """
-        if self.dist_dict is None:
-            self.calculate()
-        if self.dist_dict is None:
-            raise UnsupportedOperation(
-                "Distribution is not available for this estimator."
-            )
-        return self.dist_dict
-
-
-class DiscreteMixin:
-    """
-    Mixin class for handling discrete data checks.
-
-    This mixin class provides utility methods to ensure that data used for entropy
-    estimation is properly symbolized or discretized. Entropy estimation methods
-    typically require categorical or discrete data and may not work correctly with
-    continuous data without preprocessing. This class helps identify potential issues
-    with the input data format.
-
-    Attributes
-    ----------
-    data : list
-        List of input data associated with each variable or marginal distribution.
-        The format of this data is validated for compatibility with entropy
-        estimation.
-    """
-
-    def _check_data_entropy(self):
+    def _check_data(self):
         """
         Checks the data structure for each variable and verifies whether it is
         properly symbolised or discretised for entropy estimation. Issues a
@@ -1189,7 +1197,7 @@ class DiscreteMixin:
 
         Notes
         -----
-        Designed for Entropy Estimators.
+        Designed for discrete Entropy Estimators.
 
         """
         for i_var in range(len(self.data)):
@@ -1254,6 +1262,27 @@ class DiscreteMixin:
                 for var, red in zip(self.data, reduce)
             )
 
+
+class DiscreteMIMixin:
+    """Mixin for handling discrete mutual information computations.
+
+    Provides utilities and checks necessary for estimating discrete mutual
+    information and conditional mutual information.
+    Ensures that input data is suitable for these calculations and provides warnings
+    when pre-processing steps, such as symbolizing or discretizing, are required.
+
+    Attributes
+    ----------
+    data : Any
+        The primary data to be used in mutual information estimation.
+        It should be symbolized or discretized if it contains floating-point types.
+
+    cond : Any, optional
+        The conditional data for conditional mutual information estimation.
+        If provided, it should also be symbolized or discretized if it contains
+        floating-point types.
+    """
+
     def _check_data_mi(self):
         """Check the input data for discrete mutual information calculations.
 
@@ -1296,6 +1325,27 @@ class DiscreteMixin:
                 "Make sure it is properly symbolized or discretized "
                 "for the conditional mutual information estimation."
             )
+
+
+class DiscreteTEMixin:
+    """
+    Mixin class for discrete transfer entropy calculations.
+
+    Provides functionality to validate input data types for transfer entropy
+    estimation processes. Ensures that source, destination, and conditional
+    datasets are properly symbolized or discretized to prevent invalid results
+    from using continuous floating-point data.
+
+    Attributes
+    ----------
+    source : array-like
+        The source data array utilized in transfer entropy calculations.
+    dest : array-like
+        The destination data array utilized in transfer entropy calculations.
+    cond : array-like, optional
+        The conditional data array utilized in transfer entropy calculations
+        when applicable.
+    """
 
     def _check_data_te(self):
         """Check the input data for discrete transfer entropy calculations.
@@ -1344,122 +1394,6 @@ class DiscreteMixin:
                 "Make sure the data is properly symbolized or discretized "
                 "for the conditional transfer entropy estimation."
             )
-
-
-@dataclass
-class StatisticalTestResult:
-    """Comprehensive statistical test result containing *p*-value, *t*-score,
-    and confidence intervals.
-
-    Attributes
-    ----------
-    p_value : float
-        The *p*-value of the statistical test.
-    t_score : float
-        The *t*-score (standardized test statistic).
-    test_values : ndarray
-        The test values from permutation/bootstrap sampling.
-    observed_value : float
-        The observed value being tested.
-    null_mean : float
-        Mean of the null distribution (test values).
-    null_std : float
-        Standard deviation of the null distribution.
-    n_tests : int
-        Number of tests performed (permutations or bootstrap samples).
-    method : str
-        The statistical test method used ("permutation_test" or "bootstrap").
-    """
-
-    p_value: float
-    t_score: float
-    test_values: ndarray
-    observed_value: float
-    null_mean: float
-    null_std: float
-    n_tests: int
-    method: str
-
-    def percentile(self, q, method="linear"):
-        """Compute the q-th percentile of the test values.
-
-        This method wraps numpy's percentile function to compute percentiles
-        of the test values from the statistical test.
-
-        Parameters
-        ----------
-        q : array_like of float
-            Percentage or sequence of percentages for the percentiles to compute.
-            Values must be between 0 and 100 inclusive.
-        method : str, optional
-            Method to use for estimating the percentile. Default is "linear".
-            See :py:func:`numpy.percentile` for available methods.
-
-        Returns
-        -------
-        percentile : scalar or ndarray
-            If `q` is a single percentile, returns a scalar.
-            If multiple percentiles are given, returns an array.
-
-        See Also
-        --------
-        numpy.percentile : Compute percentiles along specified axes.
-
-        Notes
-        -----
-        For details on the method parameter, reference :py:func:`numpy.percentile`.
-
-        Examples
-        --------
-        >>> result = estimator.statistical_test(n_tests=100,method="permutation_test")
-        >>> result.percentile(50)  # Median
-        >>> result.percentile([25, 75])  # Quartiles
-        >>> result.percentile(95, method="nearest")  # 95th percentile with nearest method
-        """
-        return percentile(self.test_values, q, method=method)
-
-    def confidence_interval(self, confidence_level, method="linear"):
-        """Get confidence interval for the specified confidence level.
-
-        This is a convenience function that converts a confidence level
-        (e.g., 95 for 95% CI) to the appropriate percentile calls.
-
-        Parameters
-        ----------
-        confidence_level : float
-            Confidence level as a percentage (e.g., 95 for 95% CI).
-            Must be between 0 and 100.
-        method : str, optional
-            Method to use for estimating the percentile. Default is "linear".
-            See :py:func:`numpy.percentile` for available methods.
-
-        Returns
-        -------
-        ndarray
-            Array containing [lower_bound, upper_bound] of the confidence interval.
-
-        Raises
-        ------
-        ValueError
-            If confidence_level is not between 0 and 100.
-
-        Examples
-        --------
-        >>> result = estimator.statistical_test(n_tests=100)
-        >>> result.confidence_interval(95)  # 95% CI
-        >>> result.confidence_interval(90, method="nearest")  # 90% CI with nearest method
-        """
-        # Validate confidence level
-        if not 0 < confidence_level < 100:
-            raise ValueError(
-                f"Confidence level must be between 0 and 100, got {confidence_level}"
-            )
-
-        # Calculate percentiles: y = (100 - x) / 2
-        y = (100 - confidence_level) / 2
-        percentiles = [y, 100 - y]
-
-        return self.percentile(percentiles, method=method)
 
 
 class PValueMixin(RandomGeneratorMixin):

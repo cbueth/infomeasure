@@ -1,21 +1,13 @@
 """Module for the discrete Grassberger entropy estimator."""
 
 from numpy import asarray, log
-from numpy import sum as np_sum
 from scipy.special import digamma
 
-from infomeasure.estimators.base import (
-    DistributionMixin,
-    EntropyEstimator,
-    DiscreteMixin,
-)
-from ..utils.unique import unique_vals
-from ... import Config
-from ...utils.types import LogBaseType
+from infomeasure.estimators.base import DiscreteHEstimator
 from ...utils.exceptions import TheoreticalInconsistencyError
 
 
-class GrassbergerEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator):
+class GrassbergerEntropyEstimator(DiscreteHEstimator):
     r"""Discrete Grassberger entropy estimator.
 
     .. math::
@@ -34,14 +26,6 @@ class GrassbergerEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         The data used to estimate the entropy.
     """
 
-    def __init__(self, *data, base: LogBaseType = Config.get("base")):
-        """Initialize the GrassbergerEntropyEstimator."""
-        super().__init__(*data, base=base)
-        # warn if the data looks like a float array
-        self._check_data_entropy()
-        # reduce any joint space if applicable
-        self._reduce_space()
-
     def _simple_entropy(self):
         """Calculate the Grassberger entropy of the data.
 
@@ -50,32 +34,19 @@ class GrassbergerEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         float
             The calculated entropy.
         """
-        uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        N = len(self.data[0])
 
         # Create a mapping from unique values to their counts
-        count_dict = dict(zip(uniq, counts))
+        count_dict = dict(zip(self.data[0].uniq, self.data[0].counts))
 
         # Vectorized calculation of local values
-        h_i = asarray([count_dict[val] for val in self.data[0]])
-        local_values = log(N) - digamma(h_i) - ((-1) ** h_i) / (h_i + 1)
+        h_i = asarray([count_dict[val] for val in self.data[0].data])
+        local_values = log(self.data[0].N) - digamma(h_i) - ((-1) ** h_i) / (h_i + 1)
 
         # Convert to the requested base if needed
         if self.base != "e":
             local_values /= log(self.base)
 
         return local_values
-
-    def _joint_entropy(self):
-        """Calculate the joint Grassberger entropy of the data.
-
-        Returns
-        -------
-        float
-            The calculated joint entropy.
-        """
-        # The data has already been reduced to unique values of co-occurrences
-        return self._simple_entropy()
 
     def _cross_entropy(self) -> float:
         """Calculate cross-entropy between two distributions.

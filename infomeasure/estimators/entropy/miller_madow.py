@@ -1,20 +1,15 @@
 """Module for the discrete Miller-Madow entropy estimator."""
 
-from numpy import asarray, log
+from numpy import log
 from numpy import sum as np_sum
 
-from infomeasure.estimators.base import (
-    DistributionMixin,
-    EntropyEstimator,
-    DiscreteMixin,
-)
-from ..utils.unique import unique_vals
+from infomeasure.estimators.base import DiscreteHEstimator
 from ... import Config
 from ...utils.config import logger
 from ...utils.types import LogBaseType
 
 
-class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstimator):
+class MillerMadowEntropyEstimator(DiscreteHEstimator):
     r"""Discrete Miller-Madow entropy estimator.
 
     .. math::
@@ -37,7 +32,7 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         """Initialize the MillerMadowEntropyEstimator."""
         super().__init__(*data, base=base)
         # warn if the data looks like a float array
-        self._check_data_entropy()
+        self._check_data()
         # reduce any joint space if applicable
         self._reduce_space()
 
@@ -49,8 +44,7 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         float
             The calculated entropy.
         """
-        uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        probabilities = asarray(list(self.dist_dict.values()))
+        probabilities = self.data[0].probabilities
 
         correction = self._mm_factor()
         # Calculate the entropy
@@ -64,7 +58,8 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         ndarray[float]
             The calculated local values of entropy.
         """
-        p_local = [self.dist_dict[val] for val in self.data[0]]
+        dist_dict = self.data[0].distribution_dict
+        p_local = [dist_dict[val] for val in self.data[0].data]
 
         correction = self._mm_factor()
 
@@ -72,23 +67,12 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
 
     def _mm_factor(self):
         # Miller-Madow correction factor
-        K = len(self.dist_dict)  # number of unique values
-        N = len(self.data[0])  # total observations
+        K = self.data[0].K  # number of unique values
+        N = self.data[0].N  # total observations
         correction = (K - 1) / (2 * N)
         if self.base != "e":
             correction /= log(self.base)
         return correction
-
-    def _joint_entropy(self):
-        """Calculate the joint Miller-Madow entropy of the data.
-
-        Returns
-        -------
-        float
-            The calculated joint entropy.
-        """
-        # The data has already been reduced to unique values of co-occurrences
-        return self._simple_entropy()
 
     def _cross_entropy(self) -> float:
         """Calculate the Miller-Madow cross-entropy between two distributions.
@@ -98,17 +82,19 @@ class MillerMadowEntropyEstimator(DistributionMixin, DiscreteMixin, EntropyEstim
         float
             The calculated cross-entropy.
         """
-        # Calculate distribution of both data sets
-        uniq_p, counts_p, dist_p = unique_vals(self.data[0])
-        uniq_q, counts_q, dist_q = unique_vals(self.data[1])
+        # Calculate the distribution of both data sets
+        dist_p = self.data[0].distribution_dict
+        uniq_p = self.data[0].uniq
+        dist_q = self.data[1].distribution_dict
+        uniq_q = self.data[1].uniq
         # Only consider the values where both RV have the same support
         uniq = list(set(uniq_p).intersection(set(uniq_q)))  # P ∩ Q
         if len(uniq) == 0:
             logger.warning("No common support between the two distributions.")
             return 0.0
         # Miller-Madow correction
-        N = len(uniq_p) + len(uniq_q)
-        K = ((len(self.data[0]) + len(self.data[1])) / 2.0) - 1.0
+        N = self.data[0].N + self.data[1].N
+        K = ((self.data[0].K + self.data[1].K) / 2.0) - 1.0
         correction = K / N if self.base == "e" else K / (N * log(self.base))
         return (
             -np_sum([dist_p[val] * self._log_base(dist_q[val]) for val in uniq])

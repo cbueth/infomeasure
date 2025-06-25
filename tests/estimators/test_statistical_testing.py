@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from tests.conftest import discrete_random_variables
-from infomeasure.estimators.base import PValueMixin, StatisticalTestResult
+from infomeasure.estimators.base import PValueMixin
+from infomeasure.utils.data import StatisticalTestResult
 
 
 @pytest.mark.parametrize("n_tests", [2, 5, 300])

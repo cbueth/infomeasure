@@ -11,13 +11,13 @@ from ..base import (
     EffectiveValueMixin,
     PValueMixin,
     TransferEntropyEstimator,
-    DiscreteMixin,
+    DiscreteTEMixin,
 )
 from ..utils.discrete_transfer_entropy import combined_te_form
 from ..utils.te_slicing import cte_observations, te_observations
 
 
-class BaseDiscreteTEEstimator(DiscreteMixin, ABC):
+class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
     """Base class for discrete transfer entropy estimators.
 
     Attributes
