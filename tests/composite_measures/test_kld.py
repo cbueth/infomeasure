@@ -56,6 +56,19 @@ def test_kld_permutation(default_rng, embedding_dim):
             (0.009108079, 0.0570636788),
         ),
         (1, "permutation", {"embedding_dim": 20}, -6.88857245),
+        # Bayes tests with varying alpha
+        (1, "bayes", {"alpha": 0.5}, 0.0029917680032702787),
+        (1, "bayes", {"alpha": 1.0}, 0.0029801619954685776),
+        (1, "bayes", {"alpha": 2.0}, 0.002957151866825658),
+        (2, "bayes", {"alpha": 0.5}, 0.0002387735390183554),
+        (2, "bayes", {"alpha": 1.0}, 0.00023781554775981206),
+        (2, "bayes", {"alpha": 2.0}, 0.00023591678308876318),
+        (3, "bayes", {"alpha": 0.5}, 0.005141647145739059),
+        (3, "bayes", {"alpha": 1.0}, 0.005121289474049773),
+        (3, "bayes", {"alpha": 2.0}, 0.005080935769454342),
+        (4, "bayes", {"alpha": 0.5}, 0.005702539021492203),
+        (4, "bayes", {"alpha": 1.0}, 0.005679966182226881),
+        (4, "bayes", {"alpha": 2.0}, 0.00563522090586055),
     ],
 )
 def test_kld_explicit_discrete(rng_int, approach, kwargs, expected):

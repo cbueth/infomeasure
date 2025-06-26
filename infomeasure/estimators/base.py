@@ -1162,13 +1162,17 @@ class DiscreteHEstimator(EntropyEstimator, ABC):
         self.data = tuple(DiscreteData.from_data(var) for var in self.data)
 
     @classmethod
-    def from_counts(cls, uniq, counts, base: LogBaseType = Config.get("base")):
+    def from_counts(
+        cls, uniq, counts, base: LogBaseType = Config.get("base"), **kwargs
+    ):
         """Construct a DiscreteHEstimator from the provided counts.
 
         DiscreteData validates the data integrity, other validations are skipped.
         This is used for JSD for :class:`DiscreteHEstimator` childs.
         """
-        return cls(DiscreteData.from_counts(uniq=uniq, counts=counts), base=base)
+        return cls(
+            DiscreteData.from_counts(uniq=uniq, counts=counts), base=base, **kwargs
+        )
 
     def _joint_entropy(self):
         raise RuntimeError(

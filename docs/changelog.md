@@ -57,6 +57,18 @@ This release introduces an overhaul of the statistical testing functionality wit
 
     All Miller-Madow estimators include comprehensive test coverage and support for local values calculation where applicable.
 
+  - **Additional Entropy Estimators**: New discrete entropy estimators with specialized bias correction and estimation techniques:
+
+    - **Bayesian Entropy**: {class}`~infomeasure.estimators.entropy.bayes.BayesEntropyEstimator` - Bayesian entropy estimator with concentration parameter α supporting multiple prior choices (Jeffrey, Laplace, Schurmann-Grassberger, Minimax) for improved entropy estimation with prior knowledge incorporation.
+
+    - **Chao-Shen Entropy**: {class}`~infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator` - Bias-corrected entropy estimator that accounts for unobserved species through coverage estimation using singleton counts, providing improved estimates for incomplete sampling scenarios.
+
+    - **Shrinkage Entropy**: {class}`~infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator` - James-Stein shrinkage entropy estimator that applies shrinkage to probability estimates before computing entropy, reducing bias in small sample scenarios through regularization toward uniform distribution.
+
+    - **Grassberger Entropy**: {class}`~infomeasure.estimators.entropy.grassberger.GrassbergerEntropyEstimator` - Discrete entropy estimator with finite sample corrections using the digamma function, providing bias-corrected entropy estimates through count-based corrections.
+
+    All new entropy estimators include comprehensive test coverage and support for local values calculation where applicable.
+
 - 📚 Update Documentation
 
 - 🧪 Updated tests

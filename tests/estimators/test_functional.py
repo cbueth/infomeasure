@@ -86,7 +86,7 @@ def test_entropy_class_addressing(entropy_approach):
     assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
-    if approach_str in ["renyi", "tsallis", "chao_shen", "cs"]:
+    if approach_str in ["renyi", "tsallis", "chao_shen", "cs", "bayes"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
