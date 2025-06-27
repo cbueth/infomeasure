@@ -2,6 +2,7 @@
 
 from .bayes import BayesEntropyEstimator
 from .chao_shen import ChaoShenEntropyEstimator
+from .chao_wang_jost import ChaoWangJostEntropyEstimator
 from .discrete import DiscreteEntropyEstimator
 from .grassberger import GrassbergerEntropyEstimator
 from .kernel import KernelEntropyEstimator
@@ -15,6 +16,7 @@ from .tsallis import TsallisEntropyEstimator
 __all__ = [
     "BayesEntropyEstimator",
     "ChaoShenEntropyEstimator",
+    "ChaoWangJostEntropyEstimator",
     "DiscreteEntropyEstimator",
     "GrassbergerEntropyEstimator",
     "KernelEntropyEstimator",

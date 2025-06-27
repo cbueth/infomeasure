@@ -67,6 +67,8 @@ This release introduces an overhaul of the statistical testing functionality wit
 
     - **Grassberger Entropy**: {class}`~infomeasure.estimators.entropy.grassberger.GrassbergerEntropyEstimator` - Discrete entropy estimator with finite sample corrections using the digamma function, providing bias-corrected entropy estimates through count-based corrections.
 
+    - **Chao Wang Jost Entropy**: {class}`~infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator` - Advanced bias-corrected entropy estimator that uses coverage estimation based on singleton and doubleton counts to account for unobserved species, providing improved entropy estimates for incomplete sampling scenarios with sophisticated statistical corrections.
+
     All new entropy estimators include comprehensive test coverage and support for local values calculation where applicable.
 
 - 📚 Update Documentation

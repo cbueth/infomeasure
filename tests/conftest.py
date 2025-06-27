@@ -24,6 +24,10 @@ ENTROPY_APPROACHES = {
         "functional_str": ["chao_shen", "cs"],
         "needed_kwargs": {},
     },
+    "ChaoWangJostEntropyEstimator": {
+        "functional_str": ["chao_wang_jost", "cwj"],
+        "needed_kwargs": {},
+    },
     "DiscreteEntropyEstimator": {
         "functional_str": ["discrete"],
         "needed_kwargs": {},
