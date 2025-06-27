@@ -68,12 +68,20 @@ def test_entropy_functional_addressing(entropy_approach):
     """Test addressing the entropy estimator classes."""
     approach_str, needed_kwargs = entropy_approach
     data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    entropy = im.entropy(np.array(data), approach=approach_str, **needed_kwargs)
-    assert isinstance(entropy, float)
-    # test list input
-    assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
-        entropy
-    )
+
+    # ANSB returns NaN for data without coincidences
+    if approach_str == "ansb":
+        entropy = im.entropy(np.array(data), approach=approach_str, **needed_kwargs)
+        assert np.isnan(entropy)
+        # test list input
+        assert np.isnan(im.entropy(data, approach=approach_str, **needed_kwargs))
+    else:
+        entropy = im.entropy(np.array(data), approach=approach_str, **needed_kwargs)
+        assert isinstance(entropy, float)
+        # test list input
+        assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
+            entropy
+        )
 
 
 def test_entropy_class_addressing(entropy_approach):
@@ -82,14 +90,20 @@ def test_entropy_class_addressing(entropy_approach):
     approach_str, needed_kwargs = entropy_approach
     est = im.estimator(data, measure="entropy", approach=approach_str, **needed_kwargs)
     assert isinstance(est, EntropyEstimator)
-    assert isinstance(est.result(), float)
-    assert isinstance(est.global_val(), float)
+
+    # ANSB returns NaN for data without coincidences
+    if approach_str == "ansb":
+        assert np.isnan(est.result())
+        assert np.isnan(est.global_val())
+    else:
+        assert isinstance(est.result(), float)
+        assert isinstance(est.global_val(), float)
     with pytest.raises(AttributeError):
         est.effective_val()
     if approach_str in ["renyi", "tsallis", "chao_shen", "cs", "bayes"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
-    elif approach_str in ["chao_wang_jost", "cwj"]:
+    elif approach_str in ["chao_wang_jost", "cwj", "ansb"]:
         with pytest.raises(TheoreticalInconsistencyError):
             est.local_vals()
     else:
@@ -110,6 +124,7 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
         "cs",
         "chao_wang_jost",
         "cwj",
+        "ansb",
     ]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.entropy(data, data, approach=approach_str, **needed_kwargs)
@@ -147,6 +162,7 @@ def test_cross_entropy_class_addressing(entropy_approach, default_rng):
         "cs",
         "chao_wang_jost",
         "cwj",
+        "ansb",
     ]:
         with pytest.raises(TheoreticalInconsistencyError):
             est = im.estimator(
@@ -255,6 +271,7 @@ def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng)
         "cs",
         "chao_wang_jost",
         "cwj",
+        "ansb",
     ]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)

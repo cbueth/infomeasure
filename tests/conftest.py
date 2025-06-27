@@ -16,6 +16,10 @@ from infomeasure.estimators import entropy, mutual_information, transfer_entropy
 #  estimator. All other kwargs should be tested in each dedicated estimator test file.
 
 ENTROPY_APPROACHES = {
+    "AnsbEntropyEstimator": {
+        "functional_str": ["ansb"],
+        "needed_kwargs": {},
+    },
     "BayesEntropyEstimator": {
         "functional_str": ["bayes"],
         "needed_kwargs": {"alpha": 1.0},

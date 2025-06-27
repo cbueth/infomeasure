@@ -1,5 +1,6 @@
 """Entropy estimators."""
 
+from .ansb import AnsbEntropyEstimator
 from .bayes import BayesEntropyEstimator
 from .chao_shen import ChaoShenEntropyEstimator
 from .chao_wang_jost import ChaoWangJostEntropyEstimator
@@ -14,6 +15,7 @@ from .ordinal import OrdinalEntropyEstimator
 from .tsallis import TsallisEntropyEstimator
 
 __all__ = [
+    "AnsbEntropyEstimator",
     "BayesEntropyEstimator",
     "ChaoShenEntropyEstimator",
     "ChaoWangJostEntropyEstimator",

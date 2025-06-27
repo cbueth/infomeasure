@@ -69,6 +69,8 @@ This release introduces an overhaul of the statistical testing functionality wit
 
     - **Chao Wang Jost Entropy**: {class}`~infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator` - Advanced bias-corrected entropy estimator that uses coverage estimation based on singleton and doubleton counts to account for unobserved species, providing improved entropy estimates for incomplete sampling scenarios with sophisticated statistical corrections.
 
+    - **ANSB Entropy**: {class}`~infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator` - Asymptotic NSB entropy estimator designed for extremely undersampled discrete data where the number of unique values K is comparable to the sample size N. Uses the formula (γ - log(2)) + 2 log(N) - ψ(Δ) where γ is Euler's constant, ψ is the digamma function, and Δ is the number of coincidences, providing efficient entropy estimation in the undersampled regime.
+
     All new entropy estimators include comprehensive test coverage and support for local values calculation where applicable.
 
 - 📚 Update Documentation
