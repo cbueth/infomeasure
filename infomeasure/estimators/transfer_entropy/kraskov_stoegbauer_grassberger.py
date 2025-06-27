@@ -7,11 +7,10 @@ from scipy.spatial import KDTree
 from scipy.special import digamma
 
 from ..base import (
-    PValueMixin,
-    EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
+
 from ..utils.te_slicing import te_observations, cte_observations
 from ... import Config
 from ...utils.types import LogBaseType
@@ -67,6 +66,7 @@ class BaseKSGTEEstimator(ABC):
         cond_hist_len: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         r"""Initialize the BaseKSGTEEstimator.
 
@@ -109,6 +109,7 @@ class BaseKSGTEEstimator(ABC):
                 step_size=step_size,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -122,15 +123,14 @@ class BaseKSGTEEstimator(ABC):
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         self.k = k
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
 
-class KSGTEEstimator(
-    BaseKSGTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
-):
+class KSGTEEstimator(BaseKSGTEEstimator, TransferEntropyEstimator):
     r"""Estimator for transfer entropy using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 

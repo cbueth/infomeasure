@@ -5,11 +5,10 @@ from abc import ABC
 from numpy import ndarray
 
 from ..base import (
-    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
-    DiscreteMIMixin,
 )
+from ..mixins import DiscreteMIMixin
 from ..utils.discrete_interaction_information import (
     mutual_information_global,
     mutual_information_local,
@@ -43,6 +42,7 @@ class BaseDiscreteMIEstimator(DiscreteMIMixin, ABC):
         cond=None,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseDiscreteMIEstimator.
 
@@ -61,17 +61,15 @@ class BaseDiscreteMIEstimator(DiscreteMIMixin, ABC):
         """
         self.data: tuple[ndarray] = None
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=False, base=base)
+            super().__init__(*data, offset=offset, normalize=False, base=base, **kwargs)
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=False, base=base
+                *data, cond=cond, offset=offset, normalize=False, base=base, **kwargs
             )
         self._check_data_mi()
 
 
-class DiscreteMIEstimator(
-    BaseDiscreteMIEstimator, PValueMixin, MutualInformationEstimator
-):
+class DiscreteMIEstimator(BaseDiscreteMIEstimator, MutualInformationEstimator):
     """Estimator for the discrete mutual information.
 
     Attributes

@@ -263,3 +263,25 @@ def test_entropy_equality(rng_int):
     est_mi = DiscreteMIEstimator(x, x, base=2)
     est_ent = im.entropy(data[0], approach="discrete", base=2)
     assert est_mi.result() == pytest.approx(est_ent)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_mi,p_cmi",
+    [
+        (1, "permutation_test", 0.74, 1.0),
+        (1, "bootstrap", 0.82, 1.0),
+        (2, "permutation_test", 0.88, 1.0),
+        (2, "bootstrap", 0.86, 1.0),
+        (3, "permutation_test", 0.98, 1.0),
+        (4, "permutation_test", 0.86, 1.0),
+    ],
+)
+def test_discrete_mi_statistical_test(rng_int, method, p_mi, p_cmi):
+    """Test the discrete MI for p-values. Fix rng."""
+    data_x, data_y, data_cond = discrete_random_variables_condition(rng_int)
+    est_mi = DiscreteMIEstimator(data_x, data_y, base=2, seed=8)
+    est_cmi = DiscreteCMIEstimator(data_x, data_y, cond=data_x, base=2, seed=8)
+    test = est_mi.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_mi)
+    test = est_cmi.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_cmi)

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 import infomeasure as im
-from infomeasure import get_estimator_class
+from infomeasure import get_estimator_class, Config
 from infomeasure.utils.exceptions import TheoreticalInconsistencyError
 from tests.conftest import discrete_random_variables
 from infomeasure.estimators.base import (
@@ -295,6 +295,7 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     approach_str, needed_kwargs = mi_approach
     data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     data_y = np.array([1, 2, 3, 5, 5, 6, 7, 8, 9, 10])
+    n_tests = 10
     est = im.estimator(
         data_x,
         data_y,
@@ -325,8 +326,19 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
             est.local_vals()
     else:
         assert isinstance(est.local_vals(), np.ndarray)
-    result = est.statistical_test(10)
+    result = est.statistical_test(n_tests)
     assert 0 <= result.p_value <= 1
+    assert isinstance(result.t_score, float)
+    assert isinstance(result.test_values, np.ndarray)
+    assert result.observed_value == est.global_val()
+    assert (
+        min(result.test_values) - 1e-10
+        <= result.null_mean
+        <= max(result.test_values) + 1e-10
+    )
+    assert isinstance(result.null_std, float)
+    assert result.n_tests == n_tests
+    assert result.method == Config.get("statistical_test_method")
 
 
 @pytest.mark.parametrize("n_vars", [0, 1])
@@ -514,9 +526,13 @@ def test_cond_mutual_information_class_addressing_n_vars(
     else:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
-    # statistical test is not supported for conditional mutual information
-    with pytest.raises(AttributeError):
-        est.statistical_test(10)
+    # statistical test is only supported for 2 variables
+    if n_vars == 2:
+        result = est.statistical_test(10)
+        assert 0 <= result.p_value <= 1
+    else:
+        with pytest.raises(UnsupportedOperation):
+            est.statistical_test(10)
 
 
 @pytest.mark.parametrize("normalize", [True, False])
@@ -526,6 +542,7 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     data_x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     data_y = np.array([1, 2, 3, 5, 5, 6, 7, 8, 9, 10])
     cond = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    n_tests = 10
     est = im.estimator(
         data_x,
         data_y,
@@ -556,6 +573,19 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
             est.local_vals()
     else:
         assert isinstance(est.local_vals(), np.ndarray)
+    result = est.statistical_test(n_tests)
+    assert 0 <= result.p_value <= 1
+    assert isinstance(result.t_score, float)
+    assert isinstance(result.test_values, np.ndarray)
+    assert result.observed_value == est.global_val()
+    assert (
+        min(result.test_values) - 1e-10
+        <= result.null_mean
+        <= max(result.test_values) + 1e-10
+    )
+    assert isinstance(result.null_std, float)
+    assert result.n_tests == n_tests
+    assert result.method == Config.get("statistical_test_method")
 
 
 @pytest.mark.parametrize("n_vars", [0, 1])
@@ -710,6 +740,7 @@ def test_transfer_entropy_class_addressing(te_approach):
     approach_str, needed_kwargs = te_approach
     source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    n_tests = 10
     est = im.estimator(
         source,
         dest,
@@ -726,8 +757,19 @@ def test_transfer_entropy_class_addressing(te_approach):
             est.local_vals()
     else:
         assert isinstance(est.local_vals(), np.ndarray)
-    result = est.statistical_test(10)
+    result = est.statistical_test(n_tests)
     assert 0 <= result.p_value <= 1
+    assert isinstance(result.t_score, float)
+    assert isinstance(result.test_values, np.ndarray)
+    assert result.observed_value == est.global_val()
+    assert (
+        min(result.test_values) - 1e-10
+        <= result.null_mean
+        <= max(result.test_values) + 1e-10
+    )
+    assert isinstance(result.null_std, float)
+    assert result.n_tests == n_tests
+    assert result.method == Config.get("statistical_test_method")
     assert isinstance(est.effective_val(), float)
 
 
@@ -755,6 +797,7 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     source = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     dest = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     cond = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    n_tests = 10
     est = im.estimator(
         source,
         dest,
@@ -772,6 +815,19 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
             est.local_vals()
     else:
         assert isinstance(est.local_vals(), np.ndarray)
+    result = est.statistical_test(n_tests)
+    assert 0 <= result.p_value <= 1
+    assert isinstance(result.t_score, float)
+    assert isinstance(result.test_values, np.ndarray)
+    assert result.observed_value == est.global_val()
+    assert (
+        min(result.test_values) - 1e-10
+        <= result.null_mean
+        <= max(result.test_values) + 1e-10
+    )
+    assert isinstance(result.null_std, float)
+    assert result.n_tests == n_tests
+    assert result.method == Config.get("statistical_test_method")
 
 
 @pytest.mark.parametrize("n_vars", [3, 4, 5])

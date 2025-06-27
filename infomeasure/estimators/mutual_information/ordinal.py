@@ -5,10 +5,10 @@ from abc import ABC
 from numpy import issubdtype, integer, ndarray
 
 from ..base import (
-    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
+
 from ..utils.discrete_interaction_information import (
     mutual_information_global,
     mutual_information_local,
@@ -68,6 +68,7 @@ class BaseOrdinalMIEstimator(ABC):
         stable: bool = False,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the OrdinalMIEstimator.
 
@@ -90,10 +91,10 @@ class BaseOrdinalMIEstimator(ABC):
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=False, base=base)
+            super().__init__(*data, offset=offset, normalize=False, base=base, **kwargs)
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=False, base=base
+                *data, cond=cond, offset=offset, normalize=False, base=base, **kwargs
             )
             if self.cond.ndim > 1:
                 raise TypeError(
@@ -128,9 +129,7 @@ class BaseOrdinalMIEstimator(ABC):
         # so mutual_information_global can use crosstab method internally
 
 
-class OrdinalMIEstimator(
-    BaseOrdinalMIEstimator, PValueMixin, MutualInformationEstimator
-):
+class OrdinalMIEstimator(BaseOrdinalMIEstimator, MutualInformationEstimator):
     r"""Estimator for the Ordinal mutual information.
 
     Attributes

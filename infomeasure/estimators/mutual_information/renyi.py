@@ -5,10 +5,10 @@ from abc import ABC
 from numpy import issubdtype, integer
 
 from ..base import (
-    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
+
 from ..entropy.renyi import RenyiEntropyEstimator
 from ... import Config
 from ...utils.types import LogBaseType
@@ -51,6 +51,7 @@ class BaseRenyiMIEstimator(ABC):
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         r"""Initialize the estimator with specific parameters.
 
@@ -85,10 +86,17 @@ class BaseRenyiMIEstimator(ABC):
             If the number of nearest neighbors is not a positive integer.
         """
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=normalize, base=base)
+            super().__init__(
+                *data, offset=offset, normalize=normalize, base=base, **kwargs
+            )
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=normalize, base=base
+                *data,
+                cond=cond,
+                offset=offset,
+                normalize=normalize,
+                base=base,
+                **kwargs,
             )
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
@@ -101,7 +109,7 @@ class BaseRenyiMIEstimator(ABC):
         self.noise_level = noise_level
 
 
-class RenyiMIEstimator(BaseRenyiMIEstimator, PValueMixin, MutualInformationEstimator):
+class RenyiMIEstimator(BaseRenyiMIEstimator, MutualInformationEstimator):
     r"""Estimator for the Renyi mutual information.
 
     Attributes

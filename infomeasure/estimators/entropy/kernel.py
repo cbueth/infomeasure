@@ -4,7 +4,8 @@ from numpy import column_stack, sum as np_sum, isnan, nan
 
 from ... import Config
 from ...utils.types import LogBaseType
-from ..base import EntropyEstimator, WorkersMixin
+from ..base import EntropyEstimator
+from ..mixins import WorkersMixin
 from ..utils.array import assure_2d_data
 from ..utils.kde import kde_probability_density_function
 

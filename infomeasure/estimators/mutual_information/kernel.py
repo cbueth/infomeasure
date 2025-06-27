@@ -6,11 +6,10 @@ from numpy import column_stack, ndarray, prod
 from numpy import newaxis
 
 from ..base import (
-    PValueMixin,
-    WorkersMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
+from ..mixins import WorkersMixin
 from ..utils.array import assure_2d_data
 from ..utils.kde import kde_probability_density_function
 from ... import Config
@@ -55,6 +54,7 @@ class BaseKernelMIEstimator(WorkersMixin, ABC):
         workers: int = 1,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the estimator with specific bandwidth and kernel.
 
@@ -84,7 +84,12 @@ class BaseKernelMIEstimator(WorkersMixin, ABC):
         self.cond = None
         if cond is None:
             super().__init__(
-                *data, offset=offset, workers=workers, normalize=normalize, base=base
+                *data,
+                offset=offset,
+                workers=workers,
+                normalize=normalize,
+                base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -94,6 +99,7 @@ class BaseKernelMIEstimator(WorkersMixin, ABC):
                 workers=workers,
                 normalize=normalize,
                 base=base,
+                **kwargs,
             )
             # Ensure self.cond is a 2D array
             self.cond = assure_2d_data(self.cond)
@@ -103,7 +109,7 @@ class BaseKernelMIEstimator(WorkersMixin, ABC):
         self.data = tuple(assure_2d_data(var) for var in self.data)
 
 
-class KernelMIEstimator(BaseKernelMIEstimator, PValueMixin, MutualInformationEstimator):
+class KernelMIEstimator(BaseKernelMIEstimator, MutualInformationEstimator):
     r"""Estimator for mutual information using Kernel Density Estimation (KDE).
 
     .. math::

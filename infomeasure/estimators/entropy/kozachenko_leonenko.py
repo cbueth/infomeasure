@@ -5,7 +5,8 @@ from numpy import inf, log, issubdtype, integer
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
-from ..base import EntropyEstimator, RandomGeneratorMixin
+from ..base import EntropyEstimator
+from ..mixins import RandomGeneratorMixin
 from ..utils.array import assure_2d_data
 from ..utils.unit_ball_volume import unit_ball_volume
 from ... import Config

@@ -8,11 +8,9 @@ from ... import Config
 from ...utils.types import LogBaseType
 from ..base import (
     ConditionalTransferEntropyEstimator,
-    EffectiveValueMixin,
-    PValueMixin,
     TransferEntropyEstimator,
-    DiscreteTEMixin,
 )
+from ..mixins import DiscreteTEMixin
 from ..utils.discrete_transfer_entropy import combined_te_form
 from ..utils.te_slicing import cte_observations, te_observations
 
@@ -55,6 +53,7 @@ class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
         cond_hist_len: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseDiscreteTEEstimator.
 
@@ -91,6 +90,7 @@ class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
                 step_size=step_size,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -104,13 +104,12 @@ class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         self._check_data_te()
 
 
-class DiscreteTEEstimator(
-    BaseDiscreteTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
-):
+class DiscreteTEEstimator(BaseDiscreteTEEstimator, TransferEntropyEstimator):
     """Estimator for discrete transfer entropy.
 
     Attributes

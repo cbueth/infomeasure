@@ -8,7 +8,7 @@ This release introduces an overhaul of the statistical testing functionality wit
 
   - **Removed** `p_value()` and `t_score()` methods from `PValueMixin`.
 
-  - **Replaced** with comprehensive {func}`~infomeasure.estimators.base.PValueMixin.statistical_test` method that returns a {class}`~infomeasure.estimators.base.StatisticalTestResult` object.
+  - **Replaced** with comprehensive {func}`~infomeasure.estimators.base.StatisticalTestingMixin.statistical_test` method that returns a {class}`~infomeasure.estimators.base.StatisticalTestResult` object.
 
   - **Renamed** configuration parameter `p_value_method` to `statistical_test_method`.
 
@@ -16,7 +16,7 @@ This release introduces an overhaul of the statistical testing functionality wit
 
 - ✨ **New Features**:
 
-  - 📊 **Comprehensive Statistical Testing**: New {func}`~infomeasure.estimators.base.PValueMixin.statistical_test` method provides _p_-values, _t_-scores, and metadata in a single call.
+  - 📊 **Comprehensive Statistical Testing**: New {func}`~infomeasure.estimators.base.StatisticalTestingMixin.statistical_test` method provides _p_-values, _t_-scores, and metadata in a single call.
 
   - 📈 **StatisticalTestResult Class**: Rich result object containing:
 

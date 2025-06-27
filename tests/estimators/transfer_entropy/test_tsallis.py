@@ -153,3 +153,73 @@ def test_tsallis_cte_slicing(
     res = est.result()
     assert isinstance(res, float)
     assert res == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_te,p_cte",
+    [
+        (1, "permutation_test", 0.0, 0.0),
+        (1, "bootstrap", 0.0, 0.0),
+        (2, "permutation_test", 0.02, 0.0),
+        (2, "bootstrap", 0.0, 0.0),
+        (3, "permutation_test", 0.0, 0.0),
+        (3, "bootstrap", 0.0, 0.0),
+        (4, "permutation_test", 0.0, 0.0),
+        (4, "bootstrap", 0.0, 0.0),
+    ],
+)
+def test_tsallis_te_statistical_test(rng_int, method, p_te, p_cte):
+    """Test the Tsallis TE for p-values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = TsallisTEEstimator(
+        data_source, data_dest, k=4, q=1.0, noise_level=0, base=2, seed=8
+    )
+    est_cte_xy = TsallisCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_cond,
+        k=4,
+        q=1.0,
+        noise_level=0,
+        base=2,
+        seed=8,
+    )
+    test = est_te_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_te)
+    test = est_cte_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_cte)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,eff_te,eff_cte",
+    [
+        (1, "permutation_test", 0.15379927286749506, 0.0),
+        (1, "bootstrap", 0.161452619631973, 0.0),
+        (2, "permutation_test", 0.06279044408929124, 0.0),
+        (2, "bootstrap", 0.09545814052331991, 0.0),
+        (3, "permutation_test", 0.095582966279391, 0.0),
+        (4, "permutation_test", 0.1138150515118923, 0.0),
+    ],
+)
+def test_tsallis_te_effective_val(rng_int, method, eff_te, eff_cte):
+    """Test the Tsallis transfer entropy for effective values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = TsallisTEEstimator(
+        data_source, data_dest, k=4, q=1.0, noise_level=0, base=2, seed=8
+    )
+    est_cte_xy = TsallisCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_source,
+        k=4,
+        q=1.0,
+        noise_level=0,
+        base=2,
+        seed=8,
+    )
+    assert est_te_xy.effective_val(method=method) == pytest.approx(eff_te)
+    assert est_cte_xy.effective_val(method=method) == pytest.approx(eff_cte)

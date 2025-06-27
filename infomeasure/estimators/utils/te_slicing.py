@@ -146,6 +146,40 @@ def te_observations(
             "is greater than the length of the data and results in empty arrays."
         )
 
+    dest_future, dest_history, src_history, _ = _src_dest_slices(
+        source,
+        destination,
+        src_hist_len,
+        dest_hist_len,
+        step_size,
+        max_delay,
+        permute_src,
+        resample_src,
+    )
+    if construct_joint_spaces:
+        return _construct_joint_space_data(
+            src_history,  # x_i^{(l)}
+            dest_history,  # y_i^{(k)}
+            dest_future,  # \hat{y}_{i+1}
+        )
+    else:
+        return src_history, dest_history, dest_future
+
+
+def _src_dest_slices(
+    source,
+    destination,
+    src_hist_len,
+    dest_hist_len,
+    step_size,
+    max_delay,
+    permute_src,
+    resample_src,
+):
+    """Helper function to get slices of src and dest,
+
+    to be used in both TE and CTE slicing.
+    """
     if permute_src and resample_src:
         raise ValueError("Only one of permute_src or resample_src can be provided.")
 
@@ -197,14 +231,7 @@ def te_observations(
         if dest_future.ndim < 3
         else dest_future.reshape(dest_future.shape[0], -1)
     )
-    if construct_joint_spaces:
-        return _construct_joint_space_data(
-            src_history,  # x_i^{(l)}
-            dest_history,  # y_i^{(k)}
-            dest_future,  # \hat{y}_{i+1}
-        )
-    else:
-        return src_history, dest_history, dest_future
+    return dest_future, dest_history, src_history, base_indices
 
 
 def cte_observations(
@@ -215,6 +242,8 @@ def cte_observations(
     dest_hist_len=1,
     cond_hist_len=1,
     step_size=1,
+    permute_src=False,
+    resample_src=False,
     construct_joint_spaces: bool = True,
 ) -> tuple[ndarray, ndarray, ndarray, ndarray] | Iterable | tuple:
     r"""
@@ -250,6 +279,18 @@ def cte_observations(
         Default is None, which equals to 1, every observation is considered.
         If step_size is greater than 1, the history is subsampled.
         This applies to both the source and destination data.
+    permute_src : bool | Generator, optional
+        Whether to shuffle the sliced source history data. Default is False.
+        This is used for the permutation TE. Rows are permuted, keeping the
+        history intact.
+        If a random number generator is provided, it will be used for shuffling.
+        If True, a new random number generator will be created.
+    resample_src : bool | Generator, optional
+        Whether to resample the sliced source history data. Default is False.
+        This is used for the permutation TE using bootstrapping.
+        Rows are resampled with replacement, keeping the history intact.
+        If a random number generator is provided, it will be used for resampling.
+        If True, a new random number generator will be created.
     construct_joint_spaces : bool, optional
         Whether to construct the joint spaces. Default is True.
         If False, the sliced source and destination data are returned instead.
@@ -337,48 +378,25 @@ def cte_observations(
             "is greater than the length of the data and results in empty arrays."
         )
 
-    base_indices = arange(max_delay, len(destination), step_size)
-
-    # Construct src_history
-    offset_indices = arange(step_size, (src_hist_len + 1) * step_size, step_size)
-    src_history_indices = base_indices[:, None] - offset_indices[::-1]
-    src_history = source[src_history_indices]
+    dest_future, dest_history, src_history, base_indices = _src_dest_slices(
+        source,
+        destination,
+        src_hist_len,
+        dest_hist_len,
+        step_size,
+        max_delay,
+        permute_src,
+        resample_src,
+    )
 
     # Construct cond_history
     offset_indices = arange(step_size, (cond_hist_len + 1) * step_size, step_size)
     cond_history_indices = base_indices[:, None] - offset_indices[::-1]
     cond_history = condition[cond_history_indices]
-
-    # Construct dest_history
-    offset_indices = arange(step_size, (dest_hist_len + 1) * step_size, step_size)
-    dest_history_indices = base_indices[:, None] - offset_indices[::-1]
-    dest_history = destination[dest_history_indices]
-
-    # Construct dest_future
-    dest_future = destination[base_indices]
-    # src_future: (data_len,) -> (data_len, 1); or (data_len, m) -> (data_len, 1, m)
-    dest_future = expand_dims(dest_future, axis=1)
-
-    # flatten into two dimensions if the array has more than two dimensions
-    src_history = (
-        src_history
-        if src_history.ndim < 3
-        else src_history.reshape(src_history.shape[0], -1)
-    )
     cond_history = (
         cond_history
         if cond_history.ndim < 3
         else cond_history.reshape(cond_history.shape[0], -1)
-    )
-    dest_history = (
-        dest_history
-        if dest_history.ndim < 3
-        else dest_history.reshape(dest_history.shape[0], -1)
-    )
-    dest_future = (
-        dest_future
-        if dest_future.ndim < 3
-        else dest_future.reshape(dest_future.shape[0], -1)
     )
 
     if construct_joint_spaces:

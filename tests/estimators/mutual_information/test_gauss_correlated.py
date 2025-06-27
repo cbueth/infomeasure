@@ -8,9 +8,8 @@ import infomeasure as im
 from infomeasure import get_estimator_class
 from infomeasure.estimators.base import (
     DiscreteHEstimator,
-    DiscreteMIMixin,
-    DiscreteTEMixin,
 )
+from infomeasure.estimators.mixins import DiscreteMIMixin, DiscreteTEMixin
 
 
 # Analytical formula for the mutual information of two Gaussian random variables

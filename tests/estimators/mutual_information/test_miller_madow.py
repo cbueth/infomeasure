@@ -191,3 +191,27 @@ def test_miller_madow_cmi_vs_discrete():
 
     # For large samples, the correction should be small
     assert abs(cmi_mm - cmi_discrete) < 0.1
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_mi,p_cmi",
+    [
+        (1, "permutation_test", 0.74, 0.98),
+        (1, "bootstrap", 0.82, 0.92),
+        (2, "permutation_test", 0.88, 0.86),
+        (2, "bootstrap", 0.86, 0.84),
+        (3, "permutation_test", 0.98, 0.96),
+        (3, "bootstrap", 1.0, 0.9),
+        (4, "permutation_test", 0.86, 0.82),
+        (4, "bootstrap", 0.78, 0.84),
+    ],
+)
+def test_miller_madow_mi_statistical_test(rng_int, method, p_mi, p_cmi):
+    """Test the Miller-Madow MI for p-values. Fix rng."""
+    data_x, data_y, cond = discrete_random_variables_condition(rng_int)
+    est_mi = MillerMadowMIEstimator(data_x, data_y, base=2, seed=8)
+    est_cmi = MillerMadowCMIEstimator(data_x, data_y, cond=cond, base=2, seed=8)
+    test = est_mi.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_mi)
+    test = est_cmi.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_cmi)

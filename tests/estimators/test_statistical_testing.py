@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from infomeasure.estimators.base import PValueMixin
+from infomeasure.estimators.mixins import StatisticalTestingMixin
 from infomeasure.utils.data import StatisticalTestResult
 
 
@@ -137,7 +137,7 @@ def test_te_statistical_test_comprehensive(te_estimator, n_tests):
 )
 def test_statistical_test_result(observed_value, test_values, p_value, t_score):
     """Test the comprehensive statistical test result calculation."""
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
     assert isinstance(result, StatisticalTestResult)
@@ -161,7 +161,7 @@ def test_statistical_test_result(observed_value, test_values, p_value, t_score):
 def test_statistical_test_result_not_enough_test_values(n_test_vals):
     """Test the statistical test result calculation with not enough test values."""
     with pytest.raises(ValueError, match="Not enough test values for statistical test"):
-        PValueMixin._statistical_test_result(
+        StatisticalTestingMixin._statistical_test_result(
             1.0, [1] * n_test_vals, n_tests=n_test_vals, method="permutation_test"
         )
 
@@ -171,7 +171,7 @@ def test_statistical_test_result_percentiles():
     test_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     observed_value = 0.55
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="bootstrap"
     )
 
@@ -207,7 +207,7 @@ def test_statistical_test_result_percentile_methods():
     test_values = [0.1, 0.2, 0.3, 0.4, 0.5]
     observed_value = 0.3
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
 
@@ -234,7 +234,7 @@ def test_percentile_comprehensive():
     test_values = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     observed_value = 5.5
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
 
@@ -278,7 +278,7 @@ def test_percentile_edge_cases():
     test_values = [1.0, 2.0]
     observed_value = 1.5
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="bootstrap"
     )
 
@@ -288,7 +288,7 @@ def test_percentile_edge_cases():
 
     # Test with identical values
     test_values_identical = [5.0, 5.0, 5.0, 5.0, 5.0]
-    result_identical = PValueMixin._statistical_test_result(
+    result_identical = StatisticalTestingMixin._statistical_test_result(
         5.0,
         test_values_identical,
         n_tests=len(test_values_identical),
@@ -310,7 +310,7 @@ def test_confidence_interval_basic():
     test_values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     observed_value = 0.55
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
 
@@ -350,7 +350,7 @@ def test_confidence_interval_ordering():
     test_values = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     observed_value = 5.5
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="bootstrap"
     )
 
@@ -374,7 +374,7 @@ def test_confidence_interval_methods():
     test_values = [0.1, 0.2, 0.3, 0.4, 0.5]
     observed_value = 0.3
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
 
@@ -397,7 +397,7 @@ def test_confidence_interval_edge_cases():
     test_values = [1.0, 2.0]
     observed_value = 1.5
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="bootstrap"
     )
 
@@ -408,7 +408,7 @@ def test_confidence_interval_edge_cases():
 
     # Test with identical values
     test_values_identical = [5.0, 5.0, 5.0, 5.0, 5.0]
-    result_identical = PValueMixin._statistical_test_result(
+    result_identical = StatisticalTestingMixin._statistical_test_result(
         5.0,
         test_values_identical,
         n_tests=len(test_values_identical),
@@ -438,7 +438,7 @@ def test_confidence_interval_invalid_levels():
     test_values = [0.1, 0.2, 0.3, 0.4, 0.5]
     observed_value = 0.3
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
 
@@ -462,7 +462,7 @@ def test_confidence_interval_comprehensive():
     test_values = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     observed_value = 5.5
 
-    result = PValueMixin._statistical_test_result(
+    result = StatisticalTestingMixin._statistical_test_result(
         observed_value, test_values, n_tests=len(test_values), method="permutation_test"
     )
 
