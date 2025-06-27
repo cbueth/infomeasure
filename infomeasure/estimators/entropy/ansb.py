@@ -37,11 +37,11 @@ class AnsbEntropyEstimator(DiscreteHEstimator):
     ----------
     *data : array-like
         The data used to estimate the entropy.
-    base : LogBaseType, default=Config.get("base")
-        The logarithm base for entropy calculation.
     undersampled : float, default=0.1
         Maximum allowed ratio N/K to consider data sufficiently undersampled.
         A warning is issued if this threshold is exceeded.
+    base : LogBaseType, default=Config.get("base")
+        The logarithm base for entropy calculation.
 
     Attributes
     ----------
@@ -63,15 +63,11 @@ class AnsbEntropyEstimator(DiscreteHEstimator):
     """
 
     def __init__(
-        self, *data, base: LogBaseType = Config.get("base"), undersampled: float = 0.1
+        self, *data, undersampled: float = 0.1, base: LogBaseType = Config.get("base")
     ):
         """Initialize the ANSB entropy estimator."""
         super().__init__(*data, base=base)
         self.undersampled = undersampled
-
-        # Standard validation for discrete entropy estimators
-        self._check_data()
-        self._reduce_space()
 
     def _simple_entropy(self):
         """Calculate the ANSB entropy of the data.

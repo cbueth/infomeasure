@@ -28,14 +28,6 @@ class MillerMadowEntropyEstimator(DiscreteHEstimator):
         The data used to estimate the entropy.
     """
 
-    def __init__(self, *data, base: LogBaseType = Config.get("base")):
-        """Initialize the MillerMadowEntropyEstimator."""
-        super().__init__(*data, base=base)
-        # warn if the data looks like a float array
-        self._check_data()
-        # reduce any joint space if applicable
-        self._reduce_space()
-
     def _simple_entropy(self):
         """Calculate the Miller-Madow entropy of the data.
 

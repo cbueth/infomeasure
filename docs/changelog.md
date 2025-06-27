@@ -71,6 +71,8 @@ This release introduces an overhaul of the statistical testing functionality wit
 
     - **ANSB Entropy**: {class}`~infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator` - Asymptotic NSB entropy estimator designed for extremely undersampled discrete data where the number of unique values K is comparable to the sample size N. Uses the formula (γ - log(2)) + 2 log(N) - ψ(Δ) where γ is Euler's constant, ψ is the digamma function, and Δ is the number of coincidences, providing efficient entropy estimation in the undersampled regime.
 
+    - **NSB Entropy**: {class}`~infomeasure.estimators.entropy.nsb.NsbEntropyEstimator` - Nemenman-Shafee-Bialek entropy estimator providing Bayesian estimates of Shannon entropy for discrete data using numerical integration. Particularly effective for undersampled data where traditional estimators may be biased, using a principled Bayesian approach that accounts for sampling uncertainty through integration over possible entropy values.
+
     All new entropy estimators include comprehensive test coverage and support for local values calculation where applicable.
 
 - 📚 Update Documentation

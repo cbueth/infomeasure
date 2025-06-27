@@ -86,9 +86,6 @@ class BayesEntropyEstimator(DiscreteHEstimator):
             The logarithm base for entropy calculation.
         """
         super().__init__(*data, base=base)
-        # Standard validation for discrete entropy estimators
-        self._check_data()
-        self._reduce_space()
 
         self.alpha = alpha
         self.K_param = K

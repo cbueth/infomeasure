@@ -35,7 +35,7 @@ def test_entropy_gaussian(entropy_approach, sigma, base, default_rng):
             needed_kwargs[key] = 1
     needed_kwargs["base"] = base
     est = im.estimator(data, measure="entropy", approach=approach_str, **needed_kwargs)
-    if (approach_str in ["ordinal", "symbolic", "permutation", "ansb"]) or (
+    if (approach_str in ["ordinal", "symbolic", "permutation", "ansb", "nsb"]) or (
         issubclass(entropy_class, DiscreteHEstimator) and sigma < 3
     ):
         assert pytest.approx(est.global_val(), rel=0.1) != analytical_entropy(

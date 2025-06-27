@@ -3,6 +3,7 @@
 import pytest
 
 import infomeasure as im
+from conftest import create_undersampled_data_for_nsb_three
 from tests.conftest import (
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
@@ -178,6 +179,42 @@ def test_jsd_explicit_continuous_three(rng_int, approach, kwargs, expected):
     )
     assert im.jsd(data_x, data_y, data_z, approach=approach, **kwargs) == pytest.approx(
         expected
+    )
+
+
+@pytest.mark.parametrize(
+    "rng_int,approach,kwargs, expected",
+    [
+        (1, "nsb", {}, -1.6837922900495361),
+        (2, "nsb", {}, -1.6424894194991995),
+        (3, "nsb", {}, -1.5711555083017794),
+        (4, "nsb", {}, -1.5899250866053434),
+    ],
+)
+def test_jsd_explicit_discrete_nsb(rng_int, approach, kwargs, expected):
+    """Test the Jensen-Shannon Divergence (JSD) estimator with NSB approach
+    where output is not NaN."""
+    data_x, data_y, _ = create_undersampled_data_for_nsb_three(rng_int)
+    assert im.jsd(data_x, data_y, approach=approach, **kwargs) == pytest.approx(
+        expected, rel=1e-3
+    )
+
+
+@pytest.mark.parametrize(
+    "rng_int,approach,kwargs, expected",
+    [
+        (1, "nsb", {}, -1.6545764024263367),
+        (2, "nsb", {}, -1.639702916617598),
+        (3, "nsb", {}, -1.5924556886095116),
+        (4, "nsb", {}, -1.593318114039597),
+    ],
+)
+def test_jsd_explicit_discrete_three_nsb(rng_int, approach, kwargs, expected):
+    """Test the Jensen-Shannon Divergence (JSD) estimator with NSB approach
+    (three variables) where output is not NaN."""
+    data_x, data_y, data_z = create_undersampled_data_for_nsb_three(rng_int)
+    assert im.jsd(data_x, data_y, data_z, approach=approach, **kwargs) == pytest.approx(
+        expected, rel=1e-3
     )
 
 

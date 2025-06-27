@@ -52,6 +52,10 @@ ENTROPY_APPROACHES = {
         "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
+    "NsbEntropyEstimator": {
+        "functional_str": ["nsb"],
+        "needed_kwargs": {},
+    },
     "OrdinalEntropyEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},
@@ -460,3 +464,18 @@ def discrete_random_variables_condition(rng_int, low=0, high=4, length=1000):
         Y[i] = (X[i - 1] & 1) + (generator.integers(0, 2) << 1)
         Z[i] = (X[i - 1] & 1) + (Y[i - 1] & 2)
     return X, Y, Z
+
+
+@cache
+def create_undersampled_data_for_nsb_three(rng_int, length=50):
+    """Create undersampled data suitable for NSB (three variables) that produces non-NaN JSD results."""
+    import numpy as np
+
+    np.random.seed(rng_int)
+
+    # Create data with many unique values but some repetitions
+    data_x = np.random.choice(range(length // 2), size=length, replace=True)
+    data_y = np.random.choice(range(length // 2), size=length, replace=True)
+    data_z = np.random.choice(range(length // 2), size=length, replace=True)
+
+    return data_x, data_y, data_z

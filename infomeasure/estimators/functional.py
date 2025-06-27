@@ -29,6 +29,7 @@ entropy_estimators = {
     "miller_madow": "infomeasure.estimators.entropy.miller_madow."
     "MillerMadowEntropyEstimator",
     "mm": "infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator",
+    "nsb": "infomeasure.estimators.entropy.nsb.NsbEntropyEstimator",
     "renyi": "infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator",
     "shrink": "infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator",
     "js": "infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator",
@@ -281,10 +282,11 @@ def entropy(*data, approach: str, **kwargs: any):
     7. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
     8. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
     9. [``miller_madow``, ``mm``]: :func:`Miller-Madow entropy estimator. <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
-    10. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
-    11. [``shrink``, ``js``]: :func:`Shrinkage (James-Stein) entropy estimator. <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
-    12. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
-    13. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    10. ``nsb``: :func:`NSB (Nemenman-Shafee-Bialek) entropy estimator. <infomeasure.estimators.entropy.nsb.NsbEntropyEstimator>`
+    11. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
+    12. [``shrink``, ``js``]: :func:`Shrinkage (James-Stein) entropy estimator. <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
+    13. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
+    14. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
 
 
     For the discrete Shannon entropy this is
