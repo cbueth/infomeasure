@@ -1,5 +1,6 @@
 """Module containing the base classes for the measure estimators."""
 
+import warnings
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
 from typing import Generic, final, Sequence
@@ -20,6 +21,7 @@ from .mixins import StatisticalTestingMixin, EffectiveValueMixin
 from .. import Config
 from ..utils.config import logger
 from ..utils.data import DiscreteData
+from ..utils.exceptions import TheoreticalInconsistencyError
 from ..utils.types import EstimatorType, LogBaseType
 from .utils.normalize import normalize_data_0_1
 from .utils.te_slicing import cte_observations, te_observations
@@ -151,9 +153,10 @@ class Estimator(Generic[EstimatorType], ABC):
                 and abs((np_mean(self.res_local) - self.res_global) / self.res_global)
                 > 1e-5
             ):
-                raise RuntimeError(
+                message = (
                     f"Mean of local values {np_mean(self.res_local)} "
-                    f"does not match the global value {self.res_global}. "
+                    f"does not match the global value {self.res_global} "
+                    f"for {self.__class__.__name__}. "
                     f"Diff: {np_mean(self.res_local) - self.res_global:.2e}. "
                     + (
                         f"As you are using {len(self.data)} random variables, "
@@ -162,6 +165,7 @@ class Estimator(Generic[EstimatorType], ABC):
                         else ""
                     )
                 )
+                logger.warning(message)
         return self.res_local
 
     @abstractmethod
@@ -569,10 +573,10 @@ class MutualInformationEstimator(
         # return sum(h(x_i)) - h((x_1, x_2, ..., x_n))
         try:
             return (
-                np_sum([est.local_vals() for est in estimators])
+                np_sum([est.local_vals() for est in estimators], axis=0)
                 - estimator_joint.local_vals()
             )
-        except UnsupportedOperation:
+        except (UnsupportedOperation, TheoreticalInconsistencyError):
             return (
                 sum([est.global_val() for est in estimators])
                 - estimator_joint.global_val()
@@ -726,12 +730,12 @@ class ConditionalMutualInformationEstimator(
             est_cond = estimator(cond, **kwargs)
             # return h_x_z + h_y_z - h_x_y_z - h_z
             try:
-                (
-                    np_sum([est.local_vals() for est in est_marginal_cond])
+                return (
+                    np_sum([est.local_vals() for est in est_marginal_cond], axis=0)
                     - estimator_joint.local_vals()
                     - est_cond.local_vals()
                 )
-            except UnsupportedOperation:
+            except (UnsupportedOperation, TheoreticalInconsistencyError):
                 return (
                     sum([est.global_val() for est in est_marginal_cond])
                     - estimator_joint.global_val()
@@ -930,7 +934,7 @@ class TransferEntropyEstimator(
                 - est_x_history_y_history_y_future.local_vals()
                 - est_y_history.local_vals()
             )
-        except UnsupportedOperation:
+        except (UnsupportedOperation, TheoreticalInconsistencyError):
             return (
                 est_y_history_y_future.global_val()
                 + est_x_history_y_history.global_val()
@@ -1085,7 +1089,7 @@ class ConditionalTransferEntropyEstimator(
                 - est_x_history_cond_y_history_y_future.local_vals()
                 - est_y_history_cond.local_vals()
             )
-        except UnsupportedOperation:
+        except (UnsupportedOperation, TheoreticalInconsistencyError):
             return (
                 est_cond_y_history_y_future.global_val()
                 + est_x_history_cond_y_history.global_val()

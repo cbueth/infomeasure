@@ -1,6 +1,6 @@
 """Module for the Zhang entropy estimator."""
 
-from numpy import log
+from numpy import log, array
 
 from infomeasure.estimators.base import DiscreteHEstimator
 
@@ -102,16 +102,13 @@ class ZhangEntropyEstimator(DiscreteHEstimator):
             zhang_contributions[uniq_val] = t2
 
         # Map each data point to its local Zhang entropy value
-        local_values = [zhang_contributions[val] for val in counts]
+        local_values = array([zhang_contributions[val] for val in self.data[0].data])
 
         # Convert to the desired base if needed
         if self.base != "e":
-            local_values = [val / log(self.base) for val in local_values]
+            local_values /= log(self.base)
 
-        # Convert to numpy array
-        from numpy import array
-
-        return array(local_values)
+        return local_values
 
     def _cross_entropy(self):
         """Calculate cross-entropy between two distributions using Zhang estimator.

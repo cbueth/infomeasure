@@ -17,7 +17,8 @@ entropy_estimators = {
     "bonachela": "infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator",
     "chao_shen": "infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator",
     "cs": "infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator",
-    "chao_wang_jost": "infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator",
+    "chao_wang_jost": "infomeasure.estimators.entropy.chao_wang_jost."
+    "ChaoWangJostEntropyEstimator",
     "cwj": "infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator",
     "discrete": "infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator",
     "grassberger": "infomeasure.estimators.entropy.grassberger."
@@ -42,8 +43,18 @@ entropy_estimators = {
 }
 
 mi_estimators = {
+    "ansb": "infomeasure.estimators.mutual_information.ansb.AnsbMIEstimator",
+    "bayes": "infomeasure.estimators.mutual_information.bayes.BayesMIEstimator",
+    "bonachela": "infomeasure.estimators.mutual_information.bonachela."
+    "BonachelaMIEstimator",
+    "chao_shen": "infomeasure.estimators.mutual_information.chao_shen."
+    "ChaoShenMIEstimator",
+    "chao_wang_jost": "infomeasure.estimators.mutual_information.chao_wang_jost."
+    "ChaoWangJostMIEstimator",
     "discrete": "infomeasure.estimators.mutual_information.discrete."
     "DiscreteMIEstimator",
+    "grassberger": "infomeasure.estimators.mutual_information.grassberger."
+    "GrassbergerMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelMIEstimator",
     "metric": "infomeasure.estimators.mutual_information."
     "kraskov_stoegbauer_grassberger.KSGMIEstimator",
@@ -53,12 +64,15 @@ mi_estimators = {
     "MillerMadowMIEstimator",
     "mm": "infomeasure.estimators.mutual_information.miller_madow."
     "MillerMadowMIEstimator",
-    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator",
-    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator",
+    "nsb": "infomeasure.estimators.mutual_information.nsb.NsbMIEstimator",
     "ordinal": "infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator",
     "symbolic": "infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator",
     "permutation": "infomeasure.estimators.mutual_information.ordinal."
     "OrdinalMIEstimator",
+    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator",
+    "shrink": "infomeasure.estimators.mutual_information.shrink.ShrinkMIEstimator",
+    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator",
+    "zhang": "infomeasure.estimators.mutual_information.zhang.ZhangMIEstimator",
 }
 
 # for M(x), use map to H(x)
@@ -67,8 +81,18 @@ mi_entropy_map = {mi_key: mi_key for mi_key in mi_estimators.keys()}
 mi_entropy_map["ksg"] = "kl"
 
 cmi_estimators = {
+    "ansb": "infomeasure.estimators.mutual_information.ansb.AnsbCMIEstimator",
+    "bayes": "infomeasure.estimators.mutual_information.bayes.BayesCMIEstimator",
+    "bonachela": "infomeasure.estimators.mutual_information.bonachela."
+    "BonachelaCMIEstimator",
+    "chao_shen": "infomeasure.estimators.mutual_information.chao_shen."
+    "ChaoShenCMIEstimator",
+    "chao_wang_jost": "infomeasure.estimators.mutual_information.chao_wang_jost."
+    "ChaoWangJostCMIEstimator",
     "discrete": "infomeasure.estimators.mutual_information.discrete."
     "DiscreteCMIEstimator",
+    "grassberger": "infomeasure.estimators.mutual_information.grassberger."
+    "GrassbergerCMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelCMIEstimator",
     "metric": "infomeasure.estimators.mutual_information."
     "kraskov_stoegbauer_grassberger.KSGCMIEstimator",
@@ -78,16 +102,29 @@ cmi_estimators = {
     "MillerMadowCMIEstimator",
     "mm": "infomeasure.estimators.mutual_information.miller_madow."
     "MillerMadowCMIEstimator",
-    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiCMIEstimator",
-    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisCMIEstimator",
+    "nsb": "infomeasure.estimators.mutual_information.nsb.NsbCMIEstimator",
     "ordinal": "infomeasure.estimators.mutual_information.ordinal.OrdinalCMIEstimator",
     "symbolic": "infomeasure.estimators.mutual_information.ordinal.OrdinalCMIEstimator",
     "permutation": "infomeasure.estimators.mutual_information.ordinal."
     "OrdinalCMIEstimator",
+    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiCMIEstimator",
+    "shrink": "infomeasure.estimators.mutual_information.shrink.ShrinkCMIEstimator",
+    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisCMIEstimator",
+    "zhang": "infomeasure.estimators.mutual_information.zhang.ZhangCMIEstimator",
 }
 
 te_estimators = {
+    "ansb": "infomeasure.estimators.transfer_entropy.ansb.AnsbTEEstimator",
+    "bayes": "infomeasure.estimators.transfer_entropy.bayes.BayesTEEstimator",
+    "bonachela": "infomeasure.estimators.transfer_entropy.bonachela."
+    "BonachelaTEEstimator",
+    "chao_shen": "infomeasure.estimators.transfer_entropy.chao_shen."
+    "ChaoShenTEEstimator",
+    "chao_wang_jost": "infomeasure.estimators.transfer_entropy.chao_wang_jost."
+    "ChaoWangJostTEEstimator",
     "discrete": "infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator",
+    "grassberger": "infomeasure.estimators.transfer_entropy.grassberger."
+    "GrassbergerTEEstimator",
     "kernel": "infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator",
     "metric": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
@@ -96,15 +133,28 @@ te_estimators = {
     "miller_madow": "infomeasure.estimators.transfer_entropy.miller_madow."
     "MillerMadowTEEstimator",
     "mm": "infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator",
-    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator",
+    "nsb": "infomeasure.estimators.transfer_entropy.nsb.NsbTEEstimator",
     "ordinal": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
     "symbolic": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
     "permutation": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
+    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator",
+    "shrink": "infomeasure.estimators.transfer_entropy.shrink.ShrinkTEEstimator",
     "tsallis": "infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator",
+    "zhang": "infomeasure.estimators.transfer_entropy.zhang.ZhangTEEstimator",
 }
 
 cte_estimators = {
+    "ansb": "infomeasure.estimators.transfer_entropy.ansb.AnsbCTEEstimator",
+    "bayes": "infomeasure.estimators.transfer_entropy.bayes.BayesCTEEstimator",
+    "bonachela": "infomeasure.estimators.transfer_entropy.bonachela."
+    "BonachelaCTEEstimator",
+    "chao_shen": "infomeasure.estimators.transfer_entropy.chao_shen."
+    "ChaoShenCTEEstimator",
+    "chao_wang_jost": "infomeasure.estimators.transfer_entropy.chao_wang_jost."
+    "ChaoWangJostCTEEstimator",
     "discrete": "infomeasure.estimators.transfer_entropy.discrete.DiscreteCTEEstimator",
+    "grassberger": "infomeasure.estimators.transfer_entropy.grassberger."
+    "GrassbergerCTEEstimator",
     "kernel": "infomeasure.estimators.transfer_entropy.kernel.KernelCTEEstimator",
     "metric": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGCTEEstimator",
@@ -114,12 +164,15 @@ cte_estimators = {
     "MillerMadowCTEEstimator",
     "mm": "infomeasure.estimators.transfer_entropy.miller_madow."
     "MillerMadowCTEEstimator",
-    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiCTEEstimator",
+    "nsb": "infomeasure.estimators.transfer_entropy.nsb.NsbCTEEstimator",
     "ordinal": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalCTEEstimator",
     "symbolic": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalCTEEstimator",
     "permutation": "infomeasure.estimators.transfer_entropy.ordinal."
     "OrdinalCTEEstimator",
+    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiCTEEstimator",
+    "shrink": "infomeasure.estimators.transfer_entropy.shrink.ShrinkCTEEstimator",
     "tsallis": "infomeasure.estimators.transfer_entropy.tsallis.TsallisCTEEstimator",
+    "zhang": "infomeasure.estimators.transfer_entropy.zhang.ZhangCTEEstimator",
 }
 
 

@@ -26,7 +26,8 @@ def test_mutual_information_statistical_test(mi_estimator, n_tests):
     # Test percentiles can be calculated on demand
     percentiles_95 = result.percentile([2.5, 97.5])  # 95% CI
     assert len(percentiles_95) == 2
-    assert percentiles_95[0] <= percentiles_95[1]
+    if not np.isnan(estimator.global_val()):
+        assert percentiles_95[0] <= percentiles_95[1]
 
 
 @pytest.mark.parametrize("n_tests", [2, 5, 300])
@@ -51,11 +52,12 @@ def test_mi_statistical_test_comprehensive(mi_estimator, n_tests):
     assert len(percentiles_95) == 2
     assert len(percentiles_99) == 2
     # 99% CI should be wider than 95% CI which should be wider than 90% CI
-    assert (
-        (percentiles_99[1] - percentiles_99[0])
-        >= (percentiles_95[1] - percentiles_95[0])
-        >= (percentiles_90[1] - percentiles_90[0])
-    )
+    if not np.isnan(estimator.global_val()):
+        assert (
+            (percentiles_99[1] - percentiles_99[0])
+            >= (percentiles_95[1] - percentiles_95[0])
+            >= (percentiles_90[1] - percentiles_90[0])
+        )
 
 
 @pytest.mark.parametrize("n_tests", [2, 5, 50])

@@ -83,8 +83,32 @@ ENTROPY_APPROACHES = {
 }
 
 MI_APPROACHES = {
+    "AnsbMIEstimator": {
+        "functional_str": ["ansb"],
+        "needed_kwargs": {},
+    },
+    "BayesMIEstimator": {
+        "functional_str": ["bayes"],
+        "needed_kwargs": {"alpha": "jeffrey"},
+    },
+    "BonachelaMIEstimator": {
+        "functional_str": ["bonachela"],
+        "needed_kwargs": {},
+    },
+    "ChaoShenMIEstimator": {
+        "functional_str": ["chao_shen"],
+        "needed_kwargs": {},
+    },
+    "ChaoWangJostMIEstimator": {
+        "functional_str": ["chao_wang_jost"],
+        "needed_kwargs": {},
+    },
     "DiscreteMIEstimator": {
         "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "GrassbergerMIEstimator": {
+        "functional_str": ["grassberger"],
         "needed_kwargs": {},
     },
     "KernelMIEstimator": {
@@ -99,23 +123,59 @@ MI_APPROACHES = {
         "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
-    "RenyiMIEstimator": {
-        "functional_str": ["renyi"],
-        "needed_kwargs": {"alpha": 1.5},
+    "NsbMIEstimator": {
+        "functional_str": ["nsb"],
+        "needed_kwargs": {},
     },
     "OrdinalMIEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},
     },
+    "RenyiMIEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "ShrinkMIEstimator": {
+        "functional_str": ["shrink"],
+        "needed_kwargs": {},
+    },
     "TsallisMIEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
     },
+    "ZhangMIEstimator": {
+        "functional_str": ["zhang"],
+        "needed_kwargs": {},
+    },
 }
 
 CMI_APPROACHES = {
+    "AnsbCMIEstimator": {
+        "functional_str": ["ansb"],
+        "needed_kwargs": {},
+    },
+    "BayesCMIEstimator": {
+        "functional_str": ["bayes"],
+        "needed_kwargs": {"alpha": "jeffrey"},
+    },
+    "BonachelaCMIEstimator": {
+        "functional_str": ["bonachela"],
+        "needed_kwargs": {},
+    },
+    "ChaoShenCMIEstimator": {
+        "functional_str": ["chao_shen"],
+        "needed_kwargs": {},
+    },
+    "ChaoWangJostCMIEstimator": {
+        "functional_str": ["chao_wang_jost"],
+        "needed_kwargs": {},
+    },
     "DiscreteCMIEstimator": {
         "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "GrassbergerCMIEstimator": {
+        "functional_str": ["grassberger"],
         "needed_kwargs": {},
     },
     "KernelCMIEstimator": {
@@ -130,23 +190,59 @@ CMI_APPROACHES = {
         "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
-    "RenyiCMIEstimator": {
-        "functional_str": ["renyi"],
-        "needed_kwargs": {"alpha": 1.5},
+    "NsbCMIEstimator": {
+        "functional_str": ["nsb"],
+        "needed_kwargs": {},
     },
     "OrdinalCMIEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},
     },
+    "RenyiCMIEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "ShrinkCMIEstimator": {
+        "functional_str": ["shrink"],
+        "needed_kwargs": {},
+    },
     "TsallisCMIEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
     },
+    "ZhangCMIEstimator": {
+        "functional_str": ["zhang"],
+        "needed_kwargs": {},
+    },
 }
 
 TE_APPROACHES = {
+    "AnsbTEEstimator": {
+        "functional_str": ["ansb"],
+        "needed_kwargs": {},
+    },
+    "BayesTEEstimator": {
+        "functional_str": ["bayes"],
+        "needed_kwargs": {"alpha": "jeffrey"},
+    },
+    "BonachelaTEEstimator": {
+        "functional_str": ["bonachela"],
+        "needed_kwargs": {},
+    },
+    "ChaoShenTEEstimator": {
+        "functional_str": ["chao_shen"],
+        "needed_kwargs": {},
+    },
+    "ChaoWangJostTEEstimator": {
+        "functional_str": ["chao_wang_jost"],
+        "needed_kwargs": {},
+    },
     "DiscreteTEEstimator": {
         "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "GrassbergerTEEstimator": {
+        "functional_str": ["grassberger"],
         "needed_kwargs": {},
     },
     "KernelTEEstimator": {
@@ -161,24 +257,60 @@ TE_APPROACHES = {
         "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
-    "RenyiTEEstimator": {
-        "functional_str": ["renyi"],
-        "needed_kwargs": {"alpha": 1.5},
+    "NsbTEEstimator": {
+        "functional_str": ["nsb"],
+        "needed_kwargs": {},
     },
     "OrdinalTEEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},
     },
+    "RenyiTEEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "ShrinkTEEstimator": {
+        "functional_str": ["shrink"],
+        "needed_kwargs": {},
+    },
     "TsallisTEEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
+    },
+    "ZhangTEEstimator": {
+        "functional_str": ["zhang"],
+        "needed_kwargs": {},
     },
 }
 
 
 CTE_APPROACHES = {
+    "AnsbCTEEstimator": {
+        "functional_str": ["ansb"],
+        "needed_kwargs": {},
+    },
+    "BayesCTEEstimator": {
+        "functional_str": ["bayes"],
+        "needed_kwargs": {"alpha": "jeffrey"},
+    },
+    "BonachelaCTEEstimator": {
+        "functional_str": ["bonachela"],
+        "needed_kwargs": {},
+    },
+    "ChaoShenCTEEstimator": {
+        "functional_str": ["chao_shen"],
+        "needed_kwargs": {},
+    },
+    "ChaoWangJostCTEEstimator": {
+        "functional_str": ["chao_wang_jost"],
+        "needed_kwargs": {},
+    },
     "DiscreteCTEEstimator": {
         "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "GrassbergerCTEEstimator": {
+        "functional_str": ["grassberger"],
         "needed_kwargs": {},
     },
     "KernelCTEEstimator": {
@@ -193,19 +325,66 @@ CTE_APPROACHES = {
         "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
-    "RenyiCTEEstimator": {
-        "functional_str": ["renyi"],
-        "needed_kwargs": {"alpha": 1.5},
+    "NsbCTEEstimator": {
+        "functional_str": ["nsb"],
+        "needed_kwargs": {},
     },
     "OrdinalCTEEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},
     },
+    "RenyiCTEEstimator": {
+        "functional_str": ["renyi"],
+        "needed_kwargs": {"alpha": 1.5},
+    },
+    "ShrinkCTEEstimator": {
+        "functional_str": ["shrink"],
+        "needed_kwargs": {},
+    },
     "TsallisCTEEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
     },
+    "ZhangCTEEstimator": {
+        "functional_str": ["zhang"],
+        "needed_kwargs": {},
+    },
 }
+
+
+NOT_NORMALIZABLE = [
+    "discrete",
+    "miller_madow",
+    "mm",
+    "ordinal",
+    "symbolic",
+    "permutation",
+    "ansb",
+    "bayes",
+    "bonachela",
+    "chao_shen",
+    "chao_wang_jost",
+    "grassberger",
+    "nsb",
+    "shrink",
+    "zhang",
+]
+HAVE_LOCAL_VALS = [
+    "discrete",
+    "shrink",
+    "grassberger",
+    "kernel",
+    "metric",
+    "ksg",
+    "miller_madow",
+    "mm",
+    "ordinal",
+    "symbolic",
+    "permutation",
+    "shrink",
+    "zhang",
+]
+FILTER_WARNINGS = ["ansb", "chao_wang_jost", "shrink"]
 
 
 @pytest.fixture(
