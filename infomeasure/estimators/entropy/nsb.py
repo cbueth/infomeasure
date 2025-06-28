@@ -59,7 +59,8 @@ class NsbEntropyEstimator(DiscreteHEstimator):
     -----
     The NSB estimator is computationally intensive as it requires numerical integration
     and optimization. For large datasets or when computational efficiency is critical,
-    consider using the asymptotic NSB (ANSB) estimator instead.
+    consider using the asymptotic NSB (ANSB) estimator
+    :class:`~infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator` instead.
 
     The estimator assumes a uniform prior over the space of possible probability
     distributions and uses Bayesian inference to estimate the entropy.

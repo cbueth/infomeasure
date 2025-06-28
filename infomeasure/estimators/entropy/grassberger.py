@@ -12,13 +12,13 @@ class GrassbergerEntropyEstimator(DiscreteHEstimator):
 
     .. math::
 
-        \hat{H}_{\text{Gr88}} = \sum_i \frac{h_i}{H} \left(\log(N) - \psi(h_i) - \frac{(-1)^{h_i}}{n_i + 1}  \right)
+        \hat{H}_{\text{Gr88}} = \sum_i \frac{n_i}{H} \left(\log(N) - \psi(n_i) - \frac{(-1)^{n_i}}{n_i + 1}  \right)
 
     :math:`\hat{H}_{\text{Gr88}}` is the Grassberger entropy,
-    where :math:`h_i` are the counts of unique values,
+    where :math:`n_i` are the counts,
     :math:`H` is the total number of observations :math:`N`,
-    :math:`\psi` is the digamma function,
-    and :math:`n_i` are the counts (same as :math:`h_i`) :cite:p:`grassbergerFiniteSampleCorrections1988,grassbergerEntropyEstimatesInsufficient2008`.
+    and :math:`\psi` is the digamma function
+    :cite:p:`grassbergerFiniteSampleCorrections1988,grassbergerEntropyEstimatesInsufficient2008`.
 
     Attributes
     ----------
@@ -39,8 +39,8 @@ class GrassbergerEntropyEstimator(DiscreteHEstimator):
         count_dict = dict(zip(self.data[0].uniq, self.data[0].counts))
 
         # Vectorized calculation of local values
-        h_i = asarray([count_dict[val] for val in self.data[0].data])
-        local_values = log(self.data[0].N) - digamma(h_i) - ((-1) ** h_i) / (h_i + 1)
+        n_i = asarray([count_dict[val] for val in self.data[0].data])
+        local_values = log(self.data[0].N) - digamma(n_i) - ((-1) ** n_i) / (n_i + 1)
 
         # Convert to the requested base if needed
         if self.base != "e":

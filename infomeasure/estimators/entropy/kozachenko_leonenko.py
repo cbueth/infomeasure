@@ -14,34 +14,108 @@ from ...utils.types import LogBaseType
 
 
 class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator):
-    r"""Kozachenko-Leonenko estimator for Shannon entropies.
+    r"""Kozachenko-Leonenko entropy estimator for continuous data.
+
+    The Kozachenko-Leonenko estimator computes the Shannon entropy of continuous
+    data using nearest neighbor distances. The estimator is based on the method
+    from :cite:p:`kozachenko1987sample` and follows the implementation approach
+    described in :cite:p:`miKSG2004`.
+
+    .. math::
+
+        \hat{H}_{KL} = -\psi(k) + \psi(N) + \log(c_d) + \frac{d}{N} \sum_{i=1}^{N} \log(2\rho_{k,i})
+
+    where :math:`\psi` is the digamma function, :math:`k` is the number of nearest
+    neighbors, :math:`N` is the number of data points, :math:`d` is the dimensionality,
+    :math:`c_d` is the volume of the :math:`d`-dimensional unit ball for the chosen
+    Minkowski norm, and :math:`\rho_{k,i}` is the distance to the :math:`k`-th nearest
+    neighbor of point :math:`i`.
+
+    This estimator is particularly suitable for continuous multivariate data and
+    provides asymptotically unbiased estimates of differential entropy. The method
+    works by exploiting the relationship between nearest neighbor distances and
+    local density, making it effective for high-dimensional data where traditional
+    histogram-based methods fail.
+
+    Parameters
+    ----------
+    *data : array-like
+        The continuous data used to estimate the entropy. For multivariate data,
+        each variable should be a column.
+    k : int, default=4
+        The number of nearest neighbors to consider. Higher values provide more
+        stable estimates but may introduce bias. The default value of 4 is
+        recommended by :cite:p:`miKSG2004`.
+    noise_level : float, default=1e-10
+        The standard deviation of Gaussian noise added to the data to avoid
+        issues with zero distances between identical points. Set to 0 to disable
+        noise addition.
+    minkowski_p : float, default=inf
+        The power parameter for the Minkowski metric used in distance calculations.
+        Common values are 2 (Euclidean distance) and inf (maximum norm/Chebyshev
+        distance). Must satisfy :math:`1 \leq p \leq \infty`.
+    base : LogBaseType, default=Config.get("base")
+        The logarithm base for entropy calculation. Can be 2, 10, "e", or any
+        positive number.
 
     Attributes
     ----------
-    *data : array-like
-        The data used to estimate the entropy.
+    *data : tuple[array-like]
+        The processed data used to estimate the entropy, converted to 2D arrays.
     k : int
         The number of nearest neighbors to consider.
     noise_level : float
-        The standard deviation of the Gaussian noise to add to the data to avoid
-        issues with zero distances.
-    minkowski_p : float, :math:`1 \leq p \leq \infty`
+        The standard deviation of the Gaussian noise added to the data.
+    minkowski_p : float
         The power parameter for the Minkowski metric.
-        Default is np.inf for maximum norm. Use 2 for Euclidean distance.
 
     Raises
     ------
     ValueError
-        If the number of nearest neighbors is not a positive integer
+        If the number of nearest neighbors is not a positive integer.
     ValueError
-        If the noise level is negative
+        If the noise level is negative.
     ValueError
-        If the Minkowski power parameter is invalid
+        If the Minkowski power parameter is invalid (not in range [1, ∞]).
 
     Notes
     -----
-    Changing the number of nearest neighbors ``k`` can change the outcome,
-    but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
+    The choice of the number of nearest neighbors :math:`k` affects the bias-variance
+    tradeoff of the estimator. Smaller values of :math:`k` reduce bias but increase
+    variance, while larger values have the opposite effect. The default value of
+    :math:`k=4` provides a good balance for most applications.
+
+    The noise addition helps handle datasets with repeated values or points that
+    are exactly identical, which would otherwise result in zero distances and
+    numerical issues. The noise level should be small enough not to significantly
+    alter the underlying distribution.
+
+    For high-dimensional data, the curse of dimensionality may affect the estimator's
+    performance, as nearest neighbor distances become less informative. In such cases,
+    dimensionality reduction or alternative entropy estimation methods may be preferable.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import infomeasure as im
+    >>>
+    >>> # Generate 2D Gaussian data
+    >>> np.random.seed(176250)
+    >>> data = np.random.multivariate_normal([0, 0], [[1, 0.5], [0.5, 1]], 1000)
+    >>>
+    >>> # Estimate entropy
+    >>> estimator = im.estimator(data, measure="h", approach="kl", k=4)
+    >>> entropy_value = estimator.result()
+    >>> print(f"Estimated entropy: {entropy_value:.3f}")
+    Estimated entropy: 2.678
+    >>> print(f"Local values: {estimator.local_vals()}")
+    Local values: [ 3.15330798  2.02688591  2.52250064  2.95236651  3.58801879  1.42033673
+        ...
+        2.91254223  1.92823136  3.63647704  2.05589055]
+    >>> # Use different distance metric
+    >>> estimator_euclidean = KozachenkoLeonenkoEntropyEstimator(data, k=4, minkowski_p=2)
+    >>> entropy_euclidean = estimator_euclidean.entropy()
+    np.float64(2.6772465397252208)
     """
 
     def __init__(

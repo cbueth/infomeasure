@@ -11,9 +11,9 @@ from infomeasure.utils.exceptions import TheoreticalInconsistencyError
 def grassberger_expected(counts, N, base=2):
     """Calculate expected Grassberger entropy for given counts."""
     entropy_val = 0.0
-    for h_i in counts:
-        prob = h_i / N
-        term = log(N) - digamma(h_i) - ((-1) ** h_i) / (h_i + 1)
+    for n_i in counts:
+        prob = n_i / N
+        term = log(N) - digamma(n_i) - ((-1) ** n_i) / (n_i + 1)
         entropy_val += prob * term
 
     if base != "e":

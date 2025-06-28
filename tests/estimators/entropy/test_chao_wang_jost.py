@@ -29,7 +29,7 @@ def chao_wang_jost_expected(data, base=2):
         A = 1
 
     # First part of the formula: sum over observed counts
-    # Using digamma(N) - digamma(h_i) = sum_{k=h_i}^{N-1} 1/k
+    # Using digamma(N) - digamma(n_i) = sum_{k=n_i}^{N-1} 1/k
     cwj = 0.0
     for count in counts:
         if 1 <= count <= N - 1:
