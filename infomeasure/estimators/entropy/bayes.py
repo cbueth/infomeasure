@@ -100,7 +100,7 @@ class BayesEntropyEstimator(DiscreteHEstimator):
         """
         K = self.K_param if self.K_param is not None else self.data[0].K
         N = self.data[0].N
-        self._get_alpha(K, N)
+        self._set_alpha(K, N)
 
         # Calculate Bayesian probabilities: p_k = (n_k + α) / (N + K*α)
         weight = N + K * self.alpha
@@ -109,7 +109,7 @@ class BayesEntropyEstimator(DiscreteHEstimator):
         # Calculate entropy: -sum(p_k * log(p_k))
         return -np_sum(bayes_probs * self._log_base(bayes_probs))
 
-    def _get_alpha(self, K, N):
+    def _set_alpha(self, K, N):
         # Alpha
         if isinstance(self.alpha, (int, float)):
             pass

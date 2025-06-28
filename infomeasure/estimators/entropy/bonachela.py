@@ -3,10 +3,11 @@
 from numpy import log
 
 from infomeasure.estimators.base import DiscreteHEstimator
+from infomeasure.utils.exceptions import TheoreticalInconsistencyError
 
 
 class BonachelaEntropyEstimator(DiscreteHEstimator):
-    r"""Bonachela entropy estimator for discrete data.
+    r"""Bonachela (Bonachela-Hinrichsen-Muñoz) entropy estimator for discrete data.
 
     The Bonachela estimator computes the Shannon entropy using the formula from
     :cite:p:`bonachelaEntropyEstimatesSmall2008`:
@@ -71,8 +72,6 @@ class BonachelaEntropyEstimator(DiscreteHEstimator):
         ndarray[float]
             The calculated local values of Bonachela entropy.
         """
-        from ...utils.exceptions import TheoreticalInconsistencyError
-
         raise TheoreticalInconsistencyError(
             "Local values are not implemented for Bonachela estimator due to "
             "theoretical inconsistencies in the mathematical foundation."
@@ -86,8 +85,6 @@ class BonachelaEntropyEstimator(DiscreteHEstimator):
         float
             The calculated cross-entropy.
         """
-        from ...utils.exceptions import TheoreticalInconsistencyError
-
         raise TheoreticalInconsistencyError(
             "Cross-entropy is not implemented for Bonachela estimator due to "
             "theoretical inconsistencies in applying bias corrections from "

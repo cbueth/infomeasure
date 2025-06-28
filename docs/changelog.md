@@ -81,6 +81,12 @@ This release introduces an overhaul of the statistical testing functionality wit
     and the implementations of [DiscreteEntropy.Jl](https://github.com/kellino/DiscreteEntropy.jl)
     were consulted for help {cite:p}`kellyDiscreteEntropyjlEntropyEstimation2024`.
 
+  - **Complete Estimator Coverage**: The new estimators also all support MI, CMI, TE and CTE, using the same unified slicing, integrated into the interface.
+
+  - **Jensen-Shannon Divergence Support**: {func}`~infomeasure.composite_measures.jsd.jensen_shannon_divergence` is available for all of the new estimators through the unified interface.
+
+  - **Enhanced Cross-Entropy and KLD Support**: Of the new estimators, Bayes and Miller-Madow support cross entropy and thus also the {func}`~infomeasure.composite_measures.kld.kullback_leiber_divergence`. All entropies which have been implemented before `0.5.0` all support cross entropy and KLD already.
+
 - 📚 Update Documentation
 
 - 🧪 Updated tests

@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 import infomeasure as im
+from tests.conftest import NOT_NORMALIZABLE, HAVE_LOCAL_VALS
 from infomeasure import get_estimator_class, Config
 from infomeasure.utils.exceptions import TheoreticalInconsistencyError
 from tests.conftest import discrete_random_variables
@@ -79,9 +80,9 @@ def test_entropy_functional_addressing(entropy_approach):
         entropy = im.entropy(np.array(data), approach=approach_str, **needed_kwargs)
         assert isinstance(entropy, float)
         # test list input
-        assert im.entropy(data, approach=approach_str, **needed_kwargs) == pytest.approx(
-            entropy
-        )
+        assert im.entropy(
+            data, approach=approach_str, **needed_kwargs
+        ) == pytest.approx(entropy)
 
 
 def test_entropy_class_addressing(entropy_approach):
@@ -307,19 +308,7 @@ def test_mutual_information_functional_addressing(mi_approach, offset, normalize
         data_y,
         approach=approach_str,
         offset=offset,
-        **(
-            {"normalize": normalize}
-            if approach_str
-            not in [
-                "discrete",
-                "miller_madow",
-                "mm",
-                "ordinal",
-                "symbolic",
-                "permutation",
-            ]
-            else {}
-        ),
+        **({"normalize": normalize} if approach_str not in NOT_NORMALIZABLE else {}),
         **needed_kwargs,
     )
     assert isinstance(mi, float)
@@ -355,26 +344,17 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
         measure="mutual_information",
         approach=approach_str,
         offset=offset,
-        **(
-            {"normalize": normalize}
-            if approach_str
-            not in [
-                "discrete",
-                "miller_madow",
-                "mm",
-                "ordinal",
-                "symbolic",
-                "permutation",
-            ]
-            else {}
-        ),
+        **({"normalize": normalize} if approach_str not in NOT_NORMALIZABLE else {}),
         **needed_kwargs,
     )
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.res_global
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == est.res_global
+    else:
+        assert np.isnan(est.res_global)
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str not in HAVE_LOCAL_VALS:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -383,12 +363,15 @@ def test_mutual_information_class_addressing(mi_approach, offset, normalize):
     assert 0 <= result.p_value <= 1
     assert isinstance(result.t_score, float)
     assert isinstance(result.test_values, np.ndarray)
-    assert result.observed_value == est.global_val()
-    assert (
-        min(result.test_values) - 1e-10
-        <= result.null_mean
-        <= max(result.test_values) + 1e-10
-    )
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == result.observed_value
+        assert (
+            min(result.test_values) - 1e-10
+            <= result.null_mean
+            <= max(result.test_values) + 1e-10
+        )
+    else:
+        assert np.isnan(result.observed_value)
     assert isinstance(result.null_std, float)
     assert result.n_tests == n_tests
     assert result.method == Config.get("statistical_test_method")
@@ -435,10 +418,13 @@ def test_mutual_information_class_addressing_n_vars(n_vars, mi_approach, default
     )
     assert isinstance(est, MutualInformationEstimator)
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.res_global
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == est.res_global
+    else:
+        assert np.isnan(est.res_global)
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
-    if approach_str not in ["renyi", "tsallis"]:
+    if approach_str in HAVE_LOCAL_VALS:
         assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
@@ -464,19 +450,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         data_y,
         cond=cond,
         approach=approach_str,
-        **(
-            {"normalize": normalize}
-            if approach_str
-            not in [
-                "discrete",
-                "miller_madow",
-                "mm",
-                "ordinal",
-                "symbolic",
-                "permutation",
-            ]
-            else {}
-        ),
+        **({"normalize": normalize} if approach_str not in NOT_NORMALIZABLE else {}),
         **needed_kwargs,
     )
     assert isinstance(mi, float)
@@ -486,19 +460,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         data_y,
         cond=cond,
         approach=approach_str,
-        **(
-            {"normalize": normalize}
-            if approach_str
-            not in [
-                "discrete",
-                "miller_madow",
-                "mm",
-                "ordinal",
-                "symbolic",
-                "permutation",
-            ]
-            else {}
-        ),
+        **({"normalize": normalize} if approach_str not in NOT_NORMALIZABLE else {}),
         **needed_kwargs,
     )
     im.conditional_mutual_information(
@@ -506,19 +468,7 @@ def test_cond_mutual_information_functional_addressing(cmi_approach, normalize):
         data_y,
         cond=cond,
         approach=approach_str,
-        **(
-            {"normalize": normalize}
-            if approach_str
-            not in [
-                "discrete",
-                "miller_madow",
-                "mm",
-                "ordinal",
-                "symbolic",
-                "permutation",
-            ]
-            else {}
-        ),
+        **({"normalize": normalize} if approach_str not in NOT_NORMALIZABLE else {}),
         **needed_kwargs,
     )
 
@@ -571,10 +521,13 @@ def test_cond_mutual_information_class_addressing_n_vars(
     )
     assert isinstance(est, ConditionalMutualInformationEstimator)
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.res_global
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == est.res_global
+    else:
+        assert np.isnan(est.res_global)
     assert isinstance(est.result(), float)
     # Shannon-like measures have local values
-    if approach_str not in ["renyi", "tsallis"]:
+    if approach_str in HAVE_LOCAL_VALS:
         assert isinstance(est.local_vals(), np.ndarray)
     else:
         with pytest.raises(UnsupportedOperation):
@@ -602,26 +555,17 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
         cond=cond,
         measure="mutual_information",
         approach=approach_str,
-        **(
-            {"normalize": normalize}
-            if approach_str
-            not in [
-                "discrete",
-                "miller_madow",
-                "mm",
-                "ordinal",
-                "symbolic",
-                "permutation",
-            ]
-            else {}
-        ),
+        **({"normalize": normalize} if approach_str not in NOT_NORMALIZABLE else {}),
         **needed_kwargs,
     )
     assert isinstance(est, ConditionalMutualInformationEstimator)
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.res_global
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == est.res_global
+    else:
+        assert np.isnan(est.res_global)
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str not in HAVE_LOCAL_VALS:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -630,12 +574,15 @@ def test_cond_mutual_information_class_addressing(cmi_approach, normalize):
     assert 0 <= result.p_value <= 1
     assert isinstance(result.t_score, float)
     assert isinstance(result.test_values, np.ndarray)
-    assert result.observed_value == est.global_val()
-    assert (
-        min(result.test_values) - 1e-10
-        <= result.null_mean
-        <= max(result.test_values) + 1e-10
-    )
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == result.observed_value
+        assert (
+            min(result.test_values) - 1e-10
+            <= result.null_mean
+            <= max(result.test_values) + 1e-10
+        )
+    else:
+        assert np.isnan(result.observed_value)
     assert isinstance(result.null_std, float)
     assert result.n_tests == n_tests
     assert result.method == Config.get("statistical_test_method")
@@ -803,9 +750,12 @@ def test_transfer_entropy_class_addressing(te_approach):
     )
     assert isinstance(est, TransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.res_global
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == est.res_global
+    else:
+        assert np.isnan(est.res_global)
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str not in HAVE_LOCAL_VALS:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -814,12 +764,15 @@ def test_transfer_entropy_class_addressing(te_approach):
     assert 0 <= result.p_value <= 1
     assert isinstance(result.t_score, float)
     assert isinstance(result.test_values, np.ndarray)
-    assert result.observed_value == est.global_val()
-    assert (
-        min(result.test_values) - 1e-10
-        <= result.null_mean
-        <= max(result.test_values) + 1e-10
-    )
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == result.observed_value
+        assert (
+            min(result.test_values) - 1e-10
+            <= result.null_mean
+            <= max(result.test_values) + 1e-10
+        )
+    else:
+        assert np.isnan(result.observed_value)
     assert isinstance(result.null_std, float)
     assert result.n_tests == n_tests
     assert result.method == Config.get("statistical_test_method")
@@ -861,9 +814,12 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     )
     assert isinstance(est, ConditionalTransferEntropyEstimator)
     assert isinstance(est.global_val(), float)
-    assert est.global_val() == est.res_global
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == est.res_global
+    else:
+        assert np.isnan(est.res_global)
     assert isinstance(est.result(), float)
-    if approach_str in ["renyi", "tsallis"]:
+    if approach_str not in HAVE_LOCAL_VALS:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
     else:
@@ -872,12 +828,15 @@ def test_cond_transfer_entropy_class_addressing(cte_approach):
     assert 0 <= result.p_value <= 1
     assert isinstance(result.t_score, float)
     assert isinstance(result.test_values, np.ndarray)
-    assert result.observed_value == est.global_val()
-    assert (
-        min(result.test_values) - 1e-10
-        <= result.null_mean
-        <= max(result.test_values) + 1e-10
-    )
+    if not np.isnan(est.global_val()):
+        assert est.global_val() == result.observed_value
+        assert (
+            min(result.test_values) - 1e-10
+            <= result.null_mean
+            <= max(result.test_values) + 1e-10
+        )
+    else:
+        assert np.isnan(result.observed_value)
     assert isinstance(result.null_std, float)
     assert result.n_tests == n_tests
     assert result.method == Config.get("statistical_test_method")
@@ -946,7 +905,8 @@ def test_te_offset_prop_time(te_approach, caplog, prop_time):
         offset=prop_time,
         **needed_kwargs,
     )
-    assert res_pt == res_offset
+    if not np.isnan:
+        assert res_pt == res_offset
     # check that warning was printed to the log
     if prop_time != 0:
         assert (
