@@ -14,6 +14,7 @@ from .base import EstimatorType
 entropy_estimators = {
     "ansb": "infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator",
     "bayes": "infomeasure.estimators.entropy.bayes.BayesEntropyEstimator",
+    "bonachela": "infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator",
     "chao_shen": "infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator",
     "cs": "infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator",
     "chao_wang_jost": "infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator",
@@ -37,6 +38,7 @@ entropy_estimators = {
     "symbolic": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "permutation": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "tsallis": "infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator",
+    "zhang": "infomeasure.estimators.entropy.zhang.ZhangEntropyEstimator",
 }
 
 mi_estimators = {
@@ -275,18 +277,20 @@ def entropy(*data, approach: str, **kwargs: any):
 
     1. ``ansb``: :func:`Asymptotic NSB entropy estimator. <infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator>`
     2. ``bayes``: :func:`Bayesian entropy estimator. <infomeasure.estimators.entropy.bayes.BayesEntropyEstimator>`
-    3. [``chao_shen``, ``cs``]: :func:`Chao-Shen entropy estimator. <infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator>`
-    4. [``chao_wang_jost``, ``cwj``]: :func:`Chao Wang Jost entropy estimator. <infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator>`
-    5. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
-    6. ``grassberger``: :func:`Grassberger entropy estimator. <infomeasure.estimators.entropy.grassberger.GrassbergerEntropyEstimator>`
-    7. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
-    8. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
-    9. [``miller_madow``, ``mm``]: :func:`Miller-Madow entropy estimator. <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
-    10. ``nsb``: :func:`NSB (Nemenman-Shafee-Bialek) entropy estimator. <infomeasure.estimators.entropy.nsb.NsbEntropyEstimator>`
-    11. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
-    12. [``shrink``, ``js``]: :func:`Shrinkage (James-Stein) entropy estimator. <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
-    13. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
-    14. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    3. ``bonachela``: :func:`Bonachela entropy estimator. <infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator>`
+    4. [``chao_shen``, ``cs``]: :func:`Chao-Shen entropy estimator. <infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator>`
+    5. [``chao_wang_jost``, ``cwj``]: :func:`Chao Wang Jost entropy estimator. <infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator>`
+    6. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
+    7. ``grassberger``: :func:`Grassberger entropy estimator. <infomeasure.estimators.entropy.grassberger.GrassbergerEntropyEstimator>`
+    8. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
+    9. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+    10. [``miller_madow``, ``mm``]: :func:`Miller-Madow entropy estimator. <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
+    11. ``nsb``: :func:`NSB (Nemenman-Shafee-Bialek) entropy estimator. <infomeasure.estimators.entropy.nsb.NsbEntropyEstimator>`
+    12. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
+    13. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
+    14. [``shrink``, ``js``]: :func:`Shrinkage (James-Stein) entropy estimator. <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
+    15. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    16. ``zhang``: :func:`Zhang entropy estimator. <infomeasure.estimators.entropy.zhang.ZhangEntropyEstimator>`
 
 
     For the discrete Shannon entropy this is

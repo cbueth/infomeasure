@@ -24,6 +24,10 @@ ENTROPY_APPROACHES = {
         "functional_str": ["bayes"],
         "needed_kwargs": {"alpha": 1.0},
     },
+    "BonachelaEntropyEstimator": {
+        "functional_str": ["bonachela"],
+        "needed_kwargs": {},
+    },
     "ChaoShenEntropyEstimator": {
         "functional_str": ["chao_shen", "cs"],
         "needed_kwargs": {},
@@ -71,6 +75,10 @@ ENTROPY_APPROACHES = {
     "TsallisEntropyEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
+    },
+    "ZhangEntropyEstimator": {
+        "functional_str": ["zhang"],
+        "needed_kwargs": {},
     },
 }
 

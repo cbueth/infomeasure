@@ -103,7 +103,7 @@ def test_entropy_class_addressing(entropy_approach):
     if approach_str in ["renyi", "tsallis", "chao_shen", "cs", "bayes"]:
         with pytest.raises(UnsupportedOperation):
             est.local_vals()
-    elif approach_str in ["chao_wang_jost", "cwj", "ansb", "nsb"]:
+    elif approach_str in ["chao_wang_jost", "cwj", "ansb", "nsb", "bonachela"]:
         with pytest.raises(TheoreticalInconsistencyError):
             est.local_vals()
     else:
@@ -126,6 +126,8 @@ def test_cross_entropy_functional_addressing(entropy_approach, default_rng):
         "cwj",
         "ansb",
         "nsb",
+        "zhang",
+        "bonachela",
     ]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.entropy(data, data, approach=approach_str, **needed_kwargs)
@@ -165,6 +167,8 @@ def test_cross_entropy_class_addressing(entropy_approach, default_rng):
         "cwj",
         "ansb",
         "nsb",
+        "zhang",
+        "bonachela",
     ]:
         with pytest.raises(TheoreticalInconsistencyError):
             est = im.estimator(
@@ -275,6 +279,8 @@ def test_cross_entropy_functional_random_symmetry(entropy_approach, default_rng)
         "cwj",
         "ansb",
         "nsb",
+        "zhang",
+        "bonachela",
     ]:
         with pytest.raises(TheoreticalInconsistencyError):
             im.cross_entropy(p, q, approach=approach_str, **needed_kwargs)

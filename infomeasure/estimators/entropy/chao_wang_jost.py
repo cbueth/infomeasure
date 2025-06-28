@@ -5,10 +5,8 @@ from numpy import sum as np_sum
 from scipy.special import digamma
 
 from infomeasure.estimators.base import DiscreteHEstimator
-from ... import Config
 from ...utils.config import logger
 from ...utils.exceptions import TheoreticalInconsistencyError
-from ...utils.types import LogBaseType
 
 
 class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
@@ -43,7 +41,7 @@ class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
 
     .. math::
 
-        \hat{H}_{\text{CWJ}} = \sum_{1 \leq h_i \leq N-1} \frac{h_i}{N} \left(\sum_{k=h_i}^{N-1} \frac{1}{k} \right) +
+        \hat{H}_{\text{CWJ}} = \sum_{1 \leq n_i \leq N-1} \frac{n_i}{N} \left(\sum_{k=n_i}^{N-1} \frac{1}{k} \right) +
         \frac{f_1}{N} (1 - A)^{-N + 1} \left\{ - \log(A) - \sum_{r=1}^{N-1} \frac{1}{r} (1 - A)^r \right\}
 
     where the coverage parameter :math:`A` is estimated as:
@@ -62,7 +60,7 @@ class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
 
     Notes
     -----
-    - The algorithm is adapted from the `entropart <https://github.com/EricMarcon/entropart/blob/master/R/Shannon.R>`_ R library
+    - The algorithm is adapted from the `entropart <https://ericmarcon.github.io/entropart/index.html>`_ R library :cite:p:`marconEntropartPackageMeasure2015`
     - The correction becomes negligible when samples are complete (:math:`f_1 = f_2 = 0`)
 
     Attributes
@@ -72,7 +70,6 @@ class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
 
     Examples
     --------
-    >>> import numpy as np
     >>> import infomeasure as im
     >>>
     >>> # Basic usage with incomplete sampling scenario
@@ -80,12 +77,15 @@ class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
     >>> h_cwj = im.entropy(data, approach="chao_wang_jost", base=2)
     >>> h_standard = im.entropy(data, approach="discrete", base=2)
     >>> print(f"Chao-Wang-Jost: {h_cwj:.3f} bits")
+    Chao-Wang-Jost: 3.635 bits
     >>> print(f"Standard: {h_standard:.3f} bits")
+    Standard: 2.252 bits
     >>>
     >>> # Ecological diversity example
     >>> species_counts = [1, 1, 1, 2, 2, 3, 5, 8]  # Species abundance data
     >>> diversity = im.entropy(species_counts, approach="cwj", base="e")
     >>> print(f"Species diversity: {diversity:.3f} nats")
+    Species diversity: 2.054 nats
 
     See Also
     --------
@@ -124,7 +124,7 @@ class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
             A = 1
 
         # First part of the formula: sum over observed counts
-        # Using digamma(N) - digamma(h_i) = sum_{k=h_i}^{N-1} 1/k
+        # Using digamma(N) - digamma(n_i) = sum_{k=n_i}^{N-1} 1/k
         cwj = (
             counts[1 <= counts] * (digamma(N) - digamma(counts[1 <= counts]))
         ).sum() / N

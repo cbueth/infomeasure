@@ -3,8 +3,8 @@
 import pytest
 
 import infomeasure as im
-from conftest import create_undersampled_data_for_nsb_three
 from tests.conftest import (
+    create_undersampled_data_for_nsb_three,
     generate_autoregressive_series,
     generate_autoregressive_series_condition,
     discrete_random_variables,
@@ -68,6 +68,14 @@ def test_jsd_kernel(default_rng, bandwidth, kernel, dim):
         (2, "chao_wang_jost", {}, -1.3875122611153405),
         (3, "chao_wang_jost", {}, -1.384842418791894),
         (4, "chao_wang_jost", {}, -1.386175716455187),
+        (1, "bonachela", {}, -0.27178548980765105),
+        (2, "bonachela", {}, -0.3852869970355617),
+        (3, "bonachela", {}, -0.2715218321363049),
+        (4, "bonachela", {}, -0.272847245747033),
+        (1, "zhang", {}, -1.3851076899311128),
+        (2, "zhang", {}, -1.3875122611153399),
+        (3, "zhang", {}, -1.3848424187918944),
+        (4, "zhang", {}, -1.3861757164551871),
         (1, "bayes", {"alpha": 0.5}, 0.0024614856242102245),
         (1, "bayes", {"alpha": 1.0}, 0.002588998444477131),
         (1, "bayes", {"alpha": 2.0}, 0.0026217856567916087),
@@ -120,6 +128,14 @@ def test_jsd_explicit_discrete(rng_int, approach, kwargs, expected):
         (2, "chao_wang_jost", {}, -1.3874052119360794),
         (3, "chao_wang_jost", {}, -1.384981579281041),
         (4, "chao_wang_jost", {}, -1.3860541773388924),
+        (1, "bonachela", {}, -0.2714719960968315),
+        (2, "bonachela", {}, -0.27406946464557236),
+        (3, "bonachela", {}, -0.2716601327999575),
+        (4, "bonachela", {}, -0.2727264978786397),
+        (1, "zhang", {}, -1.384792381467528),
+        (2, "zhang", {}, -1.3874052119360787),
+        (3, "zhang", {}, -1.384981579281041),
+        (4, "zhang", {}, -1.3860541773388926),
         (1, "bayes", {"alpha": 0.5}, 0.0027354023473893374),
         (1, "bayes", {"alpha": 1.0}, 0.0028872929198202613),
         (1, "bayes", {"alpha": 2.0}, 0.0029277220600649745),

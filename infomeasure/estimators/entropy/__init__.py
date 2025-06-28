@@ -2,6 +2,7 @@
 
 from .ansb import AnsbEntropyEstimator
 from .bayes import BayesEntropyEstimator
+from .bonachela import BonachelaEntropyEstimator
 from .chao_shen import ChaoShenEntropyEstimator
 from .chao_wang_jost import ChaoWangJostEntropyEstimator
 from .discrete import DiscreteEntropyEstimator
@@ -14,10 +15,12 @@ from .renyi import RenyiEntropyEstimator
 from .shrink import ShrinkEntropyEstimator
 from .ordinal import OrdinalEntropyEstimator
 from .tsallis import TsallisEntropyEstimator
+from .zhang import ZhangEntropyEstimator
 
 __all__ = [
     "AnsbEntropyEstimator",
     "BayesEntropyEstimator",
+    "BonachelaEntropyEstimator",
     "ChaoShenEntropyEstimator",
     "ChaoWangJostEntropyEstimator",
     "DiscreteEntropyEstimator",
@@ -30,4 +33,5 @@ __all__ = [
     "RenyiEntropyEstimator",
     "ShrinkEntropyEstimator",
     "TsallisEntropyEstimator",
+    "ZhangEntropyEstimator",
 ]

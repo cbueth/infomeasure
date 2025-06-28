@@ -22,8 +22,8 @@ class ChaoShenEntropyEstimator(DiscreteHEstimator):
     and :math:`C = 1 - \frac{f_1}{N}` is the estimated coverage,
     :math:`f_1` is the number of singletons (species observed exactly once),
     :math:`\hat{p}_i^{ML}` is the maximum likelihood probability estimate,
-    :math:`N` is the sample size, and :math:`K` is the number of observed species.
-
+    :math:`N` is the sample size, and :math:`K` is the number of observed species
+    :cite:p:`chaoNonparametricEstimationShannons2003`.
     The Chao-Shen estimator provides a bias-corrected estimate of Shannon entropy
     that accounts for unobserved species through coverage estimation.
 
