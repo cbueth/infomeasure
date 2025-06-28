@@ -9,8 +9,8 @@ from scipy.special import digamma
 from ..base import (
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
-    PValueMixin,
 )
+
 from ..utils.array import assure_2d_data
 from ... import Config
 from ...utils.types import LogBaseType
@@ -54,6 +54,7 @@ class BaseKSGMIEstimator(ABC):
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         r"""Initialize the estimator with specific parameters.
 
@@ -83,10 +84,21 @@ class BaseKSGMIEstimator(ABC):
         self.data: tuple[ndarray] = None
         self.cond = None
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=normalize, base=base)
+            super().__init__(
+                *data,
+                offset=offset,
+                normalize=normalize,
+                base=base,
+                **kwargs,
+            )
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=normalize, base=base
+                *data,
+                cond=cond,
+                offset=offset,
+                normalize=normalize,
+                base=base,
+                **kwargs,
             )
             # Ensure self.cond is a 2D array
             self.cond = assure_2d_data(self.cond)
@@ -97,7 +109,7 @@ class BaseKSGMIEstimator(ABC):
         self.data = tuple(assure_2d_data(var) for var in self.data)
 
 
-class KSGMIEstimator(BaseKSGMIEstimator, PValueMixin, MutualInformationEstimator):
+class KSGMIEstimator(BaseKSGMIEstimator, MutualInformationEstimator):
     r"""Estimator for mutual information using the Kraskov-Stoegbauer-Grassberger (KSG)
     method.
 

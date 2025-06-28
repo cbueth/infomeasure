@@ -14,15 +14,15 @@ from numpy import (
     asarray,
 )
 
-from ..base import EntropyEstimator, DistributionMixin
+from ..base import EntropyEstimator
 from ..utils.ordinal import reduce_joint_space, symbolize_series
-from ..utils.unique import unique_vals
 from ... import Config
 from ...utils.config import logger
+from ...utils.data import DiscreteData
 from ...utils.types import LogBaseType
 
 
-class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
+class OrdinalEntropyEstimator(EntropyEstimator):
     r"""Estimator for the Ordinal / Permutation entropy.
 
     The Ordinal entropy is a measure of the complexity of a time series.
@@ -223,7 +223,8 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
             symbols
         )  # reduction columns stacks the symbols
         # Calculate frequencies of co-ocurrent patterns
-        uniq, counts, self.dist_dict = unique_vals(self.patterns)
+        data = DiscreteData.from_data(self.patterns)
+        self.dist_dict = data.distribution_dict
         probabilities = asarray(list(self.dist_dict.values()))
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
@@ -256,8 +257,12 @@ class OrdinalEntropyEstimator(DistributionMixin, EntropyEstimator):
         symbols = tuple(
             symbolize_series(var, self.embedding_dim, to_int=True) for var in self.data
         )
-        uniq_p, counts_p, dist_p = unique_vals(symbols[0])
-        uniq_q, counts_q, dist_q = unique_vals(symbols[1])
+        data_p = DiscreteData.from_data(symbols[0])
+        data_q = DiscreteData.from_data(symbols[1])
+        uniq_p = data_p.uniq
+        dist_p = data_p.distribution_dict
+        uniq_q = data_q.uniq
+        dist_q = data_q.distribution_dict
         # Only consider the values where both RV have the same support
         uniq = list(set(uniq_p).intersection(set(uniq_q)))  # P ∩ Q
         if len(uniq) == 0:

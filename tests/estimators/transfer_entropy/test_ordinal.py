@@ -417,3 +417,67 @@ def test_ordinal_cte_type_incomparable(data, cond, embedding_dim):
     ):
         est = OrdinalCTEEstimator(*data, cond=cond, embedding_dim=embedding_dim)
         est.result()
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_te,p_cte",
+    [
+        (1, "permutation_test", 0.0, 0.0),
+        (1, "bootstrap", 0.0, 0.0),
+        (2, "permutation_test", 0.0, 0.0),
+        (2, "bootstrap", 0.0, 0.0),
+        (3, "permutation_test", 0.0, 0.0),
+        (4, "permutation_test", 0.0, 0.0),
+    ],
+)
+def test_ordinal_te_statistical_test(rng_int, method, p_te, p_cte):
+    """Test the ordinal TE for p-values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = OrdinalTEEstimator(
+        data_source, data_dest, embedding_dim=3, base=2, seed=8
+    )
+    est_cte_xy = OrdinalCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_cond,
+        embedding_dim=3,
+        base=2,
+        seed=8,
+    )
+    test = est_te_xy.statistical_test(method=method, n_tests=10)
+    assert test.p_value == pytest.approx(p_te)
+    test = est_cte_xy.statistical_test(method=method, n_tests=10)
+    assert test.p_value == pytest.approx(p_cte)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,eff_te,eff_cte",
+    [
+        (1, "permutation_test", 0.0878311447523572, 0.0),
+        (1, "bootstrap", 0.05872407212315511, 0.0),
+        (2, "permutation_test", -0.040902984486205884, 0.0),
+        (2, "bootstrap", -0.04539102593465283, 0.0),
+        (3, "permutation_test", -0.04082170067764079, 0.0),
+        (4, "permutation_test", 0.07196653780963325, 0.0),
+    ],
+)
+def test_ordinal_te_effective_val(rng_int, method, eff_te, eff_cte):
+    """Test the ordinal transfer entropy for effective values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = OrdinalTEEstimator(
+        data_source, data_dest, embedding_dim=4, base=2, seed=8
+    )
+    est_cte_xy = OrdinalCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_source,
+        embedding_dim=4,
+        base=2,
+        seed=8,
+    )
+    assert est_te_xy.effective_val(method=method) == pytest.approx(eff_te)
+    assert est_cte_xy.effective_val(method=method) == pytest.approx(eff_cte)

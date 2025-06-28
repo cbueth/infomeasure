@@ -185,3 +185,69 @@ def test_kernel_te_parallelization(rng_int, workers, kernel):
     )
     assert est_parallel.global_val() == pytest.approx(est_serial.global_val())
     assert allclose(est_parallel.local_vals(), est_serial.local_vals())
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_te,p_cte",
+    [
+        (1, "permutation_test", 0.38, 0.0),
+        (1, "bootstrap", 0.22, 0.0),
+        (2, "permutation_test", 0.56, 0.0),
+        (2, "bootstrap", 0.28, 0.0),
+        (3, "permutation_test", 0.04, 0.0),
+        (4, "permutation_test", 0.1, 0.0),
+    ],
+)
+def test_kernel_te_statistical_test(rng_int, method, p_te, p_cte):
+    """Test the kernel TE for p-values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = KernelTEEstimator(
+        data_source, data_dest, bandwidth=0.5, kernel="box", base=2, seed=8
+    )
+    est_cte_xy = KernelCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_cond,
+        bandwidth=0.5,
+        kernel="box",
+        base=2,
+        seed=8,
+    )
+    test = est_te_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_te)
+    test = est_cte_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_cte)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,eff_te,eff_cte",
+    [
+        (1, "permutation_test", -0.008253365863700513, 0.0),
+        (1, "bootstrap", 0.00917910410554823, 0.0),
+        (2, "permutation_test", 0.0015112862906176971, 0.0),
+        (2, "bootstrap", 0.01584592091947723, 0.0),
+        (3, "permutation_test", 0.007932745248854456, 0.0),
+        (4, "permutation_test", 0.007177102103546051, 0.0),
+    ],
+)
+def test_kernel_te_effective_val(rng_int, method, eff_te, eff_cte):
+    """Test the kernel transfer entropy for effective values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = KernelTEEstimator(
+        data_source, data_dest, bandwidth=0.5, kernel="box", base=2, seed=8
+    )
+    est_cte_xy = KernelCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_source,
+        bandwidth=0.5,
+        kernel="box",
+        base=2,
+        seed=8,
+    )
+    assert est_te_xy.effective_val(method=method) == pytest.approx(eff_te)
+    assert est_cte_xy.effective_val(method=method) == pytest.approx(eff_cte)

@@ -9,11 +9,9 @@ from ...utils.config import logger
 from ...utils.types import LogBaseType
 from ..base import (
     ConditionalTransferEntropyEstimator,
-    EffectiveValueMixin,
-    PValueMixin,
     TransferEntropyEstimator,
-    WorkersMixin,
 )
+from ..mixins import WorkersMixin
 from ..utils.kde import kde_probability_density_function
 from ..utils.te_slicing import cte_observations, te_observations
 
@@ -68,6 +66,7 @@ class BaseKernelTEEstimator(WorkersMixin, ABC):
         workers: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseKernelTEEstimator.
 
@@ -105,6 +104,7 @@ class BaseKernelTEEstimator(WorkersMixin, ABC):
                 workers=workers,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -119,14 +119,13 @@ class BaseKernelTEEstimator(WorkersMixin, ABC):
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         self.bandwidth = bandwidth
         self.kernel = kernel
 
 
-class KernelTEEstimator(
-    BaseKernelTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
-):
+class KernelTEEstimator(BaseKernelTEEstimator, TransferEntropyEstimator):
     """Estimator for transfer entropy using Kernel Density Estimation (KDE).
 
     Attributes

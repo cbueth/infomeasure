@@ -16,8 +16,32 @@ from infomeasure.estimators import entropy, mutual_information, transfer_entropy
 #  estimator. All other kwargs should be tested in each dedicated estimator test file.
 
 ENTROPY_APPROACHES = {
+    "AnsbEntropyEstimator": {
+        "functional_str": ["ansb"],
+        "needed_kwargs": {},
+    },
+    "BayesEntropyEstimator": {
+        "functional_str": ["bayes"],
+        "needed_kwargs": {"alpha": 1.0},
+    },
+    "BonachelaEntropyEstimator": {
+        "functional_str": ["bonachela"],
+        "needed_kwargs": {},
+    },
+    "ChaoShenEntropyEstimator": {
+        "functional_str": ["chao_shen", "cs"],
+        "needed_kwargs": {},
+    },
+    "ChaoWangJostEntropyEstimator": {
+        "functional_str": ["chao_wang_jost", "cwj"],
+        "needed_kwargs": {},
+    },
     "DiscreteEntropyEstimator": {
         "functional_str": ["discrete"],
+        "needed_kwargs": {},
+    },
+    "GrassbergerEntropyEstimator": {
+        "functional_str": ["grassberger"],
         "needed_kwargs": {},
     },
     "KernelEntropyEstimator": {
@@ -28,6 +52,14 @@ ENTROPY_APPROACHES = {
         "functional_str": ["metric", "kl"],
         "needed_kwargs": {},
     },
+    "MillerMadowEntropyEstimator": {
+        "functional_str": ["miller_madow", "mm"],
+        "needed_kwargs": {},
+    },
+    "NsbEntropyEstimator": {
+        "functional_str": ["nsb"],
+        "needed_kwargs": {},
+    },
     "OrdinalEntropyEstimator": {
         "functional_str": ["ordinal", "symbolic", "permutation"],
         "needed_kwargs": {"embedding_dim": 2},
@@ -36,9 +68,17 @@ ENTROPY_APPROACHES = {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
     },
+    "ShrinkEntropyEstimator": {
+        "functional_str": ["shrink", "js"],
+        "needed_kwargs": {},
+    },
     "TsallisEntropyEstimator": {
         "functional_str": ["tsallis"],
         "needed_kwargs": {"q": 2.0},
+    },
+    "ZhangEntropyEstimator": {
+        "functional_str": ["zhang"],
+        "needed_kwargs": {},
     },
 }
 
@@ -53,6 +93,10 @@ MI_APPROACHES = {
     },
     "KSGMIEstimator": {
         "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "MillerMadowMIEstimator": {
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiMIEstimator": {
@@ -82,6 +126,10 @@ CMI_APPROACHES = {
         "functional_str": ["metric", "ksg"],
         "needed_kwargs": {},
     },
+    "MillerMadowCMIEstimator": {
+        "functional_str": ["miller_madow", "mm"],
+        "needed_kwargs": {},
+    },
     "RenyiCMIEstimator": {
         "functional_str": ["renyi"],
         "needed_kwargs": {"alpha": 1.5},
@@ -107,6 +155,10 @@ TE_APPROACHES = {
     },
     "KSGTEEstimator": {
         "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "MillerMadowTEEstimator": {
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiTEEstimator": {
@@ -135,6 +187,10 @@ CTE_APPROACHES = {
     },
     "KSGCTEEstimator": {
         "functional_str": ["metric", "ksg"],
+        "needed_kwargs": {},
+    },
+    "MillerMadowCTEEstimator": {
+        "functional_str": ["miller_madow", "mm"],
         "needed_kwargs": {},
     },
     "RenyiCTEEstimator": {
@@ -416,3 +472,18 @@ def discrete_random_variables_condition(rng_int, low=0, high=4, length=1000):
         Y[i] = (X[i - 1] & 1) + (generator.integers(0, 2) << 1)
         Z[i] = (X[i - 1] & 1) + (Y[i - 1] & 2)
     return X, Y, Z
+
+
+@cache
+def create_undersampled_data_for_nsb_three(rng_int, length=50):
+    """Create undersampled data suitable for NSB (three variables) that produces non-NaN JSD results."""
+    import numpy as np
+
+    np.random.seed(rng_int)
+
+    # Create data with many unique values but some repetitions
+    data_x = np.random.choice(range(length // 2), size=length, replace=True)
+    data_y = np.random.choice(range(length // 2), size=length, replace=True)
+    data_z = np.random.choice(range(length // 2), size=length, replace=True)
+
+    return data_x, data_y, data_z

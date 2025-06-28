@@ -5,6 +5,11 @@ import pytest
 from numpy import log as np_log, corrcoef, log
 
 import infomeasure as im
+from infomeasure import get_estimator_class
+from infomeasure.estimators.base import (
+    DiscreteHEstimator,
+)
+from infomeasure.estimators.mixins import DiscreteMIMixin, DiscreteTEMixin
 
 
 # Analytical formula for the mutual information of two Gaussian random variables
@@ -48,7 +53,12 @@ def test_mi_correlated(mi_approach, corr_coeff, base, default_rng):
     """
     approach_str, needed_kwargs = mi_approach  # each MI approach
     data = generate_data(1000, corr_coeff, default_rng)
-    if approach_str == "discrete":
+    entropy_class = get_estimator_class(
+        measure="mutual_information", approach=approach_str
+    )
+    if issubclass(
+        entropy_class, (DiscreteHEstimator, DiscreteMIMixin, DiscreteTEMixin)
+    ):
         data = data.astype(int)
     # if alpha or q in needed_kwargs, set it to 1 (for Renyi and Tsallis)
     for key in ["alpha", "q"]:

@@ -30,7 +30,7 @@ For this estimator, access to the distribution dictionary is also available.
 ```{code-cell}
 data = [1, 2, 3, 1, 2, 1, 2, 3]
 est = im.estimator(data, measure="h", approach="discrete", base=2)
-est.result(), est.distribution(), sum(est.distribution().values())
+est.result(), est.data[0]
 ```
 
 As expected, $\sum_{i=1}^n p_i = 1$.

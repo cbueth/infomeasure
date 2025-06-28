@@ -259,7 +259,7 @@ est.local_vals()
 ### Hypothesis testing
 
 To perform hypothesis testing on the global value of an estimator,
-use the {py:func}`statistical_test() <infomeasure.estimators.base.PValueMixin.statistical_test>` method.
+use the {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` method.
 Both mutual information and transfer entropy estimators support comprehensive statistical testing
 that provides _p_-values, _t_-scores, and confidence intervals in a single method call.
 
@@ -337,7 +337,7 @@ The {ref}`following table <estimator-functions>` shows the available information
 *   - Estimator
     - {py:func}`result() <infomeasure.estimators.base.Estimator.result>` {py:func}`global_val() <infomeasure.estimators.base.Estimator.global_val>`
     - {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`
-    - {py:func}`statistical_test() <infomeasure.estimators.base.PValueMixin.statistical_test>` (_p_-value, _t_-score, CI)
+    - {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` (_p_-value, _t_-score, CI)
     - {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`
 *   - {ref}`Entropy <entropy_overview>` & {ref}`Joint Entropy`
     -
@@ -450,10 +450,10 @@ The methods from the table do the following:
 
 - {py:func}`result() <infomeasure.estimators.base.Estimator.result>` & {py:func}`global_val() <infomeasure.estimators.base.Estimator.global_val>`: Returns the global value of the information measure.
 - {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`: Returns the local values of the information measure.
-- {py:func}`statistical_test() <infomeasure.estimators.base.PValueMixin.statistical_test>`: Returns comprehensive statistical test results including _p_-value, _t_-score, and confidence intervals.
+- {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>`: Returns comprehensive statistical test results including _p_-value, _t_-score, and confidence intervals.
 - {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`: Returns the effective transfer entropy.
 - {py:func}`distribution() <infomeasure.estimators.base.DistributionMixin.distribution>`: Returns dictionary of the unique values and their frequencies (just available for discrete and ordinal entropy estimator).
 
 For {ref}`CMI <Conditional MI>` and {ref}`CTE <Conditional TE>`,
-the {ref}`hypothesis testing` method {py:func}`statistical_test() <infomeasure.estimators.base.PValueMixin.statistical_test>` is not available, neither the {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>` method.
+the {ref}`hypothesis testing` method {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` is not available, neither the {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>` method.
 This is because the shuffling is not trivial for more than two inputs.
