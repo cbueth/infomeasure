@@ -104,7 +104,7 @@ class Config:
         Raises
         ------
         KeyError
-            If the key is not recognized.
+            If the key is not recognised.
         TypeError
             If the value is not of the correct type.
         """
@@ -157,7 +157,7 @@ class Config:
         Raises
         ------
         ValueError
-            If the unit is not recognized.
+            If the unit is not recognised.
         """
         unit = unit.lower()
         for base, units in BASE_UNIT_MAP.items():

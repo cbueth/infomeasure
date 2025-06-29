@@ -98,7 +98,7 @@ The logging level can be set to one of the standard logging levels provided by
 the {py:mod}`logging` module.
 This allows you to control the verbosity of the logging output and filter
 out less important messages.
-If you want to further customize the logging behavior,
+If you want to further customize the logging behaviour,
 you can access the logger directly and configure it as needed.
 
 ```{code-cell}

@@ -140,7 +140,7 @@ class TestNsbEntropyEstimator:
         result = entropy(data, approach="nsb")
         assert isinstance(result, float)
         # For very small datasets, NSB may fail due to numerical issues
-        # This is acceptable behavior for edge cases
+        # This is acceptable behaviour for edge cases
 
     def test_nsb_large_alphabet(self):
         """Test NSB estimator with larger alphabet size."""
@@ -266,7 +266,7 @@ class TestNsbEntropyEstimator:
         assert result_k5_basee == pytest.approx(result_k5_base2 * log(2), rel=1e-2)
 
     @pytest.mark.parametrize(
-        "data,K,expected_behavior,description",
+        "data,K,expected_behaviour,description",
         [
             ([1, 1, 2], 5, "valid", "K larger than observed"),
             ([1, 1, 2, 2, 3], 3, "valid", "K equal to observed"),
@@ -276,12 +276,12 @@ class TestNsbEntropyEstimator:
         ],
     )
     def test_nsb_k_parameter_parametrized(
-        self, data, K, expected_behavior, description
+        self, data, K, expected_behaviour, description
     ):
         """Parametrized test for NSB estimator with various K values."""
         result = entropy(data, approach="nsb", K=K)
 
-        if expected_behavior == "valid":
+        if expected_behaviour == "valid":
             assert isinstance(result, float), f"Failed for {description}"
             # Note: result might be NaN for some edge cases, which is acceptable
         else:

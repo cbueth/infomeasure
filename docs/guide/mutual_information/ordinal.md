@@ -18,8 +18,8 @@ Ordinal MI estimation estimates the required probability density function (_pdf_
 
 
 To demonstrate this MI, we generate a multivariate Gaussian distribution with two dimensions.
-The data is centered around the origin and has a correlation coefficient of $\rho = 0.7$.
-The analytical equation of the other approaches does not hold; as for ordinal entropy, the pmf of the ordinal patterns is analyzed.
+The data is centred around the origin and has a correlation coefficient of $\rho = 0.7$.
+The analytical equation of the other approaches does not hold; as for ordinal entropy, the pmf of the ordinal patterns is analysed.
 
 ```{code-cell}
 import infomeasure as im

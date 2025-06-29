@@ -1,7 +1,7 @@
 # Introduction
 In this era of modernity, the systems we study and the problems we tackle are becoming increasingly complex, demanding innovative approaches to address them.
 One such approach involves leveraging **Information Theory** {cite:p}`shannonMathematicalTheoryCommunication1948`.
-The core idea is to distill any given problem into its fundamental informational components and analyze the underlying dynamics through the lens of information sharing and transfer.
+The core idea is to distill any given problem into its fundamental informational components and analyse the underlying dynamics through the lens of information sharing and transfer.
 In recent years, **information-theoretic measures**—such as entropy, mutual information, and transfer entropy—have gained significant traction across diverse scientific disciplines {cite:p}`Lizier2014,versteegInformationtheoreticMeasuresInfluence2013,acharya2024representative`.
 Researchers from various fields, many of whom are not formally trained in information theory, often seek to apply these measures to their specific problems of interest.
 However, a common challenge arises: despite the growing interest, there is often a lack of accessible tools that allow users to estimate these measures using their preferred estimation techniques.
@@ -24,8 +24,8 @@ Concerning entropy generalizations, we have Rényi and Tsallis entropy, and the 
 
 # Estimation
 Experimental or observational data come in various formats but generally fall into discrete or continuous categories.
-Discrete datasets consist of integer values (integers or categorical variables, e.g., in ℤ) and represented as the realization of discrete random variables (RVs).
-Continuous datasets contain real numbers (ℝ) and can be represented as realization of continuous RVs.
+Discrete datasets consist of integer values (integers or categorical variables, e.g., in ℤ) and represented as the realisation of discrete random variables (RVs).
+Continuous datasets contain real numbers (ℝ) and can be represented as realisation of continuous RVs.
 The **probability mass function (pmf)** defines discrete RVs while the **probability density function (pdf)** applies to continuous RVs.
 
 ```{note}

@@ -151,7 +151,7 @@ The `0.3.3` release focuses on improving documentation, moving to Read the Docs,
 
 - 📦 Updated project for publication.
 
-- ✨ Optimizations and bug fixes:
+- ✨ Optimisations and bug fixes:
 
   - 🚀 Parallelized box and Gaussian kernel calculations.
 
@@ -185,7 +185,7 @@ The `0.3.0dev0` release focuses on performance improvements, feature enhancement
 
 - ⚡ Major API refactoring to improve compatibility with arbitrary many random variables in MI and CMI.
 
-- 💡 Enhanced performance through optimizations in `base.py`.
+- 💡 Enhanced performance through optimisations in `base.py`.
 
 - 🔍 Added extensive testing for local values and tested manually with code notebooks.
 

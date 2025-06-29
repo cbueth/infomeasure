@@ -212,7 +212,7 @@ def _get_estimator(estimators, estimator_name):
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     if (
         estimator_name is None
@@ -384,7 +384,7 @@ def entropy(*data, approach: str, **kwargs: any):
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     return EstimatorClass(*data, **kwargs).result()
@@ -445,7 +445,7 @@ def mutual_information(
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     if len(data) < 2:
@@ -526,7 +526,7 @@ def transfer_entropy(
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     if len(data) != 2:
@@ -645,7 +645,7 @@ def estimator(
     Raises
     ------
     ValueError
-        If the measure is not recognized.
+        If the measure is not recognised.
     """
     if measure is None:
         raise ValueError("``measure`` is required.")

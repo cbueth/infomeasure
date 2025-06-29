@@ -182,7 +182,7 @@ def test_grassberger_single_value():
     result = entropy(data, approach="grassberger", base=2)
 
     # Grassberger can produce negative values due to bias correction
-    # This is mathematically correct behavior
+    # This is mathematically correct behaviour
     assert isinstance(result, float)
     assert (
         abs(result) < 0.1

@@ -50,7 +50,7 @@ class BayesEntropyEstimator(DiscreteHEstimator):
         Particularly effective for large alphabets.
 
     **Minimax Prior** (``α = √N/K = "min-max"``)
-        Minimizes the maximum expected loss.
+        Minimises the maximum expected loss.
         Balances between sample size and alphabet size.
 
     Attributes

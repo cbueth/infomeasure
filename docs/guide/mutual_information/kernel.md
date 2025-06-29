@@ -23,7 +23,7 @@ This package offers two different kernel functions: box kernel and gaussian kern
  ```
 
 To demonstrate this MI, we generate a multivariate Gaussian distribution with two dimensions.
-The data is centered around the origin and has a correlation coefficient of $\rho = 0.5$.
+The data is centred around the origin and has a correlation coefficient of $\rho = 0.5$.
 For Gaussian random variables, we know the analytical MI is given by:
 
 $$

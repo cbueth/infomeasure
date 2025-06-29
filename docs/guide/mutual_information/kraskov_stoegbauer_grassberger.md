@@ -39,7 +39,7 @@ where:
 For interaction information, the above formula is extended in the sum, and $\psi(N)$ is multiplied by $(1-m)$, with the number of RVs $m$.
 
 To demonstrate this MI, we generate a multivariate Gaussian distribution with two dimensions.
-The data is centered around the origin and has a correlation coefficient of $\rho = 0.5$.
+The data is centred around the origin and has a correlation coefficient of $\rho = 0.5$.
 For Gaussian random variables, we know the analytical MI is given by:
 
 $$
