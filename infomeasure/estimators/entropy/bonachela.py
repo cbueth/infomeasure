@@ -1,6 +1,7 @@
 """Module for the Bonachela entropy estimator."""
 
 from numpy import log
+from numpy import arange, sum as np_sum
 
 from infomeasure.estimators.base import DiscreteHEstimator
 from infomeasure.utils.exceptions import TheoreticalInconsistencyError
@@ -41,19 +42,29 @@ class BonachelaEntropyEstimator(DiscreteHEstimator):
         counts = self.data[0].counts
         N = self.data[0].N
 
-        acc = 0.0
+        # Vectorized computation
+        # For each count ni = count + 1, we need sum(1/j for j in range(ni + 1, N + 3))
+        ni_values = counts + 1  # Shape: (K,)
 
-        # Iterate over each unique value and its count
-        for count in counts:
-            # Calculate the inner sum
-            t = 0.0
-            ni = count + 1
+        # Create array of all possible j values from 2 to N+2
+        j_values = arange(2, N + 3)  # Shape: (N+1,)
 
-            for j in range(ni + 1, N + 3):  # j from ni+1 to N+2 (inclusive)
-                t += 1.0 / j
+        # Create a mask matrix where mask[i, j] is True if j_values[j] > ni_values[i]
+        # This uses broadcasting: ni_values[:, None] has shape (K, 1), j_values has shape (N+1,)
+        mask = j_values[None, :] > ni_values[:, None]  # Shape: (K, N+1)
 
-            # Add contribution to accumulator
-            acc += ni * t
+        # Create reciprocal array: 1/j for each j
+        reciprocals = 1.0 / j_values  # Shape: (N+1,)
+
+        # Apply mask and sum along j dimension to get inner sums for each count
+        # mask * reciprocals[None, :] broadcasts reciprocals to shape (K, N+1)
+        inner_sums = np_sum(mask * reciprocals[None, :], axis=1)  # Shape: (K,)
+
+        # Calculate contributions: ni * inner_sum for each count
+        contributions = ni_values * inner_sums  # Shape: (K,)
+
+        # Sum all contributions
+        acc = np_sum(contributions)
 
         # Calculate final entropy with normalization factor
         ent = acc / (N + 2)

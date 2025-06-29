@@ -4,6 +4,7 @@ import pytest
 from numpy import e, log
 
 from infomeasure import entropy, estimator
+from infomeasure.utils.data import DiscreteData
 
 
 @pytest.mark.parametrize(
@@ -129,3 +130,73 @@ def test_zhang_estimator_comparison_with_discrete():
     assert zhang_result != discrete_result
     assert isinstance(zhang_result, float)
     assert isinstance(discrete_result, float)
+
+
+def zhang_entropy_original(data, base="e"):
+    """Original Zhang entropy implementation with loops.
+
+    Detailed Timing Analysis
+    ========================================
+    Size  100: Original 0.000592s, Vectorized 0.000033s, Speedup 18.17x
+    Size  200: Original 0.002471s, Vectorized 0.000046s, Speedup 53.89x
+    Size  500: Original 0.015711s, Vectorized 0.000134s, Speedup 117.17x
+    Size 1000: Original 0.063930s, Vectorized 0.000489s, Speedup 130.75x
+    Size 2000: Original 0.259134s, Vectorized 0.002403s, Speedup 107.86x
+    Size 5000: Original 1.599501s, Vectorized 0.015616s, Speedup 102.43x
+
+    Using np.random.choice(range(n_unique_values), size=n_samples) with
+    n_unique_values = n_samples/10.
+    """
+    discrete_data = DiscreteData.from_data(data)
+    counts = discrete_data.counts
+    N = discrete_data.N
+
+    ent = 0.0
+
+    # Iterate over each unique value and its count
+    for count in counts:
+        # Skip if count is 0 or greater than N-1 (edge case)
+        if count == 0 or count >= N:
+            continue
+
+        # Calculate the inner sum with product
+        t1 = 1.0
+        t2 = 0.0
+
+        for k in range(1, N - count + 1):
+            t1 *= 1.0 - (count - 1.0) / (N - k)
+            t2 += t1 / k
+
+        # Add contribution to entropy
+        ent += t2 * (count / N)
+
+    # Convert to the desired base if needed
+    if base != "e":
+        ent /= log(base)
+
+    return ent
+
+
+@pytest.mark.parametrize(
+    "data_len,fraction_unique",
+    [
+        (100, 0.1),
+        (100, 0.2),
+        (100, 0.5),
+        (100, 2.0),
+        (1000, 0.1),
+        (1000, 1.0),
+        (2000, 0.01),
+    ],
+)
+@pytest.mark.parametrize("base", ["e", 2])
+def test_zhang_estimator_against_original_implementation(
+    data_len, fraction_unique, base, default_rng
+):
+    """Test Zhang estimator against the original implementation."""
+    data = default_rng.choice(
+        int(data_len * fraction_unique), size=data_len, replace=True
+    )
+    result = entropy(data, approach="zhang", base=base)
+    original_result = zhang_entropy_original(data, base=base)
+    assert result == pytest.approx(original_result, rel=1e-10)

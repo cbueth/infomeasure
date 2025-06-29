@@ -4,6 +4,7 @@ import pytest
 from numpy import e, log
 
 from infomeasure import entropy, estimator
+from infomeasure.utils.data import DiscreteData
 
 
 @pytest.mark.parametrize(
@@ -155,3 +156,59 @@ def test_bonachela_estimator_small_data_sets():
     result = entropy(data, approach="bonachela", base=2)
     assert result > 0
     assert isinstance(result, float)
+
+
+def original_implementation(data, base="e"):
+    """Reference implementation using the original nested loops.
+
+    Detailed Timing Analysis
+    ========================================
+    Size  100: Original 0.000040s, Vectorized 0.000025s, Speedup 1.60x
+    Size  200: Original 0.000090s, Vectorized 0.000033s, Speedup 2.73x
+    Size  500: Original 0.000488s, Vectorized 0.000069s, Speedup 7.04x
+    Size 1000: Original 0.001967s, Vectorized 0.000209s, Speedup 9.42x
+    Size 2000: Original 0.007821s, Vectorized 0.000820s, Speedup 9.53x
+    Size 5000: Original 0.048657s, Vectorized 0.003979s, Speedup 12.23x
+
+    Using np.random.choice(range(n_unique_values), size=n_samples) with
+    n_unique_values =n_samples/10.
+    """
+    discrete_data = DiscreteData.from_data(data)
+    counts = discrete_data.counts
+    N = discrete_data.N
+
+    acc = 0.0
+
+    # Original nested loop implementation
+    for count in counts:
+        t = 0.0
+        ni = count + 1
+
+        for j in range(ni + 1, N + 3):
+            t += 1.0 / j
+
+        acc += ni * t
+
+    ent = acc / (N + 2)
+
+    if base != "e":
+        ent /= log(base)
+
+    return ent
+
+
+@pytest.mark.parametrize(
+    "data_len,fraction_unique",
+    [(100, 0.1), (100, 0.2), (100, 0.5), (100, 2.0), (1000, 0.1), (10000, 0.01)],
+)
+@pytest.mark.parametrize("base", ["e", 2, 10])
+def test_bonachela_estimator_against_original_implementation(
+    data_len, fraction_unique, base, default_rng
+):
+    """Test Bonachela estimator against the original implementation."""
+    data = default_rng.choice(
+        int(data_len * fraction_unique), size=data_len, replace=True
+    )
+    result = entropy(data, approach="bonachela", base=base)
+    original_result = original_implementation(data, base=base)
+    assert result == pytest.approx(original_result, rel=1e-10)
