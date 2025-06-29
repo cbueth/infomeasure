@@ -38,13 +38,12 @@ class ZhangEntropyEstimator(DiscreteHEstimator):
         """
         # Get counts and total observations
         counts = self.data[0].counts
-        N = int(self.data[0].N)
+        N = self.data[0].N
 
         ent = 0.0
 
         # Iterate over each unique value and its count
         for count in counts:
-            count = int(count)  # Ensure count is an integer
             # Skip if count is 0 or greater than N-1 (edge case)
             if count == 0 or count >= N:
                 continue
@@ -78,14 +77,13 @@ class ZhangEntropyEstimator(DiscreteHEstimator):
 
         # Get the distribution dictionary and original data
         counts = self.data[0].counts
-        N = int(self.data[0].N)
+        N = self.data[0].N
 
         # Create a mapping from unique values to their Zhang entropy contributions
         zhang_contributions = {}
 
         # Calculate Zhang entropy contribution for each unique value
         for i, (uniq_val, count) in enumerate(zip(self.data[0].uniq, counts)):
-            count = int(count)
             if count == 0 or count >= N:
                 zhang_contributions[uniq_val] = 0.0
                 continue

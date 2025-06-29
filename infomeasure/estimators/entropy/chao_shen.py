@@ -1,6 +1,6 @@
 """Module for the Chao-Shen entropy estimator."""
 
-from numpy import sum as np_sum
+from numpy import sum as np_sum, log
 
 from infomeasure.estimators.base import DiscreteHEstimator
 from ...utils.exceptions import TheoreticalInconsistencyError
@@ -55,7 +55,12 @@ class ChaoShenEntropyEstimator(DiscreteHEstimator):
         la = 1 - (1 - pa) ** N  # Probability to see a bin (species) in the sample
 
         # Chao-Shen (2003) entropy estimator
-        return -np_sum(pa * self._log_base(pa) / la)
+        h = -np_sum(pa * log(pa) / la)
+
+        if self.base != "e":
+            h /= log(self.base)
+
+        return h
 
     def _cross_entropy(self):
         """Calculate cross-entropy between two distributions.

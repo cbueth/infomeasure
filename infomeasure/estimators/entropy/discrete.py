@@ -75,6 +75,11 @@ class DiscreteEntropyEstimator(DiscreteHEstimator):
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
 
+    @property
+    def dist_dict(self):
+        """Return the distribution dictionary for JSD."""
+        return self.data[0].distribution_dict
+
     def _extract_local_values(self):
         """Separately, calculate the local values.
 

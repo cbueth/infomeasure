@@ -98,6 +98,14 @@ class TestDiscreteData:
         with pytest.raises(ValueError, match="counts must sum to the length of data"):
             DiscreteData(uniq=uniq, counts=counts, data=data)
 
+    def test_validation_non_integer_counts(self):
+        """Test validation fails when counts are not integers."""
+        uniq = np.array([1, 2, 3])
+        counts = np.array([1.0, 2.0, 3.0])  # Float counts
+
+        with pytest.raises(ValueError, match="counts must be integers"):
+            DiscreteData.from_counts(uniq, counts)
+
     def test_validation_empty_data_direct_constructor(self):
         """Test validation fails when empty data is passed to direct constructor."""
         uniq = np.array([1, 2, 3])

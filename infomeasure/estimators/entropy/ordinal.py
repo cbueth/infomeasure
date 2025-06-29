@@ -10,7 +10,6 @@ from numpy import (
     integer,
     issubdtype,
     ndarray,
-    unique,
     asarray,
 )
 

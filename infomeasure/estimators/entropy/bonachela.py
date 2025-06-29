@@ -39,7 +39,7 @@ class BonachelaEntropyEstimator(DiscreteHEstimator):
         """
         # Get counts and total observations
         counts = self.data[0].counts
-        N = int(self.data[0].N)
+        N = self.data[0].N
 
         acc = 0.0
 
@@ -47,7 +47,7 @@ class BonachelaEntropyEstimator(DiscreteHEstimator):
         for count in counts:
             # Calculate the inner sum
             t = 0.0
-            ni = int(count) + 1
+            ni = count + 1
 
             for j in range(ni + 1, N + 3):  # j from ni+1 to N+2 (inclusive)
                 t += 1.0 / j

@@ -1,7 +1,7 @@
 """Module for the Asymptotic NSB entropy estimator."""
 
 from numpy import euler_gamma, log
-from scipy.special import digamma, polygamma
+from scipy.special import digamma
 
 from infomeasure.estimators.base import DiscreteHEstimator
 from ...utils.config import logger
@@ -98,7 +98,7 @@ class AnsbEntropyEstimator(DiscreteHEstimator):
         # ANSB formula: (γ - log(2)) + 2 * log(N) - ψ(Δ)
         entropy_nats = (euler_gamma - log(2)) + 2 * log(N) - digamma(coincidences)
 
-        # Convert to desired base if needed
+        # Convert to the desired base if needed
         if self.base != "e":
             entropy_nats /= log(self.base)
 

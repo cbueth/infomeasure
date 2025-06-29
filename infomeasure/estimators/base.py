@@ -1171,6 +1171,25 @@ class DiscreteHEstimator(EntropyEstimator, ABC):
             DiscreteData.from_counts(uniq=uniq, counts=counts), base=base, **kwargs
         )
 
+    @classmethod
+    def from_probabilities(
+        cls,
+        uniq,
+        probabilities,
+        base: LogBaseType = Config.get("base"),
+        **kwargs,
+    ):
+        """Construct a DiscreteHEstimator from the provided probabilities.
+
+        DiscreteData validates the data integrity, other validations are skipped.
+        This is used for JSD for :class:`DiscreteHEstimator` childs.
+        """
+        return cls(
+            DiscreteData.from_probabilities(uniq=uniq, probabilities=probabilities),
+            base=base,
+            **kwargs,
+        )
+
     def _joint_entropy(self):
         raise RuntimeError(
             "Function should not be called, as _simple_entropy should be used after "

@@ -94,10 +94,7 @@ class ShrinkEntropyEstimator(DiscreteHEstimator):
         ndarray[float]
             The calculated local values of entropy.
         """
-        p_shrink = self._shrink_probs()
-
-        # Create a mapping from unique values to their shrinkage probabilities
-        shrink_dict = dict(zip(self.data[0].uniq, p_shrink))
+        shrink_dict = self.dist_dict
 
         # Calculate local values for each data point
         local_values = asarray(
@@ -105,6 +102,13 @@ class ShrinkEntropyEstimator(DiscreteHEstimator):
         )
 
         return local_values
+
+    @property
+    def dist_dict(self):
+        """Dictionary of shrinkage probabilities for each unique value. Used by JSD."""
+        p_shrink = self._shrink_probs()
+        # Create a mapping from unique values to their shrinkage probabilities
+        return dict(zip(self.data[0].uniq, p_shrink))
 
     def _shrink_probs(self):
         N = self.data[0].N  # total number of observations

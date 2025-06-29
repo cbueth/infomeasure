@@ -2,14 +2,15 @@
 
 from numpy import sum as np_sum, concatenate, ndarray
 
-from ..estimators.base import DiscreteHEstimator
 from ..estimators.entropy import (
     RenyiEntropyEstimator,
     TsallisEntropyEstimator,
     KozachenkoLeonenkoEntropyEstimator,
     KernelEntropyEstimator,
-    GrassbergerEntropyEstimator,
     OrdinalEntropyEstimator,
+    BayesEntropyEstimator,
+    DiscreteEntropyEstimator,
+    ShrinkEntropyEstimator,
 )
 from ..estimators.functional import get_estimator_class
 
@@ -71,28 +72,15 @@ def jensen_shannon_divergence(*data, approach: str | None = None, **kwargs):
             "The Jensen-Shannon Divergence is not supported for the "
             f"{estimator_class.__name__} estimator."
         )
-    # if estimator_class has mixin DistributionMixin
-    # then we can use the distribution method
-    if issubclass(estimator_class, DiscreteHEstimator) and not issubclass(
-        estimator_class, GrassbergerEntropyEstimator
+    if issubclass(
+        estimator_class,
+        (
+            OrdinalEntropyEstimator,
+            BayesEntropyEstimator,
+            DiscreteEntropyEstimator,
+            ShrinkEntropyEstimator,
+        ),
     ):
-        estimators = tuple(estimator_class(var, **kwargs) for var in data)
-        marginal = sum(estimator.global_val() for estimator in estimators) / len(data)
-        # the distributions have some matching and some unique keys, create a new dict
-        # with the sum of the values of union of keys
-        dists = [estimator.data[0].distribution_dict for estimator in estimators]
-        # dict(
-        #   m_i: (p(x_i) + q(x_i) + ... + r(x_i)) / n
-        # )
-        dists = {
-            key: sum(dist.get(key, 0) for dist in dists) / len(dists)
-            for key in set().union(*dists)
-        }
-        mixture = estimator_class.from_counts(
-            uniq=list(dists.keys()), counts=list(dists.values()), **kwargs
-        )
-        return mixture.global_val() - marginal
-    if issubclass(estimator_class, OrdinalEntropyEstimator):
         estimators = tuple(estimator_class(var, **kwargs) for var in data)
         marginal = sum(estimator.global_val() for estimator in estimators) / len(data)
         # the distributions have some matching and some unique keys, create a new dict

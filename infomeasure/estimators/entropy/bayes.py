@@ -1,6 +1,5 @@
 """Module for the Bayesian entropy estimator."""
 
-from numpy import log
 from numpy import sum as np_sum
 
 from infomeasure.estimators.base import DiscreteHEstimator
@@ -98,16 +97,25 @@ class BayesEntropyEstimator(DiscreteHEstimator):
         float
             The calculated entropy.
         """
-        K = self.K_param if self.K_param is not None else self.data[0].K
-        N = self.data[0].N
-        self._set_alpha(K, N)
-
-        # Calculate Bayesian probabilities: p_k = (n_k + α) / (N + K*α)
-        weight = N + K * self.alpha
-        bayes_probs = (self.data[0].counts + self.alpha) / weight
+        bayes_probs = self.bayes_probs
 
         # Calculate entropy: -sum(p_k * log(p_k))
         return -np_sum(bayes_probs * self._log_base(bayes_probs))
+
+    @property
+    def bayes_probs(self):
+        K = self.K_param if self.K_param is not None else self.data[0].K
+        N = self.data[0].N
+        self._set_alpha(K, N)
+        # Calculate Bayesian probabilities: p_k = (n_k + α) / (N + K*α)
+        weight = N + K * self.alpha
+        bayes_probs = (self.data[0].counts + self.alpha) / weight
+        return bayes_probs
+
+    @property
+    def dist_dict(self):
+        """Return the Bayesian distribution dictionary for JSD."""
+        return dict(zip(self.data[0].uniq, self.bayes_probs))
 
     def _set_alpha(self, K, N):
         # Alpha

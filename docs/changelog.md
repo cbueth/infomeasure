@@ -39,7 +39,7 @@ This release introduces an overhaul of the statistical testing functionality wit
 
 - 🧮 **Added Estimators**:
 
-  - **Miller-Madow Estimators**: Comprehensive suite of bias-corrected information measure estimators using the Miller-Madow correction formula. Provides improved estimates for small sample sizes by adding correction terms to maximum likelihood estimates.
+  - **Miller-Madow Estimators**: Comprehensive suite of bias-corrected information measure estimators using the Miller-Madow correction formula. Provides improved estimates for small sample sizes by adding correction terms to maximum likelihood estimates. These estimators are dedicated implementations.
 
     - **Entropy (H)**: {class}`~infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator` with correction term `(K-1)/(2N)` for bias-corrected entropy estimation.
 
@@ -83,9 +83,9 @@ This release introduces an overhaul of the statistical testing functionality wit
 
   - **Complete Estimator Coverage**: The new estimators also all support MI, CMI, TE and CTE, using the same unified slicing, integrated into the interface.
 
-  - **Jensen-Shannon Divergence Support**: {func}`~infomeasure.composite_measures.jsd.jensen_shannon_divergence` is available for all of the new estimators through the unified interface.
+  - **Jensen-Shannon Divergence Support**: Of the new estimators {func}`~infomeasure.composite_measures.jsd.jensen_shannon_divergence` is available for {class}`~infomeasure.estimators.entropy.bayes.BayesEntropyEstimator` and {class}`~infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator`.
 
-  - **Enhanced Cross-Entropy and KLD Support**: Of the new estimators, Bayes and Miller-Madow support cross entropy and thus also the {func}`~infomeasure.composite_measures.kld.kullback_leiber_divergence`. All entropies which have been implemented before `0.5.0` all support cross entropy and KLD already.
+  - **Enhanced Cross-Entropy and KLD Support**: Of the new estimators, Bayes and Miller-Madow support cross entropy and thus also the {func}`~infomeasure.composite_measures.kld.kullback_leiber_divergence`. All entropies which have been implemented before version `0.5.0` all support cross entropy and KLD already.
 
 - 📚 Update Documentation
 

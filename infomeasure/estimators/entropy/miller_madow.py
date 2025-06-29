@@ -4,9 +4,7 @@ from numpy import log
 from numpy import sum as np_sum
 
 from infomeasure.estimators.base import DiscreteHEstimator
-from ... import Config
 from ...utils.config import logger
-from ...utils.types import LogBaseType
 
 
 class MillerMadowEntropyEstimator(DiscreteHEstimator):

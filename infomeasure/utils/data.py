@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from numpy import ndarray, unique, asarray, percentile
+from numpy import ndarray, unique, asarray, percentile, integer, issubdtype
 
 
 @dataclass(frozen=True)
@@ -83,6 +83,8 @@ class DiscreteData:
             raise ValueError("counts must be non-negative")
         if self.counts.sum() == 0:
             raise ValueError("counts must sum to a positive value")
+        if not issubdtype(self.counts.dtype, integer):
+            raise ValueError("counts must be integers")
 
         # Set K (number of unique values)
         object.__setattr__(self, "K", len(self.uniq))
@@ -96,7 +98,7 @@ class DiscreteData:
                 raise ValueError("counts must sum to the length of data")
             object.__setattr__(self, "N", len(self.data))
         else:
-            object.__setattr__(self, "N", self.counts.sum())
+            object.__setattr__(self, "N", int(self.counts.sum()))
 
     @property
     def probabilities(self) -> ndarray:
