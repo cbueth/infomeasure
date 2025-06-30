@@ -1,5 +1,7 @@
 """Module for the NSB (Nemenman-Shafee-Bialek) entropy estimator."""
 
+from functools import lru_cache
+
 from numpy import exp, log, nan
 from scipy.integrate import quad
 from scipy.optimize import minimize_scalar, root_scalar
@@ -10,6 +12,11 @@ from ...utils.config import logger
 from ...utils.exceptions import TheoreticalInconsistencyError
 from ... import Config
 from ...utils.types import LogBaseType
+
+
+@lru_cache(maxsize=1024)
+def _cached_polygamma(n, x):
+    return polygamma(n, x)
 
 
 class NsbEntropyEstimator(DiscreteHEstimator):
@@ -89,6 +96,7 @@ class NsbEntropyEstimator(DiscreteHEstimator):
         N = self.data[0].N
         K = self.data[0].K if self.k_given is None else self.k_given
         counts = self.data[0].counts
+        log_K = log(K)
 
         # Calculate coincidences (number of repeated observations)
         coincidences = N - K
@@ -108,8 +116,10 @@ class NsbEntropyEstimator(DiscreteHEstimator):
                 * self._dxi(beta, K)
                 * self._bayes(beta, K, counts),
                 0,
-                log(K),
+                log_K,
                 limit=100,
+                # epsabs=1e-8,
+                # epsrel=1e-6,
             )
 
             # Denominator: integral of rho
@@ -117,8 +127,10 @@ class NsbEntropyEstimator(DiscreteHEstimator):
                 lambda beta: exp(-self._neg_log_rho(beta, K, N, counts) + l0)
                 * self._dxi(beta, K),
                 0,
-                log(K),
+                log_K,
                 limit=100,
+                # epsabs=1e-8,
+                # epsrel=1e-6,
             )
 
             if denominator == 0:
@@ -168,8 +180,7 @@ class NsbEntropyEstimator(DiscreteHEstimator):
         result = -(loggamma(kappa) - loggamma(N + kappa))
 
         # Sum over counts: -sum(n_i * (loggamma(n_i + beta) - loggamma(beta)))
-        for count in counts:
-            result -= count * (loggamma(count + beta) - loggamma(beta))
+        result -= (counts * (loggamma(counts + beta) - loggamma(beta))).sum()
 
         return result
 
@@ -181,7 +192,7 @@ class NsbEntropyEstimator(DiscreteHEstimator):
     def _dxi(self, beta, K):
         """Calculate the derivative dxi/dbeta."""
         # The derivative of ξ = ψ(kappa + 1) - ψ(β + 1)
-        return K * polygamma(1, 1 + K * beta) - polygamma(1, 1 + beta)
+        return K * _cached_polygamma(1, 1 + K * beta) - _cached_polygamma(1, 1 + beta)
 
     def _bayes(self, beta, K, counts):
         """Calculate the Bayesian entropy expectation ⟨H^m⟩_β(ξ).
@@ -193,15 +204,14 @@ class NsbEntropyEstimator(DiscreteHEstimator):
         E[H] = ψ(Σα_i + 1) - (1/Σα_i) * Σ(α_i * ψ(α_i + 1))
         """
         # Calculate Dirichlet parameters: α_i = n_i + β
-        alphas = counts + beta
-        total_alpha = alphas.sum()
+        # alphas = counts + beta
+        total_alpha = counts.sum() + len(counts) * beta
 
         # Expected entropy under Dirichlet distribution
         # E[H] = ψ(Σα_i + 1) - (1/Σα_i) * Σ(α_i * ψ(α_i + 1))
         entropy = digamma(total_alpha + 1)
 
-        for alpha_i in alphas:
-            entropy -= (alpha_i / total_alpha) * digamma(alpha_i + 1)
+        entropy -= ((counts + beta) / total_alpha * digamma(counts + beta + 1)).sum()
 
         return entropy
 
