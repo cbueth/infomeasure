@@ -1,6 +1,31 @@
 # Changelog
 
-## Unreleased
+## Under Development
+
+- 📈 **Variational MI estimators**: For large datasets, stochastic variational inference {cite:p}`hoffmanStochasticVariationalInference2013` becomes a valid approach to determine variational bounds of mutual information (MI). The following variational estimators for MI are planned:
+
+  - **DV** {cite:p}`donskerAsymptoticEvaluationCertain1975`: The Donsker-Varadhan estimator provides a dual formulation of the KL-divergence for variational MI bounds, forming the theoretical foundation for many neural MI estimators.
+
+  - **BA** {cite:p}`barberIMAlgorithmVariational2003`: The Barber-Agakov estimator uses variational approximation to compute MI over noisy channels, similar to the EM algorithm but maximizing MI instead of a likelihood. It introduces a tractable lower bound by replacing intractable conditional distributions with variational approximations.
+
+  - **MINE** {cite:p}`belghaziMutualInformationNeural2018`: Mutual Information Neural Estimation employs gradient descent over neural networks to estimate MI between high-dimensional continuous variables. It is scalable in dimensionality and sample size, trainable through back-propagation, and strongly consistent.
+
+  - **NWJ** {cite:p}`nguyenEstimatingDivergenceFunctionals2010`: The Nguyen-Wainwright-Jordan estimator uses convex risk minimization to estimate divergence functionals and likelihood ratios through f-divergence characterization. This approach leverages convexity to ensure robust and efficient estimation. Furthermore, a CMI bound can be obtained using {cite:p}`molavipourConditionalMutualInformation2020`, enabling estimation of TE and CTE.
+ 
+  - **JSD** {cite:p}`hjelmLearningDeepRepresentations2018`: This estimator uses Jensen-Shannon divergence for representation learning by maximizing MI between input and encoder output, incorporating locality structure and adversarial matching for unsupervised learning.
+
+  - **TUBA** {cite:p}`pooleVariationalBoundsMutual2019`: Tractable Unnormalized Barber and Agakov estimator provides unbiased estimates and gradients using energy-based variational families to avoid intractable partition functions while maintaining tractability.
+
+  - **NCE** {cite:p}`oordRepresentationLearningContrastive2019,maNoiseContrastiveEstimation2018`: A multi-sample mutual information estimator based on noise contrastive estimation (NCE) {cite:p}`gutmannNoisecontrastiveEstimationUnnormalized2012`.
+
+  - $\bf{I_{\alpha}}$ {cite:p}`pooleVariationalBoundsMutual2019`: This interpolated bound balances variance and square bias, providing a flexible trade-off between bias and variance controlled by the parameter α.
+
+  - **FLO** {cite:p}`guoTightMutualInformation2022`: Fenchel-Legendre Optimization offers a novel contrastive MI estimator that overcomes InfoNCE limitations by achieving tight bounds and provable convergence. It uses unnormalized statistical modeling and convex optimization to improve data efficiency.
+
+- **EEVI**: Estimators of entropy via inference, i.e. using sequential Monte Carlo {cite:p}`saadEstimatorsEntropyInformation2022`.
+
+
+## Version 0.5.0 (2025-07-XX)
 
 This release introduces an overhaul of the statistical testing functionality with breaking changes to the API.
 

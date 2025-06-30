@@ -22,7 +22,7 @@ from datetime import datetime
 project = "infomeasure"
 copyright = f"2024–{datetime.now().year}, infomeasure maintainers"
 author = "Carlson Büth, Acharya Kishor, and Massimiliano Zanin"
-version = "0.4.0"
+version = "0.5.0dev0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
