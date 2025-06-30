@@ -106,7 +106,7 @@ class BayesEntropyEstimator(DiscreteHEstimator):
     def bayes_probs(self):
         K = self.K_param if self.K_param is not None else self.data[0].K
         N = self.data[0].N
-        self._set_alpha(K, N)
+        self.alpha = self._get_alpha(self.alpha, K, N)
         # Calculate Bayesian probabilities: p_k = (n_k + α) / (N + K*α)
         weight = N + K * self.alpha
         bayes_probs = (self.data[0].counts + self.alpha) / weight
@@ -117,27 +117,34 @@ class BayesEntropyEstimator(DiscreteHEstimator):
         """Return the Bayesian distribution dictionary for JSD."""
         return dict(zip(self.data[0].uniq, self.bayes_probs))
 
-    def _set_alpha(self, K, N):
+    @staticmethod
+    def _get_alpha(alpha, K, N):
         # Alpha
-        if isinstance(self.alpha, (int, float)):
-            pass
-        elif not isinstance(self.alpha, str) or (
-            isinstance(self.alpha, str)
-            and self.alpha.lower() not in ["jeffrey", "laplace", "sch-grass", "min-max"]
+        if isinstance(alpha, (int, float)):
+            return alpha
+        elif not isinstance(alpha, str) or (
+            isinstance(alpha, str)
+            and alpha.lower() not in ["jeffrey", "laplace", "sch-grass", "min-max"]
         ):
             raise ValueError(
                 "Concentration parameter must be a float or one of the following"
                 "strings: \n'jeffrey', 'laplace', 'sch-grass', 'min-max'\n"
-                f"Received: {self.alpha}"
+                f"Received: {alpha}"
             )
-        elif self.alpha.lower() == "jeffrey":
-            self.alpha = 0.5
-        elif self.alpha.lower() == "laplace":
-            self.alpha = 1.0
-        elif self.alpha.lower() == "sch-grass":
-            self.alpha = 1 / K
-        else:  # self.alpha == "min-max":
-            self.alpha = N**0.5 / K
+        elif alpha.lower() == "jeffrey":
+            return 0.5
+        elif alpha.lower() == "laplace":
+            return 1.0
+        elif alpha.lower() == "sch-grass":
+            return 1 / K
+        elif alpha == "min-max":
+            return N**0.5 / K
+        raise ValueError(
+            f"Concentration parameter '{alpha}' not recognized. "
+            f"Must be a float or one of the following strings: \n"
+            f"'jeffrey', 'laplace', 'sch-grass', 'min-max'\n"
+            f"Received: {alpha}"
+        )
 
     def _cross_entropy(self) -> float:
         """Calculate the Bayesian cross-entropy between two distributions.
@@ -152,18 +159,20 @@ class BayesEntropyEstimator(DiscreteHEstimator):
         K_q = self.K_param if self.K_param is not None else self.data[1].K
         N_p = self.data[0].N
         N_q = self.data[1].N
+        alpha_p = self._get_alpha(self.alpha, K_p, N_p)
+        alpha_q = self._get_alpha(self.alpha, K_q, N_q)
 
         # Calculate Bayesian distributions using consistent weight calculation
-        weight_p = N_p + K_p * self.alpha
-        weight_q = N_q + K_q * self.alpha
+        weight_p = N_p + K_p * alpha_p
+        weight_q = N_q + K_q * alpha_q
 
         dist_p = {}
         for val, count in zip(self.data[0].uniq, self.data[0].counts):
-            dist_p[val] = (count + self.alpha) / weight_p
+            dist_p[val] = (count + alpha_p) / weight_p
 
         dist_q = {}
         for val, count in zip(self.data[1].uniq, self.data[1].counts):
-            dist_q[val] = (count + self.alpha) / weight_q
+            dist_q[val] = (count + alpha_q) / weight_q
 
         # Find common support
         uniq_p = set(self.data[0].uniq)
