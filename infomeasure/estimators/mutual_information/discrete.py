@@ -5,10 +5,10 @@ from abc import ABC
 from numpy import ndarray
 
 from ..base import (
-    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
+from ..mixins import DiscreteMIMixin
 from ..utils.discrete_interaction_information import (
     mutual_information_global,
     mutual_information_local,
@@ -16,11 +16,10 @@ from ..utils.discrete_interaction_information import (
     conditional_mutual_information_local,
 )
 from ... import Config
-from ...utils.config import logger
 from ...utils.types import LogBaseType
 
 
-class BaseDiscreteMIEstimator(ABC):
+class BaseDiscreteMIEstimator(DiscreteMIMixin, ABC):
     """Base class for discrete mutual information estimators.
 
     Attributes
@@ -43,6 +42,7 @@ class BaseDiscreteMIEstimator(ABC):
         cond=None,
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseDiscreteMIEstimator.
 
@@ -61,30 +61,15 @@ class BaseDiscreteMIEstimator(ABC):
         """
         self.data: tuple[ndarray] = None
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=False, base=base)
+            super().__init__(*data, offset=offset, normalize=False, base=base, **kwargs)
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=False, base=base
+                *data, cond=cond, offset=offset, normalize=False, base=base, **kwargs
             )
-        if any(var.dtype.kind == "f" for var in self.data):
-            logger.warning(
-                "The data looks like a float array ("
-                f"{[var.dtype for var in self.data]}). "
-                "Make sure it is properly symbolized or discretized "
-                "for the mutual information estimation."
-            )
-        if hasattr(self, "cond") and self.cond.dtype.kind == "f":
-            logger.warning(
-                "The conditional data looks like a float array ("
-                f"{self.cond.dtype}). "
-                "Make sure it is properly symbolized or discretized "
-                "for the conditional mutual information estimation."
-            )
+        self._check_data_mi()
 
 
-class DiscreteMIEstimator(
-    BaseDiscreteMIEstimator, PValueMixin, MutualInformationEstimator
-):
+class DiscreteMIEstimator(BaseDiscreteMIEstimator, MutualInformationEstimator):
     """Estimator for the discrete mutual information.
 
     Attributes

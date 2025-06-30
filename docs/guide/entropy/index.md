@@ -78,7 +78,7 @@ As successful as Shannon’s information theory has been, with time, it was clea
 There was a growing interest to look for a more general form of information measure applicable to diverse complex systems, such as stock market returns, protein folding, percolation, etc.
 The additivity of independent mean information was the most natural axiom to attack, see {cite:t}`khinchin1957mathematical` on axiomatic derivation of Shannon’s entropy.
 Basically, the axiom states that: if $P$ and $Q$ are discrete generalized probability distributions of two independent random variables, then $H[P Q] = H[P]+H[Q]$.
-On this level, two modes of reasoning can be formulated. One may either keep the additivity of independent information but utilize more general definition of means, or keep the usual definition of linear means but generalize the additivity law, leading us to two generalized class of entropies: **Rényi entropy**, **Tsallis Entropy**.
+On this level, two modes of reasoning can be formulated. One may either keep the additivity of independent information but utilise more general definition of means, or keep the usual definition of linear means but generalize the additivity law, leading us to two generalized class of entropies: **Rényi entropy**, **Tsallis Entropy**.
 
 (renyi-alpha-entropy)=
 ### Renyi $\alpha$-Entropy

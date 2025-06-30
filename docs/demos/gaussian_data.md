@@ -278,7 +278,7 @@ plt.grid()
 plt.show()
 ```
 
-All approaches resemble the expected behavior of mutual information for Gaussian data.
+All approaches resemble the expected behaviour of mutual information for Gaussian data.
 Again, the `discrete` approach has an offset, due to discretization errors.
 Tsallis MI is offset as well, because $q=1.05$ has been used.
 For $q=1$, Tsallis MI is identical to Shannon MI.

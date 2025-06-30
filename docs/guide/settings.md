@@ -44,30 +44,36 @@ im.entropy([1, 0, 1, 0], approach="discrete", base='e'), \
 
 ## Permanently changing the hypothesis testing approach
 
-For p-value calculation there are two methods available.
+For _p_-value calculation there are two methods available.
 By default, a permutation test is used, but you can also use a bootstrap test.
 The permutation test uses permuted data, while the bootstrap test uses with repetition resampled data.
 Depending on the sample size and other data characteristics, one method may be more appropriate than the other.
-To permanently change the p-value method to "bootstrap", you can set it in the configuration:
+To permanently change the statistical test method to "bootstrap", you can set it in the configuration:
 
 ```{code-cell}
-im.Config.set("p_value_method", "bootstrap")  # / or "permutation_test"
-im.Config.get("p_value_method")
+im.Config.set("statistical_test_method", "bootstrap")  # / or "permutation_test"
+im.Config.get("statistical_test_method")
 ```
 
-When calculating p-values, only the number of tests needs to be passed, the method will be automatically selected based on the current configuration.
+You can also set the default number of tests:
+
+```{code-cell}
+im.Config.set("statistical_test_n_tests", 100)  # default number of tests
+im.Config.get("statistical_test_n_tests")
+```
+
+When performing statistical tests, the method and number of tests will be automatically selected based on the current configuration.
 If specified in the function call, it will override the global setting.
 
 ```{code-cell}
 a = rng.integers(0, 2, size=1000)
 est = im.estimator(a, np.roll(a, -1), measure="te", approach="discrete")
 # Use bootstrap method just set with Config
-p_bootstrap = est.p_value(n_tests=50)
-t_score_bootstrap = est.t_score(n_tests=50)
+result_bootstrap = est.statistical_test(n_tests=50)
 # Explicitly set to permutation test
-p_permutation_test = est.p_value(n_tests=50, method="permutation_test")  # overrides global setting
-t_score_permutation_test = est.t_score(n_tests=50, method="permutation_test")
-p_bootstrap, t_score_bootstrap, p_permutation_test, t_score_permutation_test
+result_permutation = est.statistical_test(n_tests=50, method="permutation_test")  # overrides global setting
+print(f"Bootstrap: p-value = {result_bootstrap.p_value:.4f}, t-score = {result_bootstrap.t_score:.4f}")
+print(f"Permutation: p-value = {result_permutation.p_value:.4f}, t-score = {result_permutation.t_score:.4f}")
 ```
 
 ## Logging
@@ -92,7 +98,7 @@ The logging level can be set to one of the standard logging levels provided by
 the {py:mod}`logging` module.
 This allows you to control the verbosity of the logging output and filter
 out less important messages.
-If you want to further customize the logging behavior,
+If you want to further customize the logging behaviour,
 you can access the logger directly and configure it as needed.
 
 ```{code-cell}

@@ -217,3 +217,52 @@ def test_discrete_te_uncoupled(default_rng):
     assert im.transfer_entropy(y, x, approach="discrete") == pytest.approx(
         0.0, abs=1e-2
     )
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_te,p_cte",
+    [
+        (1, "permutation_test", 0.0, 0.0),
+        (1, "bootstrap", 0.0, 0.0),
+        (2, "permutation_test", 0.0, 0.0),
+        (2, "bootstrap", 0.0, 0.0),
+        (3, "permutation_test", 0.0, 0.0),
+        (4, "permutation_test", 0.0, 0.0),
+    ],
+)
+def test_discrete_te_statistical_test(rng_int, method, p_te, p_cte):
+    """Test the discrete TE for p-values. Fix rng."""
+    data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
+    est_te_xy = DiscreteTEEstimator(data_source, data_dest, base=2, seed=8)
+    est_cte_xy = DiscreteCTEEstimator(
+        data_source, data_dest, cond=data_cond, base=2, seed=8
+    )
+    test = est_te_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_te)
+    test = est_cte_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_cte)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,eff_te,eff_cte",
+    [
+        (1, "permutation_test", 0.9781650491232622, 0.0),
+        (1, "bootstrap", 0.9843568771175895, 0.0),
+        (2, "permutation_test", 0.9760957072151946, 0.0),
+        (2, "bootstrap", 0.9885167701868591, 0.0),
+        (3, "permutation_test", 0.9793546600631241, 0.0),
+        (4, "permutation_test", 0.9731564771026949, 0.0),
+    ],
+)
+def test_discrete_te_effective_val(rng_int, method, eff_te, eff_cte):
+    """Test the discrete transfer entropy for effective values. Fix rng."""
+    data_source, data_dest, data_cond = discrete_random_variables_condition(rng_int)
+    est_te_xy = DiscreteTEEstimator(data_source, data_dest, base=2, seed=8)
+    est_cte_xy = DiscreteCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_source,
+        base=2,
+    )
+    assert est_te_xy.effective_val(method=method) == pytest.approx(eff_te)
+    assert est_cte_xy.effective_val(method=method) == pytest.approx(eff_cte)

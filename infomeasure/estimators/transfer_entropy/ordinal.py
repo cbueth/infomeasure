@@ -9,10 +9,9 @@ from ...utils.config import logger
 from ...utils.types import LogBaseType
 from ..base import (
     ConditionalTransferEntropyEstimator,
-    EffectiveValueMixin,
-    PValueMixin,
     TransferEntropyEstimator,
 )
+
 from ..utils.discrete_transfer_entropy import combined_te_form
 from ..utils.ordinal import symbolize_series
 from ..utils.te_slicing import cte_observations, te_observations
@@ -78,6 +77,7 @@ class BaseOrdinalTEEstimator(ABC):
         cond_hist_len: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseOrdinalTEEstimator.
 
@@ -122,6 +122,7 @@ class BaseOrdinalTEEstimator(ABC):
                 step_size=step_size,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -135,6 +136,7 @@ class BaseOrdinalTEEstimator(ABC):
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
             if self.cond.ndim > 1:
                 raise TypeError(
@@ -162,9 +164,7 @@ class BaseOrdinalTEEstimator(ABC):
         self.stable = stable
 
 
-class OrdinalTEEstimator(
-    BaseOrdinalTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
-):
+class OrdinalTEEstimator(BaseOrdinalTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Ordinal / Permutation transfer entropy.
 
     Attributes

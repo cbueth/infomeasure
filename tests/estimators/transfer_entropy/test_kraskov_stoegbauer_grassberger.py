@@ -166,3 +166,71 @@ def test_ksg_cte_slicing(
     assert isinstance(est.result(), float)
     assert est.result() == pytest.approx(expected)
     assert isinstance(est.local_vals(), ndarray)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_te,p_cte",
+    [
+        (1, "permutation_test", 0.0, 0.0),
+        (1, "bootstrap", 0.0, 0.0),
+        (2, "permutation_test", 0.0, 0.0),
+        (2, "bootstrap", 0.0, 0.0),
+        (3, "permutation_test", 0.0, 0.0),
+        (4, "permutation_test", 0.0, 0.0),
+    ],
+)
+def test_ksg_te_statistical_test(rng_int, method, p_te, p_cte):
+    """Test the KSG TE for p-values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = KSGTEEstimator(
+        data_source, data_dest, k=4, minkowski_p=inf, noise_level=0, base=2, seed=8
+    )
+    est_cte_xy = KSGCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_cond,
+        k=4,
+        minkowski_p=inf,
+        noise_level=0,
+        base=2,
+        seed=8,
+    )
+    test = est_te_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_te)
+    test = est_cte_xy.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_cte)
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,eff_te,eff_cte",
+    [
+        (1, "permutation_test", 0.11228866688671651, 0.0),
+        (1, "bootstrap", 0.10695252204417915, 0.0),
+        (2, "permutation_test", 0.04533644468841158, 0.0),
+        (2, "bootstrap", 0.06294198770734777, 0.0),
+        (3, "permutation_test", 0.06633458735803954, 0.0),
+        (4, "permutation_test", 0.1011367204218852, 0.0),
+    ],
+)
+def test_ksg_te_effective_val(rng_int, method, eff_te, eff_cte):
+    """Test the KSG transfer entropy for effective values. Fix rng."""
+    data_source, data_dest, data_cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_te_xy = KSGTEEstimator(
+        data_source, data_dest, k=4, minkowski_p=inf, noise_level=0, base="e", seed=8
+    )
+    est_cte_xy = KSGCTEEstimator(
+        data_source,
+        data_dest,
+        cond=data_source,
+        k=4,
+        minkowski_p=inf,
+        noise_level=0,
+        base="e",
+        seed=8,
+    )
+    assert est_te_xy.effective_val(method=method) == pytest.approx(eff_te)
+    assert est_cte_xy.effective_val(method=method) == pytest.approx(eff_cte)

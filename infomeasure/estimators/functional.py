@@ -12,32 +12,67 @@ from ..utils.config import logger
 from .base import EstimatorType
 
 entropy_estimators = {
+    "ansb": "infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator",
+    "bayes": "infomeasure.estimators.entropy.bayes.BayesEntropyEstimator",
+    "bonachela": "infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator",
+    "chao_shen": "infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator",
+    "cs": "infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator",
+    "chao_wang_jost": "infomeasure.estimators.entropy.chao_wang_jost."
+    "ChaoWangJostEntropyEstimator",
+    "cwj": "infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator",
     "discrete": "infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator",
+    "grassberger": "infomeasure.estimators.entropy.grassberger."
+    "GrassbergerEntropyEstimator",
     "kernel": "infomeasure.estimators.entropy.kernel.KernelEntropyEstimator",
     "metric": "infomeasure.estimators.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
     "kl": "infomeasure.estimators.entropy.kozachenko_leonenko."
     "KozachenkoLeonenkoEntropyEstimator",
+    "miller_madow": "infomeasure.estimators.entropy.miller_madow."
+    "MillerMadowEntropyEstimator",
+    "mm": "infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator",
+    "nsb": "infomeasure.estimators.entropy.nsb.NsbEntropyEstimator",
     "renyi": "infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator",
+    "shrink": "infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator",
+    "js": "infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator",
     "ordinal": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "symbolic": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "permutation": "infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator",
     "tsallis": "infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator",
+    "zhang": "infomeasure.estimators.entropy.zhang.ZhangEntropyEstimator",
 }
 
 mi_estimators = {
-    "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator",
+    "ansb": "infomeasure.estimators.mutual_information.ansb.AnsbMIEstimator",
+    "bayes": "infomeasure.estimators.mutual_information.bayes.BayesMIEstimator",
+    "bonachela": "infomeasure.estimators.mutual_information.bonachela."
+    "BonachelaMIEstimator",
+    "chao_shen": "infomeasure.estimators.mutual_information.chao_shen."
+    "ChaoShenMIEstimator",
+    "chao_wang_jost": "infomeasure.estimators.mutual_information.chao_wang_jost."
+    "ChaoWangJostMIEstimator",
+    "discrete": "infomeasure.estimators.mutual_information.discrete."
+    "DiscreteMIEstimator",
+    "grassberger": "infomeasure.estimators.mutual_information.grassberger."
+    "GrassbergerMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelMIEstimator",
-    "metric": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
-    "KSGMIEstimator",
+    "metric": "infomeasure.estimators.mutual_information."
+    "kraskov_stoegbauer_grassberger.KSGMIEstimator",
     "ksg": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGMIEstimator",
-    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator",
-    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator",
+    "miller_madow": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowMIEstimator",
+    "mm": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowMIEstimator",
+    "nsb": "infomeasure.estimators.mutual_information.nsb.NsbMIEstimator",
     "ordinal": "infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator",
     "symbolic": "infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator",
     "permutation": "infomeasure.estimators.mutual_information.ordinal."
     "OrdinalMIEstimator",
+    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator",
+    "shrink": "infomeasure.estimators.mutual_information.shrink.ShrinkMIEstimator",
+    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator",
+    "zhang": "infomeasure.estimators.mutual_information.zhang.ZhangMIEstimator",
 }
 
 # for M(x), use map to H(x)
@@ -46,47 +81,98 @@ mi_entropy_map = {mi_key: mi_key for mi_key in mi_estimators.keys()}
 mi_entropy_map["ksg"] = "kl"
 
 cmi_estimators = {
-    "discrete": "infomeasure.estimators.mutual_information.discrete.DiscreteCMIEstimator",
+    "ansb": "infomeasure.estimators.mutual_information.ansb.AnsbCMIEstimator",
+    "bayes": "infomeasure.estimators.mutual_information.bayes.BayesCMIEstimator",
+    "bonachela": "infomeasure.estimators.mutual_information.bonachela."
+    "BonachelaCMIEstimator",
+    "chao_shen": "infomeasure.estimators.mutual_information.chao_shen."
+    "ChaoShenCMIEstimator",
+    "chao_wang_jost": "infomeasure.estimators.mutual_information.chao_wang_jost."
+    "ChaoWangJostCMIEstimator",
+    "discrete": "infomeasure.estimators.mutual_information.discrete."
+    "DiscreteCMIEstimator",
+    "grassberger": "infomeasure.estimators.mutual_information.grassberger."
+    "GrassbergerCMIEstimator",
     "kernel": "infomeasure.estimators.mutual_information.kernel.KernelCMIEstimator",
-    "metric": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
-    "KSGCMIEstimator",
+    "metric": "infomeasure.estimators.mutual_information."
+    "kraskov_stoegbauer_grassberger.KSGCMIEstimator",
     "ksg": "infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger."
     "KSGCMIEstimator",
-    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiCMIEstimator",
-    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisCMIEstimator",
+    "miller_madow": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowCMIEstimator",
+    "mm": "infomeasure.estimators.mutual_information.miller_madow."
+    "MillerMadowCMIEstimator",
+    "nsb": "infomeasure.estimators.mutual_information.nsb.NsbCMIEstimator",
     "ordinal": "infomeasure.estimators.mutual_information.ordinal.OrdinalCMIEstimator",
     "symbolic": "infomeasure.estimators.mutual_information.ordinal.OrdinalCMIEstimator",
     "permutation": "infomeasure.estimators.mutual_information.ordinal."
     "OrdinalCMIEstimator",
+    "renyi": "infomeasure.estimators.mutual_information.renyi.RenyiCMIEstimator",
+    "shrink": "infomeasure.estimators.mutual_information.shrink.ShrinkCMIEstimator",
+    "tsallis": "infomeasure.estimators.mutual_information.tsallis.TsallisCMIEstimator",
+    "zhang": "infomeasure.estimators.mutual_information.zhang.ZhangCMIEstimator",
 }
 
 te_estimators = {
+    "ansb": "infomeasure.estimators.transfer_entropy.ansb.AnsbTEEstimator",
+    "bayes": "infomeasure.estimators.transfer_entropy.bayes.BayesTEEstimator",
+    "bonachela": "infomeasure.estimators.transfer_entropy.bonachela."
+    "BonachelaTEEstimator",
+    "chao_shen": "infomeasure.estimators.transfer_entropy.chao_shen."
+    "ChaoShenTEEstimator",
+    "chao_wang_jost": "infomeasure.estimators.transfer_entropy.chao_wang_jost."
+    "ChaoWangJostTEEstimator",
     "discrete": "infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator",
+    "grassberger": "infomeasure.estimators.transfer_entropy.grassberger."
+    "GrassbergerTEEstimator",
     "kernel": "infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator",
     "metric": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
     "ksg": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGTEEstimator",
-    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator",
+    "miller_madow": "infomeasure.estimators.transfer_entropy.miller_madow."
+    "MillerMadowTEEstimator",
+    "mm": "infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator",
+    "nsb": "infomeasure.estimators.transfer_entropy.nsb.NsbTEEstimator",
     "ordinal": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
     "symbolic": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
     "permutation": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator",
+    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator",
+    "shrink": "infomeasure.estimators.transfer_entropy.shrink.ShrinkTEEstimator",
     "tsallis": "infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator",
+    "zhang": "infomeasure.estimators.transfer_entropy.zhang.ZhangTEEstimator",
 }
 
 cte_estimators = {
+    "ansb": "infomeasure.estimators.transfer_entropy.ansb.AnsbCTEEstimator",
+    "bayes": "infomeasure.estimators.transfer_entropy.bayes.BayesCTEEstimator",
+    "bonachela": "infomeasure.estimators.transfer_entropy.bonachela."
+    "BonachelaCTEEstimator",
+    "chao_shen": "infomeasure.estimators.transfer_entropy.chao_shen."
+    "ChaoShenCTEEstimator",
+    "chao_wang_jost": "infomeasure.estimators.transfer_entropy.chao_wang_jost."
+    "ChaoWangJostCTEEstimator",
     "discrete": "infomeasure.estimators.transfer_entropy.discrete.DiscreteCTEEstimator",
+    "grassberger": "infomeasure.estimators.transfer_entropy.grassberger."
+    "GrassbergerCTEEstimator",
     "kernel": "infomeasure.estimators.transfer_entropy.kernel.KernelCTEEstimator",
     "metric": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGCTEEstimator",
     "ksg": "infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger."
     "KSGCTEEstimator",
-    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiCTEEstimator",
+    "miller_madow": "infomeasure.estimators.transfer_entropy.miller_madow."
+    "MillerMadowCTEEstimator",
+    "mm": "infomeasure.estimators.transfer_entropy.miller_madow."
+    "MillerMadowCTEEstimator",
+    "nsb": "infomeasure.estimators.transfer_entropy.nsb.NsbCTEEstimator",
     "ordinal": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalCTEEstimator",
     "symbolic": "infomeasure.estimators.transfer_entropy.ordinal.OrdinalCTEEstimator",
     "permutation": "infomeasure.estimators.transfer_entropy.ordinal."
     "OrdinalCTEEstimator",
+    "renyi": "infomeasure.estimators.transfer_entropy.renyi.RenyiCTEEstimator",
+    "shrink": "infomeasure.estimators.transfer_entropy.shrink.ShrinkCTEEstimator",
     "tsallis": "infomeasure.estimators.transfer_entropy.tsallis.TsallisCTEEstimator",
+    "zhang": "infomeasure.estimators.transfer_entropy.zhang.ZhangCTEEstimator",
 }
 
 
@@ -126,7 +212,7 @@ def _get_estimator(estimators, estimator_name):
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     if (
         estimator_name is None
@@ -242,12 +328,22 @@ def entropy(*data, approach: str, **kwargs: any):
 
     Supports the following approaches:
 
-    1. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
-    2. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
-    3. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
-    4. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
-    5. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
-    6. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    1. ``ansb``: :func:`Asymptotic NSB entropy estimator. <infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator>`
+    2. ``bayes``: :func:`Bayesian entropy estimator. <infomeasure.estimators.entropy.bayes.BayesEntropyEstimator>`
+    3. ``bonachela``: :func:`Bonachela entropy estimator. <infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator>`
+    4. [``chao_shen``, ``cs``]: :func:`Chao-Shen entropy estimator. <infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator>`
+    5. [``chao_wang_jost``, ``cwj``]: :func:`Chao Wang Jost entropy estimator. <infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator>`
+    6. ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
+    7. ``grassberger``: :func:`Grassberger entropy estimator. <infomeasure.estimators.entropy.grassberger.GrassbergerEntropyEstimator>`
+    8. ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
+    9. [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+    10. [``miller_madow``, ``mm``]: :func:`Miller-Madow entropy estimator. <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
+    11. ``nsb``: :func:`NSB (Nemenman-Shafee-Bialek) entropy estimator. <infomeasure.estimators.entropy.nsb.NsbEntropyEstimator>`
+    12. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
+    13. ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
+    14. [``shrink``, ``js``]: :func:`Shrinkage (James-Stein) entropy estimator. <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
+    15. ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    16. ``zhang``: :func:`Zhang entropy estimator. <infomeasure.estimators.entropy.zhang.ZhangEntropyEstimator>`
 
 
     For the discrete Shannon entropy this is
@@ -288,7 +384,7 @@ def entropy(*data, approach: str, **kwargs: any):
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     return EstimatorClass(*data, **kwargs).result()
@@ -322,9 +418,10 @@ def mutual_information(
     1. ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator>`
     2. ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.estimators.mutual_information.kernel.KernelMIEstimator>`
     3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
-    4. ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>`
-    5. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal mutual information estimator. <infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator>`
-    6. ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>`
+    4. [``miller_madow``, ``mm``]: :func:`Miller-Madow mutual information estimator. <infomeasure.estimators.mutual_information.miller_madow.MillerMadowMIEstimator>`
+    5. ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>`
+    6. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal mutual information estimator. <infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator>`
+    7. ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>`
 
     Parameters
     ----------
@@ -348,7 +445,7 @@ def mutual_information(
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     if len(data) < 2:
@@ -393,9 +490,10 @@ def transfer_entropy(
     1. ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator>`
     2. ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator>`
     3. [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
-    4. ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>`
-    5. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal transfer entropy estimator. <infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator>`
-    6. ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator>`
+    4. [``miller_madow``, ``mm``]: :func:`Miller-Madow transfer entropy estimator. <infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator>`
+    5. ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>`
+    6. [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal transfer entropy estimator. <infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator>`
+    7. ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator>`
 
     Parameters
     ----------
@@ -428,7 +526,7 @@ def transfer_entropy(
     Raises
     ------
     ValueError
-        If the estimator is not recognized.
+        If the estimator is not recognised.
     """
     EstimatorClass = kwargs.pop("EstimatorClass")
     if len(data) != 2:
@@ -492,6 +590,7 @@ def estimator(
         - ``discrete``: :func:`Discrete entropy estimator. <infomeasure.estimators.entropy.discrete.DiscreteEntropyEstimator>`
         - ``kernel``: :func:`Kernel entropy estimator. <infomeasure.estimators.entropy.kernel.KernelEntropyEstimator>`
         - [``metric``, ``kl``]: :func:`Kozachenko-Leonenko entropy estimator. <infomeasure.estimators.entropy.kozachenko_leonenko.KozachenkoLeonenkoEntropyEstimator>`
+        - [``miller_madow``, ``mm``]: :func:`Miller-Madow entropy estimator. <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
         - ``renyi``: :func:`Renyi entropy estimator. <infomeasure.estimators.entropy.renyi.RenyiEntropyEstimator>`
         - [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal / Permutation entropy estimator. <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>`
         - ``tsallis``: :func:`Tsallis entropy estimator. <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
@@ -500,6 +599,7 @@ def estimator(
         - ``discrete``: :func:`Discrete mutual information estimator. <infomeasure.estimators.mutual_information.discrete.DiscreteMIEstimator>`
         - ``kernel``: :func:`Kernel mutual information estimator. <infomeasure.estimators.mutual_information.kernel.KernelMIEstimator>`
         - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger mutual information estimator. <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>`
+        - [``miller_madow``, ``mm``]: :func:`Miller-Madow mutual information estimator. <infomeasure.estimators.mutual_information.miller_madow.MillerMadowMIEstimator>`
         - ``renyi``: :func:`Renyi mutual information estimator. <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>`
         - [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal mutual information estimator. <infomeasure.estimators.mutual_information.ordinal.OrdinalMIEstimator>`
         - ``tsallis``: :func:`Tsallis mutual information estimator. <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>`
@@ -508,6 +608,7 @@ def estimator(
         - ``discrete``: :func:`Discrete transfer entropy estimator. <infomeasure.estimators.transfer_entropy.discrete.DiscreteTEEstimator>`
         - ``kernel``: :func:`Kernel transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kernel.KernelTEEstimator>`
         - [``metric``, ``ksg``]: :func:`Kraskov-Stoegbauer-Grassberger transfer entropy estimator. <infomeasure.estimators.transfer_entropy.kraskov_stoegbauer_grassberger.KSGTEEstimator>`
+        - [``miller_madow``, ``mm``]: :func:`Miller-Madow transfer entropy estimator. <infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator>`
         - ``renyi``: :func:`Renyi transfer entropy estimator. <infomeasure.estimators.transfer_entropy.renyi.RenyiTEEstimator>`
         - [``ordinal``, ``symbolic``, ``permutation``]: :func:`Ordinal transfer entropy estimator. <infomeasure.estimators.transfer_entropy.ordinal.OrdinalTEEstimator>`
         - ``tsallis``: :func:`Tsallis transfer entropy estimator. <infomeasure.estimators.transfer_entropy.tsallis.TsallisTEEstimator>`
@@ -544,7 +645,7 @@ def estimator(
     Raises
     ------
     ValueError
-        If the measure is not recognized.
+        If the measure is not recognised.
     """
     if measure is None:
         raise ValueError("``measure`` is required.")

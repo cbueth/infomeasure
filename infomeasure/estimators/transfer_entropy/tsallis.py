@@ -5,11 +5,10 @@ from abc import ABC
 from numpy import issubdtype, integer
 
 from ..base import (
-    PValueMixin,
-    EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
+
 from ..entropy.tsallis import TsallisEntropyEstimator
 from ... import Config
 from ...utils.types import LogBaseType
@@ -74,6 +73,7 @@ class BaseTsallisTEEstimator(ABC):
         cond_hist_len: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseTsallisTEEstimator.
 
@@ -114,6 +114,7 @@ class BaseTsallisTEEstimator(ABC):
                 step_size=step_size,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -127,6 +128,7 @@ class BaseTsallisTEEstimator(ABC):
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         if not isinstance(q, (int, float)) or q <= 0:
             raise ValueError("The Tsallis parameter ``q`` must be a positive number.")
@@ -141,9 +143,7 @@ class BaseTsallisTEEstimator(ABC):
         self.noise_level = noise_level
 
 
-class TsallisTEEstimator(
-    BaseTsallisTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
-):
+class TsallisTEEstimator(BaseTsallisTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Tsallis transfer entropy.
 
     Attributes

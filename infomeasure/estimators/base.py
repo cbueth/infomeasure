@@ -1,20 +1,31 @@
 """Module containing the base classes for the measure estimators."""
 
+import warnings
 from abc import ABC, abstractmethod
 from io import UnsupportedOperation
-from operator import gt
-from typing import Callable, Generic, final, Sequence
+from typing import Generic, final, Sequence
 
-from numpy import asarray, integer, issubdtype, log, log2, log10, nan, ndarray, std
+from numpy import (
+    asarray,
+    integer,
+    issubdtype,
+    log,
+    log2,
+    log10,
+    ndarray,
+)
 from numpy import mean as np_mean
 from numpy import sum as np_sum
-from numpy.random import default_rng
 
+from .mixins import StatisticalTestingMixin, EffectiveValueMixin
 from .. import Config
 from ..utils.config import logger
+from ..utils.data import DiscreteData
+from ..utils.exceptions import TheoreticalInconsistencyError
 from ..utils.types import EstimatorType, LogBaseType
 from .utils.normalize import normalize_data_0_1
 from .utils.te_slicing import cte_observations, te_observations
+from .utils.ordinal import reduce_joint_space
 
 
 class Estimator(Generic[EstimatorType], ABC):
@@ -38,7 +49,7 @@ class Estimator(Generic[EstimatorType], ABC):
 
     See Also
     --------
-    EntropyEstimator, MutualInformationEstimator, TransferEntropyEstimator
+    EntropyEstimator, MutualInformationEstimator, TransferEntropyEstimator, DiscreteEntropyEstimator
 
     Notes
     -----
@@ -50,7 +61,7 @@ class Estimator(Generic[EstimatorType], ABC):
     and have the separate :meth:`_extract_local_values` method for the local values,
     which is lazily called by :meth:`local_val`, if needed.
     If the measure has a p-value, the :meth:`p_value` method should be implemented
-    (use :class:`PValueMixin` for standard implementations).
+    (use :class:`StatisticalTestingMixin` for standard implementations).
     """
 
     def __init__(self, base: LogBaseType = Config.get("base")):
@@ -142,9 +153,10 @@ class Estimator(Generic[EstimatorType], ABC):
                 and abs((np_mean(self.res_local) - self.res_global) / self.res_global)
                 > 1e-5
             ):
-                raise RuntimeError(
+                message = (
                     f"Mean of local values {np_mean(self.res_local)} "
-                    f"does not match the global value {self.res_global}. "
+                    f"does not match the global value {self.res_global} "
+                    f"for {self.__class__.__name__}. "
                     f"Diff: {np_mean(self.res_local) - self.res_global:.2e}. "
                     + (
                         f"As you are using {len(self.data)} random variables, "
@@ -153,6 +165,7 @@ class Estimator(Generic[EstimatorType], ABC):
                         else ""
                     )
                 )
+                logger.warning(message)
         return self.res_local
 
     @abstractmethod
@@ -421,23 +434,8 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
         )
 
 
-class RandomGeneratorMixin:
-    """Mixin for random state generation.
-
-    Attributes
-    ----------
-    rng : Generator
-        The random state generator.
-    """
-
-    def __init__(self, *args, seed=None, **kwargs):
-        """Initialize the random state generator."""
-        self.rng = default_rng(seed)
-        super().__init__(*args, **kwargs)
-
-
 class MutualInformationEstimator(
-    RandomGeneratorMixin, Estimator["MutualInformationEstimator"], ABC
+    StatisticalTestingMixin, Estimator["MutualInformationEstimator"], ABC
 ):
     """Abstract base class for mutual information estimators.
 
@@ -483,6 +481,7 @@ class MutualInformationEstimator(
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the estimator with the data."""
         if len(data) < 2:
@@ -513,7 +512,7 @@ class MutualInformationEstimator(
             raise ValueError("Data arrays must be 1D for normalization.")
         if self.normalize:
             self.data = tuple(normalize_data_0_1(var) for var in self.data)
-        super().__init__(base=base)
+        super().__init__(base=base, **kwargs)
 
     def _generic_mi_from_entropy(
         self,
@@ -574,10 +573,10 @@ class MutualInformationEstimator(
         # return sum(h(x_i)) - h((x_1, x_2, ..., x_n))
         try:
             return (
-                np_sum([est.local_vals() for est in estimators])
+                np_sum([est.local_vals() for est in estimators], axis=0)
                 - estimator_joint.local_vals()
             )
-        except UnsupportedOperation:
+        except (UnsupportedOperation, TheoreticalInconsistencyError):
             return (
                 sum([est.global_val() for est in estimators])
                 - estimator_joint.global_val()
@@ -585,7 +584,7 @@ class MutualInformationEstimator(
 
 
 class ConditionalMutualInformationEstimator(
-    RandomGeneratorMixin, Estimator["ConditionalMutualInformationEstimator"], ABC
+    StatisticalTestingMixin, Estimator["ConditionalMutualInformationEstimator"], ABC
 ):
     """Abstract base class for conditional mutual information estimators.
 
@@ -642,6 +641,7 @@ class ConditionalMutualInformationEstimator(
         normalize: bool = False,
         offset=None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the estimator with the data."""
         if cond is None:
@@ -664,7 +664,7 @@ class ConditionalMutualInformationEstimator(
         if self.normalize:
             self.data = tuple(normalize_data_0_1(var) for var in self.data)
             self.cond = normalize_data_0_1(self.cond)
-        super().__init__(base=base)
+        super().__init__(base=base, **kwargs)
 
     def _generic_cmi_from_entropy(
         self,
@@ -730,12 +730,12 @@ class ConditionalMutualInformationEstimator(
             est_cond = estimator(cond, **kwargs)
             # return h_x_z + h_y_z - h_x_y_z - h_z
             try:
-                (
-                    np_sum([est.local_vals() for est in est_marginal_cond])
+                return (
+                    np_sum([est.local_vals() for est in est_marginal_cond], axis=0)
                     - estimator_joint.local_vals()
                     - est_cond.local_vals()
                 )
-            except UnsupportedOperation:
+            except (UnsupportedOperation, TheoreticalInconsistencyError):
                 return (
                     sum([est.global_val() for est in est_marginal_cond])
                     - estimator_joint.global_val()
@@ -746,7 +746,10 @@ class ConditionalMutualInformationEstimator(
 
 
 class TransferEntropyEstimator(
-    RandomGeneratorMixin, Estimator["TransferEntropyEstimator"], ABC
+    EffectiveValueMixin,
+    StatisticalTestingMixin,
+    Estimator["TransferEntropyEstimator"],
+    ABC,
 ):
     """Abstract base class for transfer entropy estimators.
 
@@ -799,6 +802,7 @@ class TransferEntropyEstimator(
         step_size: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the estimator with the data."""
         if offset not in (None, 0):
@@ -837,7 +841,7 @@ class TransferEntropyEstimator(
         self.permute_src = False
         self.resample_src = False
         # Initialize Estimator ABC with the base
-        super().__init__(base=base)
+        super().__init__(base=base, **kwargs)
 
     def _generic_te_from_entropy(
         self,
@@ -930,7 +934,7 @@ class TransferEntropyEstimator(
                 - est_x_history_y_history_y_future.local_vals()
                 - est_y_history.local_vals()
             )
-        except UnsupportedOperation:
+        except (UnsupportedOperation, TheoreticalInconsistencyError):
             return (
                 est_y_history_y_future.global_val()
                 + est_x_history_y_history.global_val()
@@ -940,7 +944,10 @@ class TransferEntropyEstimator(
 
 
 class ConditionalTransferEntropyEstimator(
-    RandomGeneratorMixin, Estimator["ConditionalTransferEntropyEstimator"], ABC
+    EffectiveValueMixin,
+    StatisticalTestingMixin,
+    Estimator["ConditionalTransferEntropyEstimator"],
+    ABC,
 ):
     """Abstract base class for conditional transfer entropy estimators.
 
@@ -982,6 +989,7 @@ class ConditionalTransferEntropyEstimator(
         prop_time=None,
         offset=None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the estimator with the data."""
         if cond is None:
@@ -1007,7 +1015,7 @@ class ConditionalTransferEntropyEstimator(
         self.cond_hist_len = cond_hist_len
         self.step_size = step_size
         # Initialize Estimator ABC with the base
-        super().__init__(base=base)
+        super().__init__(base=base, **kwargs)
 
     def _generic_cte_from_entropy(
         self,
@@ -1081,7 +1089,7 @@ class ConditionalTransferEntropyEstimator(
                 - est_x_history_cond_y_history_y_future.local_vals()
                 - est_y_history_cond.local_vals()
             )
-        except UnsupportedOperation:
+        except (UnsupportedOperation, TheoreticalInconsistencyError):
             return (
                 est_cond_y_history_y_future.global_val()
                 + est_x_history_cond_y_history.global_val()
@@ -1090,432 +1098,186 @@ class ConditionalTransferEntropyEstimator(
             )
 
 
-class DistributionMixin:
-    """Mixin for Estimators that offer introspection of the distribution.
+class DiscreteHEstimator(EntropyEstimator, ABC):
+    """Abstract base class for discrete entropy estimators.
+
+    The `DiscreteHEstimator` class is an abstract base class extending
+    :class:`EntropyEstimator`.
+    This class is specifically designed to handle entropy estimation for
+    discrete variables.
+    It ensures that input data is transformed into a format suitable for discrete
+    entropy calculations, verifies input data validity, and reduces joint spaces where
+    needed.
+
+    It works exclusively with symbolized or discretized data,
+    allowing entropy computations to remain accurate and efficient for discrete
+    variables. The class
+    also manages situations where multiple random variables' joint data can be reduced
+    to simplified forms for further statistical analysis. The data, after processing,
+    is represented using unique values and counts instead of directly storing the
+    original data.
 
     Attributes
     ----------
-    dist_dict : dict
-        The distribution of the data.
-        Format: {symbol: probability}
+    data : tuple[~infomeasure.utils.data.DiscreteData]
+        A tuple containing Discrete data objects. Each of them contains,
+        ``uniq``, ``counts``, ``N``, ``K``, and the original ``data`` array.
+        For normal and joint entropy `len(data) = 1`, for cross-entropy `len(data) = 2`.
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize the distribution attribute."""
-        self.dist_dict: dict | None = None
-        super().__init__(*args, **kwargs)
-
-    def distribution(self) -> dict:
-        """Get the distribution of the data.
-
-        Returns
-        -------
-        dict
-            The distribution of the data.
         """
-        if self.dist_dict is None:
-            self.dist_dict = self._distribution()
-        return self.dist_dict
-
-    def _distribution(self) -> dict:
-        """Get the distribution of the data.
-
-        Child classes can implement this method to add a dedicated distribution method.
-        If not implemented, it's expected that the `calculate` method sets the
-        distribution.
-
-        Returns
-        -------
-        dict
-            The distribution of the data.
-        """
-        if self.dist_dict is None:
-            self.calculate()
-        if self.dist_dict is None:
-            raise UnsupportedOperation(
-                "Distribution is not available for this estimator."
-            )
-        return self.dist_dict
-
-
-class PValueMixin(RandomGeneratorMixin):
-    """Mixin for p-value calculation.
-
-    There are two methods to calculate the p-value:
-
-    - Permutation test: shuffle the data and calculate the measure.
-    - Bootstrap: resample the data and calculate the measure.
-
-    The :func:`p_value` can be used to determine a p-value for a measure,
-    and :func:`t_score` to get the corresponding t-score.
-
-    To be used as a mixin class with other :class:`Estimator` Estimator classes.
-    Inherit before the main class.
-
-    Notes
-    -----
-    The permutation test is a non-parametric statistical test to determine if the
-    observed effect is significant. The null hypothesis is that the measure is
-    not different from random, and the p-value is the proportion of permuted
-    measures greater than the observed measure.
-
-    Raises
-    ------
-    NotImplementedError
-        If the p-value method is not implemented for the estimator.
-    """
-
-    def __init__(self, *args, **kwargs):
-        """Initialize the permutation test."""
-        self.original_data = None
-        self.data = None
-        self.p_val: float = None
-        self.t_scr: float = None
-        self.p_val_method: str = None
-        self.n_tests: int = None
-        super().__init__(*args, **kwargs)
-        if not isinstance(self, (MutualInformationEstimator, TransferEntropyEstimator)):
-            raise NotImplementedError(
-                "P-value method is not implemented for the estimator."
-            )
-
-    def p_value(self, n_tests: int = None, method: str = None) -> float:
-        """Calculate the p-value of the measure.
-
-        Method can be "permutation_test" or "bootstrap".
-
-        - Permutation test: shuffle the data and calculate the measure.
-        - Bootstrap: resample the data and calculate the measure.
+        Constructs a DiscreteHEstimator object and initializes its data processing
+        pipeline for discrete entropy calculation.
+        The initializer performs multiple preprocessing steps such as checking the
+        integrity of provided data, reducing joint space if applicable,
+        and converting input data to a Probability Mass Function (PMF) format.
+        This ensures that all subsequent computations are performed on consistent
+        and discrete data.
 
         Parameters
         ----------
-        n_tests : int, optional
-            Number of permutations or bootstrap samples.
-            Needs to be a positive integer.
-            Default is None, which means, if :py:meth:`t_score` was calculated before,
-            the same number of tests will be used.
-        method : str, optional
-            The method to calculate the p-value.
-            Default is None, which means, if :py:meth:`t_score` was calculated before,
-            the same method will be used.
-            If :py:meth:`t_score` was not calculated before,
-            it will be calculated using the default method set in the configuration.
+        args : tuple
+            Positional arguments passed to the parent class constructor.
+        kwargs : dict
+            Keyword arguments passed to the parent class constructor.
 
-        Returns
-        -------
-        p_value : float
-            The p-value of the measure.
-
-        Raises
-        ------
-        ValueError
-            If the chosen method is unknown.
         """
-        if (
-            self.p_val is not None
-            and (method == self.p_val_method or method is None)
-            and (n_tests == self.n_tests or n_tests is None)
-        ):
-            return self.p_val
-        logger.debug(
-            "Calculating the p-value and t-score "
-            f"of the measure {self.__class__.__name__} "
-            f"using the {method} method with {n_tests} tests."
+        if isinstance(args[0], DiscreteData):
+            self.data = (args[0],)
+            self.base = kwargs.get("base", Config.get("base"))
+            self.res_global = None
+            self.res_local = None
+            return
+
+        super().__init__(*args, **kwargs)
+        # warn if the data looks like a float array
+        self._check_data()
+        # reduce any joint space if applicable
+        self._reduce_space()
+        # Convert to PMF discrete data
+        self.data = tuple(DiscreteData.from_data(var) for var in self.data)
+
+    @classmethod
+    def from_counts(
+        cls, uniq, counts, base: LogBaseType = Config.get("base"), **kwargs
+    ):
+        """Construct a DiscreteHEstimator from the provided counts.
+
+        DiscreteData validates the data integrity, other validations are skipped.
+        This is used for JSD for :class:`DiscreteHEstimator` childs.
+        """
+        return cls(
+            DiscreteData.from_counts(uniq=uniq, counts=counts), base=base, **kwargs
         )
-        self.p_val_method = (
-            method if method is not None else Config.get("p_value_method")
+
+    @classmethod
+    def from_probabilities(
+        cls,
+        uniq,
+        probabilities,
+        base: LogBaseType = Config.get("base"),
+        **kwargs,
+    ):
+        """Construct a DiscreteHEstimator from the provided probabilities.
+
+        DiscreteData validates the data integrity, other validations are skipped.
+        This is used for JSD for :class:`DiscreteHEstimator` childs.
+        """
+        return cls(
+            DiscreteData.from_probabilities(uniq=uniq, probabilities=probabilities),
+            base=base,
+            **kwargs,
         )
-        self.n_tests = n_tests
-        if isinstance(self, MutualInformationEstimator):
-            if len(self.data) != 2:
-                raise UnsupportedOperation(
-                    "Permutation test on mutual information is only supported "
-                    "for two variables."
-                )
-            method = self.test_mi
-        elif isinstance(self, TransferEntropyEstimator):
-            method = self.test_te
-        else:
-            raise NotImplementedError(
-                "Permutation test is not implemented for this estimator."
-            )
-        self.p_val, self.t_scr = method(n_tests)
-        return self.p_val
 
-    def t_score(self, n_tests: int = None, method: str = None) -> float:
-        """Get the t-score of the measure.
+    def _joint_entropy(self):
+        raise RuntimeError(
+            "Function should not be called, as _simple_entropy should be used after "
+            "_reduce_space for the joint entropy calcualtion."
+        )
 
-        Parameters
-        ----------
-        n_tests : int, optional
-            Number of permutations or bootstrap samples.
-            Needs to be a positive integer.
-            Default is None, which means, if :py:meth:`p_value` was calculated before,
-            the same number of tests will be used.
-        method : str, optional
-            The method to calculate the t-score.
-            Default is None, which means, if :py:meth:`p_value` was calculated before,
-            the same method will be used.
-            If :py:meth:`p_value` was not calculated before,
-            it will be calculated using the default method set in the configuration.
+    def _check_data(self):
+        """
+        Checks the data structure for each variable and verifies whether it is
+        properly symbolised or discretised for entropy estimation. Issues a
+        warning if the data seems to be in an inappropriate format, such as a
+        float array.
 
-        Returns
-        -------
-        t_score : float
-            The t-score of the measure.
+        This method ensures that the input data is suitable for performing
+        entropy calculations, which may not work correctly with direct float
+        values without prior preprocessing.
+
+        Warnings
+        --------
+        Warning messages are logged if:
+        - The corresponding data for a variable in `self.data` is a NumPy array
+          of a float type.
+        - The corresponding data for a variable is a tuple where any
+          marginal distribution is a NumPy array of a float type.
 
         Notes
         -----
-        The t-score is the difference between the observed value and the mean of the
-        permuted values, divided by the standard deviation of the permuted values
-        (if it is greater than 0).
-        One can get the z-score by converting the t-score using the cumulative
-        distribution function (CDF) of the t-distribution and the inverse CDF
-        (percent-point function) of the standard normal distribution.
+        Designed for discrete Entropy Estimators.
 
-        Raises
-        ------
-        ValueError
-            If the chosen method is unknown.
         """
-        if (
-            self.t_scr is not None
-            and (method == self.p_val_method or method is None)
-            and (n_tests == self.n_tests or n_tests is None)
-        ):
-            return self.t_scr
-        self.p_value(n_tests=n_tests, method=method)
-        return self.t_scr
+        for i_var in range(len(self.data)):
+            if (
+                isinstance(self.data[i_var], ndarray)
+                and self.data[i_var].dtype.kind == "f"
+            ):
+                logger.warning(
+                    "The data looks like a float array ("
+                    f"{self.data[i_var].dtype}). "
+                    "Make sure it is properly symbolized or discretized "
+                    "for the entropy estimation."
+                )
+            elif isinstance(self.data[i_var], tuple) and any(
+                isinstance(marginal, ndarray) and marginal.dtype.kind == "f"
+                for marginal in self.data[i_var]
+            ):
+                logger.warning(
+                    "Some of the data looks like a float array. "
+                    "Make sure it is properly symbolized or discretized "
+                    "for the entropy estimation."
+                )
 
-    @staticmethod
-    def _p_value_t_score(
-        observed_value, test_values, comparison: Callable = gt
-    ) -> tuple[float, float]:
+    def _reduce_space(self):
         """
-        Calculate the p-value and t-score of the observed value.
-        Given a list of test values, the number of permutations, and the observed value,
-        calculate the p-value and t-score.
+        Reduces the dimensionality of the space by identifying regions that can be
+        collapsed based on the structure of the data.
+        Specifically, this method evaluates whether the entries in self.data are
+        multidimensional arrays or tuples, and if so, processes them to form a reduced
+        joint space representation.
+        This method is typically applied to datasets where co-occurrences or unique
+        configurations across variables need to be mapped to a simpler or more compact
+        representation.
 
-        Parameters
+        Notes
+        -----
+        The discrete Shannon entropy calculations often do not depend on the
+        order of the data.
+        Consequently, reducing the data to a set of unique integers or enumerated joint
+        observations is enough for further statistical processing.
+        Multidimensional arrays and tuple entries are handled to enable joint reduction.
+
+        Attributes
         ----------
-        observed_value : float
-            The observed value.
-        test_values : array-like
-            The test values.
-        comparison : operator, optional
-            The comparison operator to use.
-            Pass `operator.lt` for less than, `operator.gt` for greater than.
-            Default is greater.
-
-        Returns
-        -------
-        float, float
-            The p-value and t-score of the measure.
-
-        Raises
-        ------
-        ValueError
-            If the observed value is not a float.
-        ValueError
-            If the test values are not an array-like.
-        ValueError
-            If the comparison operator is not a function.
+        data : iterable
+            An iterable containing the data to be processed.
+            The data can include multidimensional `ndarray` objects or
+            tuples representing variable entries. Upon processing, the
+            `data` attribute is modified to reflect its reduced form.
         """
-        if not isinstance(observed_value, float):
-            raise ValueError("Observed value must be a float.")
-        if not isinstance(test_values, (ndarray, list, tuple)):
-            raise ValueError("Test values must be an array-like.")
-        if not callable(comparison):
-            raise ValueError("Comparison operator must be a function.")
-        if len(test_values) < 2:
-            raise ValueError("Not enough test values for statistical test.")
-        test_values = asarray(test_values)
-
-        null_mean = np_mean(test_values)
-        null_std = std(test_values, ddof=1)  # Unbiased estimator (dividing by N-1)
-
-        # Compute p-value: proportion of test values greater than the observed value
-        #                  (or different operator if specified)
-        p_value = np_sum(comparison(test_values, observed_value)) / len(test_values)
-
-        # Compute t-score:
-        t_score = (observed_value - null_mean) / null_std if null_std > 0 else nan
-
-        return p_value, t_score
-
-    def _calculate_mi_with_data_selection(self, method_resample_src: Callable):
-        """Calculate the measure for the resampled data using specific method."""
-        if len(self.original_data) != 2:
-            raise ValueError(
-                "MI with data selection is only supported for two variables."
-            )
-        # Shuffle the data
-        self.data = (
-            method_resample_src(self.original_data[0]),
-            self.original_data[1],
+        reduce = tuple(
+            (isinstance(var, ndarray) and var.ndim > 1) or isinstance(var, tuple)
+            for var in self.data
         )
-        # Calculate the measure
-        res_permuted = self._calculate()
-        return (
-            res_permuted if isinstance(res_permuted, float) else np_mean(res_permuted)
-        )
-
-    def test_mi(self, n_tests: int) -> float:
-        """Test the mutual information with a permutation test or bootstrap.
-
-        Parameters
-        ----------
-        n_tests : int
-            The number of permutations or bootstrap samples.
-
-        Returns
-        -------
-        float, float
-            The p-value and t-score of the measure.
-
-        Raises
-        ------
-        ValueError
-            If the number of permutations is not a positive integer.
-        """
-        if not issubdtype(type(n_tests), integer) or n_tests < 1:
-            raise ValueError(
-                "Number of permutations must be a positive integer, "
-                f"not {n_tests} ({type(n_tests)})."
+        if any(reduce):
+            # As the discrete shannon entropy disregards the order of the data,
+            # we can reduce the values to unique integers.
+            # In case of having multiple random variables (tuple or list),
+            # this enumerates the unique co-occurrences.
+            self.data = tuple(
+                reduce_joint_space(var) if red else var
+                for var, red in zip(self.data, reduce)
             )
-        # Store unshuffled data
-        self.original_data = self.data
-        # Perform permutations
-        if self.p_val_method == "permutation_test":
-            method_resample_src = lambda data_src: self.rng.permutation(
-                data_src, axis=0
-            )
-        elif self.p_val_method == "bootstrap":
-            method_resample_src = lambda data_src: self.rng.choice(
-                data_src, size=data_src.shape[0], replace=True, axis=0
-            )
-        else:
-            raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
-        permuted_values = [
-            self._calculate_mi_with_data_selection(method_resample_src)
-            for _ in range(n_tests)
-        ]
-        # Restore the original data
-        self.data = self.original_data
-        return self._p_value_t_score(
-            observed_value=self.global_val(), test_values=permuted_values
-        )
-
-    def test_te(self, n_tests: int) -> float:
-        """Calculate the permutation test for transfer entropy.
-
-        Parameters
-        ----------
-        n_tests : int
-            The number of permutations to perform.
-
-        Returns
-        -------
-        float
-            The p-value of the measure.
-
-        Raises
-        ------
-        ValueError
-            If the number of permutations is not a positive integer.
-        """
-        if not issubdtype(type(n_tests), integer) or n_tests < 1:
-            raise ValueError(
-                "Number of permutations must be a positive integer, "
-                f"not {n_tests} ({type(n_tests)})."
-            )
-        # Activate the permutation flag to permute the source data when slicing
-        if self.p_val_method == "permutation_test":
-            self.permute_src = self.rng
-        elif self.p_val_method == "bootstrap":
-            self.resample_src = self.rng
-        else:
-            raise ValueError(f"Invalid p-value method: {self.p_val_method}.")
-        permuted_values = [self._calculate() for _ in range(n_tests)]
-        if isinstance(permuted_values[0], ndarray):
-            permuted_values = [np_mean(x) for x in permuted_values]
-        # Deactivate the permutation/resample flag
-        self.permute_src, self.resample_src = False, False
-        return self._p_value_t_score(
-            observed_value=self.global_val(), test_values=permuted_values
-        )
-
-
-class EffectiveValueMixin:
-    """Mixin for effective value calculation.
-
-    To be used as a mixin class with :class:`TransferEntropyEstimator` derived classes.
-    Inherit before the main class.
-
-    Attributes
-    ----------
-    res_effective : float | None
-        The effective transfer entropy.
-
-    Notes
-    -----
-    The effective value is the difference between the original
-    value and the value calculated for the permuted data.
-    """
-
-    def __init__(self, *args, **kwargs):
-        """Initialize the estimator with the effective value."""
-        self.res_effective = None
-        super().__init__(*args, **kwargs)
-
-    def effective_val(self):
-        """Return the effective value.
-
-        Calculates the effective value if not already done,
-        otherwise returns the stored value.
-
-        Returns
-        -------
-        effective : float
-            The effective value.
-        """
-        if self.res_effective is None:
-            self.res_effective = self._calculate_effective()
-        return self.res_effective
-
-    def _calculate_effective(self):
-        """Calculate the effective value.
-
-        Returns
-        -------
-        effective : float
-            The effective value.
-        """
-        # Activate the permutation flag to permute the source data when slicing
-        self.permute_src = self.rng
-        res_permuted = self._calculate()
-        if isinstance(res_permuted, ndarray):
-            res_permuted = np_mean(res_permuted)
-        # Deactivate the permutation flag
-        self.permute_src = False
-        # Return difference
-        return self.global_val() - res_permuted
-
-
-class WorkersMixin:
-    """Mixin that adds an attribute for the numbers of workers to use.
-
-    Attributes
-    ----------
-        n_workers : int, optional
-            The number of workers to use. Default is 1.
-            -1: Use as many workers as CPU cores available.
-    """
-
-    def __init__(self, *args, workers=1, **kwargs):
-        if workers == -1:
-            from multiprocessing import cpu_count
-
-            workers = cpu_count()
-        super().__init__(*args, **kwargs)
-        self.n_workers = workers

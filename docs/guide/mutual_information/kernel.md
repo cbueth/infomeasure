@@ -23,7 +23,7 @@ This package offers two different kernel functions: box kernel and gaussian kern
  ```
 
 To demonstrate this MI, we generate a multivariate Gaussian distribution with two dimensions.
-The data is centered around the origin and has a correlation coefficient of $\rho = 0.5$.
+The data is centred around the origin and has a correlation coefficient of $\rho = 0.5$.
 For Gaussian random variables, we know the analytical MI is given by:
 
 $$
@@ -79,7 +79,8 @@ im.mutual_information(data_x, data_y, data_z, approach="kernel", kernel="box", b
 ```{code-cell}
 est = im.estimator(data_x, data_y, measure="mi", approach="kernel",
     kernel="gaussian", bandwidth=0.7)
-est.local_vals(), est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+est.local_vals(), stat_test.p_value, stat_test.t_score, stat_test.confidence_interval(90), stat_test.percentile(50)
 ```
 
 

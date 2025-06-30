@@ -97,3 +97,31 @@ def test_kernel_mi_parallelization(rng_int, workers, kernel):
     )
     assert est_parallel.global_val() == pytest.approx(est_serial.global_val())
     assert allclose(est_parallel.local_vals(), est_serial.local_vals())
+
+
+@pytest.mark.parametrize(
+    "rng_int,method,p_mi,m_cmi",
+    [
+        (1, "permutation_test", 0.58, 0.14),
+        (1, "bootstrap", 0.02, 0.08),
+        (2, "permutation_test", 0.5, 0.28),
+        (2, "bootstrap", 0.04, 0.2),
+        (3, "permutation_test", 1.0, 0.14),
+        (4, "permutation_test", 0.98, 0.88),
+    ],
+)
+def test_kernel_mi_statistical_test(rng_int, method, p_mi, m_cmi):
+    """Test the kernel MI for p-values. Fix rng."""
+    data_x, data_y, cond = generate_autoregressive_series_condition(
+        rng_int, alpha=(0.5, 0.1), beta=0.6, gamma=(0.4, 0.2)
+    )
+    est_mi = KernelMIEstimator(
+        data_x, data_y, bandwidth=0.5, kernel="box", base=2, seed=8
+    )
+    est_cmi = KernelCMIEstimator(
+        data_x, data_y, cond=cond, bandwidth=0.5, kernel="box", base=2, seed=8
+    )
+    test = est_mi.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(p_mi)
+    test = est_cmi.statistical_test(method=method, n_tests=50)
+    assert test.p_value == pytest.approx(m_cmi)

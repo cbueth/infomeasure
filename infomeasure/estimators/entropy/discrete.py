@@ -1,62 +1,67 @@
 """Module for the discrete entropy estimator."""
 
-from numpy import sum as np_sum, ndarray, asarray
+from numpy import sum as np_sum, ndarray
 
-from ..base import EntropyEstimator, DistributionMixin
-from ..utils.ordinal import reduce_joint_space
-from ..utils.unique import unique_vals
-from ... import Config
+from ..base import DiscreteHEstimator
 from ...utils.config import logger
-from ...utils.types import LogBaseType
 
 
-class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
-    """Estimator for discrete entropy (Shannon entropy).
+class DiscreteEntropyEstimator(DiscreteHEstimator):
+    r"""Standard Shannon entropy estimator for discrete data using maximum likelihood.
+
+    The discrete entropy estimator computes the Shannon entropy using the classical
+    maximum likelihood approach:
+
+    .. math::
+
+        \hat{H} = -\sum_{i=1}^{K} \hat{p}_i \log \hat{p}_i
+
+    where :math:`\hat{p}_i = \frac{n_i}{N}` are the empirical probabilities,
+    :math:`n_i` are the counts for each unique value :math:`i`, :math:`K` is the number of
+    unique values, and :math:`N` is the total number of observations.
+
+    This is the most fundamental entropy estimator and serves as the baseline for
+    comparison with other bias-corrected estimators. While it provides an asymptotically
+    unbiased estimate of the true entropy, it can exhibit significant bias for small
+    sample sizes, particularly when the number of unique values is large relative to
+    the sample size.
+
+    The estimator is suitable for:
+
+    - Large datasets where bias is minimal
+    - Baseline comparisons with bias-corrected estimators
+    - Applications where computational simplicity is preferred
+    - Well-sampled distributions with sufficient observations per unique value
+
+    For small sample sizes or distributions with many rare events, consider using
+    bias-corrected estimators
+    such as :class:`~infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator`,
+    :class:`~infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator`,
+    or :class:`~infomeasure.estimators.entropy.zhang.ZhangEntropyEstimator`.
 
     Attributes
     ----------
     *data : array-like
-        The data used to estimate the entropy.
-    """
+        The data used to estimate the entropy. For joint entropy, multiple arrays
+        can be provided.
+    base : float or str, default=Config.get("base")
+        The logarithm base for entropy calculation. Common values are 2 (bits),
+        10 (dits), or 'e' (nats).
 
-    def __init__(self, *data, base: LogBaseType = Config.get("base")):
-        """Initialize the DiscreteEntropyEstimator."""
-        super().__init__(*data, base=base)
-        # warn if the data looks like a float array
-        for i_var in range(len(data)):
-            if (
-                isinstance(self.data[i_var], ndarray)
-                and self.data[i_var].dtype.kind == "f"
-            ):
-                logger.warning(
-                    "The data looks like a float array ("
-                    f"{self.data[i_var].dtype}). "
-                    "Make sure it is properly symbolized or discretized "
-                    "for the entropy estimation."
-                )
-            elif isinstance(self.data[i_var], tuple) and any(
-                isinstance(marginal, ndarray) and marginal.dtype.kind == "f"
-                for marginal in self.data[i_var]
-            ):
-                logger.warning(
-                    "Some of the data looks like a float array. "
-                    "Make sure it is properly symbolized or discretized "
-                    "for the entropy estimation."
-                )
-        # reduce any joint space if applicable
-        reduce = tuple(
-            (isinstance(var, ndarray) and var.ndim > 1) or isinstance(var, tuple)
-            for var in self.data
-        )
-        if any(reduce):
-            # As the discrete shannon entropy disregards the order of the data,
-            # we can reduce the values to unique integers.
-            # In case of having multiple random variables (tuple or list),
-            # this enumerates the unique co-occurrences.
-            self.data = tuple(
-                reduce_joint_space(var) if red else var
-                for var, red in zip(self.data, reduce)
-            )
+    Examples
+    --------
+    >>> import infomeasure as im
+    >>> # Simple entropy calculation
+    >>> data = [1, 1, 2, 3, 3, 4, 5]
+    >>> entropy_value = im.entropy(data, approach="discrete")
+    >>> print(f"Entropy: {entropy_value:.3f} nats")
+    Entropy: 1.550 nats
+    >>> # Local values
+    >>> estimator = im.estimator(data, measure="h", approach="discrete")
+    >>> estimator.local_vals()
+    array([1.25276297, 1.25276297, 1.94591015, 1.25276297, 1.25276297,
+       1.94591015, 1.94591015])
+    """
 
     def _simple_entropy(self):
         """Calculate the entropy of the data.
@@ -66,21 +71,14 @@ class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
         float
             The calculated entropy.
         """
-        uniq, counts, self.dist_dict = unique_vals(self.data[0])
-        probabilities = asarray(list(self.dist_dict.values()))
+        probabilities = self.data[0].probabilities
         # Calculate the entropy
         return -np_sum(probabilities * self._log_base(probabilities))
 
-    def _joint_entropy(self):
-        """Calculate the joint entropy of the data.
-
-        Returns
-        -------
-        float
-            The calculated joint entropy.
-        """
-        # The data has already been reduced to unique values of co-occurrences
-        return self._simple_entropy()
+    @property
+    def dist_dict(self):
+        """Return the distribution dictionary for JSD."""
+        return self.data[0].distribution_dict
 
     def _extract_local_values(self):
         """Separately, calculate the local values.
@@ -90,7 +88,8 @@ class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
         ndarray[float]
             The calculated local values of entropy.
         """
-        p_local = [self.dist_dict[val] for val in self.data[0]]
+        distribution_dict = dict(zip(self.data[0].uniq, self.data[0].probabilities))
+        p_local = [distribution_dict[val] for val in self.data[0].data]
         return -self._log_base(p_local)
 
     def _cross_entropy(self) -> float:
@@ -102,8 +101,10 @@ class DiscreteEntropyEstimator(DistributionMixin, EntropyEstimator):
             The calculated cross-entropy.
         """
         # Calculate distribution of both data sets
-        uniq_p, counts_p, dist_p = unique_vals(self.data[0])
-        uniq_q, counts_q, dist_q = unique_vals(self.data[1])
+        uniq_p = self.data[0].uniq
+        dist_p = self.data[0].distribution_dict
+        uniq_q = self.data[1].uniq
+        dist_q = self.data[1].distribution_dict
         # Only consider the values where both RV have the same support
         uniq = list(set(uniq_p).intersection(set(uniq_q)))  # P ∩ Q
         if len(uniq) == 0:

@@ -36,18 +36,20 @@ def test_faulty_estimator_local_values(calc_vals):
         faulty_estimator.result()
 
 
-def test_faulty_local_vals():
+def test_faulty_local_vals(caplog):
     """Test estimator when mean(local) != global."""
     faulty_estimator = ExampleTestEstimator(calc_vals=5, local_values=array([5, 6]))
     faulty_estimator.data = (1,)
-    with pytest.raises(RuntimeError, match="Mean of local values"):
-        faulty_estimator.local_vals()
-    faulty_estimator.local_vals()  # Only raises the error once
+    faulty_estimator.local_vals()
+    assert "Mean of local values" in caplog.text
+    caplog.clear()
+    faulty_estimator.local_vals()  # Only warn once
+    assert "Mean of local values" not in caplog.text
 
     faulty_estimator = ExampleTestEstimator(calc_vals=5, local_values=array([5, 6]))
     faulty_estimator.data = (1, 2, 3, 4, 5, 6)
-    with pytest.raises(RuntimeError, match="As you are using 6 random variables"):
-        faulty_estimator.local_vals()
+    faulty_estimator.local_vals()
+    assert "As you are using 6 random variables" in caplog.text
 
 
 def test_faulty_call_not_overwritten():

@@ -4,6 +4,8 @@ import pytest
 from numpy import pi, e, log as np_log
 
 import infomeasure as im
+from infomeasure import get_estimator_class
+from infomeasure.estimators.base import DiscreteHEstimator
 
 
 def analytical_entropy(sigma, base=im.Config.get("base")):
@@ -24,7 +26,8 @@ def test_entropy_gaussian(entropy_approach, sigma, base, default_rng):
     """
     approach_str, needed_kwargs = entropy_approach
     data = default_rng.normal(loc=0, scale=sigma, size=1000)
-    if approach_str == "discrete":
+    entropy_class = get_estimator_class(measure="entropy", approach=approach_str)
+    if issubclass(entropy_class, DiscreteHEstimator):
         data = data.astype(int)
     # if alpha or q in needed_kwargs, set it to 1
     for key in ["alpha", "q"]:
@@ -32,8 +35,8 @@ def test_entropy_gaussian(entropy_approach, sigma, base, default_rng):
             needed_kwargs[key] = 1
     needed_kwargs["base"] = base
     est = im.estimator(data, measure="entropy", approach=approach_str, **needed_kwargs)
-    if (approach_str in ["ordinal", "symbolic", "permutation"]) or (
-        approach_str == "discrete" and sigma < 3
+    if (approach_str in ["ordinal", "symbolic", "permutation", "ansb", "nsb"]) or (
+        issubclass(entropy_class, DiscreteHEstimator) and sigma < 3
     ):
         assert pytest.approx(est.global_val(), rel=0.1) != analytical_entropy(
             sigma, base

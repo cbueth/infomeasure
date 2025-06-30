@@ -214,7 +214,7 @@ im.te(a, b, cond=c, ...)              # correct
 ## 2. Estimator classes
 
 Estimator classes need to be used to obtain more specific results,
-like local values, P-values, and t-scores.
+like local values, _p_-values, _t_-scores and confidence intervals.
 `infomeasure` provides a set of classes that are used under the hood for the utility functions we just discussed.
 These classes can be used directly to calculate the information measures, or to access specific results and methods.
 With the {py:func}`im.estimator() <infomeasure.estimator>` function, you can create an estimator instance:
@@ -259,16 +259,21 @@ est.local_vals()
 ### Hypothesis testing
 
 To perform hypothesis testing on the global value of an estimator,
-use the {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>` and
-{py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>` methods.
-Both mutual information and transfer entropy estimators support hypothesis testing.
+use the {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` method.
+Both mutual information and transfer entropy estimators support comprehensive statistical testing
+that provides _p_-values, _t_-scores, and confidence intervals in a single method call.
 
 ```{code-cell}
 est = im.estimator(a, b, measure="mutual_information",
                    approach="kernel", bandwidth=0.2, kernel="box")
-(est.result(), est.p_value(n_tests = 50, method="permutation_test"),
-est.t_score(n_tests = 50, method="permutation_test"))
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+(est.result(), stat_test.p_value, stat_test.t_score,
+ stat_test.confidence_interval(90), stat_test.percentile(50))
 ```
+
+The {py:class}`StatisticalTestResult <infomeasure.estimators.base.StatisticalTestResult>` object
+contains comprehensive statistical information including _p_-value, _t_-score, and metadata
+about the test performed.
 
 Two methods for resampling are available for hypothesis testing:
 
@@ -279,12 +284,33 @@ Resampling one of the two random variables is removing the relationships between
 and thus used as null hypothesis.
 
 ```{code-cell}
-est.p_value(method="bootstrap", n_tests=100), est.t_score()
+stat_test = est.statistical_test(method="bootstrap", n_tests=100)
+(stat_test.p_value, stat_test.t_score,
+ stat_test.confidence_interval(90), stat_test.percentile(50))
 ```
 
-When calling both p-value and t-score sequentially,
-not passing any parameters in the second call will use the parameters used in the previous call,
-as seen in the previous code cell.
+#### Confidence intervals and percentiles
+
+The statistical test result provides flexible access to confidence intervals and percentiles
+of the null distribution:
+
+```{code-cell}
+# Get confidence intervals
+ci_95 = stat_test.confidence_interval(95)  # 95% confidence interval
+ci_90 = stat_test.confidence_interval(90)  # 90% confidence interval
+
+# Get specific percentiles
+median = stat_test.percentile(50)  # Median of null distribution
+quartiles = stat_test.percentile([25, 75])  # First and third quartiles
+
+print(f"95% CI: [{ci_95[0]:.4f}, {ci_95[1]:.4f}]")
+print(f"90% CI: [{ci_90[0]:.4f}, {ci_90[1]:.4f}]")
+print(f"Median: {median:.4f}")
+print(f"Quartiles: [{quartiles[0]:.4f}, {quartiles[1]:.4f}]")
+```
+
+The confidence intervals and percentiles are calculated on demand from the test values,
+providing maximum flexibility for statistical analysis.
 
 ### Effective value
 
@@ -311,7 +337,7 @@ The {ref}`following table <estimator-functions>` shows the available information
 *   - Estimator
     - {py:func}`result() <infomeasure.estimators.base.Estimator.result>` {py:func}`global_val() <infomeasure.estimators.base.Estimator.global_val>`
     - {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`
-    - {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>` {py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>`
+    - {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` (_p_-value, _t_-score, CI)
     - {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`
 *   - {ref}`Entropy <entropy_overview>` & {ref}`Joint Entropy`
     -
@@ -424,11 +450,10 @@ The methods from the table do the following:
 
 - {py:func}`result() <infomeasure.estimators.base.Estimator.result>` & {py:func}`global_val() <infomeasure.estimators.base.Estimator.global_val>`: Returns the global value of the information measure.
 - {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`: Returns the local values of the information measure.
-- {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>`: Returns the p-value of the information measure.
-- {py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>`: Returns the t-score of the information measure.
+- {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>`: Returns comprehensive statistical test results including _p_-value, _t_-score, and confidence intervals.
 - {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`: Returns the effective transfer entropy.
 - {py:func}`distribution() <infomeasure.estimators.base.DistributionMixin.distribution>`: Returns dictionary of the unique values and their frequencies (just available for discrete and ordinal entropy estimator).
 
 For {ref}`CMI <Conditional MI>` and {ref}`CTE <Conditional TE>`,
-the {ref}`hypothesis testing` methods {py:func}`p_value() <infomeasure.estimators.base.PValueMixin.p_value>` and {py:func}`t_score() <infomeasure.estimators.base.PValueMixin.t_score>` are not available, neither the {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>` method.
+the {ref}`hypothesis testing` method {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` is not available, neither the {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>` method.
 This is because the shuffling is not trivial for more than two inputs.

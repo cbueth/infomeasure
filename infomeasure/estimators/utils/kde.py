@@ -37,7 +37,7 @@ def kde_probability_density_function(
         A numpy array of points at which to evaluate the KDE.
         If None, the KDE is evaluated at the data points.
     kernel : str
-        Type of kernel to use ('gaussian' or 'box').
+        Type of kernel to use (``'gaussian'`` or ``'box'``).
     workers : int
         Number of parallel processes to use.
         -1: Use all available CPU cores.

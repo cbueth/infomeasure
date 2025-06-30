@@ -5,11 +5,10 @@ from abc import ABC
 from numpy import issubdtype, integer
 
 from ..base import (
-    PValueMixin,
-    EffectiveValueMixin,
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
+
 from ..entropy.renyi import RenyiEntropyEstimator
 from ... import Config
 from ...utils.types import LogBaseType
@@ -73,6 +72,7 @@ class BaseRenyiTEEstimator(ABC):
         cond_hist_len: int = 1,
         offset: int = None,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         """Initialize the BaseRenyiTEEstimator.
 
@@ -112,6 +112,7 @@ class BaseRenyiTEEstimator(ABC):
                 step_size=step_size,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         else:
             super().__init__(
@@ -125,6 +126,7 @@ class BaseRenyiTEEstimator(ABC):
                 prop_time=prop_time,
                 offset=offset,
                 base=base,
+                **kwargs,
             )
         if not isinstance(alpha, (int, float)) or alpha <= 0:
             raise ValueError("The Renyi parameter must be a positive number.")
@@ -139,9 +141,7 @@ class BaseRenyiTEEstimator(ABC):
         self.noise_level = noise_level
 
 
-class RenyiTEEstimator(
-    BaseRenyiTEEstimator, PValueMixin, EffectiveValueMixin, TransferEntropyEstimator
-):
+class RenyiTEEstimator(BaseRenyiTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Renyi transfer entropy.
 
     Attributes

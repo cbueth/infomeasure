@@ -33,7 +33,7 @@ p(y_{n+1+u}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})
 $$
 
 ## Local Transfer Entropy
-Similar to {ref}`Local Entropy` and {ref}`Local Mutual Information`, we can extract the **local or point-wise transfer entropy** as suggested by Lizier _et al._ {cite:p}`Lizier2014,local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realization $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
+Similar to {ref}`Local Entropy` and {ref}`Local Mutual Information`, we can extract the **local or point-wise transfer entropy** as suggested by Lizier _et al._ {cite:p}`Lizier2014,local_TE_Lizier`.  It is the amount of information transfer attributed to the specific realisation $(x_{n+1}, \mathbf{X}_n^{(k)}, \mathbf{Y}_n^{(l)})$ at time step $n+1$; i.e., the amount of information transfer from process $X$ to $Y$ at time step $n+1$:
 
 $$
 t_{X \rightarrow Y}(n+1, k, l) = -\log \left(\frac{p(y_{n+1} \mid \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)})}

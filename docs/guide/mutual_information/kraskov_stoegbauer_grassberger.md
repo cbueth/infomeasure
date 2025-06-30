@@ -39,7 +39,7 @@ where:
 For interaction information, the above formula is extended in the sum, and $\psi(N)$ is multiplied by $(1-m)$, with the number of RVs $m$.
 
 To demonstrate this MI, we generate a multivariate Gaussian distribution with two dimensions.
-The data is centered around the origin and has a correlation coefficient of $\rho = 0.5$.
+The data is centred around the origin and has a correlation coefficient of $\rho = 0.5$.
 For Gaussian random variables, we know the analytical MI is given by:
 
 $$
@@ -88,7 +88,8 @@ im.mutual_information(data_x, data_y, data_z, approach="metric")
 
 ```{code-cell}
 est = im.estimator(data_x, data_y, measure="mi", approach="metric")
-est.local_vals(), est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+est.local_vals(), stat_test.p_value, stat_test.t_score, stat_test.confidence_interval(90), stat_test.percentile(50)
 ```
 
 The estimator is implemented in the {py:class}`KSGMIEstimator <infomeasure.estimators.mutual_information.kraskov_stoegbauer_grassberger.KSGMIEstimator>` class,

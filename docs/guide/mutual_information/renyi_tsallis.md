@@ -31,7 +31,7 @@ where
 
 
 To demonstrate these approaches of MI, we generate a multivariate Gaussian distribution with two dimensions.
-The data is centered around the origin and has a correlation coefficient of $\rho = 0.5$.
+The data is centred around the origin and has a correlation coefficient of $\rho = 0.5$.
 For Gaussian random variables, we know the analytical MI is given by:
 
 $$
@@ -83,7 +83,8 @@ but {ref}`hypothesis testing` is.
 
 ```{code-cell}
 est = im.estimator(data_x, data_y, measure="mi", approach="renyi", alpha=1.0)
-est.p_value(n_tests = 50, method="permutation_test"), est.t_score()
+stat_test = est.statistical_test(n_tests=50, method="permutation_test")
+stat_test.p_value, stat_test.t_score, stat_test.confidence_interval(90), stat_test.percentile(50)
 ```
 
 The estimators are implemented in the {py:class}`RenyiMIEstimator <infomeasure.estimators.mutual_information.renyi.RenyiMIEstimator>` and {py:class}`TsallisMIEstimator <infomeasure.estimators.mutual_information.tsallis.TsallisMIEstimator>` class,

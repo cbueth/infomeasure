@@ -15,7 +15,7 @@ $$
 where $p(x)$ is the probability mass function (pmf).
 
 Ordinal entropy is builds on Shannon entropy, but accepts continuous variables.
-Instead of focusing on single realizations of a variable, ordinal entropy focuses on the order or sequence of values in a dataset.
+Instead of focusing on single realisations of a variable, ordinal entropy focuses on the order or sequence of values in a dataset.
 From the time series $\{x_t\}_{t=1, \ldots, T}$, a sliding window of size $s$, called embedding dimension or order, is used to generate subsets of the data.
 These ordinal sequences are the permutation patterns of the subsets,
 describing the relative change.
@@ -24,7 +24,7 @@ The symbol assigned to each subset carries attributes of the data, as determined
 
 ```{admonition} Example for $s = 2$
 
-For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time series will be analyzed as:
+For order $( s = 2 )$, each subsequence $( \{x(t), x(t+1)\} )$ of the time series will be analysed as:
 
 - If $( x(t) < x(t+1) )$, the pattern type is $(0, 1)$.
 - Conversely, if $( x(t) > x(t+1) )$, the pattern type is $(1, 0)$.
@@ -63,7 +63,7 @@ The ordinal entropy is bounded between 0 and $\log(n!)$.
 
 
 For demonstration, we generate a dataset of normally distributed values with mean $0$ and standard deviation $1$.
-The analytical equation of the other approaches does not hold; as for ordinal entropy, the pmf of the ordinal patterns is analyzed.
+The analytical equation of the other approaches does not hold; as for ordinal entropy, the pmf of the ordinal patterns is analysed.
 
 ```{code-cell}
 import numpy as np

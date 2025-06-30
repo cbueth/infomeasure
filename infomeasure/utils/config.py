@@ -44,7 +44,8 @@ class Config:
     Default settings:
 
     - ``base``: "e" (nats)
-    - ``p_value_method``: "permutation_test"
+    - ``statistical_test_method``: "permutation_test"
+    - ``statistical_test_n_tests``: 200
 
     Attributes
     ----------
@@ -59,10 +60,15 @@ class Config:
             "types": int | float,
             "explicitly_allowed": ["e"],
         },
-        "p_value_method": {
+        "statistical_test_method": {
             "value": "permutation_test",
             "types": None,
             "explicitly_allowed": ["permutation_test", "bootstrap"],
+        },
+        "statistical_test_n_tests": {
+            "value": 200,
+            "types": int,
+            "explicitly_allowed": None,
         },
     }
     _settings = {key: value["value"] for key, value in __default_settings.items()}
@@ -98,7 +104,7 @@ class Config:
         Raises
         ------
         KeyError
-            If the key is not recognized.
+            If the key is not recognised.
         TypeError
             If the value is not of the correct type.
         """
@@ -151,7 +157,7 @@ class Config:
         Raises
         ------
         ValueError
-            If the unit is not recognized.
+            If the unit is not recognised.
         """
         unit = unit.lower()
         for base, units in BASE_UNIT_MAP.items():

@@ -19,7 +19,7 @@ compare with analytical results.
 :link: schreiber_article
 :link-type: ref
 Reproduce Schreiber’s seminal paper **“Measuring Information Transfer”**.\
-Analyze tent and Ulam map with TE and MI.
+Analyse tent and Ulam map with TE and MI.
 +++
 {ref}`See demo »<schreiber_article>`
 :::

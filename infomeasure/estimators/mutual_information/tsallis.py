@@ -5,10 +5,10 @@ from abc import ABC
 from numpy import issubdtype, integer
 
 from ..base import (
-    PValueMixin,
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
+
 from ..entropy.tsallis import TsallisEntropyEstimator
 from ... import Config
 from ...utils.types import LogBaseType
@@ -51,6 +51,7 @@ class BaseTsallisMIEstimator(ABC):
         offset: int = 0,
         normalize: bool = False,
         base: LogBaseType = Config.get("base"),
+        **kwargs,
     ):
         r"""Initialize the BaseTsallisMIEstimator.
 
@@ -86,10 +87,17 @@ class BaseTsallisMIEstimator(ABC):
             If the number of nearest neighbors is not a positive integer.
         """
         if cond is None:
-            super().__init__(*data, offset=offset, normalize=normalize, base=base)
+            super().__init__(
+                *data, offset=offset, normalize=normalize, base=base, **kwargs
+            )
         else:
             super().__init__(
-                *data, cond=cond, offset=offset, normalize=normalize, base=base
+                *data,
+                cond=cond,
+                offset=offset,
+                normalize=normalize,
+                base=base,
+                **kwargs,
             )
 
         if not isinstance(q, (int, float)) or q <= 0:
@@ -104,9 +112,7 @@ class BaseTsallisMIEstimator(ABC):
         self.noise_level = noise_level
 
 
-class TsallisMIEstimator(
-    BaseTsallisMIEstimator, PValueMixin, MutualInformationEstimator
-):
+class TsallisMIEstimator(BaseTsallisMIEstimator, MutualInformationEstimator):
     r"""Estimator for the Tsallis mutual information.
 
     Attributes
