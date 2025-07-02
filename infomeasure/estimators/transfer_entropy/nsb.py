@@ -65,8 +65,8 @@ class BaseNsbTEEstimator(ABC):
             The source (X) and destination (Y) data used to estimate the transfer entropy.
         cond : array-like, optional
             The conditional data used to estimate the conditional transfer entropy.
-    K : int, optional
-        The support size. If not provided, uses the observed support size.
+        K : int, optional
+            The support size. If not provided, uses the observed support size.
         prop_time : int, optional
             Number of positions to shift the data arrays relative to each other (multiple of
             ``step_size``).
@@ -81,7 +81,6 @@ class BaseNsbTEEstimator(ABC):
         cond_hist_len : int, optional
             Number of past observations to consider for the conditional data.
             Only used for conditional transfer entropy.
-
         """
         if cond is None:
             super().__init__(
@@ -111,7 +110,7 @@ class BaseNsbTEEstimator(ABC):
             )
         if K is not None and (not isinstance(K, int) or K <= 0):
             raise ValueError("The K parameter must be a positive integer.")
-        
+
         self.K = K
 
 
@@ -139,7 +138,7 @@ class NsbTEEstimator(BaseNsbTEEstimator, TransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the Nsb entropy estimator to compute transfer 
+    This estimator uses the Nsb entropy estimator to compute transfer
     entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_te_from_entropy)
@@ -179,7 +178,7 @@ class NsbCTEEstimator(BaseNsbTEEstimator, ConditionalTransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the Nsb entropy estimator to compute conditional 
+    This estimator uses the Nsb entropy estimator to compute conditional
     transfer entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cte_from_entropy)

@@ -36,7 +36,6 @@ class BaseChaoShenMIEstimator(ABC):
         self,
         *data,
         cond=None,
-        
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
         **kwargs,
@@ -58,9 +57,7 @@ class BaseChaoShenMIEstimator(ABC):
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -69,7 +66,6 @@ class BaseChaoShenMIEstimator(ABC):
                 base=base,
                 **kwargs,
             )
-
 
 
 class ChaoShenMIEstimator(BaseChaoShenMIEstimator, MutualInformationEstimator):
@@ -89,7 +85,7 @@ class ChaoShenMIEstimator(BaseChaoShenMIEstimator, MutualInformationEstimator):
 
     Notes
     -----
-    This estimator uses the ChaoShen entropy estimator to compute mutual 
+    This estimator uses the ChaoShen entropy estimator to compute mutual
     information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_mi_from_entropy)
@@ -116,7 +112,9 @@ class ChaoShenMIEstimator(BaseChaoShenMIEstimator, MutualInformationEstimator):
         )
 
 
-class ChaoShenCMIEstimator(BaseChaoShenMIEstimator, ConditionalMutualInformationEstimator):
+class ChaoShenCMIEstimator(
+    BaseChaoShenMIEstimator, ConditionalMutualInformationEstimator
+):
     r"""Estimator for the conditional ChaoShen mutual information.
 
     ChaoShen conditional mutual information estimator using the entropy combination formula.
@@ -135,7 +133,7 @@ class ChaoShenCMIEstimator(BaseChaoShenMIEstimator, ConditionalMutualInformation
 
     Notes
     -----
-    This estimator uses the ChaoShen entropy estimator to compute conditional 
+    This estimator uses the ChaoShen entropy estimator to compute conditional
     mutual information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cmi_from_entropy)

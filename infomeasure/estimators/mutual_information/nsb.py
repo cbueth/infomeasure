@@ -52,17 +52,15 @@ class BaseNsbMIEstimator(ABC):
             For conditional mutual information, only two data arrays are allowed.
         cond : array-like, optional
             The conditional data used to estimate the conditional mutual information.
-    K : int, optional
-        The support size. If not provided, uses the observed support size.
+        K : int, optional
+            The support size. If not provided, uses the observed support size.
         offset : int, optional
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -73,7 +71,7 @@ class BaseNsbMIEstimator(ABC):
             )
         if K is not None and (not isinstance(K, int) or K <= 0):
             raise ValueError("The K parameter must be a positive integer.")
-        
+
         self.K = K
 
 
@@ -95,7 +93,7 @@ class NsbMIEstimator(BaseNsbMIEstimator, MutualInformationEstimator):
 
     Notes
     -----
-    This estimator uses the Nsb entropy estimator to compute mutual 
+    This estimator uses the Nsb entropy estimator to compute mutual
     information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_mi_from_entropy)
@@ -142,7 +140,7 @@ class NsbCMIEstimator(BaseNsbMIEstimator, ConditionalMutualInformationEstimator)
 
     Notes
     -----
-    This estimator uses the Nsb entropy estimator to compute conditional 
+    This estimator uses the Nsb entropy estimator to compute conditional
     mutual information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cmi_from_entropy)

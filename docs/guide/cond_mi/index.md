@@ -64,6 +64,18 @@ $$
 While the package uses this formula internally for the Rényi and Tsallis CMI,
 all other approaches each are calculated with dedicated, probabilistic implementations.
 
+### Available Discrete Estimators
+
+Conditional mutual information supports all the same discrete estimators as regular mutual information:
+
+- **Basic Estimators**: `discrete` (MLE), `miller_madow`
+- **Bias-Corrected**: `grassberger`, `shrink` (James-Stein)
+- **Coverage-Based**: `chao_shen`, `chao_wang_jost`
+- **Bayesian**: `bayes`, `nsb`, `ansb`
+- **Specialized**: `zhang`, `bonachela`
+
+For detailed guidance on estimator selection, see the {ref}`estimator_selection_guide`.
+
 ```{code-cell}
 import infomeasure as im
 
@@ -75,6 +87,23 @@ cmi_ksg = im.cmi(x, y, cond=z, approach='ksg')
 cmi_kernel = im.cmi(x, y, cond=z, approach='kernel', kernel='box', bandwidth=1.5)
 cmi_symbolic = im.cmi(x, y, cond=z, approach='symbolic', embedding_dim=3)
 cmi, cmi_ksg, cmi_kernel, cmi_symbolic
+```
+
+Examples with new `v0.5.0` discrete estimators:
+
+```{code-cell}
+# NSB estimator (best for correlated data)
+cmi_nsb = im.cmi(x, y, cond=z, approach='nsb')
+
+# Miller-Madow estimator (simple bias correction)
+cmi_mm = im.cmi(x, y, cond=z, approach='miller_madow')
+
+# Shrinkage estimator (good for small independent samples)
+cmi_shrink = im.cmi(x, y, cond=z, approach='shrink')
+
+print(f"CMI (NSB): {cmi_nsb:.6f}")
+print(f"CMI (Miller-Madow): {cmi_mm:.6f}")
+print(f"CMI (Shrinkage): {cmi_shrink:.6f}")
 ```
 
 With four variables, the CMI is calculated as follows:

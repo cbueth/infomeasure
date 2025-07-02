@@ -46,7 +46,6 @@ class BaseChaoShenTEEstimator(ABC):
         dest,
         *,  # Enforce keyword-only arguments
         cond=None,
-        
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -109,7 +108,6 @@ class BaseChaoShenTEEstimator(ABC):
             )
 
 
-
 class ChaoShenTEEstimator(BaseChaoShenTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the ChaoShen transfer entropy.
 
@@ -133,7 +131,7 @@ class ChaoShenTEEstimator(BaseChaoShenTEEstimator, TransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the ChaoShen entropy estimator to compute transfer 
+    This estimator uses the ChaoShen entropy estimator to compute transfer
     entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_te_from_entropy)
@@ -153,7 +151,9 @@ class ChaoShenTEEstimator(BaseChaoShenTEEstimator, TransferEntropyEstimator):
         )
 
 
-class ChaoShenCTEEstimator(BaseChaoShenTEEstimator, ConditionalTransferEntropyEstimator):
+class ChaoShenCTEEstimator(
+    BaseChaoShenTEEstimator, ConditionalTransferEntropyEstimator
+):
     r"""Estimator for the ChaoShen conditional transfer entropy.
 
     ChaoShen conditional transfer entropy estimator using the entropy combination formula.
@@ -172,7 +172,7 @@ class ChaoShenCTEEstimator(BaseChaoShenTEEstimator, ConditionalTransferEntropyEs
 
     Notes
     -----
-    This estimator uses the ChaoShen entropy estimator to compute conditional 
+    This estimator uses the ChaoShen entropy estimator to compute conditional
     transfer entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cte_from_entropy)

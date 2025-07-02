@@ -40,6 +40,7 @@ extensions = [
     "sphinx.ext.inheritance_diagram",
     "sphinxcontrib.bibtex",
     "sphinx_design",  # Further directives
+    "sphinxcontrib.mermaid",
 ]
 
 templates_path = ["_templates"]

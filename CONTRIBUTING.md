@@ -43,8 +43,8 @@ the following:
 
 - Open an [Issue](https://github.com/cbueth/infomeasure/issues/new).
 - Provide as much context as you can about what you're running into.
-- Provide project and platform versions (operating system, `conda list`/`pip list`), depending on
-  what seems relevant.
+- Provide project and platform versions (operating system, `conda list`/`pip list`),
+  depending on what seems relevant.
 
 We will then take care of the issue as soon as possible.
 
@@ -69,8 +69,9 @@ us fix any potential bug as fast as possible.
 - Make sure that you are using the latest version.
 - Determine if your bug is really a bug and not an error on your side, e.g., using
   incompatible environment components/versions (Make sure that you have read
-  the [documentation](https://infomeasure.readthedocs.io/). If you are looking for support, you
-  might want to check [this section](#i-have-a-question)).
+  the [documentation](https://infomeasure.readthedocs.io/).
+  If you are looking for support,
+  you might want to check [this section](#i-have-a-question)).
 - To see if other users have experienced (and potentially already solved) the same issue
   you are having, check if there is not already a bug report existing for your bug or
   error in
@@ -126,7 +127,8 @@ suggestion and find related suggestions.
 #### Before Submitting an Enhancement
 
 - Make sure that you are using the latest version.
-- Read the [documentation](https://infomeasure.readthedocs.io/) carefully and find out if the
+- Read the [documentation](https://infomeasure.readthedocs.io/) carefully and find out
+  if the
   functionality is already covered, maybe by an individual configuration.
 - Perform a [search](https://github.com/cbueth/infomeasure/issues) to see if the
   enhancement has already been suggested. If it has, add a comment to the existing issue
@@ -164,7 +166,7 @@ When doing so, we recommend setting up your development environment with the
 development dependencies and an editable installation of the package, like so:
 
 ```bash
-conda create -n im_env -c conda-forge python=3.13 -f requirements/build_requirements.txt \
+conda create -n im_env -c conda-forge python -f requirements/build_requirements.txt \
   -f requirements/linter_requirements.txt \
   -f requirements/test_requirements.txt \
   -f requirements/doc_requirements.txt \

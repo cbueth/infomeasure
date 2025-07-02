@@ -37,6 +37,8 @@ class AnsbEntropyEstimator(DiscreteHEstimator):
     ----------
     *data : array-like
         The data used to estimate the entropy.
+    K : int, optional
+        The support size. If not provided, uses the observed support size.
     undersampled : float, default=0.1
         Maximum allowed ratio N/K to consider data sufficiently undersampled.
         A warning is issued if this threshold is exceeded.
@@ -63,10 +65,15 @@ class AnsbEntropyEstimator(DiscreteHEstimator):
     """
 
     def __init__(
-        self, *data, undersampled: float = 0.1, base: LogBaseType = Config.get("base")
+        self,
+        *data,
+        K: int = None,
+        undersampled: float = 0.1,
+        base: LogBaseType = Config.get("base"),
     ):
         """Initialize the ANSB entropy estimator."""
         super().__init__(*data, base=base)
+        self.k_given = K
         self.undersampled = undersampled
 
     def _simple_entropy(self):
@@ -78,7 +85,7 @@ class AnsbEntropyEstimator(DiscreteHEstimator):
             The calculated ANSB entropy. If std_dev=True, returns (entropy, std_dev).
         """
         N = self.data[0].N
-        K = self.data[0].K
+        K = self.data[0].K if self.k_given is None else self.k_given
 
         # Check if data is sufficiently undersampled
         ratio = N / K if K > 0 else float("inf")

@@ -53,18 +53,16 @@ class BaseAnsbMIEstimator(ABC):
             For conditional mutual information, only two data arrays are allowed.
         cond : array-like, optional
             The conditional data used to estimate the conditional mutual information.
-    undersampled : float, default=0.1
-        Maximum allowed ratio N/K to consider data sufficiently undersampled.
-        A warning is issued if this threshold is exceeded.
-        offset : int, optional
-            Number of positions to shift the X and Y data arrays relative to each other.
-            Delay/lag/shift between the variables. Default is no shift.
-            Not compatible with the ``cond`` parameter / conditional MI.
+        undersampled : float, default=0.1
+            Maximum allowed ratio N/K to consider data sufficiently undersampled.
+            A warning is issued if this threshold is exceeded.
+            offset : int, optional
+                Number of positions to shift the X and Y data arrays relative to each other.
+                Delay/lag/shift between the variables. Default is no shift.
+                Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -75,7 +73,7 @@ class BaseAnsbMIEstimator(ABC):
             )
         if undersampled < 0:
             raise ValueError("The `undersampled` parameter must not be negative.")
-        
+
         self.undersampled = undersampled
 
 
@@ -98,7 +96,7 @@ class AnsbMIEstimator(BaseAnsbMIEstimator, MutualInformationEstimator):
 
     Notes
     -----
-    This estimator uses the Ansb entropy estimator to compute mutual 
+    This estimator uses the Ansb entropy estimator to compute mutual
     information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_mi_from_entropy)
@@ -146,7 +144,7 @@ class AnsbCMIEstimator(BaseAnsbMIEstimator, ConditionalMutualInformationEstimato
 
     Notes
     -----
-    This estimator uses the Ansb entropy estimator to compute conditional 
+    This estimator uses the Ansb entropy estimator to compute conditional
     mutual information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cmi_from_entropy)

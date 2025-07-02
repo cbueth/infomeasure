@@ -36,7 +36,6 @@ class BaseChaoWangJostMIEstimator(ABC):
         self,
         *data,
         cond=None,
-        
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
         **kwargs,
@@ -58,9 +57,7 @@ class BaseChaoWangJostMIEstimator(ABC):
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -69,7 +66,6 @@ class BaseChaoWangJostMIEstimator(ABC):
                 base=base,
                 **kwargs,
             )
-
 
 
 class ChaoWangJostMIEstimator(BaseChaoWangJostMIEstimator, MutualInformationEstimator):
@@ -89,7 +85,7 @@ class ChaoWangJostMIEstimator(BaseChaoWangJostMIEstimator, MutualInformationEsti
 
     Notes
     -----
-    This estimator uses the ChaoWangJost entropy estimator to compute mutual 
+    This estimator uses the ChaoWangJost entropy estimator to compute mutual
     information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_mi_from_entropy)
@@ -116,7 +112,9 @@ class ChaoWangJostMIEstimator(BaseChaoWangJostMIEstimator, MutualInformationEsti
         )
 
 
-class ChaoWangJostCMIEstimator(BaseChaoWangJostMIEstimator, ConditionalMutualInformationEstimator):
+class ChaoWangJostCMIEstimator(
+    BaseChaoWangJostMIEstimator, ConditionalMutualInformationEstimator
+):
     r"""Estimator for the conditional ChaoWangJost mutual information.
 
     ChaoWangJost conditional mutual information estimator using the entropy combination formula.
@@ -135,7 +133,7 @@ class ChaoWangJostCMIEstimator(BaseChaoWangJostMIEstimator, ConditionalMutualInf
 
     Notes
     -----
-    This estimator uses the ChaoWangJost entropy estimator to compute conditional 
+    This estimator uses the ChaoWangJost entropy estimator to compute conditional
     mutual information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cmi_from_entropy)

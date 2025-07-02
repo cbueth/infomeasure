@@ -46,7 +46,6 @@ class BaseZhangTEEstimator(ABC):
         dest,
         *,  # Enforce keyword-only arguments
         cond=None,
-        
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -109,7 +108,6 @@ class BaseZhangTEEstimator(ABC):
             )
 
 
-
 class ZhangTEEstimator(BaseZhangTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Zhang transfer entropy.
 
@@ -133,7 +131,7 @@ class ZhangTEEstimator(BaseZhangTEEstimator, TransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the Zhang entropy estimator to compute transfer 
+    This estimator uses the Zhang entropy estimator to compute transfer
     entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_te_from_entropy)
@@ -172,7 +170,7 @@ class ZhangCTEEstimator(BaseZhangTEEstimator, ConditionalTransferEntropyEstimato
 
     Notes
     -----
-    This estimator uses the Zhang entropy estimator to compute conditional 
+    This estimator uses the Zhang entropy estimator to compute conditional
     transfer entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cte_from_entropy)

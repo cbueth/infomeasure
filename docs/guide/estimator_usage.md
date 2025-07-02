@@ -4,6 +4,7 @@ kernelspec:
   name: python3
 ---
 
+(estimator_usage)=
 # Estimator Usage
 This page provides a brief overview of the intended use of the `infomeasure` package.
 There are three ways to use the package:
@@ -50,7 +51,8 @@ or on the approach pages as chapters of the {ref}`entropy_overview` section.
 ### Joint Entropy
 
 Calculating joint entropy $H(X_1, X_2, \ldots, X_n)$ is as simple as calling the same entropy function,
-but passing a {py:class}`tuple` of random variables as the first argument.
+but passing a {py:class}`tuple` of random variables as the first argument, denoting joining the variables.
+If they are passed as separate parameters, {ref}`usage-cross-entropy` would be considered.
 
 ```{code-cell}
 y = rng.choice(["a", "b", "c"], size=1000)  # e.g., using strings as symbols
@@ -60,6 +62,15 @@ im.entropy((x, y, z), approach="discrete")
 
 With these two functions, you can use the chain rule $H(X|Y) = H(X, Y) - H(Y)$ to combine them to calculate the conditional entropy $H(X|Y)$.
 
+```{important}
+If an random variable (RV) is passed as _one_ parameter into a function `im.entropy(x, **kw)`, it is always considered as _one_ RV.
+This is why two separate RVs need to be passed as a tuple, if they should be considered as a joint variable `im.entropy((x, y), **kw)`.
+For discrete data with multiple features per sample `(n_samples, n_features)`, the joint probability is always considered.
+For continuous data, this is also the case.
+When two RVs are considered separately, they will be passed as separate parameters, i.e. `im.entropy(p, q, **kw)` as cross-entropy.
+```
+
+(usage-cross-entropy)=
 ### Cross-Entropy
 
 For two RVs $P$ and $Q$,
@@ -259,7 +270,7 @@ est.local_vals()
 ### Hypothesis testing
 
 To perform hypothesis testing on the global value of an estimator,
-use the {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` method.
+use the {py:func}`~infomeasure.estimators.mixins.StatisticalTestingMixin.statistical_test` method.
 Both mutual information and transfer entropy estimators support comprehensive statistical testing
 that provides _p_-values, _t_-scores, and confidence intervals in a single method call.
 
@@ -271,7 +282,7 @@ stat_test = est.statistical_test(n_tests=50, method="permutation_test")
  stat_test.confidence_interval(90), stat_test.percentile(50))
 ```
 
-The {py:class}`StatisticalTestResult <infomeasure.estimators.base.StatisticalTestResult>` object
+The {py:class}`~infomeasure.utils.data.StatisticalTestResult` object
 contains comprehensive statistical information including _p_-value, _t_-score, and metadata
 about the test performed.
 
@@ -314,7 +325,7 @@ providing maximum flexibility for statistical analysis.
 
 ### Effective value
 
-With {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`
+With {py:func}`infomeasure.estimators.mixins.EffectiveValueMixin.effective_val`
 the {ref}`Effective Transfer Entropy <Effective Transfer Entropy (eTE)>` $\operatorname{eTE}$ can be calculated:
 
 ```{code-cell}
@@ -337,8 +348,8 @@ The {ref}`following table <estimator-functions>` shows the available information
 *   - Estimator
     - {py:func}`result() <infomeasure.estimators.base.Estimator.result>` {py:func}`global_val() <infomeasure.estimators.base.Estimator.global_val>`
     - {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`
-    - {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` (_p_-value, _t_-score, CI)
-    - {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`
+    - {py:func}`~infomeasure.estimators.mixins.StatisticalTestingMixin.statistical_test`
+    - {py:func}`~infomeasure.estimators.mixins.EffectiveValueMixin.effective_val`
 *   - {ref}`Entropy <entropy_overview>` & {ref}`Joint Entropy`
     -
     -
@@ -370,6 +381,56 @@ The {ref}`following table <estimator-functions>` shows the available information
     -
     -
 *   - {py:class}`Tsallis <infomeasure.estimators.entropy.tsallis.TsallisEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`ANSB <infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`Bayes <infomeasure.estimators.entropy.bayes.BayesEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`Bonachela <infomeasure.estimators.entropy.bonachela.BonachelaEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`Chao-Shen <infomeasure.estimators.entropy.chao_shen.ChaoShenEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`Chao Wang Jost <infomeasure.estimators.entropy.chao_wang_jost.ChaoWangJostEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`Grassberger <infomeasure.estimators.entropy.grassberger.GrassbergerEntropyEstimator>`
+    - X
+    - X
+    -
+    -
+*   - {py:class}`Miller-Madow <infomeasure.estimators.entropy.miller_madow.MillerMadowEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`NSB <infomeasure.estimators.entropy.nsb.NsbEntropyEstimator>`
+    - X
+    -
+    -
+    -
+*   - {py:class}`Shrinkage <infomeasure.estimators.entropy.shrink.ShrinkEntropyEstimator>`
+    - X
+    - X[^shrink-local-vals-numerical]
+    -
+    -
+*   - {py:class}`Zhang <infomeasure.estimators.entropy.zhang.ZhangEntropyEstimator>`
     - X
     -
     -
@@ -409,6 +470,56 @@ The {ref}`following table <estimator-functions>` shows the available information
     -
     - X
     -
+*   - {py:class}`ANSB <infomeasure.estimators.mutual_information.ansb.AnsbMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`Bayes <infomeasure.estimators.mutual_information.bayes.BayesMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`Bonachela <infomeasure.estimators.mutual_information.bonachela.BonachelaMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`Chao-Shen <infomeasure.estimators.mutual_information.chao_shen.ChaoShenMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`Chao Wang Jost <infomeasure.estimators.mutual_information.chao_wang_jost.ChaoWangJostMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`Grassberger <infomeasure.estimators.mutual_information.grassberger.GrassbergerMIEstimator>`
+    - X
+    - X
+    - X
+    -
+*   - {py:class}`Miller-Madow <infomeasure.estimators.mutual_information.miller_madow.MillerMadowMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`NSB <infomeasure.estimators.mutual_information.nsb.NsbMIEstimator>`
+    - X
+    -
+    - X
+    -
+*   - {py:class}`Shrinkage <infomeasure.estimators.mutual_information.shrink.ShrinkMIEstimator>`
+    - X
+    - X[^shrink-local-vals-numerical]
+    - X
+    -
+*   - {py:class}`Zhang <infomeasure.estimators.mutual_information.zhang.ZhangMIEstimator>`
+    - X
+    -
+    - X
+    -
 *   - {ref}`Transfer Entropy <transfer_entropy_overview>` & {ref}`CTE <Conditional TE>`
     -
     -
@@ -444,16 +555,63 @@ The {ref}`following table <estimator-functions>` shows the available information
     -
     - X
     - X
+*   - {py:class}`ANSB <infomeasure.estimators.transfer_entropy.ansb.AnsbTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`Bayes <infomeasure.estimators.transfer_entropy.bayes.BayesTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`Bonachela <infomeasure.estimators.transfer_entropy.bonachela.BonachelaTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`Chao-Shen <infomeasure.estimators.transfer_entropy.chao_shen.ChaoShenTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`Chao Wang Jost <infomeasure.estimators.transfer_entropy.chao_wang_jost.ChaoWangJostTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`Grassberger <infomeasure.estimators.transfer_entropy.grassberger.GrassbergerTEEstimator>`
+    - X
+    - X
+    - X
+    - X
+*   - {py:class}`Miller-Madow <infomeasure.estimators.transfer_entropy.miller_madow.MillerMadowTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`NSB <infomeasure.estimators.transfer_entropy.nsb.NsbTEEstimator>`
+    - X
+    -
+    - X
+    - X
+*   - {py:class}`Shrinkage <infomeasure.estimators.transfer_entropy.shrink.ShrinkTEEstimator>`
+    - X
+    - X[^shrink-local-vals-numerical]
+    - X
+    - X
+*   - {py:class}`Zhang <infomeasure.estimators.transfer_entropy.zhang.ZhangTEEstimator>`
+    - X
+    -
+    - X
+    - X
 :::
 
 The methods from the table do the following:
 
 - {py:func}`result() <infomeasure.estimators.base.Estimator.result>` & {py:func}`global_val() <infomeasure.estimators.base.Estimator.global_val>`: Returns the global value of the information measure.
 - {py:func}`local_vals() <infomeasure.estimators.base.Estimator.local_vals>`: Returns the local values of the information measure.
-- {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>`: Returns comprehensive statistical test results including _p_-value, _t_-score, and confidence intervals.
-- {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>`: Returns the effective transfer entropy.
-- {py:func}`distribution() <infomeasure.estimators.base.DistributionMixin.distribution>`: Returns dictionary of the unique values and their frequencies (just available for discrete and ordinal entropy estimator).
+- {py:func}`~infomeasure.estimators.mixins.StatisticalTestingMixin.statistical_test`: Returns comprehensive statistical test results including _p_-value, _t_-score, and confidence intervals.
+- {py:func}`~infomeasure.estimators.mixins.EffectiveValueMixin.effective_val`: Returns the effective transfer entropy.
 
-For {ref}`CMI <Conditional MI>` and {ref}`CTE <Conditional TE>`,
-the {ref}`hypothesis testing` method {py:func}`statistical_test() <infomeasure.estimators.base.StatisticalTestingMixin.statistical_test>` is not available, neither the {py:func}`effective_val() <infomeasure.estimators.base.EffectiveValueMixin.effective_val>` method.
-This is because the shuffling is not trivial for more than two inputs.
+[^shrink-local-vals-numerical]: Due to numerical inaccuracies for the shrink estimator, a warning is logged into the console when the arithmetic mean of the local values is off the global entropy value. This is an inaccuracy which happens due to the algorithm design, but is no concern using this estimator.

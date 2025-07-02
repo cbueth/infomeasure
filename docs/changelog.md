@@ -11,7 +11,7 @@
   - **MINE** {cite:p}`belghaziMutualInformationNeural2018`: Mutual Information Neural Estimation employs gradient descent over neural networks to estimate MI between high-dimensional continuous variables. It is scalable in dimensionality and sample size, trainable through back-propagation, and strongly consistent.
 
   - **NWJ** {cite:p}`nguyenEstimatingDivergenceFunctionals2010`: The Nguyen-Wainwright-Jordan estimator uses convex risk minimization to estimate divergence functionals and likelihood ratios through f-divergence characterization. This approach leverages convexity to ensure robust and efficient estimation. Furthermore, a CMI bound can be obtained using {cite:p}`molavipourConditionalMutualInformation2020`, enabling estimation of TE and CTE.
- 
+
   - **JSD** {cite:p}`hjelmLearningDeepRepresentations2018`: This estimator uses Jensen-Shannon divergence for representation learning by maximizing MI between input and encoder output, incorporating locality structure and adversarial matching for unsupervised learning.
 
   - **TUBA** {cite:p}`pooleVariationalBoundsMutual2019`: Tractable Unnormalized Barber and Agakov estimator provides unbiased estimates and gradients using energy-based variational families to avoid intractable partition functions while maintaining tractability.
@@ -23,6 +23,9 @@
   - **FLO** {cite:p}`guoTightMutualInformation2022`: Fenchel-Legendre Optimization offers a novel contrastive MI estimator that overcomes InfoNCE limitations by achieving tight bounds and provable convergence. It uses unnormalized statistical modeling and convex optimization to improve data efficiency.
 
 - **EEVI**: Estimators of entropy via inference, i.e. using sequential Monte Carlo {cite:p}`saadEstimatorsEntropyInformation2022`.
+
+- **Automatic evaluation of multiple time lags**: For MI and TE estimators, automatic evaluation of multiple time lags to find optimal lag parameters and improve information measure accuracy.
+
 
 
 ## Version 0.5.0 (2025-07-XX)

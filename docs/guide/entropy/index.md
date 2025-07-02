@@ -131,6 +131,8 @@ This class of entropy measure is in particularly useful in the study in connecti
 
 ### List of Entropy Estimators
 
+The infomeasure package provides a comprehensive suite of entropy estimators for both discrete and continuous random variables. For guidance on selecting the appropriate estimator for your data, see the {ref}`estimator_selection_guide`.
+
 ```{eval-rst}
 .. toctree::
    :maxdepth: 1
@@ -148,3 +150,24 @@ This class of entropy measure is in particularly useful in the study in connecti
    renyi
    tsallis
 ```
+
+#### Available Discrete Estimators
+
+The package includes the following discrete entropy estimators:
+
+- **Basic Estimators**: Discrete (MLE), Miller-Madow
+- **Bias-Corrected**: Grassberger, Shrinkage (James-Stein)
+- **Coverage-Based**: Chao-Shen, Chao-Wang-Jost
+- **Bayesian**: Bayesian (with multiple priors), NSB, ANSB
+- **Specialized**: Zhang, Bonachela
+
+Each estimator has different strengths and is suitable for different data characteristics and sample sizes. The {ref}`discrete_entropy` page provides detailed information about all available estimators with examples and usage guidance.
+
+#### Available Continuous Estimators
+
+For continuous data, the package provides:
+
+- **Kernel-based**: Kernel density estimation
+- **Nearest-neighbor**: Kozachenko-Leonenko (KL)
+- **Ordinal patterns**: For time series analysis
+- **Generalized measures**: Rényi α-entropy, Tsallis q-entropy
