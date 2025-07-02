@@ -28,7 +28,7 @@
 
 
 
-## Version 0.5.0 (2025-07-XX)
+## Version 0.5.0 (2025-07-02)
 
 This release introduces an overhaul of the statistical testing functionality with breaking changes to the API.
 
