@@ -72,9 +72,7 @@ class BaseBayesMIEstimator(ABC):
             If alpha is not a valid concentration parameter.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -88,7 +86,7 @@ class BaseBayesMIEstimator(ABC):
             raise ValueError("The alpha parameter must be a number or string.")
         if K is not None and (not isinstance(K, int) or K <= 0):
             raise ValueError("The K parameter must be a positive integer.")
-        
+
         self.alpha = alpha
         self.K = K
 
@@ -96,8 +94,8 @@ class BaseBayesMIEstimator(ABC):
 class BayesMIEstimator(BaseBayesMIEstimator, MutualInformationEstimator):
     r"""Estimator for the Bayes mutual information.
 
-    Bayesian mutual information estimator using Dirichlet prior with concentration 
-    parameter α. Provides principled handling of sparse data through Bayesian 
+    Bayesian mutual information estimator using Dirichlet prior with concentration
+    parameter α. Provides principled handling of sparse data through Bayesian
     probability estimates.
 
     Attributes
@@ -146,8 +144,8 @@ class BayesMIEstimator(BaseBayesMIEstimator, MutualInformationEstimator):
 class BayesCMIEstimator(BaseBayesMIEstimator, ConditionalMutualInformationEstimator):
     r"""Estimator for the conditional Bayes mutual information.
 
-    Bayesian conditional mutual information estimator using Dirichlet prior with 
-    concentration parameter α. Provides principled handling of sparse data through 
+    Bayesian conditional mutual information estimator using Dirichlet prior with
+    concentration parameter α. Provides principled handling of sparse data through
     Bayesian probability estimates.
 
     Attributes

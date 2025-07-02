@@ -87,7 +87,9 @@ est.result(), est.local_vals()
 For this estimator, access to the distribution dictionary is also available.
 ```{code-cell}
 est = im.estimator(data, measure="h", approach="ordinal", embedding_dim=3)
-est.result(), est.distribution(), sum(est.distribution().values())
+print(f"Entropy: {est.result():.4f} bits")
+print(f"Distribution: {est.dist_dict}")
+print(f"Probabilities sum to: {sum(est.dist_dict.values()):.1f}")
 ```
 
 The estimator is implemented in the {py:class}`OrdinalEntropyEstimator <infomeasure.estimators.entropy.ordinal.OrdinalEntropyEstimator>` class,

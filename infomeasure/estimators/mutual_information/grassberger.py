@@ -36,7 +36,6 @@ class BaseGrassbergerMIEstimator(ABC):
         self,
         *data,
         cond=None,
-        
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
         **kwargs,
@@ -58,9 +57,7 @@ class BaseGrassbergerMIEstimator(ABC):
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -69,7 +66,6 @@ class BaseGrassbergerMIEstimator(ABC):
                 base=base,
                 **kwargs,
             )
-
 
 
 class GrassbergerMIEstimator(BaseGrassbergerMIEstimator, MutualInformationEstimator):
@@ -89,7 +85,7 @@ class GrassbergerMIEstimator(BaseGrassbergerMIEstimator, MutualInformationEstima
 
     Notes
     -----
-    This estimator uses the Grassberger entropy estimator to compute mutual 
+    This estimator uses the Grassberger entropy estimator to compute mutual
     information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_mi_from_entropy)
@@ -116,7 +112,9 @@ class GrassbergerMIEstimator(BaseGrassbergerMIEstimator, MutualInformationEstima
         )
 
 
-class GrassbergerCMIEstimator(BaseGrassbergerMIEstimator, ConditionalMutualInformationEstimator):
+class GrassbergerCMIEstimator(
+    BaseGrassbergerMIEstimator, ConditionalMutualInformationEstimator
+):
     r"""Estimator for the conditional Grassberger mutual information.
 
     Grassberger conditional mutual information estimator using the entropy combination formula.
@@ -135,7 +133,7 @@ class GrassbergerCMIEstimator(BaseGrassbergerMIEstimator, ConditionalMutualInfor
 
     Notes
     -----
-    This estimator uses the Grassberger entropy estimator to compute conditional 
+    This estimator uses the Grassberger entropy estimator to compute conditional
     mutual information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cmi_from_entropy)

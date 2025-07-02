@@ -126,7 +126,7 @@ class BaseBayesTEEstimator(ABC):
             raise ValueError("The alpha parameter must be a number or string.")
         if K is not None and (not isinstance(K, int) or K <= 0):
             raise ValueError("The K parameter must be a positive integer.")
-        
+
         self.alpha = alpha
         self.K = K
 
@@ -134,8 +134,8 @@ class BaseBayesTEEstimator(ABC):
 class BayesTEEstimator(BaseBayesTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Bayes transfer entropy.
 
-    Bayesian transfer entropy estimator using Dirichlet prior with concentration 
-    parameter α. Provides principled handling of sparse data through Bayesian 
+    Bayesian transfer entropy estimator using Dirichlet prior with concentration
+    parameter α. Provides principled handling of sparse data through Bayesian
     probability estimates.
 
     Attributes
@@ -183,8 +183,8 @@ class BayesTEEstimator(BaseBayesTEEstimator, TransferEntropyEstimator):
 class BayesCTEEstimator(BaseBayesTEEstimator, ConditionalTransferEntropyEstimator):
     r"""Estimator for the Bayes conditional transfer entropy.
 
-    Bayesian conditional transfer entropy estimator using Dirichlet prior with 
-    concentration parameter α. Provides principled handling of sparse data through 
+    Bayesian conditional transfer entropy estimator using Dirichlet prior with
+    concentration parameter α. Provides principled handling of sparse data through
     Bayesian probability estimates.
 
     Attributes

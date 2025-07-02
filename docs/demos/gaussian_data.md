@@ -17,12 +17,17 @@ import matplotlib.pyplot as plt
 rng = np.random.default_rng(29615)
 ```
 
+```{code-cell}
+:tags: [remove-cell]
+im.Config.set_log_level("ERROR")
+```
+
 ## Entropy
 
 Generate normal distributed random variables with varying standard deviation $\sigma$.
 
 ```{code-cell}
-n = 2000
+n = 500
 stds = np.linspace(0.1, 10, 20)  # standard deviations to test
 # data is an array of shape (len(stds), n)
 data_h = rng.normal(0, stds[:, None], (len(stds), n))
@@ -87,16 +92,27 @@ approaches = {
     'metric': {'k': 4, 'minkowski_p': 2},
     'renyi': {'alpha': 1},  # alpha=1 is the Shannon entropy
     'ordinal': {'embedding_dim': 2},
-    'tsallis': {'k': 4, 'q': 1}  # q=1 is the Shannon entropy
+    'tsallis': {'k': 4, 'q': 1},  # q=1 is the Shannon entropy
+    'miller_madow': {},
+    'bayes': {'alpha': 0.5},
+    'shrink': {},
+    'grassberger': {},
+    'chao_wang_jost': {},
+    'ansb': {'undersampled': np.inf},
+    'nsb': {},
+    'zhang': {},
+    'bonachela': {},
 }
 entropies = np.zeros((len(approaches), len(stds)))
 for i, std in enumerate(stds):
     for j, name, kwargs in zip(range(len(approaches)), approaches.keys(),
                                approaches.values()):
-        if name == 'discrete':
-            entropies[j, i] = im.entropy(data_h[i].astype(int), approach=name, **kwargs)
-        else:
+        if name in ['kernel', 'metric', 'renyi', 'ordinal', 'tsallis']:
             entropies[j, i] = im.entropy(data_h[i], approach=name, **kwargs)
+        else:  # discrete / continuous
+            if name in ['nsb', 'ansb']:
+                kwargs['K'] = max(1,int(len(data_h[i].astype(int))/100))
+            entropies[j, i] = im.entropy(data_h[i].astype(int), approach=name, **kwargs)
 ```
 
 `infomeasure` enables us to use the {py:func}`im.entropy() <infomeasure.entropy>` function, passing the `approach`-name and additional keyword arguments for the corresponding approach.
@@ -112,11 +128,9 @@ analytical_entropies_stds = np.array([analytical_entropy(std) for std in stds])
 
 # Plot results
 fig = plt.figure(figsize=(8, 5), dpi=300)
-# for i, name in enumerate(approaches.keys()):
-#     plt.plot(stds, entropies[i], label=name, marker='o', linewidth=3)
-# linewith is decreasing with the index, so we see which are hidden
+colors = plt.cm.tab20(np.linspace(0, 1, len(approaches)))
 for i, name in enumerate(approaches.keys()):
-    plt.plot(stds, entropies[i], label=name, marker='o', linewidth=5 - i / 2.)
+    plt.plot(stds, entropies[i], label=name, marker='o', linewidth=6 - i / 3., color=colors[i])
 
 # Analytical values
 plt.plot(analytical_stds, analytical_entropies, label='Analytical', linewidth=1.8,
@@ -124,38 +138,39 @@ plt.plot(analytical_stds, analytical_entropies, label='Analytical', linewidth=1.
 
 plt.xlabel(r'Standard deviation $\sigma$')
 plt.ylabel('Entropy')
-plt.ylim(-1, 4)
+plt.ylim(-1, 7)
 plt.title('Entropy estimation of Gaussian data')
-plt.legend()
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', ncol=1)
 plt.grid()
 plt.show()
 ```
 
 All methods match the analytical values very closely,
-except the `ordinal` and `discrete` ones.
-For the lower $\sigma$, the discretization leads to a deviation.
+except the `ordinal` and `ansb` one.
+For the discrete estimators, the discretization leads to a deviation at lower $\sigma$.
 For $\sigma = 0.1$ all values get converted to 0, producing entropy of 0.
 The `ordinal` method returns constant values.
 This is to be expected because the symbolization is independent of $\sigma$,
 as the distributions of ordinal patterns are invariant under scaling.
+`ansb` is not resembling the analytical value as the data is not undersampled enough.
 
 ```{code-cell}
 :tags: [hide-input]
 # Plot the percentage error of the estimated entropy compared to the analytical value
 fig = plt.figure(figsize=(8, 3), dpi=300)
-symbols = ['o', 's', 'd', '^', 'v', 'x']
+symbols = ['o', 's', 'd', '^', 'v', 'x', 'h', 'p', '*', '+', '1', '2', '3', '4']
 for i, name in enumerate(approaches.keys()):
     plt.plot(stds,
              100 * (entropies[
                         i] - analytical_entropies_stds) / analytical_entropies_stds,
-             label=name, marker=symbols[i], markersize=10,
-             linewidth=2, linestyle='--')
+             label=name, marker=symbols[i % len(symbols)], markersize=10,
+             linewidth=2, linestyle='--', color=colors[i])
 # horizontal line at 0
 plt.axhline(0, color='black', linewidth=2, zorder=-1)
 plt.xlabel(r'Standard deviation $\sigma$')
 plt.ylabel(r'Percentage error (%)')
-plt.ylim(-25, 10)
-plt.legend()
+plt.ylim(-20, 15)
+plt.legend(bbox_to_anchor=(0.5, 1.15), loc='center', ncol=4)
 plt.grid()
 plt.show()
 ```
@@ -200,7 +215,7 @@ def generate_data(N, r):
 # Values of r
 r_values = np.linspace(1, 9, 9)
 # Number of data points
-N = 2000
+N = 1000
 # Generate data for each r value. shape (len(r_values), 2, N)
 data_mi = np.array([generate_data(N, r) for r in r_values])
 data_mi_discrete = data_mi.astype(int)
@@ -235,23 +250,33 @@ Again, prompt the {py:func}`im.mutual_information() <infomeasure.mutual_informat
 ```{code-cell}
 # Compute mutual information for each r value
 approaches_mi = {
+    # 'ansb': {},
+    'bayes': {'alpha': 1.0},
+    'bonachela': {},
+    'chao_shen': {},
+    'chao_wang_jost': {},
     'discrete': {},
+    'grassberger': {},
     'kernel': {'bandwidth': 0.5, 'kernel': 'gaussian'},
+    'miller_madow': {},
+    'nsb': {},
     'metric': {'k': 4},
-    'renyi': {'alpha': 1.5},  # alpha=1 is the Shannon entropy
+    'renyi': {'alpha': 0.9},  # alpha=1 is the Shannon entropy
+    'shrink': {},
     'ordinal': {'embedding_dim': 3},
-    'tsallis': {'k': 4, 'q': 1.05}
+    'tsallis': {'k': 4, 'q': 1.05},
+    'zhang': {},
 }
 mi_values = {approach: np.zeros((len(r_values))) for approach in approaches_mi.keys()}
 for i, r in enumerate(r_values):
     for name, kwargs in approaches_mi.items():
-        if name == 'discrete':
+        if name in ['kernel', 'metric', 'renyi', 'ordinal', 'tsallis']:
             mi_values[name][i] = im.mutual_information(
-                data_mi_discrete[i][0], data_mi_discrete[i][1], approach=name, **kwargs
+                data_mi[i][0], data_mi[i][1], approach=name, **kwargs
             )
         else:
             mi_values[name][i] = im.mutual_information(
-                data_mi[i][0], data_mi[i][1], approach=name, **kwargs
+                data_mi_discrete[i][0], data_mi_discrete[i][1], approach=name, **kwargs
             )
 ```
 
@@ -262,8 +287,8 @@ performs the computation of mutual information between the two variables `data_m
 :tags: [hide-input]
 # Plot results
 fig = plt.figure(figsize=(8, 5), dpi=300)
-for name in approaches_mi.keys():
-    plt.plot(r_values, mi_values[name], label=name, marker='o', linewidth=3)
+for i, name in enumerate(approaches_mi.keys()):
+    plt.plot(r_values, mi_values[name], label=name, marker='o', linewidth=3, color=colors[i])
 
 # Analytical values
 mi_gauss_values = [mutual_information_gauss(data_mi[i][0], data_mi[i][1]) for i in
@@ -279,7 +304,7 @@ plt.show()
 ```
 
 All approaches resemble the expected behaviour of mutual information for Gaussian data.
-Again, the `discrete` approach has an offset, due to discretization errors.
+Again, the `discrete` approaches show offsets, due to discretization errors or dependent whether the data fits the correction term requirements.
 Tsallis MI is offset as well, because $q=1.05$ has been used.
 For $q=1$, Tsallis MI is identical to Shannon MI.
 This confirms that the implemented methods correctly estimate the mutual information for Gaussian data.

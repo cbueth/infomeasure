@@ -46,7 +46,6 @@ class BaseShrinkTEEstimator(ABC):
         dest,
         *,  # Enforce keyword-only arguments
         cond=None,
-        
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -109,7 +108,6 @@ class BaseShrinkTEEstimator(ABC):
             )
 
 
-
 class ShrinkTEEstimator(BaseShrinkTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Shrink transfer entropy.
 
@@ -133,7 +131,7 @@ class ShrinkTEEstimator(BaseShrinkTEEstimator, TransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the Shrink entropy estimator to compute transfer 
+    This estimator uses the Shrink entropy estimator to compute transfer
     entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_te_from_entropy)
@@ -172,7 +170,7 @@ class ShrinkCTEEstimator(BaseShrinkTEEstimator, ConditionalTransferEntropyEstima
 
     Notes
     -----
-    This estimator uses the Shrink entropy estimator to compute conditional 
+    This estimator uses the Shrink entropy estimator to compute conditional
     transfer entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cte_from_entropy)

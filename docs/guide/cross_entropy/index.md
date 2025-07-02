@@ -39,6 +39,22 @@ This package provides methods to compute cross-entropy using various approaches 
 
 Internally, these all use the `im.entropy` function. When only one RV is passed, it computes normal entropy; when a tuple of RVs is passed, it computes joint entropy; and when two RVs are passed as separate arguments, it computes cross-entropy.
 
+## Supported Estimators
+
+Cross-entropy is available for the following estimators:
+
+- **Basic Estimators**: `discrete` (MLE), `miller_madow`
+- **Bayesian**: `bayes` (with multiple priors)
+
+**Continuous Estimators:**
+- **Kernel**: `kernel` (with various kernel types)
+- **Metric**: `metric` or `kl` (Kozachenko-Leonenko)
+- **Ordinal**: `ordinal` (for time series analysis)
+
+**Generalized Entropies:**
+- **Rényi**: `renyi`
+- **Tsallis**: `tsallis`
+
 ## Cross-Entropy Computation
 For the discrete Shannon entropy, the cross-entropy $H_Q(P)$ is computed as follows:
 
@@ -64,6 +80,20 @@ data_Q = rng.normal(1.0, 14, size=500)
 im.cross_entropy(data_P, data_Q, approach="metric")
 ```
 
+Examples with `v0.5.0` discrete estimators:
+
+```{code-cell}
+# discrete data
+data_P = [0, 0, 1, 1, 1, 0, 2, 2, 0, 1, 2, 1, 0, 2, 1]
+data_Q = [1, 1, 0, 0, 2, 2, 1, 1, 0, 2, 0, 0, 2, 0, 0]
+# Miller-Madow estimator (simple bias correction)
+im.cross_entropy(data_P, data_Q, approach="miller_madow")
+```
+
+```{code-cell}
+# Grassberger estimator (finite sample corrections)
+im.cross_entropy(data_P, data_Q, approach="bayes", alpha="min-max")
+```
 
 ## Relationship to Kullback-Leibler Divergence
 The cross-entropy $H_Q(P)$ is used in the calculation of the {ref}`Kullback-Leibler Divergence (KLD) <kullback_leibler_divergence>`,

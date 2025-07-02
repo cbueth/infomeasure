@@ -29,9 +29,9 @@ def test_ansb_entropy_basic(data, base, expected, description):
     else:
         # For cases with coincidences, we can't easily predict the exact value
         # but we can check that it's a finite number
-        assert not isnan(result), (
-            f"Expected finite value for {description}, got {result}"
-        )
+        assert not isnan(
+            result
+        ), f"Expected finite value for {description}, got {result}"
         assert result == pytest.approx(expected)
 
 
@@ -127,9 +127,9 @@ def test_ansb_joint_entropy():
     result = est.result()
 
     # Should return a finite positive value
-    assert not isnan(result), (
-        "Joint entropy should not be NaN for data with coincidences"
-    )
+    assert not isnan(
+        result
+    ), "Joint entropy should not be NaN for data with coincidences"
     assert result > 0, "Joint entropy should be positive"
 
 
@@ -215,19 +215,25 @@ def test_ansb_entropy_k_parameter_functional_api():
         ([1, 2, 3, 4], 6, -2, "No observed coincidences, K > N"),
     ],
 )
-def test_ansb_entropy_k_parameter_coincidences(data, K_specified, expected_coincidences, description):
+def test_ansb_entropy_k_parameter_coincidences(
+    data, K_specified, expected_coincidences, description
+):
     """Test ANSB entropy with different K values and their effect on coincidences."""
     from infomeasure.estimators.entropy.ansb import AnsbEntropyEstimator
 
     N = len(data)
     actual_coincidences = N - K_specified
-    assert actual_coincidences == expected_coincidences, f"Coincidence calculation error for {description}"
+    assert (
+        actual_coincidences == expected_coincidences
+    ), f"Coincidence calculation error for {description}"
 
     est = AnsbEntropyEstimator(data, K=K_specified, base="e")
     result = est.result()
 
     if expected_coincidences <= 0:
-        assert isnan(result), f"Should return NaN for {description} (non-positive coincidences)"
+        assert isnan(
+            result
+        ), f"Should return NaN for {description} (non-positive coincidences)"
     else:
         assert not isnan(result), f"Should return finite value for {description}"
         assert result > 0, f"Entropy should be positive for {description}"

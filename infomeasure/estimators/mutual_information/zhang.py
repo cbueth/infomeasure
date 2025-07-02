@@ -36,7 +36,6 @@ class BaseZhangMIEstimator(ABC):
         self,
         *data,
         cond=None,
-        
         offset: int = 0,
         base: LogBaseType = Config.get("base"),
         **kwargs,
@@ -58,9 +57,7 @@ class BaseZhangMIEstimator(ABC):
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         if cond is None:
-            super().__init__(
-                *data, offset=offset, base=base, **kwargs
-            )
+            super().__init__(*data, offset=offset, base=base, **kwargs)
         else:
             super().__init__(
                 *data,
@@ -69,7 +66,6 @@ class BaseZhangMIEstimator(ABC):
                 base=base,
                 **kwargs,
             )
-
 
 
 class ZhangMIEstimator(BaseZhangMIEstimator, MutualInformationEstimator):
@@ -89,7 +85,7 @@ class ZhangMIEstimator(BaseZhangMIEstimator, MutualInformationEstimator):
 
     Notes
     -----
-    This estimator uses the Zhang entropy estimator to compute mutual 
+    This estimator uses the Zhang entropy estimator to compute mutual
     information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_mi_from_entropy)
@@ -135,7 +131,7 @@ class ZhangCMIEstimator(BaseZhangMIEstimator, ConditionalMutualInformationEstima
 
     Notes
     -----
-    This estimator uses the Zhang entropy estimator to compute conditional 
+    This estimator uses the Zhang entropy estimator to compute conditional
     mutual information through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cmi_from_entropy)

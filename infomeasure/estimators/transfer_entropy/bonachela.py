@@ -46,7 +46,6 @@ class BaseBonachelaTEEstimator(ABC):
         dest,
         *,  # Enforce keyword-only arguments
         cond=None,
-        
         prop_time: int = 0,
         step_size: int = 1,
         src_hist_len: int = 1,
@@ -109,7 +108,6 @@ class BaseBonachelaTEEstimator(ABC):
             )
 
 
-
 class BonachelaTEEstimator(BaseBonachelaTEEstimator, TransferEntropyEstimator):
     r"""Estimator for the Bonachela transfer entropy.
 
@@ -133,7 +131,7 @@ class BonachelaTEEstimator(BaseBonachelaTEEstimator, TransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the Bonachela entropy estimator to compute transfer 
+    This estimator uses the Bonachela entropy estimator to compute transfer
     entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_te_from_entropy)
@@ -153,7 +151,9 @@ class BonachelaTEEstimator(BaseBonachelaTEEstimator, TransferEntropyEstimator):
         )
 
 
-class BonachelaCTEEstimator(BaseBonachelaTEEstimator, ConditionalTransferEntropyEstimator):
+class BonachelaCTEEstimator(
+    BaseBonachelaTEEstimator, ConditionalTransferEntropyEstimator
+):
     r"""Estimator for the Bonachela conditional transfer entropy.
 
     Bonachela conditional transfer entropy estimator using the entropy combination formula.
@@ -172,7 +172,7 @@ class BonachelaCTEEstimator(BaseBonachelaTEEstimator, ConditionalTransferEntropy
 
     Notes
     -----
-    This estimator uses the Bonachela entropy estimator to compute conditional 
+    This estimator uses the Bonachela entropy estimator to compute conditional
     transfer entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cte_from_entropy)

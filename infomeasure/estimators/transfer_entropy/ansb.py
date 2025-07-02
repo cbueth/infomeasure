@@ -66,9 +66,9 @@ class BaseAnsbTEEstimator(ABC):
             The source (X) and destination (Y) data used to estimate the transfer entropy.
         cond : array-like, optional
             The conditional data used to estimate the conditional transfer entropy.
-    undersampled : float, default=0.1
-        Maximum allowed ratio N/K to consider data sufficiently undersampled.
-        A warning is issued if this threshold is exceeded.
+        undersampled : float, default=0.1
+            Maximum allowed ratio N/K to consider data sufficiently undersampled.
+            A warning is issued if this threshold is exceeded.
         prop_time : int, optional
             Number of positions to shift the data arrays relative to each other (multiple of
             ``step_size``).
@@ -113,7 +113,7 @@ class BaseAnsbTEEstimator(ABC):
             )
         if undersampled < 0:
             raise ValueError("The `undersampled` parameter must not be negative.")
-        
+
         self.undersampled = undersampled
 
 
@@ -142,7 +142,7 @@ class AnsbTEEstimator(BaseAnsbTEEstimator, TransferEntropyEstimator):
 
     Notes
     -----
-    This estimator uses the Ansb entropy estimator to compute transfer 
+    This estimator uses the Ansb entropy estimator to compute transfer
     entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_te_from_entropy)
@@ -183,7 +183,7 @@ class AnsbCTEEstimator(BaseAnsbTEEstimator, ConditionalTransferEntropyEstimator)
 
     Notes
     -----
-    This estimator uses the Ansb entropy estimator to compute conditional 
+    This estimator uses the Ansb entropy estimator to compute conditional
     transfer entropy through the entropy combination formula.
 
     Note that the entropy combination formula is used (_generic_cte_from_entropy)
