@@ -49,7 +49,7 @@ Before continuing to the next question we want to note that all discrete estimat
 While discrete entropy estimators excel at entropy estimation, they can compute:
 - **Entropy H(X)** - their primary strength
 - **Mutual Information I(X;Y)** - statistical dependence between variables
-- **Conditional Mutual Information I(X;Y|Z)** - dependence controlling for other variables  
+- **Conditional Mutual Information I(X;Y|Z)** - dependence controlling for other variables
 - **Transfer Entropy TE(X→Y)** - directed information transfer
 - **Conditional Transfer Entropy CTE(X→Y|Z)** - transfer entropy controlling for other variables
 
@@ -85,7 +85,7 @@ While discrete entropy estimators excel at entropy estimation, they can compute:
 
 ```{code-cell}
 import infomeasure as im
-import numpy as np 
+import numpy as np
 
 # Example with small, potentially correlated data
 data = [0, 1, 0, 0, 1, 1, 0, 1, 0, 0]  # Small sample
@@ -484,7 +484,7 @@ print(f"Ordinal TE: {te_ordinal:.4f}")
 **Note**: These properties refer specifically to discrete entropy estimation based on {cite:p}`degregorioEntropyEstimatorsMarkovian2024`. The Bonachela and Zhang estimators were not included in this meta-analysis but are available based on their theoretical contributions. The continuous estimators and other measures offered by infomeasure are not covered in this analysis.
 
 - **Lowest Bias**: NSB, Chao-Wang-Jost
-- **Lowest Variance**: MLE (Discrete), Miller-Madow  
+- **Lowest Variance**: MLE (Discrete), Miller-Madow
 - **Best MSE**: NSB (correlated data), Shrinkage (independent data)
 - **Most Robust**: Miller-Madow, Grassberger
 - **Specialized Use Cases**: Bonachela (very small balanced samples), Zhang (medium samples with bias correction)
@@ -567,8 +567,8 @@ lag_results = []
 for lag in range(1, 6):
     # Create TE estimator with specific time lag
     te_estimator = im.estimator(
-        source, dest, 
-        measure="transfer_entropy", 
+        source, dest,
+        measure="transfer_entropy",
         approach="discrete",
         prop_time=lag
     )
@@ -592,8 +592,8 @@ print(f"Best p-value: {best_p:.4f}")
 
 # Additional analysis: show confidence interval for the best lag
 best_estimator = im.estimator(
-    source, dest, 
-    measure="transfer_entropy", 
+    source, dest,
+    measure="transfer_entropy",
     approach="discrete",
     prop_time=best_lag
 )

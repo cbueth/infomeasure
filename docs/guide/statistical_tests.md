@@ -33,7 +33,7 @@ Statistical tests in `infomeasure` follow the classical hypothesis testing frame
 - **Null Distribution**: Distribution of the test statistic under the null hypothesis
 - **p-value**: Probability of observing a test statistic as extreme or more extreme than the observed value, assuming H₀ is true
 
-For both types of hypothesis tests, when using subsampled data, not the input data is shuffled or resampled, but the embedding itself. 
+For both types of hypothesis tests, when using subsampled data, not the input data is shuffled or resampled, but the embedding itself.
 
 ### Permutation Tests
 
