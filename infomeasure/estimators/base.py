@@ -558,13 +558,12 @@ class MutualInformationEstimator(
         If possible, estimators should use a dedicated mutual information method.
         This helper method is provided as a generic fallback.
         """
-
-        # Ensure data are numpy arrays
-        data = list(var.astype(float).copy() for var in self.data)
+        data = list(var.copy() for var in self.data)
 
         # Add Gaussian noise to the data if the flag is set
         if noise_level:
             for i_data in range(len(data)):
+                data[i_data] = data[i_data].astype(float)
                 data[i_data] += self.rng.normal(0, noise_level, data[i_data].shape)
 
         # Estimators

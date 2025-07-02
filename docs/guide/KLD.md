@@ -51,8 +51,22 @@ In summary:
 This is why KLD is often used in information theory and machine learning to evaluate how well an estimated distribution (Q) represents the true data distribution (P).
 ```
 
-As the internal implementation is using the entropy combination,
-any `approach` from {ref}`entropy_overview` are supported, as seen in {py:func}`entropy() <infomeasure.entropy>`.
+## Supported Estimators
+
+KLD is computed using the cross-entropy formula for all supported estimators:
+
+$$\text{KLD}(P||Q) = H_Q(P) - H(P)$$
+
+Where $H_Q(P)$ is the cross-entropy and $H(P)$ is the entropy of distribution $P$.
+
+The following estimators support cross-entropy and thus KLD:
+
+- **Basic Estimators**: `discrete` (MLE), `miller_madow`
+- **Bayesian**: `bayes` (with multiple priors)
+- **Kernel**: `kernel` (with various kernel types)
+- **Ordinal**: `ordinal` (for time series analysis)
+- **Metric/KL**: `metric` or `kl` (Kozachenko-Leonenko)
+- **Generalized Entropies**: `renyi`, `tsallis`
 
 ```{code-cell}
 (im.kld(p, q, approach='kernel', kernel='box', bandwidth=3),
@@ -72,4 +86,12 @@ im.kld(p, q, approach='metric')  # or 'kl'
 ```{code-cell}
 (im.kld(p, q, approach='renyi', alpha=0.8),
  im.kld(p, q, approach='tsallis', q=0.9))
+```
+
+```{code-cell}
+im.kld(p, q, approach='miller_madow')  # or 'mm'
+```
+
+```{code-cell}
+im.kld(p, q, approach='bayes', alpha="laplace")
 ```

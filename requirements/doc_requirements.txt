@@ -5,6 +5,7 @@ myst-nb
 sphinx-design
 sphinx-book-theme
 sphinxcontrib-bibtex
+sphinxcontrib-mermaid
 sphinx-automodapi
 graphviz
 # Plotting

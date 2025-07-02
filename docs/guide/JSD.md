@@ -43,7 +43,18 @@ $$
 
 The Jensen Shannon **Distance** was proposed as the square root of Jensen Shannon Divergence, i.e., $\left[ D_{JS}(P, Q) \right]^{1/2}$, as it comes to fulfill the triangle inequality property required to make up a metric space {cite:p}`JSD_distance_Endres`.
 
-JSD is compatible with {ref}`discrete_entropy`, {ref}`ordinal_entropy`, and {ref}`kernel_entropy`.
+## Supported Estimators
+
+JSD is available for Bayesian, Shrinkage, and pre-`v0.5.0` discrete estimators, plus continuous estimators:
+
+**Discrete Estimators:**
+- **Maximum Likelihood**: `discrete`
+- **Bayesian**: `bayes` (with multiple priors)
+- **Shrinkage**: `shrink` (James-Stein shrinkage)
+
+**Continuous Estimators:**
+- **Kernel**: `kernel` (with various kernel types)
+- **Ordinal**: `ordinal` (for time series analysis)
 
 ```{code-cell}
 import infomeasure as im
@@ -51,6 +62,14 @@ import infomeasure as im
 p = [6, 3, 1, 3, 8, 1, 2, 9, 7, 7, 3, 7, 3, 3, 5, 7, 7, 3, 3, 5]
 q = [2, 1, 6, 6, 3, 3, 6, 5, 3, 1, 7, 9, 3, 3, 1, 5, 4, 6, 6, 1]
 im.jensen_shannon_divergence(p, q, approach='discrete')
+```
+
+Calculating the generalized Jensen-Shannon Divergence with multiple RVs is also possible.
+
+```{code-cell}
+s = [3, 6, 6, 8, 5, 3, 6, 7, 3, 9, 7, 7, 1, 3, 2, 3, 4, 9, 3, 7]
+t = [6, 3, 3, 9, 6, 6, 3, 9, 5, 9, 4, 4, 5, 8, 9, 8, 3, 3, 6, 7]
+im.jsd(p, q, s, t, approach='discrete')
 ```
 
 ```{code-cell}
@@ -64,10 +83,10 @@ im.jensen_shannon_divergence(p, q, approach='discrete')
  im.jsd(p, q, approach='ordinal', embedding_dim=4))
 ```
 
-Calculating the generalized Jensen-Shannon Divergence is also possible.
+```{code-cell}
+im.jsd(p, q, approach='bayes', alpha = 0.9)
+```
 
 ```{code-cell}
-s = [3, 6, 6, 8, 5, 3, 6, 7, 3, 9, 7, 7, 1, 3, 2, 3, 4, 9, 3, 7]
-t = [6, 3, 3, 9, 6, 6, 3, 9, 5, 9, 4, 4, 5, 8, 9, 8, 3, 3, 6, 7]
-im.jsd(p, q, s, t, approach='discrete')
+im.jsd(p, q, approach='shrink')
 ```

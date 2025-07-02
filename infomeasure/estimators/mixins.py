@@ -107,7 +107,7 @@ class StatisticalTestingMixin(RandomGeneratorMixin):
 
         Returns
         -------
-        StatisticalTestResult
+        ~infomeasure.utils.data.StatisticalTestResult
             Comprehensive statistical test result containing *p*-value, *t*-score,
             and metadata. Percentiles can be calculated on demand using
             the percentile() method.
@@ -116,7 +116,7 @@ class StatisticalTestingMixin(RandomGeneratorMixin):
         ------
         ValueError
             If the chosen method is unknown.
-        UnsupportedOperation
+        io.UnsupportedOperation
             If the statistical test is not supported for the estimator type.
         """
         method, n_tests, test_values = self._statistical_test(method, n_tests)

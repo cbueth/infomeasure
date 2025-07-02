@@ -52,7 +52,7 @@ site:
 
 ```
 
-::::{grid} 1 2 2 3
+::::{grid} 1 2 2 4
 :gutter: 1 1 1 2
 
 :::{grid-item-card} {material-regular}`rocket;2em` Getting Started
@@ -77,12 +77,21 @@ See all estimation techniques with code snippets.
 {ref}`Learn more »<reference_guide>`
 :::
 
+:::{grid-item-card} {material-regular}`psychology;2em` Estimator Selection
+:link: estimator_selection_guide
+:link-type: ref
+
+Discover which estimator works best for your data with our interactive decision tree.
+
++++
+{ref}`Learn more » <estimator_selection_guide>`
+:::
+
 :::{grid-item-card} {material-regular}`lightbulb;2em` Demos
 :link: demos
 :link-type: ref
 
-A collection of short demos showcasing the capabilities of this package.\
-E.g., analytical comparison and paper reproduction.
+Short demos showcasing package capabilities and analytical comparisons.
 +++
 {ref}`Learn more »<Demos>`
 :::

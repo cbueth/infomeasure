@@ -57,7 +57,13 @@ For TE, we implement effective Transfer Entropy (eTE), a method designed to redu
 Furthermore, **local values** can be computed, providing insights into the dynamic of the system being studied {cite:p}`Lizier2014,fano1961transmission,local_TE_Lizier`.
 
 ## Types of Estimation techniques available
-For discrete variables, Shannon's initial, discrete estimation techniques are used. For continuous variables, three methods have been implemented:
+For discrete variables, Shannon's initial estimation technique is complemented by bias-corrected alternatives:
+- Prior-based methods: Bayesian (Jeffrey, Laplace, Schürmann-Grassberger, Minimax)
+- Statistical corrections: Bonachela, Grassberger, Miller-Madow, Shrinkage, Zhang
+- Coverage-based methods: Chao-Shen, Chao Wang Jost
+- Undersampling specialists: ANSB, NSB
+
+For continuous variables, three methods have been implemented:
 - Kernel Estimation
 - Ordinal / Symbolic / Permutation Estimation
 - Kozachenko-Leonenko (KL) / Kraskov-Stoegbauer-Grassberger (KSG) / Metric / kNN Estimation
@@ -65,7 +71,7 @@ For discrete variables, Shannon's initial, discrete estimation techniques are us
 Let's compile all the estimation techniques along with the corresponding Shannon information measures they can estimate into a single table, as shown below:
 :::{list-table} Information Measures and Estimation Methods
 :name: information-measures
-:widths: 2 1 1 1 1 1
+:widths: 2 1 1 1 1 1 1
 :header-rows: 1
 :stub-columns: 1
 
@@ -75,8 +81,10 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - Kernel Estimator
     - Metric / kNN Estimator
     - Ordinal Estimator
+    - Discrete bias-corrected Estimators
 *   - {ref}`Entropy <entropy_overview>`
     - $H(X)$
+    - ✓
     - ✓
     - ✓
     - ✓
@@ -87,8 +95,10 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     -
     - ✓
     -
+    -
 *   - {ref}`Joint Entropy`[^renyi_tsallis]
     - $H(X,Y)$
+    - ✓
     - ✓
     - ✓
     - ✓
@@ -99,8 +109,10 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - ✓
     - ✓
     - ✓
+    - ✓[^cross-entropy-kld-bias-corrected]
 *   - {ref}`Mutual Information (MI) <mutual_information_overview>`[^renyi_tsallis]
     - $I(X;Y)$
+    - ✓
     - ✓
     - ✓
     - ✓
@@ -111,8 +123,10 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - ✓
     - ✓
     - ✓
+    - ✓
 *   - {ref}`Transfer Entropy (TE) <transfer_entropy_overview>`[^renyi_tsallis]
     - $T_{X \to Y}$
+    - ✓
     - ✓
     - ✓
     - ✓
@@ -123,18 +137,21 @@ Let's compile all the estimation techniques along with the corresponding Shannon
     - ✓
     - ✓
     - ✓
+    - ✓
 *   - {ref}`Kullback-Leibler Divergence (KLD) <kullback_leibler_divergence>`
     - $\operatorname{KLD}(P||Q)$
     - ✓
     - ✓
     - ✓
     - ✓
+    - ✓[^cross-entropy-kld-bias-corrected]
 *   - {ref}`Jensen Shannon Divergence (JSD) <jensen_shannon_divergence>`
     - $\operatorname{JSD}(P||Q)$
     - ✓
     - ✓
     -
     - ✓
+    - ✓[^jsd-bias-corrected]
 :::
 
 For Rényi and Tsallis, MI, CMI, TE and CTE use entropy combination formulas internally, as well as the composite measures JSD and KLD.
@@ -145,3 +162,7 @@ We choose this nomenclature $H_Q(P)$; as the widely used $H(p, q)$ would be ambi
 
 [^renyi_tsallis]: These measures can also be computed using the Rényi and Tsallis
 entropy formulations, in addition to the standard Shannon entropy formulation.
+
+[^cross-entropy-kld-bias-corrected]: Cross-entropy for bias-corrected discrete entropy estimators is only available for the Miller-Madow and for the Bayesian estimators.
+
+[^jsd-bias-corrected]: Of the bias-corrected discrete entropy estimators, JSD is supported for the James-Stein (Shrinkage) and bayesian, with multiple priors, estimators. Also for the generalized JSD with an arbitrary number of RVs.

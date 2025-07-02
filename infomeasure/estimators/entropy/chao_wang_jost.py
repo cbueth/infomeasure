@@ -54,7 +54,7 @@ class ChaoWangJostEntropyEstimator(DiscreteHEstimator):
         1, & \text{if} \, f_1 = f_2 = 0
         \end{cases}
 
-    Here, :math:`f_1` represents the number of singletons (species observed exactly once) and 
+    Here, :math:`f_1` represents the number of singletons (species observed exactly once) and
     :math:`f_2` the number of doubletons (species observed exactly twice) in the sample
     :cite:p:`chaoEntropySpeciesAccumulation2013`.
 
