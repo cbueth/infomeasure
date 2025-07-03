@@ -13,8 +13,8 @@
 <a href="">[![Documentation](https://readthedocs.org/projects/infomeasure/badge/)](https://infomeasure.readthedocs.io/)</a>
 <a href="">[![PyPI Version](https://badge.fury.io/py/infomeasure.svg)](https://pypi.org/project/infomeasure/)</a>
 <a href="">[![Python Version](https://img.shields.io/pypi/pyversions/infomeasure)](https://pypi.org/project/infomeasure/)</a>
-<a href="">[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)</a>
-<a href="">[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.2-4baaaa.svg)](CODE_OF_CONDUCT.md)</a>
+<a href="">[![Anaconda Version](https://anaconda.org/conda-forge/infomeasure/badges/version.svg)](https://anaconda.org/conda-forge/infomeasure)</a>
+<a href="">[![PyPI Downloads](https://static.pepy.tech/badge/infomeasure)](https://pepy.tech/projects/infomeasure)</a>
 
 </div>
 
@@ -22,7 +22,8 @@
 
 <a href="">[![arXiv](https://img.shields.io/badge/arXiv-2505.14696-b31b1b.svg)](https://arxiv.org/abs/2505.14696)</a>
 <a href="">[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15241810.svg)](https://doi.org/10.5281/zenodo.15241810)</a>
-<a href="">[![Anaconda Version](https://anaconda.org/conda-forge/infomeasure/badges/version.svg)](https://anaconda.org/conda-forge/infomeasure)</a>
+<a href="">[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)</a>
+<a href="">[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.2-4baaaa.svg)](CODE_OF_CONDUCT.md)</a>
 
 </div>
 
