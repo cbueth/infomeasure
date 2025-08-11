@@ -116,9 +116,12 @@ the [IFISC YouTube channel](https://www.youtube.com/watch?v=ckScv1E-vHE) and the
 
 ## How to cite
 
-If you use `infomeasure` in your research, please cite our [pre-print](https://arxiv.org/abs/2505.14696) (submitted).
-You can also find citation information for this project in the `CITATION.cff` file in [the repository](https://github.com/cbueth/infomeasure) and cite it accordingly.
-Alternatively, if you'd like to cite the software itself or a specific version, find the [Zenodo project page](https://doi.org/10.5281/zenodo.15241810)
+If you use `infomeasure` in your research, please cite our paper
+in [Scientific Reports](https://doi.org/10.1038/s41598-025-14053-5).
+You can also find citation information for this project in the `CITATION.cff` file
+in [the repository](https://github.com/cbueth/infomeasure) and cite it accordingly.
+Alternatively, if you'd like to cite the software itself or a specific version,
+find the [Zenodo project page](https://doi.org/10.5281/zenodo.15241810)
 for the specific version you are using and cite it accordingly.
 
 ## Contributing
