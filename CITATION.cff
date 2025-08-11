@@ -24,28 +24,27 @@ keywords:
 license: AGPL-3.0-or-later
 version: 0.5.0
 doi: 10.5281/zenodo.15241810
-date-released: 2025-04-18
+date-released: 2025-07-02
 
-# add when article published
-# preferred-citation:
-#   type: article
-#   authors:
-#     - family-names: "Büth"
-#       given-names: "Carlson Moses"
-#       orcid: "https://orcid.org/0000-0003-2298-8438"
-#     - family-names: "Acharya"
-#       given-names: "Kishor"
-#       orcid: "https://orcid.org/0000-0003-3542-6119"
-#     - family-names: "Zanin"
-#       given-names: "Massimiliano"
-#       orcid: "https://orcid.org/0000-0002-5839-0393"
-#   doi: "10.0000/00000"
-#   journal: "JOURNAL"
-#   month: 1
-#   start: 1
-#   end: 2
-#   title: "PROJECTNAME"
-#   issue: 1
-#   volume: 1
-#   year: YYYY
-#   abstract: "ABSTRACT"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Büth"
+      given-names: "Carlson Moses"
+      orcid: "https://orcid.org/0000-0003-2298-8438"
+    - family-names: "Acharya"
+      given-names: "Kishor"
+      orcid: "https://orcid.org/0000-0003-3542-6119"
+    - family-names: "Zanin"
+      given-names: "Massimiliano"
+      orcid: "https://orcid.org/0000-0002-5839-0393"
+  doi: "10.1038/s41598-025-14053-5"
+  journal: "Scientific Reports"
+  month: 8
+  start: 29323
+  end: 29323
+  title: "infomeasure: a comprehensive Python package for information theory measures and estimators"
+  issue: 1
+  volume: 15
+  year: 2025
+  abstract: "Information theory, i.e. the mathematical analysis of information and of its processing, has become a tenet of modern science; yet, its use in real-world studies is usually hindered by its computational complexity, the lack of coherent software frameworks, and, as a consequence, low reproducibility. We here introduce infomeasure, an open-source Python package designed to provide robust tools for calculating a wide variety of information-theoretic measures, including entropies, mutual information, transfer entropy and divergences. It is designed for both discrete and continuous variables; implements state-of-the-art estimation techniques; and allows the calculation of local measure values, p-values and t-scores. By unifying these approaches under one consistent framework, infomeasure aims to mitigate common pitfalls, ensure reproducibility, and simplify the practical implementation of information-theoretic analyses. In this contribution, we explore the motivation and features of infomeasure; its validation, using known analytical solutions; and exemplify its utility in a case study involving the analysis of human brain time series."
