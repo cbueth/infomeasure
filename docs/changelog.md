@@ -28,6 +28,10 @@
 
 
 
+## Version 0.5.1 (2026-01-17)
+
+Added support for Python 3.14.
+
 ## Version 0.5.0 (2025-07-02)
 
 This release introduces an overhaul of the statistical testing functionality with breaking changes to the API.

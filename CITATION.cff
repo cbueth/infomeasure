@@ -22,9 +22,9 @@ keywords:
     - information measures
     - conditional probability
 license: AGPL-3.0-or-later
-version: 0.5.0
+version: 0.5.1
 doi: 10.5281/zenodo.15241810
-date-released: 2025-07-02
+date-released: 2026-01-17
 
 preferred-citation:
   type: article

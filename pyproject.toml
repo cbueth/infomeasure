@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Natural Language :: English",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
@@ -35,6 +36,7 @@ dependencies = [
     "numpy",
     "scipy",
     "sparse>0.10.0",
+    "numba", # dependency of sparse - manually added to avoid installation issue in uv
 ]
 
 [project.urls]
