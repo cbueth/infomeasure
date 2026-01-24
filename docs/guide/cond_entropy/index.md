@@ -17,7 +17,7 @@ $$
 One can use the chain rule and express the above expression in terms of **Joint Entropy** $H(X,Y)$ and marginal entropy (eg: $H(X)$ and $H(Y)$) as follows:
 
 $$
-H(X \mid Y) = H(X,Y) - H(X)
+H(X \mid Y) = H(X,Y) - H(Y)
 $$
 
 
