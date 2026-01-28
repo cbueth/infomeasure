@@ -41,7 +41,7 @@ $$
 This local conditional entropy also satisfies the chain rule as its average counterparts, hence one can express the local conditional entropy as:
 
 $$
-h(x \mid y) = h(x,y) - h(x)
+h(x \mid y) = h(x,y) - h(y)
 $$
 
 Joint entropy can be accessed from the usual entropy an estimator interface.
