@@ -17,7 +17,7 @@ $$
 One can use the chain rule and express the above expression in terms of **Joint Entropy** $H(X,Y)$ and marginal entropy (eg: $H(X)$ and $H(Y)$) as follows:
 
 $$
-H(X \mid Y) = H(X,Y) - H(X)
+H(X \mid Y) = H(X,Y) - H(Y)
 $$
 
 
@@ -41,7 +41,7 @@ $$
 This local conditional entropy also satisfies the chain rule as its average counterparts, hence one can express the local conditional entropy as:
 
 $$
-h(x \mid y) = h(x,y) - h(x)
+h(x \mid y) = h(x,y) - h(y)
 $$
 
 Joint entropy can be accessed from the usual entropy an estimator interface.
