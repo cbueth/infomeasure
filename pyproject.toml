@@ -55,6 +55,7 @@ doc = [
     "sphinx-design",
     "sphinx-book-theme",
     "sphinxcontrib-bibtex",
+    "sphinxcontrib-mermaid",
     "sphinx-automodapi",
     "matplotlib",
 ]

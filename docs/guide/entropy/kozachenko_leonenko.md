@@ -28,6 +28,10 @@ where:
 - $\epsilon_i$ is twice the distance from $x_i$ to its $k^{th}$ nearest neighbor, representing the diameter of the hypersphere encompassing the $k$ neighbors,
 - $c_d$ is the volume of the unit ball in $d$-dimensional space, where $\log c_d = 0$ for the maximum norm and $c_d = \pi^{d/2} / (\Gamma(1 + d/2) \cdot 2^d)$ for Euclidean spaces.
 
+The package supports two variants of this estimator via the `ksg_id` parameter:
+- **Type I** (`ksg_id=1`, default): The standard Kozachenko-Leonenko formula as shown above.
+- **Type II** (`ksg_id=2`): Uses a modified formula where $\psi(k)$ is replaced by $\psi(k) - 1/k$. This variant is sometimes used for consistency with KSG Type II mutual information estimators.
+
 For demonstration, we generate a dataset of normally distributed values with mean $0$ and standard deviation $1$.
 We then calculate the entropy using the box kernel with a bandwidth of $0.5$.
 The analytical expected values can be calculated with
