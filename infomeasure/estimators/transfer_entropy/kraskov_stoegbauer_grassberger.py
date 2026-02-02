@@ -2,7 +2,7 @@
 
 from abc import ABC
 
-from numpy import array, inf, ndarray, log
+from numpy import array, inf, ndarray, log, nextafter
 from scipy.spatial import KDTree
 from scipy.special import digamma
 
@@ -10,7 +10,6 @@ from ..base import (
     TransferEntropyEstimator,
     ConditionalTransferEntropyEstimator,
 )
-
 from ..utils.te_slicing import te_observations, cte_observations
 from ... import Config
 from ...utils.types import LogBaseType
@@ -34,6 +33,10 @@ class BaseKSGTEEstimator(ABC):
     minkowski_p : float, :math:`1 \leq p \leq \infty`
         The power parameter for the Minkowski metric.
         Default is np.inf for maximum norm. Use 2 for Euclidean distance.
+    ksg_id : int, default=1
+        The KSG estimator variant to use (1 or 2).
+        Type I uses strict inequality for neighbour counting and the corresponding
+        formula. Type II uses non-strict inequality and a different formula.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
@@ -57,6 +60,7 @@ class BaseKSGTEEstimator(ABC):
         *,  # Enforce keyword-only arguments
         cond=None,
         k: int = 4,
+        ksg_id: int = 1,
         noise_level=1e-8,
         minkowski_p=inf,
         prop_time: int = 0,
@@ -84,6 +88,8 @@ class BaseKSGTEEstimator(ABC):
         minkowski_p : float, :math:`1 \leq p \leq \infty`
             The power parameter for the Minkowski metric.
             Default is np.inf for maximum norm. Use 2 for Euclidean distance.
+        ksg_id : int, default=1
+            The KSG estimator variant to use (1 or 2).
         prop_time : int, optional
             Number of positions to shift the data arrays relative to each other (multiple of
             ``step_size``).
@@ -126,6 +132,9 @@ class BaseKSGTEEstimator(ABC):
                 **kwargs,
             )
         self.k = k
+        if ksg_id not in {1, 2}:
+            raise ValueError(f"ksg_id must be 1 or 2, but got {ksg_id}.")
+        self.ksg_id = ksg_id
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
@@ -205,32 +214,67 @@ class KSGTEEstimator(BaseKSGTEEstimator, TransferEntropyEstimator):
         )
         kth_distances = distances[:, -1]  # get last column with k-th distances
 
-        # Count points for count_Y_past_present
+        # Count points in marginal spaces
         tree_dest_past_present = KDTree(marginal_2_space_data)
-        count_dest_past_present = [
-            tree_dest_past_present.query_ball_point(p, r=d, return_length=True) - 1
-            for p, d in zip(marginal_2_space_data, kth_distances)
-        ]
-        # Count points for count_X_past_Y_past
         tree_source_past_dest_past = KDTree(marginal_1_space_data)
-        count_source_past_dest_past = [
-            tree_source_past_dest_past.query_ball_point(p, r=d, return_length=True) - 1
-            for p, d in zip(marginal_1_space_data, kth_distances)
-        ]
-        # Count points for Count_Y_past
         tree_dest_past = KDTree(data_dest_past_embedded)
-        count_dest_past = [
-            tree_dest_past.query_ball_point(p, r=d, return_length=True) - 1
-            for p, d in zip(data_dest_past_embedded, kth_distances)
-        ]
 
-        # Compute local transfer entropy
-        local_te = (
-            digamma(self.k)
-            - digamma(array(count_dest_past_present) + 1)
-            - digamma(array(count_source_past_dest_past) + 1)
-            + digamma(array(count_dest_past) + 1)
-        )
+        if self.ksg_id == 1:
+            r_strict = nextafter(kth_distances, -inf)
+            count_dest_past_present = tree_dest_past_present.query_ball_point(
+                marginal_2_space_data,
+                r=r_strict,
+                p=self.minkowski_p,
+                return_length=True,
+            ) - (kth_distances > 0).astype(int)
+            count_source_past_dest_past = tree_source_past_dest_past.query_ball_point(
+                marginal_1_space_data,
+                r=r_strict,
+                p=self.minkowski_p,
+                return_length=True,
+            ) - (kth_distances > 0).astype(int)
+            count_dest_past = tree_dest_past.query_ball_point(
+                data_dest_past_embedded,
+                r=r_strict,
+                p=self.minkowski_p,
+                return_length=True,
+            ) - (kth_distances > 0).astype(int)
+
+            # Compute local transfer entropy
+            local_te = (
+                digamma(self.k)
+                - digamma(array(count_dest_past_present) + 1)
+                - digamma(array(count_source_past_dest_past) + 1)
+                + digamma(array(count_dest_past) + 1)
+            )
+        else:
+            count_dest_past_present = tree_dest_past_present.query_ball_point(
+                marginal_2_space_data,
+                r=kth_distances,
+                p=self.minkowski_p,
+                return_length=True,
+            )
+            count_source_past_dest_past = tree_source_past_dest_past.query_ball_point(
+                marginal_1_space_data,
+                r=kth_distances,
+                p=self.minkowski_p,
+                return_length=True,
+            )
+            count_dest_past = tree_dest_past.query_ball_point(
+                data_dest_past_embedded,
+                r=kth_distances,
+                p=self.minkowski_p,
+                return_length=True,
+            )
+
+            # Compute local transfer entropy
+            local_te = (
+                digamma(self.k)
+                - 1.0 / self.k
+                - digamma(array(count_dest_past_present))
+                - digamma(array(count_source_past_dest_past))
+                + digamma(array(count_dest_past))
+            )
 
         return local_te / log(self.base) if self.base != "e" else local_te
 
@@ -262,6 +306,13 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
 
     Notes
     -----
+    The estimator supports two variants:
+
+    - **Type I** (``ksg_id=1``): Uses strict inequality for counting neighbors in
+      marginal spaces (dist < eps).
+    - **Type II** (``ksg_id=2``): Uses non-strict inequality (dist <= eps) and a
+      modified formula.
+
     Changing the number of nearest neighbors ``k`` can change the outcome,
     but the default value of :math:`k=4` is recommended by :cite:p:`miKSG2004`.
     """
@@ -310,32 +361,72 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
         )
         kth_distances = distances[:, -1]
 
-        # Count points for count_cond_Y_past_present
+        # Count points in marginal spaces
         tree_cond_dest_past_present = KDTree(marginal_2_space_data)
-        count_cond_dest_past_present = [
-            tree_cond_dest_past_present.query_ball_point(p, r=d, return_length=True) - 1
-            for p, d in zip(marginal_2_space_data, kth_distances)
-        ]
-        # Count points for count_X_past_cond_Y_past
         tree_source_past_cond_dest_past = KDTree(marginal_1_space_data)
-        count_source_past_cond_dest_past = [
-            tree_source_past_cond_dest_past.query_ball_point(p, r=d, return_length=True)
-            - 1
-            for p, d in zip(marginal_1_space_data, kth_distances)
-        ]
-        # Count points for Count_Y_past_cond
         tree_dest_past_cond = KDTree(data_dest_past_embedded)
-        count_dest_past_cond = [
-            tree_dest_past_cond.query_ball_point(p, r=d, return_length=True) - 1
-            for p, d in zip(data_dest_past_embedded, kth_distances)
-        ]
 
-        # Compute local conditional transfer entropy
-        local_cte = (
-            digamma(self.k)
-            - digamma(array(count_cond_dest_past_present) + 1)
-            - digamma(array(count_source_past_cond_dest_past) + 1)
-            + digamma(array(count_dest_past_cond) + 1)
-        )
+        if self.ksg_id == 1:
+            r_strict = nextafter(kth_distances, -inf)
+            count_cond_dest_past_present = tree_cond_dest_past_present.query_ball_point(
+                marginal_2_space_data,
+                r=r_strict,
+                p=self.minkowski_p,
+                return_length=True,
+            ) - (kth_distances > 0).astype(int)
+            count_source_past_cond_dest_past = (
+                tree_source_past_cond_dest_past.query_ball_point(
+                    marginal_1_space_data,
+                    r=r_strict,
+                    p=self.minkowski_p,
+                    return_length=True,
+                )
+                - (kth_distances > 0).astype(int)
+            )
+            count_dest_past_cond = tree_dest_past_cond.query_ball_point(
+                data_dest_past_embedded,
+                r=r_strict,
+                p=self.minkowski_p,
+                return_length=True,
+            ) - (kth_distances > 0).astype(int)
+
+            # Compute local conditional transfer entropy
+            local_cte = (
+                digamma(self.k)
+                - digamma(array(count_cond_dest_past_present) + 1)
+                - digamma(array(count_source_past_cond_dest_past) + 1)
+                + digamma(array(count_dest_past_cond) + 1)
+            )
+        else:
+            count_cond_dest_past_present = tree_cond_dest_past_present.query_ball_point(
+                marginal_2_space_data,
+                r=kth_distances,
+                p=self.minkowski_p,
+                return_length=True,
+            )
+            count_source_past_cond_dest_past = (
+                tree_source_past_cond_dest_past.query_ball_point(
+                    marginal_1_space_data,
+                    r=kth_distances,
+                    p=self.minkowski_p,
+                    return_length=True,
+                )
+            )
+            count_dest_past_cond = tree_dest_past_cond.query_ball_point(
+                data_dest_past_embedded,
+                r=kth_distances,
+                p=self.minkowski_p,
+                return_length=True,
+            )
+
+            # Compute local conditional transfer entropy
+            local_cte = (
+                digamma(self.k)
+                - 1.0 / self.k
+                - digamma(array(count_cond_dest_past_present))
+                - digamma(array(count_source_past_cond_dest_past))
+                + digamma(array(count_dest_past_cond))
+            )
+        local_cte = array(local_cte)
 
         return local_cte / log(self.base) if self.base != "e" else local_cte

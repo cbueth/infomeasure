@@ -27,18 +27,38 @@ $\langle \cdot \rangle$ represents the expectation operator.
 Similar to MI estimation, it uses the advantage that the {ref}`entropy_kozachenko_leonenko`  for entropy {cite:p}`kozachenko1987sample` holds for any value of the nearest neighbour $k$.
 Therefore, one can vary the value of $k$ in each data point in such a way that the radius (distance) of the corresponding $\epsilon$-balls would be approximately the same for the joint and the marginal spaces.
 That means the distance is computed in the joint space for the fixed $k$ nearest neighbour, and then it is projected into the marginal spaces.
-Following the algorithm one, the expression for the TE is as follows:
+The authors propose two algorithms:
+- **Type I** (Algorithm 1): Uses strict inequality for neighbour counting in marginal spaces (distance < $\epsilon$).
+- **Type II** (Algorithm 2): Uses non-strict inequality (distance $\le \epsilon$) and a modified formula.
+
+Both are implemented and can be chosen using the `ksg_id` parameter (default is 1).
+
+### Type I Algorithm
+
+The expression for the TE using Algorithm 1 is as follows:
 
 $$
-TE(X \to Y, u) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}} + 1 \right)
+TE(X \to Y) = \psi(k) + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}} + 1 \right)
 - \psi \left( n_{y_{n+1}, \mathbf{y}_n^{(l)}} + 1 \right)
 - \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} + 1 \right) \right\rangle_n
 $$
 
-where
+where:
+- $ n_x(\cdot) $ refers to the number of neighbours in the marginal space with distance strictly less than the $k$-th neighbour distance in joint space.
 - $\psi(\cdot)$ denotes the **digamma function**,
 - $\langle \cdot \rangle$ represents the expectation operator.
-- $ n_x(\cdot) $ refers to the number of neighbors which are with in a hypercube that defines the search range around a statevector, the size of the hypercube in each of the marginal spaces is defined based on the distance to the $k-th$ nearest neighbor in the highest dimensional space.
+
+### Type II Algorithm
+
+The expression for the TE using Algorithm 2 is as follows:
+
+$$
+TE(X \to Y) = \psi(k) - 1/k + \left\langle \psi \left( n_{\mathbf{y}_n^{(l)}} \right)
+- \psi \left( n_{y_{n+1}, \mathbf{y}_n^{(l)}} \right)
+- \psi \left( n_{\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}} \right) \right\rangle_n
+$$
+
+where $n_x(\cdot)$ now includes the point itself and neighbours at distance $\le \epsilon$.
 
 ```{code-cell}
 import infomeasure as im
