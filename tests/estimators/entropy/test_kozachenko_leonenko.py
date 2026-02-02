@@ -1,8 +1,10 @@
 """Explicit Kozachenko-Leonenko entropy estimator tests."""
 
+import numpy as np
 import pytest
 from numpy import inf
 
+from infomeasure import entropy
 from infomeasure.estimators.entropy import KozachenkoLeonenkoEntropyEstimator
 
 
@@ -98,3 +100,25 @@ def test_invalid_values(noise_level, minkowski_p, k, match, default_rng):
         KozachenkoLeonenkoEntropyEstimator(
             data, k=k, noise_level=noise_level, minkowski_p=minkowski_p
         ).result()
+
+
+def test_kl_entropy_variants():
+    """Test Kozachenko-Leonenko entropy variants."""
+    x = np.random.rand(100)
+
+    h1 = entropy(x, approach="kl", k=4, ksg_id=1, base=2)
+    h2 = entropy(x, approach="kl", k=4, ksg_id=2, base=2)
+
+    # h1 - h2 = (psi(k) - (psi(k) - 1/k)) / log(2) = -1/k / log(2)
+    diff = h1 - h2
+    expected_diff = -0.25 / np.log(2)
+    assert diff == pytest.approx(expected_diff)
+
+
+def test_ksg_invalid_id():
+    """Test that invalid ksg_id raises ValueError."""
+    x = np.random.rand(10)
+    with pytest.raises(ValueError, match="ksg_id must be 1 or 2"):
+        KozachenkoLeonenkoEntropyEstimator(x, ksg_id=3)
+    with pytest.raises(ValueError, match="ksg_id must be 1 or 2"):
+        KozachenkoLeonenkoEntropyEstimator(x, ksg_id="1")

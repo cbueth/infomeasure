@@ -54,6 +54,10 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         The power parameter for the Minkowski metric used in distance calculations.
         Common values are 2 (Euclidean distance) and inf (maximum norm/Chebyshev
         distance). Must satisfy :math:`1 \leq p \leq \infty`.
+    ksg_id : int, default=1
+        The KSG estimator variant to use (1 or 2).
+        Type I uses the standard formula. Type II uses a modified formula with
+        :math:`\psi(k) - 1/k`.
     base : LogBaseType, default=Config.get("base")
         The logarithm base for entropy calculation. Can be 2, 10, "e", or any
         positive number.
@@ -68,6 +72,8 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         The standard deviation of the Gaussian noise added to the data.
     minkowski_p : float
         The power parameter for the Minkowski metric.
+    ksg_id : int
+        The KSG estimator variant to use.
 
     Raises
     ------
@@ -122,6 +128,7 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         self,
         *data,
         k: int = 4,
+        ksg_id: int = 1,
         noise_level=1e-10,
         minkowski_p=inf,
         base: LogBaseType = Config.get("base"),
@@ -156,6 +163,9 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         super().__init__(*data, base=base)
         self.data = tuple(assure_2d_data(var) for var in self.data)
         self.k = k
+        if ksg_id not in {1, 2}:
+            raise ValueError(f"ksg_id must be 1 or 2, but got {ksg_id}.")
+        self.ksg_id = ksg_id
         self.noise_level = noise_level
         self.minkowski_p = minkowski_p
 
@@ -189,7 +199,11 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
 
         distances[distances == 0] = nan
         # Compute the local entropies
-        local_h = -digamma(self.k) + digamma(N) + log(c_d) + d * log(2 * distances)
+        psi_k = digamma(self.k)
+        if self.ksg_id == 2:
+            psi_k -= 1.0 / self.k
+
+        local_h = -psi_k + digamma(N) + log(c_d) + d * log(2 * distances)
         local_h[isnan(local_h)] = 0.0
         # return in desired base
         return local_h / log(self.base) if self.base != "e" else local_h
@@ -240,8 +254,12 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         c_d = unit_ball_volume(d, r=1 / 2, p=self.minkowski_p)
 
         # Compute the cross-entropy
+        psi_k = digamma(self.k)
+        if self.ksg_id == 2:
+            psi_k -= 1.0 / self.k
+
         hx = (
-            -digamma(self.k)
+            -psi_k
             + digamma(M)
             + log(c_d)
             + d * np_sum(log(2 * distances[distances > 0])) / M
