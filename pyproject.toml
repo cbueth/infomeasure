@@ -33,10 +33,10 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.10"
 dependencies = [
-    "numpy",
-    "scipy",
-    "sparse>0.10.0",
-    "numba", # dependency of sparse - manually added to avoid installation issue in uv
+    "numpy>=1.22,<2.4.3",
+    "scipy>=1.0.0,<1.17.1",
+    "sparse>0.10.0,<0.17.1",
+    "numba>=0.55.0,<0.63.2", # dependency of sparse - manually added to avoid installation issue in uv
 ]
 
 [project.urls]
@@ -46,18 +46,18 @@ Issues = "https://github.com/cbueth/infomeasure/issues"
 Changelog = "https://infomeasure.readthedocs.io/en/latest/changelog/"
 
 [project.optional-dependencies]
-lint = ["ruff"]
-test = ["pytest", "pytest-cov", "coverage"]
+lint = ["ruff>=0.15.0,<0.16"]
+test = ["pytest>=6.2.5,<9.1", "pytest-cov>=3,<7.1", "coverage>=6,<7.14"]
 doc = [
-    "sphinx",
-    "numpydoc",
-    "myst-nb",
-    "sphinx-design",
-    "sphinx-book-theme",
-    "sphinxcontrib-bibtex",
-    "sphinxcontrib-mermaid",
-    "sphinx-automodapi",
-    "matplotlib",
+    "sphinx>=5,<9.2",
+    "numpydoc>=1.5,<1.11",
+    "myst-nb>=1,<1.4",
+    "sphinx-design>=0.3,<0.8",
+    "sphinx-book-theme>=1,<1.2",
+    "sphinxcontrib-bibtex>=2.3.0,<2.7",
+    "sphinxcontrib-mermaid>=1,<2.1",
+    "sphinx-automodapi>=0.15,<0.23",
+    "matplotlib>=3.5,<3.11",
 ]
 all = ["infomeasure[lint,test,doc]"]
 
