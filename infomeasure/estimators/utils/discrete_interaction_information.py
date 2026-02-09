@@ -359,6 +359,16 @@ def conditional_mutual_information_global(
     float
         The global conditional mutual information between the random variables.
 
+    Notes
+    -----
+    If wanting a condition of joint random variables, one must join them beforehand
+    into one dimension. This is due to the complexity of the calculation, keeping it
+    arbitrary enough.
+    One can join discrete random variables through
+    :py:func:`~infomeasure.estimators.utils.ordinal.reduce_joint_space`, but when using
+    CMI and CTE, this will happen automatically when passing a tuple of RVs as the
+    ``cond``.
+
     Raises
     ------
     ValueError
