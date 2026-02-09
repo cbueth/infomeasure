@@ -156,7 +156,7 @@ def reduce_joint_space(data: ndarray | tuple[ndarray] | Generator) -> ndarray:
 
     Parameters
     ----------
-    data : ndarray, shape (n_samples,) or (n_samples, n_features), or tuple of arrays
+    data : ndarray, shape (n_samples,) or (n_samples, n_features), or tuple of arrays.
         The data to reduce.
 
     Returns

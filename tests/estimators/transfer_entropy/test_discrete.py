@@ -1,7 +1,7 @@
 """Explicit discrete transfer entropy estimator tests."""
 
 import pytest
-from numpy import e, log
+from numpy import e, log, array
 
 import infomeasure as im
 from infomeasure.estimators.transfer_entropy import (
@@ -266,3 +266,23 @@ def test_discrete_te_effective_val(rng_int, method, eff_te, eff_cte):
     )
     assert est_te_xy.effective_val(method=method) == pytest.approx(eff_te)
     assert est_cte_xy.effective_val(method=method) == pytest.approx(eff_cte)
+
+
+@pytest.mark.parametrize(
+    "cond",
+    [
+        array([[0, 0], [0, 1], [1, 0], [1, 1], [0, 0], [0, 1], [1, 0], [1, 1]]),
+        (
+            array([0, 0, 1, 1, 0, 0, 1, 1]),
+            array([0, 1, 0, 1, 0, 1, 0, 1]),
+        ),
+    ],
+)
+def test_discrete_cte_joint_cond(cond):
+    """Test the discrete conditional transfer entropy with joint condition."""
+    source = array([0, 1, 1, 0, 1, 0, 1, 1])
+    dest = array([0, 0, 1, 1, 0, 1, 1, 0])
+
+    est = DiscreteCTEEstimator(source, dest, cond=cond)
+    val = est.result()
+    assert isinstance(val, float)
