@@ -8,10 +8,10 @@ kernelspec:
 Let us suppose two RVs $X$ and $Y$ represent time series processes as:
 
 $$
-\begin{align}
+\begin{aligned}
 X_{t_n}^{(k)} &= (X_{t_n}, X_{t_n-1}, \ldots, X_{t_n-k+1}),\\
 Y_{t_n}^{(l)} &= (Y_{t_n}, Y_{t_n-1}, \ldots, Y_{t_n-l+1}),
-\end{align}
+\end{aligned}
 $$
 
 The {ref}`transfer_entropy_overview` from **$X \to Y$** can be expressed using the formulation of entropy and joint entropy as follows {cite:p}`khinchin1957mathematical,cover2012elements`:
