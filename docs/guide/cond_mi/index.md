@@ -54,6 +54,19 @@ CMI is symmetric under the same condition $Z$, $I(X;Y \mid Z) = I(Y;X \mid Z)$.
 
 This package also allows the user to calculate the {ref}`Local Values` of CMI.
 
+## Multidimensional Conditioning
+Only one conditional RV is allowed, a workaround is using joint variables as conditions.
+For continuous estimators, one can join the data into a high-dimensional space by stacking the variables into a single array.
+For discrete estimators, one can pass multiple RVs as a tuple:
+
+```python
+z_joint = tuple(z_1, z_2)  # Two RVs as one joint RV
+cmi_joint = im.cmi(x, y, cond=z_joint, approach='discrete')
+print(f"CMI with joint condition: {cmi_joint:.6f} nats")
+```
+
+The package will automatically reduce this joint space.
+
 ## CMI Estimation
 The CMI expression can be expressed in the form of entropies and joint entropies as follows:
 

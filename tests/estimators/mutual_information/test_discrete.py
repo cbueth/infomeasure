@@ -244,15 +244,21 @@ def test_discrete_cmi_multiple_vars(data, cond, base, expected):
     est.local_vals()
 
 
-def test_discrete_cmi_2d_cond_error():
-    """The condition only allows 1D data."""
-    est = DiscreteCMIEstimator(
-        array([1, 2, 3]), array([1, 2, 3]), cond=array([[1, 1], [2, 2], [3, 3]]), base=2
-    )
-    with pytest.raises(
-        ValueError, match="The conditioning variable must be one-dimensional."
-    ):
-        est.result()
+@pytest.mark.parametrize(
+    "cond",
+    [
+        array([[0, 0], [0, 0], [0, 1], [0, 1], [1, 0], [1, 0], [1, 1], [1, 1]]),
+        (array([0, 0, 0, 0, 1, 1, 1, 1]), array([0, 0, 1, 1, 0, 0, 1, 1])),
+    ],
+)
+def test_discrete_cmi_joint_cond(cond):
+    """Test the discrete conditional mutual information with joint condition."""
+    data1 = array([0, 1, 0, 1, 0, 1, 0, 1])
+    data2 = array([0, 1, 0, 1, 1, 0, 1, 0])
+
+    est = DiscreteCMIEstimator(data1, data2, cond=cond, base="e")
+    res = est.result()
+    assert res == pytest.approx(log(2))
 
 
 @pytest.mark.parametrize("rng_int", [1, 2, 3, 4, 5, 6])

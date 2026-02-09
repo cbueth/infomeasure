@@ -4,15 +4,16 @@ from abc import ABC
 
 from numpy import ndarray
 
-from ... import Config
-from ...utils.types import LogBaseType
 from ..base import (
     ConditionalTransferEntropyEstimator,
     TransferEntropyEstimator,
 )
 from ..mixins import DiscreteTEMixin
 from ..utils.discrete_transfer_entropy import combined_te_form
+from ..utils.ordinal import reduce_joint_space
 from ..utils.te_slicing import cte_observations, te_observations
+from ... import Config
+from ...utils.types import LogBaseType
 
 
 class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
@@ -22,8 +23,9 @@ class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
     ----------
     source, dest : array-like
         The source (X) and destination (Y) data used to estimate the transfer entropy.
-    cond : array-like, optional
+    cond : array-like or tuple of array-like, optional
         The conditional data used to estimate the conditional transfer entropy.
+        Multiple RVs can be passed as tuples and will be treated as joint distributions.
     prop_time : int, optional
         Number of positions to shift the data arrays relative to each other (multiple of
         ``step_size``).
@@ -61,8 +63,9 @@ class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
         ----------
         source, dest : array-like
             The source (X) and destination (Y) data used to estimate the transfer entropy.
-        cond : array-like, optional
+        cond : array-like or tuple of array-like, optional
             The conditional data used to estimate the conditional transfer entropy.
+            Multiple RVs can be passed as tuples and will be treated as joint distributions.
         prop_time : int, optional
             Number of positions to shift the data arrays relative to each other (multiple of
             ``step_size``).
@@ -93,6 +96,8 @@ class BaseDiscreteTEEstimator(DiscreteTEMixin, ABC):
                 **kwargs,
             )
         else:
+            if isinstance(cond, (tuple, ndarray)):
+                cond = reduce_joint_space(cond)
             super().__init__(
                 source,
                 dest,
