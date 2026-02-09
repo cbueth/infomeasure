@@ -44,12 +44,12 @@ This package also allows the user to calculate the {ref}`Local Values`.
 The CTE expression above can be written as the combination of entropies and joint entropies as follows:
 
 $$
-\begin{align}
+\begin{aligned}
 TE(X \to Y \mid Z) =\,&H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})
 - H(\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})\\
 &- H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})
 + H(\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}).
-\end{align}
+\end{aligned}
 $$
 
 While the package uses this formula internally for the Rényi and Tsallis CTE, all other approaches each are calculated with dedicated, probabilistic implementations.
