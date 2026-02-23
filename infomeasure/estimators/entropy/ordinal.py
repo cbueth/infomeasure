@@ -40,6 +40,8 @@ class OrdinalEntropyEstimator(EntropyEstimator):
         The data used to estimate the entropy.
     embedding_dim : int
         The size of the permutation patterns.
+    step_size : int, optional
+        The step size for the sliding windows (delay). Default is 1.
     stable : bool, optional
         If True, when sorting the data, the embedding_dim of equal elements is preserved.
         This can be useful for reproducibility and testing, but might be slower.
@@ -63,6 +65,7 @@ class OrdinalEntropyEstimator(EntropyEstimator):
         self,
         *data,
         embedding_dim: int,
+        step_size: int = 1,
         stable: bool = False,
         base: LogBaseType = Config.get("base"),
     ):
@@ -72,6 +75,8 @@ class OrdinalEntropyEstimator(EntropyEstimator):
         ----------
         embedding_dim : int
             The embedding dimension of the Ordinal entropy.
+        step_size : int, optional
+            The step size for the sliding windows (delay). Default is 1.
         stable : bool, optional
             If True, when sorting the data, the order of equal elements is preserved.
             This can be useful for reproducibility and testing, but might be slower.
@@ -90,15 +95,22 @@ class OrdinalEntropyEstimator(EntropyEstimator):
             )
         if not issubdtype(type(embedding_dim), integer) or embedding_dim < 0:
             raise ValueError("The embedding_dim must be a non-negative integer.")
+        if not issubdtype(type(step_size), integer) or step_size < 1:
+            raise ValueError("The step_size must be a positive integer.")
         if (
-            isinstance(self.data[0], ndarray) and embedding_dim > self.data[0].shape[0]
+            isinstance(self.data[0], ndarray)
+            and (embedding_dim - 1) * step_size + 1 > self.data[0].shape[0]
         ) or (
-            isinstance(self.data[0], tuple) and embedding_dim > self.data[0][0].shape[0]
+            isinstance(self.data[0], tuple)
+            and (embedding_dim - 1) * step_size + 1 > self.data[0][0].shape[0]
         ):
-            raise ValueError("The embedding_dim is too large for the given data.")
+            raise ValueError(
+                "The embedding_dim and step_size are too large for the given data."
+            )
         if embedding_dim == 1:
             logger.warning("The Ordinal entropy is always 0 for embedding_dim=1.")
         self.embedding_dim = embedding_dim
+        self.step_size = step_size
         self.stable = stable
         self.patterns = None
 
@@ -173,16 +185,16 @@ class OrdinalEntropyEstimator(EntropyEstimator):
         return subarray_patterns[: len(a) - n + 1]
 
     def _estimate_probabilities(self, time_series, embedding_dim):
-        if embedding_dim == 2:
+        if embedding_dim == 2 and self.step_size == 1:
             return self._estimate_probabilities_embedding_dim_2(time_series)
-        if embedding_dim == 3:
+        if embedding_dim == 3 and self.step_size == 1:
             return self._estimate_probabilities_embedding_dim_3(time_series)
 
         # Get the length of the time series
-        total_patterns = len(time_series) - embedding_dim + 1
+        total_patterns = len(time_series) - (embedding_dim - 1) * self.step_size
         # Save the symbolized data
-        patterns = self._get_subarray_patterns(
-            time_series, embedding_dim, stable_argsort=self.stable
+        patterns = symbolize_series(
+            time_series, embedding_dim, self.step_size, stable=self.stable, to_int=False
         )
         # Create a Counter object to count the occurrences of each permutation
         count = Counter(map(tuple, patterns))
@@ -197,7 +209,7 @@ class OrdinalEntropyEstimator(EntropyEstimator):
             self.dist_dict = {0: 1.0}
             self.patterns = [0] * len(self.data[0])
             return 0.0
-        elif self.embedding_dim == self.data[0].shape[0]:
+        elif (self.embedding_dim - 1) * self.step_size + 1 == self.data[0].shape[0]:
             self.dist_dict = {tuple(self.data[0].argsort()): 1.0}
             self.patterns = [list(self.dist_dict.keys())[0]]
             return 0.0
@@ -214,9 +226,9 @@ class OrdinalEntropyEstimator(EntropyEstimator):
         """Calculate the joint entropy of the data."""
         # Symbolize separately (permutation patterns -> Lehmer codes)
         symbols = (
-            symbolize_series(marginal, self.embedding_dim, to_int=True)
+            symbolize_series(marginal, self.embedding_dim, self.step_size, to_int=True)
             for marginal in self.data[0]  # data is tuple of time series
-        )  # shape (n - (embedding_dim - 1), num_joints)
+        )  # shape (n - (embedding_dim - 1) * step_size, num_joints)
         # Reduce the joint space
         self.patterns = reduce_joint_space(
             symbols
@@ -236,7 +248,7 @@ class OrdinalEntropyEstimator(EntropyEstimator):
         ndarray[float]
             The calculated local values of entropy.
         """
-        # Use the saved patterns to calculate the local values
+        # Patterns is length n - (embedding_dim - 1) * step_size
         p_local = [self.dist_dict[tuple(pattern)] for pattern in self.patterns]
         return -self._log_base(p_local)
 
@@ -254,7 +266,8 @@ class OrdinalEntropyEstimator(EntropyEstimator):
                 "This is to have a clear definition for the support set."
             )
         symbols = tuple(
-            symbolize_series(var, self.embedding_dim, to_int=True) for var in self.data
+            symbolize_series(var, self.embedding_dim, self.step_size, to_int=True)
+            for var in self.data
         )
         data_p = DiscreteData.from_data(symbols[0])
         data_q = DiscreteData.from_data(symbols[1])

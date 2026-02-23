@@ -742,10 +742,10 @@ def estimator(
             return EstimatorClass(data[0], **kwargs)
         if cond is not None:
             EstimatorClass = _get_estimator(cmi_estimators, approach)
-            return EstimatorClass(*data, cond=cond, **kwargs)
+            return EstimatorClass(*data, cond=cond, step_size=step_size, **kwargs)
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
-            return EstimatorClass(*data, **kwargs)
+            return EstimatorClass(*data, step_size=step_size, **kwargs)
     elif measure_comp in [
         "transfer_entropy",
         "te",

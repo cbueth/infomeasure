@@ -85,6 +85,8 @@ class BaseRenyiMIEstimator(ABC):
         ValueError
             If the number of nearest neighbors is not a positive integer.
         """
+        # pop step_size if it was passed by im.estimator
+        kwargs.pop("step_size", 1)
         if cond is None:
             super().__init__(
                 *data, offset=offset, normalize=normalize, base=base, **kwargs
