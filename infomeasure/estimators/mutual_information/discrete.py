@@ -15,6 +15,7 @@ from ..utils.discrete_interaction_information import (
     conditional_mutual_information_global,
     conditional_mutual_information_local,
 )
+from ..utils.ordinal import reduce_joint_space
 from ... import Config
 from ...utils.types import LogBaseType
 
@@ -28,8 +29,9 @@ class BaseDiscreteMIEstimator(DiscreteMIMixin, ABC):
         The data used to estimate the (conditional) mutual information.
         You can pass an arbitrary number of data arrays as positional arguments.
         For conditional mutual information, only two data arrays are allowed.
-    cond : array-like, optional
+    cond : array-like or tuple of array-like, optional
         The conditional data used to estimate the conditional mutual information.
+        Multiple RVs can be passed as tuples and will be treated as joint distributions.
     offset : int, optional
         Number of positions to shift the data arrays relative to each other.
         Delay/lag/shift between the variables. Default is no shift.
@@ -52,17 +54,22 @@ class BaseDiscreteMIEstimator(DiscreteMIMixin, ABC):
             The data used to estimate the (conditional) mutual information.
             You can pass an arbitrary number of data arrays as positional arguments.
             For conditional mutual information, only two data arrays are allowed.
-        cond : array-like, optional
+        cond : array-like or tuple of array-like, optional
             The conditional data used to estimate the conditional mutual information.
+            Multiple RVs can be passed as tuples and will be treated as joint
+            distributions.
         offset : int, optional
             Number of positions to shift the X and Y data arrays relative to each other.
             Delay/lag/shift between the variables. Default is no shift.
             Not compatible with the ``cond`` parameter / conditional MI.
         """
         self.data: tuple[ndarray] = None
+
         if cond is None:
             super().__init__(*data, offset=offset, normalize=False, base=base, **kwargs)
         else:
+            if isinstance(cond, (tuple, ndarray)):
+                cond = reduce_joint_space(cond)
             super().__init__(
                 *data, cond=cond, offset=offset, normalize=False, base=base, **kwargs
             )

@@ -41,6 +41,7 @@ This release implements the KSG Type I and Type II variants and improves neighbo
   - **KSG Variants**: Added `ksg_id` parameter (1 or 2) to all KSG-based estimators.
     - `ksg_id=1` (Type I): Original KSG estimator with strict inequality for marginal counts.
     - `ksg_id=2` (Type II): KSG variant with non-strict inequality (`dist <= eps`) and modified formula.
+  - **Joint Conditional Variables**: Discrete CMI and CTE estimators now support multidimensional conditioning variables (joint variables) by automatically reducing them to a single joint space.
   - **KNN Entropy Improvements**: `KozachenkoLeonenkoEntropyEstimator` now also supports `ksg_id` to switch between standard and modified formulas.
   - **Standardized Metrics**: Ensured consistent use of the Minkowski metric across joint and marginal spaces in all KNN-based estimators.
   - **Vectorized Counting**: Improved performance of neighbor counting using SciPy's vectorized `query_ball_point`.

@@ -51,7 +51,7 @@ $X$ has $p_x(0)=p_x(1)=1/2$ and $Y$ has $p_y(0)=3/8$ and $p_y(1)=5/8$.
 The joint distribution is given by $p_{xy}((0, 0))=p_{xy}((0, 1))=1/4$, $p_{xy}((1, 0))=1/8$, and $p_{xy}((1, 1))=3/8$.
 
 $$
-\begin{align}
+\begin{aligned}
 I(X;Y) &= p_{xy}((0, 0))\ln\frac{p_{xy}((0, 0))}{p_x(0)p_y(0)}
 + p_{xy}((0, 1))\ln\frac{p_{xy}((0, 1))}{p_x(0)p_y(1)}\\
 &\quad+ p_{xy}((1, 0))\ln\frac{p_{xy}((1, 0))}{p_x(1)p_y(0)}
@@ -64,7 +64,7 @@ I(X;Y) &= p_{xy}((0, 0))\ln\frac{p_{xy}((0, 0))}{p_x(0)p_y(0)}
 &= \frac{1}{4} \ln(4/3) + \frac{1}{4} \ln(4/5) + \frac{1}{8} \ln(2/3) + \frac{3}{8} \ln(6/5)\\
 &=\frac{3}2 \ln(2) - \frac{5}{8} \ln(5)\\
 &\approx 0.033822075568605230000373...
-\end{align}
+\end{aligned}
 $$
 ```
 

@@ -10,11 +10,11 @@ kernelspec:
 when considering the knowledge of the conditional variable $Z$ and is written as $I(X;Y \mid Z)$.
 
 $$
-\begin{align}
+\begin{aligned}
 I(X;Y \mid Z) &= -\sum_{x, y, z} p(z)p(x,y\mid z) \log \frac{p(x, y \mid z)}{p(x \mid z)p(y \mid z)}\\
 &= -\sum_{x, y, z} p(x,y,z) \log \frac{p(x,y,z)p(z)}{p(x,z)p(y,z)}\\
 &= H(X \mid Z) - H(X \mid Y,Z)
-\end{align}
+\end{aligned}
 $$
 
 This package offers calculation of CMI for all approaches that {ref}`mutual_information_overview` offers.
@@ -22,22 +22,22 @@ Furthermore, more than two variables are supported.
 In this case, CMI is defined as
 
 $$
-\begin{align}
+\begin{aligned}
 I(X_1; X_2; \ldots; X_n \mid Z)&=
 -\sum_{x_1, x_2, \ldots, x_n, z} p(z)p(x_1,x_2,\ldots,x_n \mid z) \log \frac{p(x_1,x_2,\ldots,x_n \mid z)}{\prod p(x_i \mid z)}\\
 &=-\sum_{x_1, x_2, \ldots, x_n, z} p(x_1,x_2,\ldots,x_n,z) \log \frac{p(x_1,x_2,\ldots,x_n,z)p(z)}{\prod p(x_i, z)}\\
 &= - H(X_1, X_2, \ldots, X_n, Z) - H(Z) + \sum_{i=1}^n H(X_i, Z).
-\end{align}
+\end{aligned}
 $$
 
 ## Local Conditional MI
 Similar to {ref}`Local Conditional H`, **local or point-wise conditional MI** can be defined as by Fano {cite:p}`fano1961transmission`:
 
 $$
-\begin{align}
+\begin{aligned}
 i(x; y \mid z) &= -\log_b \frac{p(x \mid y, z)}{p(x \mid z)}\\
 &= h(x \mid z) - h(x \mid y, z)
-\end{align}
+\end{aligned}
 $$
 
 The conditional MI can be calculated as the expected value of its local counterparts {cite:p}`Lizier2014`:
@@ -53,6 +53,19 @@ CMI is symmetric under the same condition $Z$, $I(X;Y \mid Z) = I(Y;X \mid Z)$.
 ```
 
 This package also allows the user to calculate the {ref}`Local Values` of CMI.
+
+## Multidimensional Conditioning
+Only one conditional RV is allowed, a workaround is using joint variables as conditions.
+For continuous estimators, one can join the data into a high-dimensional space by stacking the variables into a single array.
+For discrete estimators, one can pass multiple RVs as a tuple:
+
+```python
+z_joint = tuple(z_1, z_2)  # Two RVs as one joint RV
+cmi_joint = im.cmi(x, y, cond=z_joint, approach='discrete')
+print(f"CMI with joint condition: {cmi_joint:.6f} nats")
+```
+
+The package will automatically reduce this joint space.
 
 ## CMI Estimation
 The CMI expression can be expressed in the form of entropies and joint entropies as follows:

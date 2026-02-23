@@ -40,16 +40,29 @@ $$
 
 This package also allows the user to calculate the {ref}`Local Values`.
 
+## Multidimensional Conditioning
+Only one conditional RV is allowed, a workaround is using joint variables as conditions.
+For continuous estimators, one can join the data into a high-dimensional space by stacking the variables into a single array.
+For discrete estimators, one can pass multiple RVs as a tuple:
+
+```python
+z_joint = tuple(z_1, z_2)  # Two RVs as one joint RV
+cte_joint = im.cte(data_x, data_y, cond=z_joint, approach='discrete')
+print(f"CTE with joint condition: {cte_joint:.6f} nats")
+```
+
+The package will automatically reduce this joint space.
+
 ## CTE Estimation
 The CTE expression above can be written as the combination of entropies and joint entropies as follows:
 
 $$
-\begin{align}
+\begin{aligned}
 TE(X \to Y \mid Z) =\,&H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})
 - H(\mathbf{y}_n^{(l)}, \mathbf{z}_n^{(m)})\\
 &- H(y_{n+1}, \mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)})
 + H(\mathbf{y}_n^{(l)}, \mathbf{x}_n^{(k)}, \mathbf{z}_n^{(m)}).
-\end{align}
+\end{aligned}
 $$
 
 While the package uses this formula internally for the Rényi and Tsallis CTE, all other approaches each are calculated with dedicated, probabilistic implementations.

@@ -11,10 +11,10 @@ It is a measure of **relative entropy**.
 E.g.: $P$ and $Q$ are probability distributions over a set $\mathcal{X}$:
 
 $$
-\begin{align}
+\begin{aligned}
 \operatorname{KLD}(P \parallel Q) &= \sum_{x \in \mathcal{X}} P(x) \log \left( \frac{P(x)}{Q(x)} \right)\\
 &= H_Q(P) - H(P)
-\end{align}
+\end{aligned}
 $$
 Here, $H_Q(P)$ is the {ref}`Cross-Entropy <cross_entropy_overview>` and $H(P)$ the normal {ref}`entropy_overview`.
 One can interpret the K-L divergence as degree of surprise one encounter by falsely assigning the distribution $Q$ for true distribution $P$ in a model. Even though K-L divergence seems to measure some sort of _distance_ (in a sense) between the two probability distributions, it is not a distance metric in the mathematical sense as it lacks some of the properties such as being symmetric and satisfying the triangle inequality.
