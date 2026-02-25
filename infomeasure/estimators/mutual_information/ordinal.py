@@ -8,7 +8,6 @@ from ..base import (
     MutualInformationEstimator,
     ConditionalMutualInformationEstimator,
 )
-
 from ..utils.discrete_interaction_information import (
     mutual_information_global,
     mutual_information_local,
@@ -92,6 +91,22 @@ class BaseOrdinalMIEstimator(ABC):
             )
         if not issubdtype(type(step_size), integer) or step_size < 1:
             raise ValueError("The step_size must be a positive integer.")
+
+        # Validate that all input data arrays are 1D; raise clear TypeError otherwise
+        from numpy import asarray as _np_asarray
+
+        for var in self.data:
+            arr = _np_asarray(var)
+            if arr.ndim != 1:
+                raise TypeError(
+                    "The data must be tuples of 1D arrays. "
+                    "Ordinal patterns can only be computed from 1D arrays."
+                )
+        if cond is not None:
+            cond_arr = _np_asarray(self.cond)
+            if cond_arr.ndim != 1:
+                raise TypeError("The conditional variable must be an 1d array,")
+
         if len(self.data[0]) < (embedding_dim - 1) * step_size + 1:
             raise ValueError(
                 "The data is too small for the given embedding_dim and step_size."

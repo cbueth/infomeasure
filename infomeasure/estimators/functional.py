@@ -8,8 +8,8 @@ saving time and memory by only importing the necessary classes.
 
 from functools import wraps
 
-from ..utils.config import logger
 from .base import EstimatorType
+from ..utils.config import logger
 
 entropy_estimators = {
     "ansb": "infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator",
@@ -742,10 +742,10 @@ def estimator(
             return EstimatorClass(data[0], **kwargs)
         if cond is not None:
             EstimatorClass = _get_estimator(cmi_estimators, approach)
-            return EstimatorClass(*data, cond=cond, step_size=step_size, **kwargs)
+            return EstimatorClass(*data, cond=cond, **kwargs)
         else:
             EstimatorClass = _get_estimator(mi_estimators, approach)
-            return EstimatorClass(*data, step_size=step_size, **kwargs)
+            return EstimatorClass(*data, **kwargs)
     elif measure_comp in [
         "transfer_entropy",
         "te",
