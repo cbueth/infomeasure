@@ -126,9 +126,9 @@ def test_bayes_entropy_properties():
     skewed_data = [1, 1, 1, 2]
     uniform_entropy = entropy(uniform_data, approach="bayes", alpha=1.0)
     skewed_entropy = entropy(skewed_data, approach="bayes", alpha=1.0)
-    assert (
-        uniform_entropy > skewed_entropy
-    ), "More uniform data should have higher entropy"
+    assert uniform_entropy > skewed_entropy, (
+        "More uniform data should have higher entropy"
+    )
 
 
 def test_bayes_entropy_edge_cases():
@@ -136,9 +136,9 @@ def test_bayes_entropy_edge_cases():
     # Single unique value - should be 0 (or very close due to floating point precision)
     single_value_data = [1, 1, 1, 1]
     result = entropy(single_value_data, approach="bayes", alpha=1.0)
-    assert result == pytest.approx(
-        0.0, abs=1e-15
-    ), "Entropy should be 0 for single value data"
+    assert result == pytest.approx(0.0, abs=1e-15), (
+        "Entropy should be 0 for single value data"
+    )
 
     # Empty intersection in cross-entropy (should be handled gracefully)
     data_p = [1, 1, 1]
@@ -163,6 +163,6 @@ def test_bayes_entropy_alpha_sensitivity(alpha):
     data = [0, 1, 2, 0, 1, 2]
     result = entropy(data, approach="bayes", alpha=alpha)
     assert result >= 0, f"Entropy should be non-negative for alpha={alpha}"
-    assert (
-        result < 10
-    ), f"Entropy should be reasonable for alpha={alpha}"  # Sanity check
+    assert result < 10, (
+        f"Entropy should be reasonable for alpha={alpha}"
+    )  # Sanity check

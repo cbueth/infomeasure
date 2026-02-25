@@ -58,9 +58,9 @@ class TestNsbEntropyEstimator:
         if np.isnan(expected):
             assert np.isnan(result), f"Expected NaN for {description}"
         else:
-            assert result == pytest.approx(
-                expected, rel=1e-3
-            ), f"Failed for {description}"
+            assert result == pytest.approx(expected, rel=1e-3), (
+                f"Failed for {description}"
+            )
 
     def test_nsb_functional_api(self):
         """Test NSB estimator through functional API."""

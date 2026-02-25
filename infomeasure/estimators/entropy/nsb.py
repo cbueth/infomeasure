@@ -112,9 +112,11 @@ class NsbEntropyEstimator(DiscreteHEstimator):
         try:
             # Numerator: integral of rho * bayes_entropy
             numerator, _ = quad(
-                lambda beta: exp(-self._neg_log_rho(beta, K, N, counts) + l0)
-                * self._dxi(beta, K)
-                * self._bayes(beta, K, counts),
+                lambda beta: (
+                    exp(-self._neg_log_rho(beta, K, N, counts) + l0)
+                    * self._dxi(beta, K)
+                    * self._bayes(beta, K, counts)
+                ),
                 0,
                 log_K,
                 limit=100,
@@ -124,8 +126,10 @@ class NsbEntropyEstimator(DiscreteHEstimator):
 
             # Denominator: integral of rho
             denominator, _ = quad(
-                lambda beta: exp(-self._neg_log_rho(beta, K, N, counts) + l0)
-                * self._dxi(beta, K),
+                lambda beta: (
+                    exp(-self._neg_log_rho(beta, K, N, counts) + l0)
+                    * self._dxi(beta, K)
+                ),
                 0,
                 log_K,
                 limit=100,
