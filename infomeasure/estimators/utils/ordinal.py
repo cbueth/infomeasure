@@ -27,10 +27,9 @@ def permutation_to_integer(perm: ndarray, dtype: type = uint64) -> int:
     ----------
     perm : ndarray
         A permutation pattern.
-    embedding_dim : int, optional
-        The size of the permutation pattern. Default is
-        None, which uses the length of the permutation.
-        Using this, the maximal number will be set and the smnalles possible
+    dtype : type, optional
+        The data type to use for the output. Default is uint64.
+        Using this, the maximal number will be set and the smallest possible
         dtype will be used.
 
     Returns
