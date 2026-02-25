@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v4.6.0"
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
         args: [ --maxkb=500 ]       # Allow files up to 500 KB.
@@ -46,7 +46,7 @@ repos:
         files: 'CITATION\.cff|infomeasure/_version\.py|docs/conf\.py'
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.7
+    rev: v0.15.2
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]
@@ -55,6 +55,6 @@ repos:
         types_or: [ python, pyi, jupyter ]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
