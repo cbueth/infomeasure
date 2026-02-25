@@ -128,7 +128,10 @@ def symbolize_series(
     # Extract subsequences
     subsequences = as_strided(series, shape=shape, strides=strides)
     # Get the permutation patterns
-    patterns = apply_along_axis(argsort, 1, subsequences, stable=stable)
+    if stable:
+        patterns = apply_along_axis(argsort, 1, subsequences, kind="stable")
+    else:
+        patterns = apply_along_axis(argsort, 1, subsequences)
 
     # If Lehmer code is requested, convert the permutation to an integer
     if to_int:

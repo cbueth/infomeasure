@@ -8,8 +8,8 @@ saving time and memory by only importing the necessary classes.
 
 from functools import wraps
 
-from ..utils.config import logger
 from .base import EstimatorType
+from ..utils.config import logger
 
 entropy_estimators = {
     "ansb": "infomeasure.estimators.entropy.ansb.AnsbEntropyEstimator",

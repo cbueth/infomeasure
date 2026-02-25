@@ -329,6 +329,7 @@ class EntropyEstimator(Estimator["EntropyEstimator"], ABC):
             else tuple(asarray(d) for d in var)
             for var in data
         )
+
         # differing lengths are allowed for cross-entropy, but not inside joint RVs
         for var in self.data:
             if isinstance(var, tuple) and any(len(d) != len(var[0]) for d in var):
