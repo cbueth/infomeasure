@@ -51,7 +51,7 @@ test = ["pytest>=6.2.5,<9.1", "pytest-cov>=3,<7.1", "coverage>=6,<7.14"]
 doc = [
     "sphinx>=5,<9.2",
     "numpydoc>=1.5,<1.11",
-    "myst-nb>=1,<1.4",
+    "myst-nb>=1,<1.5",
     "sphinx-design>=0.3,<0.8",
     "sphinx-book-theme>=1,<1.2",
     "sphinxcontrib-bibtex>=2.3.0,<2.7",
