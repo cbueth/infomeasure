@@ -47,7 +47,7 @@ Changelog = "https://infomeasure.readthedocs.io/en/latest/changelog/"
 
 [project.optional-dependencies]
 lint = ["ruff>=0.15.0,<0.16"]
-test = ["pytest>=6.2.5,<9.1", "pytest-cov>=3,<7.1", "coverage>=6,<7.14"]
+test = ["pytest>=6.2.5,<9.1", "pytest-cov>=3,<7.2", "coverage>=6,<7.14"]
 doc = [
     "sphinx>=5,<9.2",
     "numpydoc>=1.5,<1.11",
