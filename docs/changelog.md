@@ -28,6 +28,10 @@
 
 
 
+## Version 0.6.1 (2026-06-25)
+
+- 🔧 **Loosened version limits**: Loosened tight upper version bounds for runtime and optional dependencies to improve compatibility with newer package versions.
+
 ## Version 0.6.0 (2026-02-26)
 
 This release implements the KSG Type I and Type II variants, adds ordinal estimator improvements, and improves neighbor counting robustness.
