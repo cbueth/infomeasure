@@ -34,6 +34,15 @@
 
 </div>
 
+> [!IMPORTANT]
+> ⚡ **Rust implementation now in beta!**
+> All core measures have been reimplemented in
+> [`infomeasure-rs`](https://crates.io/crates/infomeasure)
+> ([crate docs](https://docs.rs/infomeasure)) with
+> compile-time type safety, GPU acceleration, and even faster execution.
+> Check out the [Rust Guide](https://docs.rs/infomeasure/latest/infomeasure/guide/index.html)
+> if you need maximum performance for production or large-scale analysis.
+
 Continuous and discrete entropy and information measures using different estimation
 techniques.
 

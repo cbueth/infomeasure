@@ -98,6 +98,16 @@ Short demos showcasing package capabilities and analytical comparisons.
 
 ::::
 
+```{admonition} Rust implementation now in beta!
+:class: important
+All core measures have been reimplemented in
+[`infomeasure-rs`](https://crates.io/crates/infomeasure)
+([crate docs](https://docs.rs/infomeasure)) with
+compile-time type safety, GPU acceleration, and significantly faster execution.
+Check out the [Rust Guide](https://docs.rs/infomeasure/latest/infomeasure/guide/index.html)
+if you need maximum performance for production or large-scale analysis.
+```
+
 ## What is `infomeasure`?
 
 `infomeasure` is a Python library for computing information measures, such as entropy,
