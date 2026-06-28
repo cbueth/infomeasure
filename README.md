@@ -42,6 +42,7 @@
 > compile-time type safety, GPU acceleration, and even faster execution.
 > Check out the [Rust Guide](https://docs.rs/infomeasure/latest/infomeasure/guide/index.html)
 > if you need maximum performance for production or large-scale analysis.
+> Find the [benchmark and interactive Rust vs Python performance comparison here](https://cbueth.codeberg.page/infomeasure-rs/).
 
 Continuous and discrete entropy and information measures using different estimation
 techniques.
