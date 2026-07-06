@@ -4,6 +4,7 @@ mutual information."""
 from collections import Counter
 
 from numpy import (
+    array,
     clip,
     uint64,
     log,
@@ -123,7 +124,7 @@ def _mutual_information_global_nd_int(
     )
 
     # Normalized contingency table (joint probability)
-    contingency_sum = contingency_coo.sum()
+    contingency_sum = float(contingency_coo.sum())
     p_joint = vals / contingency_sum
 
     # Logarithm of the non-zero elements
@@ -133,7 +134,7 @@ def _mutual_information_global_nd_int(
     # Combine the terms to calculate the mutual information
     mi = p_joint * (log_p_joint - log_func(contingency_sum)) + p_joint * log_outer
 
-    misum = mi.sum()  # interaction information can be negative, do not clip
+    misum = float(mi.sum())  # interaction information can be negative, do not clip
     if miller_madow_correction is None:
         return misum
     else:
@@ -163,7 +164,7 @@ def _mutual_information_global_2d_int(
     nzx, nzy, nzv = sp_find(contingency_coo)
 
     # Normalized contingency table (joint probability)
-    contingency_sum = contingency_coo.sum()
+    contingency_sum = float(contingency_coo.sum())
     p_joint = nzv / contingency_sum
     # Marginal probabilities
     pi = ravel(contingency_coo.sum(axis=1))
@@ -294,7 +295,7 @@ def mutual_information_local(
     )
 
     # Normalized contingency table (joint probability)
-    contingency_sum = contingency_coo.sum()
+    contingency_sum = float(contingency_coo.sum())
     # Marginal probabilities
     count_marginals = [
         asnumpy(
@@ -314,7 +315,7 @@ def mutual_information_local(
     # for each row in the input data: log( p(data) / p(data1) * p(data2) )
     p_joint = contingency_coo[indices].data / contingency_sum
     outer = prod(
-        [count[indices[i]] for i, count in enumerate(count_marginals)]
+        array([count[indices[i]] for i, count in enumerate(count_marginals)])
         / contingency_sum,
         axis=0,
     )
@@ -445,7 +446,7 @@ def _conditional_mutual_information_global_nd_int(
     )
 
     # Normalized contingency table (joint probability)
-    contingency_sum = contingency_coo.sum()
+    contingency_sum = float(contingency_coo.sum())
     p_joint = vals / contingency_sum
 
     # Logarithm of the non-zero elements
@@ -457,7 +458,7 @@ def _conditional_mutual_information_global_nd_int(
     )
     # Combine the terms to calculate the mutual information
     mi = p_joint * log_p_joint + p_joint * log_outer
-    misum = mi.sum()  # interaction information can be negative, do not clip
+    misum = float(mi.sum())  # interaction information can be negative, do not clip
     if miller_madow_correction is None:
         return misum
     else:
@@ -526,7 +527,7 @@ def conditional_mutual_information_local(
     )
 
     # Normalized contingency table (joint probability)
-    contingency_sum = contingency_coo.sum()
+    contingency_sum = float(contingency_coo.sum())
     # Marginal-conditioned probabilities
     count_marginals_cond = [
         asnumpy(
@@ -550,7 +551,12 @@ def conditional_mutual_information_local(
     p_joint = contingency_coo[indices].data / contingency_sum
     p_cond = count_cond[indices[-1]] / contingency_sum
     outer = prod(
-        [count[indices[i], indices[-1]] for i, count in enumerate(count_marginals_cond)]
+        array(
+            [
+                count[indices[i], indices[-1]]
+                for i, count in enumerate(count_marginals_cond)
+            ]
+        )
         / contingency_sum,
         axis=0,
     )

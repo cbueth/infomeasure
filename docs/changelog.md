@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.2 (2026-07-06)
+
+- 🐛 **sparse 0.19.0 compatibility**: Fixed a regression introduced in sparse >= 0.17 where `COO.sum()` returns a 0-dimensional COO scalar instead of a Python `int`/`float`. All discrete and ordinal MI, CMI, TE, and CTE estimators now explicitly convert COO sums to Python scalars via `float()`, ensuring compatibility with sparse 0.19.0 while maintaining support for earlier versions.
+
 ## Under Development
 
 - 📈 **Variational MI estimators**: For large datasets, stochastic variational inference {cite:p}`hoffmanStochasticVariationalInference2013` becomes a valid approach to determine variational bounds of mutual information (MI). The following variational estimators for MI are planned:
