@@ -32,12 +32,6 @@ site:
      <a href="https://pypi.org/project/infomeasure/" style="margin: 0 10px; display: inline-block;">
        <img src="https://badge.fury.io/py/infomeasure.svg" alt="PyPI version" />
      </a>
-     <a href="https://arxiv.org/abs/2505.14696" style="margin: 0 10px; display: inline-block;">
-       <img src="https://img.shields.io/badge/arXiv-2505.14696-b31b1b.svg" alt="arXiv Pre-print" />
-     </a>
-     <a href="https://doi.org/10.5281/zenodo.15241810" style="margin: 0 10px; display: inline-block;">
-       <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.15241810.svg" alt="Zenodo Project" />
-     </a>
      <a href="https://anaconda.org/conda-forge/infomeasure" style="margin: 0 10px; display: inline-block;">
        <img src="https://img.shields.io/conda/vn/conda-forge/infomeasure.svg" alt="Conda version" />
      </a>
@@ -46,6 +40,18 @@ site:
      </a>
      <a href="https://pypi.org/project/infomeasure/" style="margin: 0 10px; display: inline-block;">
        <img src="https://img.shields.io/pypi/l/infomeasure" alt="License" />
+     </a>
+   </div>
+   <div style="height: 5px;"></div>
+   <div style="text-align: center;">
+     <a href="https://doi.org/10.1038/s41598-025-14053-5" style="margin: 0 10px; display: inline-block;">
+       <img src="https://img.shields.io/static/v1?label=Sci.%20Rep.&message=10.1038/s41598-025-14053-5&color=005b96" alt="Scientific Reports" />
+     </a>
+     <a href="https://arxiv.org/abs/2505.14696" style="margin: 0 10px; display: inline-block;">
+       <img src="https://img.shields.io/badge/arXiv-2505.14696-b31b1b.svg" alt="arXiv Pre-print" />
+     </a>
+     <a href="https://doi.org/10.5281/zenodo.15241810" style="margin: 0 10px; display: inline-block;">
+       <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.15241810.svg" alt="Zenodo Project" />
      </a>
    </div>
    <div style="height: 20px;"></div>

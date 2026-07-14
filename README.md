@@ -21,6 +21,7 @@
 <div align="center">
 
 <a href="">[![arXiv](https://img.shields.io/badge/arXiv-2505.14696-b31b1b.svg)](https://arxiv.org/abs/2505.14696)</a>
+<a href="">[![Sci. Rep.](https://img.shields.io/static/v1?label=Sci.%20Rep.&message=10.1038/s41598-025-14053-5&color=005b96)](https://doi.org/10.1038/s41598-025-14053-5)</a>
 <a href="">[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15241810.svg)](https://doi.org/10.5281/zenodo.15241810)</a>
 <a href="">[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)</a>
 <a href="">[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-1.2-4baaaa.svg)](CODE_OF_CONDUCT.md)</a>
