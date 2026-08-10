@@ -104,7 +104,7 @@ Short demos showcasing package capabilities and analytical comparisons.
 
 ::::
 
-```{admonition} Rust implementation now in beta!
+```{admonition} Rust implementation now available!
 :class: important
 All core measures have been reimplemented in
 [`infomeasure-rs`](https://crates.io/crates/infomeasure)

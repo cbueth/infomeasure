@@ -36,7 +36,7 @@
 </div>
 
 > [!IMPORTANT]
-> ⚡ **Rust implementation now in beta!**
+> ⚡ **Rust implementation now available!**
 > All core measures have been reimplemented in
 > [`infomeasure-rs`](https://crates.io/crates/infomeasure)
 > ([crate docs](https://docs.rs/infomeasure)) with
