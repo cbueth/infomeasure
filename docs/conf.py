@@ -81,6 +81,7 @@ html_theme_options = {
     "use_repository_button": True,
     "use_download_button": True,
     "path_to_docs": "docs",
+    "navbar_persistent": [],
     # "home_page_in_toc": True,
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
