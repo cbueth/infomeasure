@@ -13,7 +13,7 @@ from numpy import (
     number,
 )
 from numpy import sum as np_sum
-from numpy.linalg import eig
+from numpy.linalg import eigh
 from scipy.spatial import KDTree
 from scipy.stats import gaussian_kde
 
@@ -134,7 +134,7 @@ def gaussian_kernel_densities(
         # Calculate covariance matrix
         covariance_matrix = cov(data)
         # Get eigenvalues and eigenvectors
-        values, vectors = eig(covariance_matrix)
+        values, vectors = eigh(covariance_matrix)
         sorted_indices = argsort(values)[::-1]
         values_sorted = values[sorted_indices]
         vectors_sorted = vectors[:, sorted_indices]
@@ -143,7 +143,7 @@ def gaussian_kernel_densities(
         # Check projection necessary
         if num_non_zero_eigenvalues < data.shape[0]:
             logger.debug(
-                f"Reducing dimensionality from {data.shape[1]} to "
+                f"Reducing dimensionality from {data.shape[0]} to "
                 f"{num_non_zero_eigenvalues} dimensions."
             )
             # Project the data onto the reduced space
