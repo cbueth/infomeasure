@@ -53,6 +53,9 @@ site:
      <a href="https://doi.org/10.5281/zenodo.15241810" style="margin: 0 10px; display: inline-block;">
        <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.15241810.svg" alt="Zenodo Project" />
      </a>
+     <a href="https://www.semanticscholar.org/paper/eab2671b69dae18ed1075195d700bbb98dc4712d" style="margin: 0 10px; display: inline-block;">
+       <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.openalex.org%2Fworks%2FW4413108477%3Fselect%3Dcited_by_count&query=%24.cited_by_count&label=cited%20by&suffix=%2B&color=005b96" alt="Cited by" />
+     </a>
    </div>
    <div style="height: 20px;"></div>
 
@@ -139,6 +142,29 @@ in [the repository](https://github.com/cbueth/infomeasure) and cite it according
 Alternatively, if you'd like to cite the software itself or a specific version,
 find the [Zenodo project page](https://doi.org/10.5281/zenodo.15241810)
 for the specific version you are using and cite it accordingly.
+
+## Cited in research
+
+`infomeasure` is used across research fields *(selection, as of August 2026)*:
+
+- A. Berke, E. Bacis and U. Syed,
+  [An Improved Entropy Measure for Web Browser Fingerprinting Risk](https://doi.org/10.56553/popets-2026-0102),
+  _Proceedings on Privacy Enhancing Technologies_, 2026.
+- Y. Bel-Hadj et al.,
+  [Inferring wind turbine operational state and fatigue from high-frequency acceleration using self-supervised learning for SCADA-free monitoring](https://doi.org/10.5194/wes-11-1363-2026),
+  _Wind Energy Science_, 2026.
+- L. Tiawongsuwan et al.,
+  [Autism spectrum disorder disrupts brain network connectivity maturation during childhood development](https://doi.org/10.1038/s41598-025-30971-w),
+  _Scientific Reports_, 2025.
+- L. H. McCabe and H. H. Huang,
+  [SENECA: Small-Sample Discrete Entropy Estimation via Self-Consistent Missing Mass](https://arxiv.org/abs/2605.00668),
+  _arXiv:2605.00668_, 2026.
+- R. García-Leal et al.,
+  [Functional Connectivity Between Human Motor and Somatosensory Areas During a Multifinger Tapping Task: A Proof-of-Concept Study](https://www.mdpi.com/2673-4087/7/1/12),
+  _NeuroSci_, 2026.
+
+See all citations on
+[Semantic Scholar](https://www.semanticscholar.org/paper/eab2671b69dae18ed1075195d700bbb98dc4712d).
 
 ## Contributing
 If you want to contribute to the development of `infomeasure`, please read the
