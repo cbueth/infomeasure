@@ -47,7 +47,7 @@ For discrete estimators, one can pass multiple RVs as a tuple:
 
 ```python
 z_joint = tuple(z_1, z_2)  # Two RVs as one joint RV
-cte_joint = im.cte(data_x, data_y, cond=z_joint, approach='discrete')
+cte_joint = im.cte(data_x, data_y, cond=z_joint, approach="discrete")
 print(f"CTE with joint condition: {cte_joint:.6f} nats")
 ```
 

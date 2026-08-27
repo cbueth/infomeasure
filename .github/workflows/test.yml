@@ -38,7 +38,7 @@ jobs:
             uv run --python "3.$PREV" pytest -n auto --tb=short
           elif [ "${{ matrix.mode }}" = "lowest-direct" ]; then
             uv python install 3.11
-            uv pip compile pyproject.toml --resolution lowest-direct --python 3.11 -o /tmp/lowest-base.txt
+            uv pip compile pyproject.toml --resolution lowest --python 3.11 -o /tmp/lowest-base.txt
             uv venv --python 3.11 /tmp/lowest-venv
             uv pip install --python /tmp/lowest-venv/bin/python -r /tmp/lowest-base.txt
             uv pip install --python /tmp/lowest-venv/bin/python ".[test]"

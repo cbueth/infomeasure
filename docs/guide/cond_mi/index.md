@@ -61,7 +61,7 @@ For discrete estimators, one can pass multiple RVs as a tuple:
 
 ```python
 z_joint = tuple(z_1, z_2)  # Two RVs as one joint RV
-cmi_joint = im.cmi(x, y, cond=z_joint, approach='discrete')
+cmi_joint = im.cmi(x, y, cond=z_joint, approach="discrete")
 print(f"CMI with joint condition: {cmi_joint:.6f} nats")
 ```
 
