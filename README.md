@@ -30,8 +30,8 @@
 
 <div align="center">
 
-<a href="">[![pipeline status](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/pipeline.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/commits/main)</a>
-<a href="">[![coverage report](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/badges/main/coverage.svg)](https://gitlab.ifisc.uib-csic.es/carlson/infomeasure/-/jobs)</a>
+<a href="">[![Tests](https://github.com/cbueth/infomeasure/actions/workflows/test.yml/badge.svg)](https://github.com/cbueth/infomeasure/actions/workflows/test.yml)</a>
+<a href="">[![Coverage](https://codecov.io/gh/cbueth/infomeasure/branch/main/graph/badge.svg)](https://codecov.io/gh/cbueth/infomeasure)</a>
 
 </div>
 

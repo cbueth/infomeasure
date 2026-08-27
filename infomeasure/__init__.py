@@ -1,7 +1,8 @@
 """infomeasure package."""
 
 # Expose most common functions
-from ._version import __version__
+__version__ = "0.6.2"
+
 from .utils import Config
 from .estimators.functional import (
     entropy,

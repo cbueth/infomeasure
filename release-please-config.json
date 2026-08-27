@@ -1,0 +1,9 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "extra-files": ["CITATION.cff", "docs/conf.py"],
+      "pull-request-header": "Automated release PR"
+    }
+  }
+}

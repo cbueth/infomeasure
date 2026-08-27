@@ -1,0 +1,42 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  commitlint:
+    name: Commit Lint
+    if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          show-progress: false
+
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.yaml
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          show-progress: false
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Sync lint deps
+        run: uv sync --extra lint
+
+      - name: Ruff check
+        run: uv run ruff check
+
+      - name: Ruff format check
+        run: uv run ruff format --check

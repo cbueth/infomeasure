@@ -69,7 +69,7 @@ namespaces = false
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.md", "LICENSE"] }
-version = { attr = "infomeasure._version.__version__" }
+version = { attr = "infomeasure.__version__" }
 
 # --------------------------------------------------------------------------------------
 # Linting
