@@ -1,7 +1,7 @@
 """infomeasure package."""
 
 # Expose most common functions
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 
 from .utils import Config
 from .estimators.functional import (
