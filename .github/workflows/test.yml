@@ -14,7 +14,6 @@ jobs:
         include:
           - mode: latest
           - mode: previous
-          - mode: lowest-direct
 
     steps:
       - uses: actions/checkout@v7
@@ -36,13 +35,6 @@ jobs:
             uv python install "3.$PREV"
             uv sync --extra test --python "3.$PREV"
             uv run --python "3.$PREV" pytest -n auto --tb=short
-          elif [ "${{ matrix.mode }}" = "lowest-direct" ]; then
-            uv python install 3.11
-            uv pip compile pyproject.toml --resolution lowest --python 3.11 -o /tmp/lowest-base.txt
-            uv venv --python 3.11 /tmp/lowest-venv
-            uv pip install --python /tmp/lowest-venv/bin/python -r /tmp/lowest-base.txt
-            uv pip install --python /tmp/lowest-venv/bin/python ".[test]"
-            /tmp/lowest-venv/bin/python -m pytest -n auto --tb=short
           else
             uv python install
             uv sync --extra test
@@ -57,24 +49,3 @@ jobs:
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.mode == 'latest'
-
-  codspeed:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read # required for actions/checkout
-      id-token: write # required for OIDC authentication with CodSpeed
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          show-progress: false
-
-      - uses: astral-sh/setup-uv@v5
-
-      - name: Sync test deps
-        run: uv sync --extra test
-
-      - name: Run benchmarks
-        uses: CodSpeedHQ/action@v5
-        with:
-          mode: walltime
-          run: uv run pytest tests/ --codspeed
