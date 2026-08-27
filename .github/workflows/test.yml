@@ -34,13 +34,15 @@ jobs:
             PREV=$((${LATEST} - 1))
             uv python install "3.$PREV"
             uv sync --extra test --python "3.$PREV"
-            uv run --python "3.$PREV" pytest -n auto --tb=short
+            uv run --python "3.$PREV" pytest -n auto --tb=short \
+              --ignore=tests/benchmarks
           else
             uv python install
             uv sync --extra test
             uv run pytest -n auto --tb=short \
               --cov=infomeasure --cov-branch \
-              --cov-report=xml --cov-report=term-missing
+              --cov-report=xml --cov-report=term-missing \
+              --ignore=tests/benchmarks
           fi
 
       - name: Upload coverage to Codecov
@@ -49,3 +51,24 @@ jobs:
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.mode == 'latest'
+
+  codspeed:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          show-progress: false
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install, sync
+        run: uv sync --extra test
+
+      - name: Run benchmarks
+        uses: CodSpeedHQ/action@v5
+        with:
+          mode: walltime
+          run: uv run pytest tests/benchmarks/ --codspeed
