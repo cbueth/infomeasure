@@ -57,3 +57,24 @@ jobs:
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.mode == 'latest'
+
+  codspeed:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # required for actions/checkout
+      id-token: write # required for OIDC authentication with CodSpeed
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          show-progress: false
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Sync test deps
+        run: uv sync --extra test
+
+      - name: Run benchmarks
+        uses: CodSpeedHQ/action@v5
+        with:
+          mode: walltime
+          run: uv run pytest tests/ --codspeed
