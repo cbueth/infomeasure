@@ -6,13 +6,11 @@
 ### Bug Fixes
 
 * **docs:** remove header search button so it stops pushing the navbar on scroll ([3e47b10](https://github.com/cbueth/infomeasure/commit/3e47b107dd55aa41ee5ebea5244de10aa233e07c))
-* use eigh for covariance decomposition (numpy 2.5 compat) ([18133f3](https://github.com/cbueth/infomeasure/commit/18133f36be43e5cb360c9fd18652641954f290bd))
 * use eigh for covariance decomposition (numpy 2.5 compat) ([22593a2](https://github.com/cbueth/infomeasure/commit/22593a281a0b54b166f9bf2e746984e6add7f73f))
 
 
 ### Documentation
 
-* add cited-by badge and curated 'Cited in research' sections ([dc0ad89](https://github.com/cbueth/infomeasure/commit/dc0ad89f24af9341fe31e8799bd54ee1b5326cf7))
 * add cited-by badge and curated 'Cited in research' sections ([dca2de9](https://github.com/cbueth/infomeasure/commit/dca2de96659fb64e02c4ad865ffd1a333fc9e68d))
 * add Scientific Reports badge ([ed6ca35](https://github.com/cbueth/infomeasure/commit/ed6ca3553908b7ae259fb65beabe006e21fe8b2a))
 * move changelog to root CHANGELOG.md (symlinked in docs) ([36a9fcb](https://github.com/cbueth/infomeasure/commit/36a9fcb230f83cb33c8ccf8106ac52820a6c2cb8))
