@@ -194,6 +194,28 @@ your code is formatted correctly and passes all checks:
 pre-commit run --all-files
 ```
 
+## Use of AI
+
+Contributors are allowed to use AI for help with coding (e.g. OpenCode, DeepSeek, Qwen). However, contributions must remain human work.
+You are the author of what you submit and are fully accountable for it. Concretely, submitting AI-generated work is not acceptable when you:
+
+- were not in the loop while it was produced
+- have not checked it with care yourself
+- do not have reason to believe you understand it
+- cannot explain it to a reviewer in your own words
+- feed reviewer questions into an AI tool and relay its output back instead
+  of responding yourself
+
+The list above is adapted from [Rust RFC 3950, "Contribution policy for
+AI-generated work"](https://github.com/rust-lang/rfcs/pull/3950).
+
+The infomeasure project is not anti-AI. It is opposed to mindless cognitive
+offloading. Reviewing contributions costs real maintainer time and energy,
+and we expect each contribution to be worth more than the review it requires.
+We reserve the right to revisit this policy if we find that low-quality or
+illegible AI-generated code is compromising the maintainability or integrity
+of the codebase.
+
 ## Attribution
 
 This guide is based on the
