@@ -1,5 +1,6 @@
 """Tests for the Kulback-Leibler Divergence (KLD) module."""
 
+import numpy as np
 import pytest
 
 import infomeasure as im
@@ -114,3 +115,20 @@ def test_kld_invalid_approach(approach):
     """Test the Kulback-Leibler Divergence (KLD) estimator with invalid approach."""
     with pytest.raises(ValueError):
         im.kld([1, 2, 3], [4, 5, 6], approach=approach)
+
+
+@pytest.mark.parametrize("approach", ["metric", "kl"])
+def test_kld_k1(approach):
+    """Test KLD with a single nearest neighbor."""
+    data_p = [0.0, 1.0, 3.0, 6.0, 10.0, 15.0, 21.0, 28.0]
+    data_q = [0.1, 1.2, 2.9, 6.1, 9.8, 15.2, 21.1, 27.9]
+
+    result = im.kld(
+        data_p,
+        data_q,
+        approach=approach,
+        k=1,
+        noise_level=0,
+    )
+
+    assert np.isfinite(result)
