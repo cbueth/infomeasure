@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from numpy import inf
 
-from infomeasure import entropy
+from infomeasure import cross_entropy, entropy
 from infomeasure.estimators.entropy import KozachenkoLeonenkoEntropyEstimator
 
 
@@ -122,3 +122,20 @@ def test_ksg_invalid_id():
         KozachenkoLeonenkoEntropyEstimator(x, ksg_id=3)
     with pytest.raises(ValueError, match="ksg_id must be 1 or 2"):
         KozachenkoLeonenkoEntropyEstimator(x, ksg_id="1")
+
+
+@pytest.mark.parametrize("approach", ["metric", "kl"])
+def test_kl_cross_entropy_k1(approach):
+    """Test cross-entropy with a single nearest neighbor."""
+    data_p = [0.0, 1.0, 3.0, 6.0, 10.0, 15.0, 21.0, 28.0]
+    data_q = [0.1, 1.2, 2.9, 6.1, 9.8, 15.2, 21.1, 27.9]
+
+    result = cross_entropy(
+        data_p,
+        data_q,
+        approach=approach,
+        k=1,
+        noise_level=0,
+    )
+
+    assert np.isfinite(result)
