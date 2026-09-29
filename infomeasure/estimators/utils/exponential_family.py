@@ -5,7 +5,7 @@ family of exponential family distributions. This module provides helper
 functions for these distributions.
 """
 
-from numpy import pi, sum as np_sum, exp as np_exp
+from numpy import asarray, pi, sum as np_sum, exp as np_exp
 from scipy.spatial import KDTree
 from scipy.special import gamma, digamma
 
@@ -59,78 +59,11 @@ def calculate_common_entropy_components(data, k, at=None):
     # Build k-d tree for nearest neighbor search
     tree = KDTree(data)
 
-    # Get the k-th nearest neighbor distances
-    rho_k = tree.query(at, k=k)[0][:, k - 1]  # k+1 because the point itself is included
+    # Get the k-th nearest neighbor distances.
+    # KDTree.query returns a 1-D array when k == 1.
+    rho_k = asarray(tree.query(at, k=k)[0])
+    if rho_k.ndim == 1:
+        rho_k = rho_k[:, None]
+    rho_k = rho_k[:, k - 1]
 
     return V_m, rho_k, N, m
-
-
-def exponential_family_iq(k, q, V_m, rho_k, N, m):
-    r"""Calculate the :math:`I_q` of the exponential family distribution.
-
-    Parameters
-    ----------
-    k : int
-        The number of nearest neighbors used in the estimation.
-    q : float | int
-        The Rényi or Tsallis parameter, order or exponent.
-        Sometimes denoted as :math:`\alpha` or :math:`q`.
-        Should not be 1.
-    V_m : float
-        Volume of the unit ball in m-dimensional space.
-    rho_k : array-like
-        The k-th nearest neighbor distances.
-    N : int
-        Number of data points considered for the distances
-        (Subtract 1 if own point not considered).
-    m : int
-        Dimensionality of the data.
-
-    Returns
-    -------
-    float
-        The :math:`I_q` of the exponential family distribution
-    """
-    if q == k + 1:  # In this case, C_k is complex infinite and (C_k)^-q = 0 for real q.
-        return 0.0
-    C_k = (gamma(k) / gamma(k + 1 - q)) ** (1 / (1 - q))
-    return (
-        (N * C_k * V_m) ** (1 - q)
-        * np_sum((rho_k[rho_k > 0] ** m) ** (1 - q))
-        / len(rho_k)
-    )
-
-
-def exponential_family_i1(k, V_m, rho_k, N, m, log_base_func):
-    r"""Calculate the :math:`I_1` of the exponential family distribution.
-
-    When :math:`q = 1`, the exponential family distribution reduces to the
-    Shannon entropy.
-
-    Parameters
-    ----------
-    k : int
-        The number of nearest neighbors used in the estimation.
-    V_m : float
-        Volume of the unit ball in m-dimensional space.
-    rho_k : array-like
-        The k-th nearest neighbor distances.
-    N : int
-        Number of data points considered for the distances
-        (Subtract 1 if own point not considered).
-    m : int
-        Dimensionality of the data.
-    log_base_func : callable
-        The logarithm function to use for the calculation with the chosen base.
-
-    Returns
-    -------
-    float
-        The :math:`I_1` of the exponential family distribution
-    """
-    zeta_N_i_k = N * np_exp(-digamma(k)) * V_m * rho_k**m
-    return np_sum(log_base_func(zeta_N_i_k[zeta_N_i_k > 0])) / len(zeta_N_i_k)
-    # return log_base_func(  # Analytically correct and efficient but inexact
-    #     prod(rho_k[rho_k > 0] ** m)
-    #     * (N * np_exp(-digamma(k)) * V_m) ** len(rho_k[rho_k > 0])
-    # ) / len(rho_k)
