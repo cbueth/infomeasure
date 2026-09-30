@@ -1,12 +1,8 @@
-<div style="text-align: center; max-width: 700px; margin: 0 auto;">
-  <a href="https://infomeasure.readthedocs.io/">
-    <picture>
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cbueth/infomeasure/refs/heads/main/docs/_static/im_logo_transparent.png">
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cbueth/infomeasure/refs/heads/main/docs/_static/im_logo_transparent_dark.png">
-      <img src="https://raw.githubusercontent.com/cbueth/infomeasure/refs/heads/main/docs/_static/im_logo_transparent.png" style="max-width: 100%; height: auto;" alt="infomeasure logo">
-    </picture>
+<p align="center">
+  <a href="https://infomeasure.org/">
+    <img src="https://infomeasure.org/assets/wordmark.svg" alt="infomeasure logo" width="616">
   </a>
-</div>
+</p>
 
 <div align="center">
 
@@ -43,7 +39,8 @@
 > compile-time type safety, GPU acceleration, and even faster execution.
 > Check out the [Rust Guide](https://docs.rs/infomeasure/latest/infomeasure/guide/index.html)
 > if you need maximum performance for production or large-scale analysis.
-> Find the [benchmark and interactive Rust vs Python performance comparison here](https://cbueth.codeberg.page/infomeasure-rs/).
+> Find the [benchmark and interactive Rust vs Python performance comparison here](https://infomeasure.org/benchmarks/).
+> Project home: <https://infomeasure.org/>.
 
 Continuous and discrete entropy and information measures using different estimation
 techniques.
