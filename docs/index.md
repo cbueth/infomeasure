@@ -7,21 +7,11 @@ site:
 (infomeasure_docs)=
 # Overview
 
-:::{image} _static/im_logo_transparent.png
-  :width: 700
-  :align: center
-  :class: only-light
-  :alt: infomeasure logo
-  :target: .
-:::
-
-:::{image} _static/im_logo_transparent_dark.png
-  :width: 700
-  :align: center
-  :class: only-dark
-  :alt: infomeasure logo
-  :target: .
-:::
+```{raw} html
+<p align="center">
+  <img src="https://infomeasure.org/assets/wordmark.svg" alt="infomeasure logo" width="616" style="max-width: 100%; height: auto;">
+</p>
+```
 
 
 ```{eval-rst}
