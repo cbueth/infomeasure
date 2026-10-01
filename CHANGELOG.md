@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.4](https://github.com/cbueth/infomeasure/compare/v0.6.3...v0.6.4) (2026-10-01)
+
+
+### Documentation
+
+* add Use of AI section to contributing guidelines ([395c615](https://github.com/cbueth/infomeasure/commit/395c6156a2927484062c9d089c75284117cc25ef))
+* link the website from the docs, live CSS wordmark on the index ([4cdd461](https://github.com/cbueth/infomeasure/commit/4cdd4610a91ef5b61a03c5585046c0e90bea21ca))
+* point links and banner at infomeasure.org ([3570430](https://github.com/cbueth/infomeasure/commit/35704307036a7046b0c1c243f46e39e2172eb269))
+
 ## [0.6.3](https://github.com/cbueth/infomeasure/compare/0.6.2...v0.6.3) (2026-08-27)
 
 
