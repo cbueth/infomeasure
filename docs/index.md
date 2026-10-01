@@ -8,9 +8,9 @@ site:
 # Overview
 
 ```{raw} html
-<p align="center">
-  <img src="https://infomeasure.org/assets/wordmark.svg" alt="infomeasure logo" width="616" style="max-width: 100%; height: auto;">
-</p>
+<div class="im-wordmark">
+  <a class="wm-link" href="https://infomeasure.org/" aria-label="infomeasure home"><span class="wm" role="img" aria-label="infomeasure"><span class="info">info</span><span class="measure"><span class="mw"><span class="l" style="--i:0" data-ch="m">m</span><span class="l" style="--i:1" data-ch="e">e</span><span class="l" style="--i:2" data-ch="a">a</span><span class="l" style="--i:3" data-ch="s">s</span><span class="l" style="--i:4" data-ch="u">u</span><span class="l" style="--i:5" data-ch="r">r</span><span class="l" style="--i:6" data-ch="e">e</span></span><span class="grain" aria-hidden="true"></span><span class="grain2" aria-hidden="true"></span></span></span></a>
+</div>
 ```
 
 
