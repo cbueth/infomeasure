@@ -122,3 +122,20 @@ def test_ksg_invalid_id():
         KozachenkoLeonenkoEntropyEstimator(x, ksg_id=3)
     with pytest.raises(ValueError, match="ksg_id must be 1 or 2"):
         KozachenkoLeonenkoEntropyEstimator(x, ksg_id="1")
+
+
+def test_kl_cross_entropy_and_kld_k1(default_rng):
+    """k=1 must work for KL cross-entropy / KLD (scipy query is 1-D then)."""
+    data_p = default_rng.normal(size=200)
+    data_q = default_rng.normal(loc=0.3, size=180)
+    hx = entropy(data_p, data_q, approach="kl", k=1, noise_level=0)
+    assert np.isfinite(hx)
+    est = KozachenkoLeonenkoEntropyEstimator(
+        data_p, data_q, k=1, noise_level=0
+    )
+    assert np.isfinite(est.global_val())
+    import infomeasure as im
+    val = im.kld(data_p, data_q, approach="metric", k=1, noise_level=0)
+    assert np.isfinite(val)
+    val_alias = im.kld(data_p, data_q, approach="kl", k=1, noise_level=0)
+    assert np.isfinite(val_alias)

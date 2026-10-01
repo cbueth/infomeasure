@@ -1,6 +1,6 @@
 """Module for the Kozachenko-Leonenko entropy estimator."""
 
-from numpy import column_stack, sum as np_sum, nan, isnan
+from numpy import asarray, column_stack, sum as np_sum, nan, isnan
 from numpy import inf, log, issubdtype, integer
 from scipy.spatial import KDTree
 from scipy.special import digamma
@@ -242,8 +242,12 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         # Build a KDTree for efficient nearest neighbor search with maximum norm
         tree = KDTree(data_noisy_q)
 
-        # Find the k-th nearest neighbors for each point
+        # Find the k-th nearest neighbors for each point.
+        # KDTree.query returns a 1-D array when k == 1, not an (n, k) matrix.
         distances, _ = tree.query(data_noisy_p, self.k, p=self.minkowski_p)
+        distances = asarray(distances)
+        if distances.ndim == 1:
+            distances = distances[:, None]
         # Only keep the k-th nearest neighbor distance
         distances = distances[:, -1]
 

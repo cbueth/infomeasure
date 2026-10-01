@@ -5,7 +5,7 @@ family of exponential family distributions. This module provides helper
 functions for these distributions.
 """
 
-from numpy import pi, sum as np_sum, exp as np_exp
+from numpy import asarray, pi, sum as np_sum, exp as np_exp
 from scipy.spatial import KDTree
 from scipy.special import gamma, digamma
 
@@ -59,8 +59,12 @@ def calculate_common_entropy_components(data, k, at=None):
     # Build k-d tree for nearest neighbor search
     tree = KDTree(data)
 
-    # Get the k-th nearest neighbor distances
-    rho_k = tree.query(at, k=k)[0][:, k - 1]  # k+1 because the point itself is included
+    # Get the k-th nearest neighbor distances.
+    # KDTree.query returns a 1-D array when k == 1.
+    rho_k = asarray(tree.query(at, k=k)[0])
+    if rho_k.ndim == 1:
+        rho_k = rho_k[:, None]
+    rho_k = rho_k[:, k - 1]
 
     return V_m, rho_k, N, m
 
