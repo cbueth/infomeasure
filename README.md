@@ -1,8 +1,8 @@
-<p align="center">
+<div align="center">
   <a href="https://infomeasure.org/">
     <img src="https://infomeasure.org/assets/wordmark.svg" alt="infomeasure logo" width="616">
   </a>
-</p>
+</div>
 
 <div align="center">
 

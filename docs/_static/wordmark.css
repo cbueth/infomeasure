@@ -1,0 +1,131 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Carlson Büth <code@cbueth.de>
+ *
+ * SPDX-License-Identifier: MIT OR Apache-2.0
+ *
+ * Live CSS wordmark for the docs index, mirroring the site header
+ * (infomeasure.org). The pulse animates the per-letter blur ramp via the
+ * registered `--scale` custom property; respects `prefers-reduced-motion`.
+ */
+
+.im-wordmark {
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  margin: 0.3rem 0;
+  text-align: center;
+}
+
+.im-wordmark a.wm-link,
+.im-wordmark a.wm-link:hover {
+  display: inline-flex;
+  text-decoration: none !important;
+  border-bottom: 0;
+}
+
+.im-wordmark .wm {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 1;
+  font-size: clamp(48px, 8vw, 84px);
+  color: #000;
+  --scale: .40;
+  --isz: 1.00;
+  --ishift: 0px;
+  --track: .015em;
+  --ithick: 0px;
+  --msz: 1.00;
+  --mwidth: .84;
+  --b0: 0.90px;
+  --bstep: 1.20px;
+  --gop: .55;
+  --gsz: 2.2;
+}
+
+@media (prefers-color-scheme: dark) {
+  .im-wordmark .wm { color: #fff; }
+}
+
+.im-wordmark .wm .info {
+  font-family: "Libre Baskerville", Baskerville, "Iowan Old Style", Palatino, Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  -webkit-text-stroke-width: var(--ithick);
+  -webkit-text-stroke-color: currentColor;
+  font-size: calc(1em * var(--isz));
+  padding-right: .01em;
+  transform: translateY(var(--ishift));
+}
+
+.im-wordmark .wm .measure {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  font-family: "Arimo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: calc(1em * var(--msz));
+  letter-spacing: var(--track);
+  margin-left: .04em;
+}
+
+.im-wordmark .wm .measure .mw {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  transform: scaleX(var(--mwidth));
+  transform-origin: left center;
+}
+
+.im-wordmark .wm .measure .l {
+  display: inline-block;
+  filter: blur(calc((var(--b0) + var(--i) * var(--bstep)) * var(--scale)));
+}
+
+.im-wordmark .wm .measure .grain,
+.im-wordmark .wm .measure .grain2 {
+  position: absolute;
+  inset: -10% -3%;
+  pointer-events: none;
+  transform: scaleX(var(--mwidth));
+  transform-origin: left center;
+}
+
+.im-wordmark .wm .measure .grain {
+  background-image: var(--noise);
+  background-size: calc(var(--gsz) * 1em) calc(var(--gsz) * 1em);
+  opacity: var(--gop);
+  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(90deg, transparent 16%, #000 60%, #000);
+  mask-image: linear-gradient(90deg, transparent 16%, #000 60%, #000);
+}
+
+.im-wordmark .wm .measure .grain2 {
+  background-image: var(--noise);
+  background-size: calc(var(--gsz) * .5em) calc(var(--gsz) * .5em);
+  opacity: calc(var(--gop) * .55);
+  mix-blend-mode: screen;
+  -webkit-mask-image: linear-gradient(90deg, transparent 46%, #000);
+  mask-image: linear-gradient(90deg, transparent 46%, #000);
+}
+
+@media (prefers-color-scheme: dark) {
+  .im-wordmark .wm .measure .grain,
+  .im-wordmark .wm .measure .grain2 { mix-blend-mode: darken; }
+}
+
+@property --scale {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: .40;
+}
+
+@keyframes wm-pulse {
+  0% { --scale: .40; }
+  40% { --scale: 1.0; }
+  75% { --scale: .15; }
+  100% { --scale: .40; }
+}
+
+.im-wordmark .wm { animation: wm-pulse 16s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .im-wordmark .wm { animation: none; }
+}

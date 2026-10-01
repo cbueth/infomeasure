@@ -74,6 +74,7 @@ numpydoc_show_inherited_class_members = False
 html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
 html_js_files = ["custom.js"]
+html_css_files = ["wordmark.css"]
 html_theme_options = {
     "repository_url": "https://github.com/cbueth/infomeasure",
     "repository_branch": "main",
@@ -93,21 +94,32 @@ html_theme_options = {
         "image_light": "_static/im_logo_transparent.png",
         "image_dark": "_static/im_logo_transparent_dark.png",
     },
-    #  "icon_links": [
-    #      {
-    #          "name": "GitHub",
-    #          "url": "https://github.com/cbueth/infomeasure",  # required
-    #          # Icon class (if "type": "fontawesome"), or path to local image (if "type": "local")
-    #          "icon": "fa-brands fa-github",
-    #          "type": "fontawesome",
-    #      },
-    #      {
-    #          "name": "PyPI",
-    #          "url": "https://pypi.org/project/infomeasure/",
-    #          "icon": "https://img.shields.io/pypi/v/infomeasure",
-    #          "type": "url",
-    #      },
-    # ]
+    "icon_links": [
+        {
+            "name": "Website",
+            "url": "https://infomeasure.org/",
+            "icon": "fa-solid fa-globe",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Benchmarks",
+            "url": "https://infomeasure.org/benchmarks/",
+            "icon": "fa-solid fa-chart-line",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Rust API",
+            "url": "https://docs.rs/infomeasure",
+            "icon": "fa-solid fa-book",
+            "type": "fontawesome",
+        },
+        {
+            "name": "GitHub",
+            "url": "https://github.com/cbueth/infomeasure",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        },
+    ],
 }
 html_favicon = "_static/im_icon_transparent-200x200.png"
 html_sidebars = {
