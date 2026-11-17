@@ -79,7 +79,7 @@ where:
 
 
 For demonstration, we generate a dataset of normally distributed values with mean $0$ and standard deviation $1$.
-We then calculate the entropy using the box kernel with a bandwidth of $0.5$.
+We then calculate the entropy with the Rényi estimator using $k=4$ and $\alpha=1$.
 The analytical expected values can be calculated with
 
 $$

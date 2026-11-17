@@ -33,7 +33,7 @@ The package supports two variants of this estimator via the `ksg_id` parameter:
 - **Type II** (`ksg_id=2`): Uses a modified formula where $\psi(k)$ is replaced by $\psi(k) - 1/k$. This variant is sometimes used for consistency with KSG Type II mutual information estimators.
 
 For demonstration, we generate a dataset of normally distributed values with mean $0$ and standard deviation $1$.
-We then calculate the entropy using the box kernel with a bandwidth of $0.5$.
+We then calculate the entropy with the Kozachenko-Leonenko estimator using $k=4$.
 The analytical expected values can be calculated with
 
 $$
