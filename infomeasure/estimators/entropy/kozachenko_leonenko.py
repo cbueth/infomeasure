@@ -245,7 +245,8 @@ class KozachenkoLeonenkoEntropyEstimator(RandomGeneratorMixin, EntropyEstimator)
         # Find the k-th nearest neighbors for each point
         distances, _ = tree.query(data_noisy_p, self.k, p=self.minkowski_p)
         # Only keep the k-th nearest neighbor distance
-        distances = distances[:, -1]
+        if distances.ndim > 1:
+            distances = distances[:, -1]
 
         # Constants for the entropy formula
         M = self.data[1].shape[0]
