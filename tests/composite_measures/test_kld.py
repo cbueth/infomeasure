@@ -131,4 +131,4 @@ def test_kld_k1(approach):
         noise_level=0,
     )
 
-    assert np.isfinite(result)
+    assert result == pytest.approx(-3.108300070417241)
