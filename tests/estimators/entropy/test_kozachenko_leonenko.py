@@ -138,4 +138,4 @@ def test_kl_cross_entropy_k1(approach):
         noise_level=0,
     )
 
-    assert np.isfinite(result)
+    assert result == pytest.approx(1.243349423133024)
