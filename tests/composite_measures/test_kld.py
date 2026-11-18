@@ -118,28 +118,37 @@ def test_kld_invalid_approach(approach):
 
 
 @pytest.mark.parametrize(
-    "approach,param",
-    [("renyi", {"alpha": 2}), ("tsallis", {"q": 2})],
+    "approach,param,expected",
+    [
+        ("renyi", {"alpha": 1.5}, 1.3410285694857775),
+        ("tsallis", {"q": 1.5}, 0.9771090369376492),
+    ],
 )
-def test_cross_entropy_k1_with_at(default_rng, approach, param):
+def test_cross_entropy_k1_with_at(default_rng, approach, param, expected):
     """Cross-entropy with k=1 passes ``at`` to the k-d tree query.
 
     Regression test for the 1-D query result raising an IndexError when only
-    the single nearest neighbor is requested.
+    the single nearest neighbor is requested. Use a non-short-circuit order so
+    the nearest-neighbor distance actually reaches the estimator.
     """
-    data_p = default_rng.normal(size=200)
-    data_q = default_rng.normal(size=200)
+    rng = np.random.default_rng(1)
+    data_p = rng.normal(size=200)
+    data_q = rng.normal(size=200)
     result = im.cross_entropy(data_p, data_q, approach=approach, k=1, **param)
-    assert np.isfinite(result)
+    assert result == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
-    "approach,param",
-    [("renyi", {"alpha": 2}), ("tsallis", {"q": 2})],
+    "approach,param,expected",
+    [
+        ("renyi", {"alpha": 1.5}, -0.05581831017618866),
+        ("tsallis", {"q": 1.5}, -0.028153327326069233),
+    ],
 )
-def test_kld_k1_with_at(default_rng, approach, param):
+def test_kld_k1_with_at(default_rng, approach, param, expected):
     """KLD with k=1 evaluates cross-entropy with ``at`` set (see issue #51)."""
-    data_p = default_rng.normal(size=200)
-    data_q = default_rng.normal(size=200)
+    rng = np.random.default_rng(1)
+    data_p = rng.normal(size=200)
+    data_q = rng.normal(size=200)
     result = im.kld(data_p, data_q, approach=approach, k=1, **param)
-    assert np.isfinite(result)
+    assert result == pytest.approx(expected)
