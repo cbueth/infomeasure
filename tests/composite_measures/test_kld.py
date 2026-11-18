@@ -1,5 +1,6 @@
 """Tests for the Kulback-Leibler Divergence (KLD) module."""
 
+import numpy as np
 import pytest
 
 import infomeasure as im
@@ -114,3 +115,31 @@ def test_kld_invalid_approach(approach):
     """Test the Kulback-Leibler Divergence (KLD) estimator with invalid approach."""
     with pytest.raises(ValueError):
         im.kld([1, 2, 3], [4, 5, 6], approach=approach)
+
+
+@pytest.mark.parametrize(
+    "approach,param",
+    [("renyi", {"alpha": 2}), ("tsallis", {"q": 2})],
+)
+def test_cross_entropy_k1_with_at(default_rng, approach, param):
+    """Cross-entropy with k=1 passes ``at`` to the k-d tree query.
+
+    Regression test for the 1-D query result raising an IndexError when only
+    the single nearest neighbor is requested.
+    """
+    data_p = default_rng.normal(size=200)
+    data_q = default_rng.normal(size=200)
+    result = im.cross_entropy(data_p, data_q, approach=approach, k=1, **param)
+    assert np.isfinite(result)
+
+
+@pytest.mark.parametrize(
+    "approach,param",
+    [("renyi", {"alpha": 2}), ("tsallis", {"q": 2})],
+)
+def test_kld_k1_with_at(default_rng, approach, param):
+    """KLD with k=1 evaluates cross-entropy with ``at`` set (see issue #51)."""
+    data_p = default_rng.normal(size=200)
+    data_q = default_rng.normal(size=200)
+    result = im.kld(data_p, data_q, approach=approach, k=1, **param)
+    assert np.isfinite(result)
