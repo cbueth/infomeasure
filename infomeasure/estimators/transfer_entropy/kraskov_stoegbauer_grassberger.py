@@ -60,6 +60,7 @@ class BaseKSGTEEstimator(ABC):
         *,  # Enforce keyword-only arguments
         cond=None,
         k: int = 4,
+        boxsize: float = None,
         ksg_id: int = 1,
         noise_level=1e-8,
         minkowski_p=inf,
@@ -132,6 +133,7 @@ class BaseKSGTEEstimator(ABC):
                 **kwargs,
             )
         self.k = k
+        self.boxsize=boxsize
         if ksg_id not in {1, 2}:
             raise ValueError(f"ksg_id must be 1 or 2, but got {ksg_id}.")
         self.ksg_id = ksg_id
@@ -206,7 +208,7 @@ class KSGTEEstimator(BaseKSGTEEstimator, TransferEntropyEstimator):
         )
 
         # Create KDTree for efficient nearest neighbor search in joint space
-        tree_joint = KDTree(joint_space_data)
+        tree_joint = KDTree(joint_space_data,boxsize=self.boxsize)
 
         # Find distances to the k-th nearest neighbor in the joint space
         distances, _ = tree_joint.query(
@@ -215,9 +217,9 @@ class KSGTEEstimator(BaseKSGTEEstimator, TransferEntropyEstimator):
         kth_distances = distances[:, -1]  # get last column with k-th distances
 
         # Count points in marginal spaces
-        tree_dest_past_present = KDTree(marginal_2_space_data)
-        tree_source_past_dest_past = KDTree(marginal_1_space_data)
-        tree_dest_past = KDTree(data_dest_past_embedded)
+        tree_dest_past_present = KDTree(marginal_2_space_data,boxsize=self.boxsize)
+        tree_source_past_dest_past = KDTree(marginal_1_space_data,boxsize=self.boxsize)
+        tree_dest_past = KDTree(data_dest_past_embedded,boxsize=self.boxsize)
 
         if self.ksg_id == 1:
             r_strict = nextafter(kth_distances, -inf)
@@ -353,7 +355,7 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
         )
 
         # Create KDTree for efficient nearest neighbor search in joint space
-        tree_joint = KDTree(joint_space_data)
+        tree_joint = KDTree(joint_space_data,boxsize=self.boxsize)
 
         # Find distances to the k-th nearest
         distances, _ = tree_joint.query(
@@ -362,9 +364,9 @@ class KSGCTEEstimator(BaseKSGTEEstimator, ConditionalTransferEntropyEstimator):
         kth_distances = distances[:, -1]
 
         # Count points in marginal spaces
-        tree_cond_dest_past_present = KDTree(marginal_2_space_data)
-        tree_source_past_cond_dest_past = KDTree(marginal_1_space_data)
-        tree_dest_past_cond = KDTree(data_dest_past_embedded)
+        tree_cond_dest_past_present = KDTree(marginal_2_space_data,boxsize=self.boxsize)
+        tree_source_past_cond_dest_past = KDTree(marginal_1_space_data,boxsize=self.boxsize)
+        tree_dest_past_cond = KDTree(data_dest_past_embedded,boxsize=self.boxsize)
 
         if self.ksg_id == 1:
             r_strict = nextafter(kth_distances, -inf)
