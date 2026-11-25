@@ -141,6 +141,12 @@ python -m ipykernel install --user --name=im_env
 This allows you to run Jupyter with the kernel `im_env` (Kernel > Change Kernel >
 im_env)
 
+## Contributing
+
+Before opening a PR, read [CONTRIBUTING.md](CONTRIBUTING.md), including the
+[Use of AI](CONTRIBUTING.md#use-of-ai) policy. AI assistance is welcome, but a human
+author must understand and explain the change.
+
 ## Acknowledgments
 
 This project has received funding from the European Research Council (ERC) under the
