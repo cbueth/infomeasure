@@ -132,3 +132,18 @@ def test_kld_k1(approach):
     )
 
     assert result == pytest.approx(-3.108300070417241)
+
+
+@pytest.mark.parametrize(
+    "approach,param,expected",
+    [
+        ("renyi", {"alpha": 1.5}, -2.8692235734787577),
+        ("tsallis", {"q": 1.5}, -0.6049258072910904),
+    ],
+)
+def test_kld_k1_exponential_family(approach, param, expected):
+    """Test KLD with k=1 and an explicit evaluation point set."""
+    data_p = [0.0, 1.0, 3.0, 6.0, 10.0, 15.0, 21.0, 28.0]
+    data_q = [0.1, 1.2, 2.9, 6.1, 9.8, 15.2, 21.1, 27.9]
+    result = im.kld(data_p, data_q, approach=approach, k=1, **param)
+    assert result == pytest.approx(expected)

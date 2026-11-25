@@ -59,8 +59,12 @@ def calculate_common_entropy_components(data, k, at=None):
     # Build k-d tree for nearest neighbor search
     tree = KDTree(data)
 
-    # Get the k-th nearest neighbor distances
-    rho_k = tree.query(at, k=k)[0][:, k - 1]  # k+1 because the point itself is included
+    # Get the k-th nearest neighbor distances.
+    # KDTree.query returns a 1-D array when k == 1 and at is a batch of points.
+    rho = tree.query(at, k=k)[0]
+    if rho.ndim == 1:
+        rho = rho[:, None]
+    rho_k = rho[:, k - 1]
 
     return V_m, rho_k, N, m
 

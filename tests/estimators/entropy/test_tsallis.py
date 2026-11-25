@@ -3,6 +3,7 @@
 import pytest
 from numpy import inf
 
+from infomeasure import cross_entropy
 from infomeasure.estimators.entropy import (
     TsallisEntropyEstimator,
     DiscreteEntropyEstimator,
@@ -34,6 +35,14 @@ def test_tsallis_entropy_explicit(data, k, q, expected):
     """Test the Tsallis entropy estimator with specific values."""
     est = TsallisEntropyEstimator(data, k=k, q=q, base=2)
     assert est.result() == pytest.approx(expected)
+
+
+def test_tsallis_cross_entropy_k1():
+    """Test Tsallis cross-entropy with k=1 and an explicit evaluation set."""
+    data_p = [0.0, 1.0, 3.0, 6.0, 10.0, 15.0, 21.0, 28.0]
+    data_q = [0.1, 1.2, 2.9, 6.1, 9.8, 15.2, 21.1, 27.9]
+    result = cross_entropy(data_p, data_q, approach="tsallis", k=1, q=1.5)
+    assert result == pytest.approx(1.2059175397628703)
 
 
 @pytest.mark.parametrize("k", [0, -1, -10, None])
