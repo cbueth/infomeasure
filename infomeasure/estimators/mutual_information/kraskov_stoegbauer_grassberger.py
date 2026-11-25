@@ -52,6 +52,7 @@ class BaseKSGMIEstimator(ABC):
         *data,
         cond=None,
         k: int = 4,
+        boxsize: float = None,
         ksg_id: int = 1,
         noise_level=1e-10,
         minkowski_p=inf,
@@ -109,6 +110,7 @@ class BaseKSGMIEstimator(ABC):
             # Ensure self.cond is a 2D array
             self.cond = assure_2d_data(self.cond)
         self.k = k
+        self.boxsize=boxsize
         if ksg_id not in {1, 2}:
             raise ValueError(f"ksg_id must be 1 or 2, but got {ksg_id}.")
         self.ksg_id = ksg_id
@@ -176,7 +178,7 @@ class KSGMIEstimator(BaseKSGMIEstimator, MutualInformationEstimator):
 
         # Create a KDTree for joint data to find nearest neighbors using the maximum
         # norm
-        tree_joint = KDTree(data_joint)  # default leafsize is 10
+        tree_joint = KDTree(data_joint,boxsize=self.boxsize)  # default leafsize is 10
 
         # Find the k-th nearest neighbor distance for each point in joint space using
         # the maximum norm
@@ -185,7 +187,7 @@ class KSGMIEstimator(BaseKSGMIEstimator, MutualInformationEstimator):
 
         # Create KDTree objects for X and Y to count neighbors in marginal spaces using
         # the maximum norm
-        trees_marginal = [KDTree(var) for var in data]
+        trees_marginal = [KDTree(var,boxsize=self.boxsize) for var in data]
 
         # Count neighbors within k-th nearest neighbor distance in X and Y spaces
         if self.ksg_id == 1:
@@ -289,15 +291,15 @@ class KSGCMIEstimator(BaseKSGMIEstimator, ConditionalMutualInformationEstimator)
         data_joint = column_stack((*data, cond))
 
         # Create KDTree for efficient nearest neighbor search in joint space
-        tree_joint = KDTree(data_joint)
+        tree_joint = KDTree(data_joint,boxsize=self.boxsize)  # default leafsize is 10
 
         # Find k-th nearest neighbor distances in joint space
         distances, _ = tree_joint.query(data_joint, k=self.k + 1, p=self.minkowski_p)
         kth_distances = distances[:, -1]
 
         # Count neighbors within k-th nearest neighbor distance in marginal spaces
-        trees_marginal_cond = [KDTree(column_stack((var, cond))) for var in data]
-        tree_cond = KDTree(cond)
+        trees_marginal_cond = [KDTree(column_stack((var, cond)),boxsize=self.boxsize) for var in data]
+        tree_cond = KDTree(cond,boxsize=self.boxsize)
 
         if self.ksg_id == 1:
             r_strict = nextafter(kth_distances, -inf)
