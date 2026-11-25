@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.4](https://github.com/cbueth/infomeasure/compare/v0.6.3...v0.6.4) (2026-11-25)
+
+
+### Bug Fixes
+
+* support k=1 in KL cross-entropy ([6a7eb7b](https://github.com/cbueth/infomeasure/commit/6a7eb7b63a9fdc59b8db26981f3399ee956b4e5b))
+* support k=1 in Rényi/Tsallis cross-entropy ([635c6d4](https://github.com/cbueth/infomeasure/commit/635c6d4fc87ef66037638ea93dc6ad131374e4cc))
+
+
+### Documentation
+
+* add AI disclosure policy ([60f9daf](https://github.com/cbueth/infomeasure/commit/60f9dafc89bab82a592e00cfc2a94a2091748ff5))
+* add Use of AI section to contributing guidelines ([395c615](https://github.com/cbueth/infomeasure/commit/395c6156a2927484062c9d089c75284117cc25ef))
+* cite published infomeasure-rs Entropy paper in Rust callouts ([9b691e4](https://github.com/cbueth/infomeasure/commit/9b691e4a4b3b01f62b460cb77c84f58b9c2e90f5))
+* **entropy:** correct kernel wording on kNN estimator pages ([643675d](https://github.com/cbueth/infomeasure/commit/643675d4f0d68fd366ff4f851b24412c24465d56))
+* link the website from the docs, live CSS wordmark on the index ([4cdd461](https://github.com/cbueth/infomeasure/commit/4cdd4610a91ef5b61a03c5585046c0e90bea21ca))
+* point links and banner at infomeasure.org ([3570430](https://github.com/cbueth/infomeasure/commit/35704307036a7046b0c1c243f46e39e2172eb269))
+
 ## [0.6.3](https://github.com/cbueth/infomeasure/compare/0.6.2...v0.6.3) (2026-08-27)
 
 
