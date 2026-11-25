@@ -40,7 +40,7 @@
 > Check out the [Rust Guide](https://docs.rs/infomeasure/latest/infomeasure/guide/index.html)
 > if you need maximum performance for production or large-scale analysis.
 > Find the [benchmark and interactive Rust vs Python performance comparison here](https://infomeasure.org/benchmarks/).
-> Project home: <https://infomeasure.org/>.
+> The Rust implementation is published in *Entropy*: <https://doi.org/10.3390/e28121309>.
 
 Continuous and discrete entropy and information measures using different estimation
 techniques.

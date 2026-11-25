@@ -105,6 +105,7 @@ All core measures have been reimplemented in
 compile-time type safety, GPU acceleration, and significantly faster execution.
 Check out the [Rust Guide](https://docs.rs/infomeasure/latest/infomeasure/guide/index.html)
 if you need maximum performance for production or large-scale analysis.
+The Rust implementation is published in *Entropy*: <https://doi.org/10.3390/e28121309>.
 ```
 
 ## What is `infomeasure`?
@@ -127,6 +128,8 @@ the [IFISC YouTube channel](https://www.youtube.com/watch?v=ckScv1E-vHE) and the
 
 If you use `infomeasure` in your research, please cite our paper
 in [Scientific Reports](https://doi.org/10.1038/s41598-025-14053-5).
+If you use the Rust implementation (`infomeasure-rs`), please cite its paper in
+[*Entropy*](https://doi.org/10.3390/e28121309) instead.
 You can also find citation information for this project in the `CITATION.cff` file
 in [the repository](https://github.com/cbueth/infomeasure) and cite it accordingly.
 Alternatively, if you'd like to cite the software itself or a specific version,
