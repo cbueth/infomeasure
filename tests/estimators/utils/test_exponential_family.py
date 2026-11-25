@@ -43,6 +43,15 @@ def test_calculate_common_entropy_components(data, k, V_m, rho_k, N, m):
     assert res[3] == pytest.approx(m)
 
 
+def test_calculate_common_entropy_components_at_k1():
+    """Test the common components with an explicit ``at`` and k=1."""
+    data = array([[0.0], [2.0], [5.0]])
+    at = array([[0.5], [4.0]])
+    _, rho_k, N, m = calculate_common_entropy_components(data, 1, at=at)
+    assert rho_k == pytest.approx([0.5, 1.0])
+    assert (N, m) == (3, 1)
+
+
 @pytest.mark.parametrize(
     "data,k",
     [
