@@ -27,6 +27,8 @@ the experience for all involved. The community looks forward to your contributio
     - [Reporting Bugs](#reporting-bugs)
     - [Suggesting Enhancements](#suggesting-enhancements)
     - [Your First Code Contribution](#your-first-code-contribution)
+- [Use of AI](#use-of-ai)
+- [AI disclosure](#ai-disclosure)
 
 ## I Have a Question
 
@@ -215,6 +217,25 @@ and we expect each contribution to be worth more than the review it requires.
 We reserve the right to revisit this policy if we find that low-quality or
 illegible AI-generated code is compromising the maintainability or integrity
 of the codebase.
+
+For an example of a more detailed policy covering disclosure, honesty, and
+responsibility, see the Rust project's
+[LLM usage policy](https://github.com/rust-lang/rust-forge/blob/main/src/policies/llm-usage.md).
+It is a reference, not an additional set of rules for this project.
+
+## AI disclosure
+
+If AI was used to prepare a contribution, end the PR or issue description with:
+
+- `🤖 AI-assisted (model/tool: <name or "unknown">; human author: <name/handle>)`
+  when a human author is accountable; or
+- `🤖 AI-generated, no human author (model/tool: <name or "unknown">)`
+  when no human is in the loop.
+
+Use the second form only if there is no human author. Contributions without a
+human author are not accepted. If the model or tool is unknown, write "unknown"
+rather than guessing. This applies to everyone using AI, not just autonomous
+agents.
 
 ## Attribution
 
